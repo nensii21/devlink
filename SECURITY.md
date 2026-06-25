@@ -1,4 +1,4 @@
-```md
+
 # Security Policy
 
 ## Supported Versions
@@ -56,4 +56,4 @@ This policy applies to:
 ---
 
 Thank you for helping keep DevLink secure.
-```
+
