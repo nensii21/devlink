@@ -5,7 +5,7 @@ import {
   Search, Plus, X, Check, MapPin, Github, Linkedin,
   Globe, ArrowRight, Send, Paperclip, Smile, MoreHorizontal,
   Eye, Code2, UserPlus, Building2, SlidersHorizontal,
-  ExternalLink, CheckCircle2, XCircle
+  ExternalLink, CheckCircle2, XCircle, EyeOff
 } from "lucide-react";
 import {Skeleton} from "./components/ui/skeleton"
 
@@ -327,108 +327,218 @@ function Sidebar({ screen, setScreen, collapsed, setCollapsed }: {
   );
 }
 
+
+
+
 // ── Auth ───────────────────────────────────────────────────────
+
+const AUTH_SLIDES = [
+  {
+    quote: "Connect with Builders, Ship Great Products",
+    testimonial: '"Found my co-founder in 3 days."',
+    name: "Aisha K.", role: "AI Engineer",
+    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=40&h=40&fit=crop&auto=format",
+  },
+  {
+    quote: "Assembled a full team in under a week.",
+    testimonial: '"Best place to find people who actually ship."',
+    name: "Taro Y.", role: "Backend Dev",
+    img: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=40&h=40&fit=crop&auto=format",
+  },
+  {
+    quote: "The fastest way to find your next co-founder.",
+    testimonial: '"Went from idea to a full team in one week."',
+    name: "Elena V.", role: "Product Designer",
+    img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&auto=format",
+  },
+];
 
 function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [showPw, setShowPw] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [slide, setSlide] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setSlide(s => (s + 1) % AUTH_SLIDES.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  const current = AUTH_SLIDES[slide];
+
+  const inp = "w-full rounded-[8px] px-4 py-3 text-[14px] text-white outline-none transition-all bg-[#1E1D38] border border-white/[0.10] placeholder-[#55556A] focus:border-[#7C6FE0]/60";
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex overflow-hidden" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-200px] left-[-100px] w-[600px] h-[600px] bg-[#4F8CFF]/[0.04] rounded-full blur-[140px]" />
-        <div className="absolute bottom-[-100px] right-0 w-[400px] h-[400px] bg-[#4F8CFF]/[0.025] rounded-full blur-[120px]" />
-      </div>
+    <div className="fixed inset-0.5 flex overflow-hidden" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
 
-      {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-[460px] flex-shrink-0 p-12 border-r border-white/[0.06] relative z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#4F8CFF] flex items-center justify-center">
-            <Code2 size={15} className="text-white" />
-          </div>
-          <span className="font-bold text-[15px] text-white tracking-tight">DevLink</span>
+      {/* ── Left panel ── */}
+      <div className="w-[42%] relative overflow-hidden flex-shrink-0">
+        <img
+          src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=1400&fit=crop&auto=format&q=85"
+          alt="Tech"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(10,5,30,0.55) 0%, rgba(10,5,30,0.08) 35%, rgba(5,2,20,0.93) 100%)" }} />
+
+                {/* Logo */}
+        <div className="absolute top-8 left-8 z-10 flex items-center gap-3">
+
+        <div className="w-11 h-11 bg-[#7C6FE0] rounded-[10px] flex items-center justify-center shadow-lg shadow-[#7C6FE0]/30">
+          <span className="text-white text-[14px] font-bold">{'</>'}</span>
         </div>
-        <div>
-          <p className="text-[32px] font-bold text-white leading-[1.2] tracking-tight mb-5">
-            Find talented builders.<br />
-            Join meaningful projects.<br />
-            <span className="text-[#4F8CFF]">Launch faster.</span>
+
+        <span className="text-[40px] font-bold text-white tracking-tight">
+          DevLink
+        </span>
+
+        </div>
+
+        {/* Testimonial — pushed up more, bigger text */}
+        <div className="absolute bottom-16 left-8 right-8 z-10">
+          <p className="font-semibold text-white leading-[1.50] tracking-tight mb-5" style={{ fontSize: "40px" }}>
+            {current.quote }
           </p>
-          <p className="text-[#A1A1AA] text-[15px] leading-relaxed mb-10">
-            The professional network where developers, designers, founders, and AI engineers build real products together.
-          </p>
-          <div className="space-y-5">
-            {[
-              { name: "Aisha K.", role: "AI Engineer", img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=40&h=40&fit=crop&auto=format", quote: "Found my co-founder in 3 days." },
-              { name: "Taro Y.", role: "Backend Dev", img: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=40&h=40&fit=crop&auto=format", quote: "Assembled a 5-person team in a week." },
-              { name: "Elena V.", role: "Product Designer", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&auto=format", quote: "Best place to find people who actually ship." },
-            ].map(t => (
-              <div key={t.name} className="flex items-start gap-3">
-                <img src={t.img} alt={t.name} className="w-9 h-9 rounded-full object-cover shrink-0" />
-                <div>
-                  <p className="text-[13px] text-white font-medium">"{t.quote}"</p>
-                  <p className="text-[11px] text-[#555] mt-0.5">{t.name} · {t.role}</p>
-                </div>
-              </div>
+          <div className="flex items-center gap-3 mb-6">
+            <img src={current.img} alt={current.name} className="w-11 h-11 rounded-full object-cover border-2 border-white/25 flex-shrink-0" />
+            <div>
+              <p className="font-medium leading-snug text-white" style={{ fontSize: "16px" }}>{current.testimonial}</p>
+              <p className="mt-1" style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)" }}>{current.name} · {current.role}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {AUTH_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setSlide(i)}
+                className="h-[3px] rounded-full transition-all duration-300"
+                style={{ width: i === slide ? "32px" : "20px", background: i === slide ? "#fff" : "rgba(255,255,255,0.3)" }}
+              />
             ))}
           </div>
         </div>
-        <p className="text-[11px] text-[#333]">© 2024 DevLink, Inc.</p>
       </div>
 
-      {/* Right form */}
-      <div className="flex-1 flex items-center justify-center p-8 relative z-10">
-        <div className="w-full max-w-[380px]">
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-7 h-7 rounded-lg bg-[#4F8CFF] flex items-center justify-center">
-              <Code2 size={14} className="text-white" />
+      {/* ── Right panel — centered, max-w-[460px] so it's not too wide ── */}
+      <div className="w-[58%] flex items-center justify-center overflow-y-auto" style={{ background: "#13122A" }}>
+        <div className="w-[100%] max-w-[700px] px-6 py-12">
+
+          {/* Mode toggle */}
+          <div className="flex rounded-[10px] p-[3px] mb-7 gap-[3px]" style={{ background: "#1E1D38" }}>
+            {(["signup", "signin"] as const).map(m => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className="flex-1 py-2.5 rounded-[8px] text-[13px] font-medium transition-all duration-200"
+                style={{ background: mode === m ? "#7C6FE0" : "transparent", color: mode === m ? "#fff" : "#8888AA" }}
+              >
+                {m === "signup" ? "Create account" : "Sign in"}
+              </button>
+            ))}
+          </div>
+
+          {/* Heading */}
+          {/* Heading */}
+            <div className="mb-6 text-center">
+              <h1 className="text-[26px] font-bold text-white tracking-tight mb-1">
+                {mode === "signup" ? "Create an account" : "Welcome back"}
+              </h1>
+
+              <p className="text-[13px]" style={{ color: "#8888AA" }}>
+                {mode === "signup" ? (
+                  <>
+                    Already have an account?{" "}
+                    <button
+                      onClick={() => setMode("signin")}
+                      className="font-medium hover:text-white transition-colors"
+                      style={{ color: "#8B7FE8" }}
+                    >
+                      Log in
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    New to DevLink?{" "}
+                    <button
+                      onClick={() => setMode("signup")}
+                      className="font-medium hover:text-white transition-colors"
+                      style={{ color: "#8B7FE8" }}
+                    >
+                      Sign up free
+                    </button>
+                  </>
+                )}
+              </p>
             </div>
-            <span className="font-bold text-[14px] text-white">DevLink</span>
-          </div>
-          <h2 className="text-2xl font-bold text-white tracking-tight mb-1">
-            {mode === "signin" ? "Welcome back" : "Create your account"}
-          </h2>
-          <p className="text-sm text-[#A1A1AA] mb-8">
-            {mode === "signin" ? "Sign in to your DevLink account." : "Join thousands of builders worldwide."}
-          </p>
-          <button className="w-full flex items-center justify-center gap-2.5 py-2.5 bg-white/[0.06] hover:bg-white/[0.09] border border-white/[0.08] rounded-lg text-sm font-medium text-white transition-colors mb-5">
-            <Github size={16} />Continue with GitHub
-          </button>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px bg-white/[0.07]" />
-            <span className="text-[11px] text-[#444]">or continue with email</span>
-            <div className="flex-1 h-px bg-white/[0.07]" />
-          </div>
-          <div className="space-y-3.5">
-            {mode === "signup" && (
-              <div className="grid grid-cols-2 gap-3">
-                <DInput label="First name" placeholder="Nancy" />
-                <DInput label="Last name" placeholder="Wells" />
-              </div>
-            )}
-            <DInput label="Email address" type="email" placeholder="nancy@example.com" />
-            <DInput label="Password" type="password" placeholder="••••••••••" />
-            {mode === "signup" && <DInput label="Confirm password" type="password" placeholder="••••••••••" />}
-          </div>
-          {mode === "signin" && (
-            <div className="flex justify-end mt-2">
-              <button className="text-xs text-[#4F8CFF] hover:text-white transition-colors">Forgot password?</button>
+
+          {/* Name row — signup only */}
+          {mode === "signup" && (
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <input type="text" placeholder="First name" className={inp} />
+              <input type="text" placeholder="Last name" className={inp} />
             </div>
           )}
-          <BlueBtn onClick={() => setScreen("dashboard")} className="w-full justify-center mt-5" size="lg">
-            {mode === "signin" ? "Sign in" : "Create account"}
-          </BlueBtn>
-          <p className="text-center text-[13px] text-[#A1A1AA] mt-5">
-            {mode === "signin" ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button className="text-[#4F8CFF] hover:text-white font-medium transition-colors" onClick={() => setMode(mode === "signin" ? "signup" : "signin")}>
-              {mode === "signin" ? "Sign up free" : "Sign in"}
+
+          {/* Email */}
+          <div className="mb-3">
+            <input type="email" placeholder="Email" className={inp} />
+          </div>
+
+          {/* Password */}
+          <div className="relative mb-2">
+            <input type={showPw ? "text" : "password"} placeholder="Enter your password" className={inp + " pr-11"} />
+            <button type="button" onClick={() => setShowPw(s => !s)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors" style={{ color: "#55556A" }}>
+              {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
-          </p>
+          </div>
+
+          {/* Terms — signup only */}
+          {mode === "signup" && (
+            <div className="flex items-center gap-2.5 mt-3 mb-5">
+              <input type="checkbox" id="terms" checked={agreed} onChange={e => setAgreed(e.target.checked)}
+                className="w-4 h-4 cursor-pointer flex-shrink-0 accent-[#7C6FE0]" />
+              <label htmlFor="terms" className="text-[13px]" style={{ color: "#8888AA" }}>
+                I agree to the <a href="#" className="hover:underline" style={{ color: "#8B7FE8" }}>Terms &amp; Conditions</a>
+              </label>
+            </div>
+          )}
+
+          {/* Forgot — signin only */}
+          {mode === "signin" && (
+            <div className="flex justify-end mb-5 mt-1">
+              <button className="text-[13px] hover:text-white transition-colors" style={{ color: "#8B7FE8" }}>Forgot password?</button>
+            </div>
+          )}
+
+          {/* CTA */}
+          <button
+            onClick={() => setScreen("dashboard")}
+            className="w-full py-3 text-white text-[14px] font-semibold rounded-[9px] transition-all active:scale-[0.98] mb-5 hover:opacity-90"
+            style={{ background: "#7C6FE0" }}
+          >
+            {mode === "signup" ? "Create account" : "Sign in to DevLink"}
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+            <span className="text-[11px]" style={{ color: "#55556A" }}>Or {mode === "signup" ? "register" : "sign in"} with</span>
+            <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+          </div>
+
+          {/* GitHub */}
+          <button
+            className="w-full flex items-center justify-center gap-2.5 py-3 rounded-[9px] text-[14px] font-medium transition-colors hover:opacity-90"
+            style={{ background: "#1E1D38", border: "1px solid rgba(255,255,255,0.08)", color: "#D0D0E8" }}
+          >
+            <Github size={17} />
+            Continue with GitHub
+          </button>
         </div>
       </div>
     </div>
   );
 }
-
 // ── Dashboard ──────────────────────────────────────────────────
 
 function DashboardSkeleton() {
