@@ -1,7 +1,7 @@
 # DevLink
 
 <p align="center">
-  <img src="docs/images/devlink-banner.png" alt="DevLink Banner" width="750">
+  <img src="https://raw.githubusercontent.com/nensii21/devlink/main/docs/images/devlink-banner.png" width="700">
 </p>
 
 <h1 align="center">DevLink</h1>
