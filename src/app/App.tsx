@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, FolderOpen, FileText, MessageSquare,
   User, Settings, LogOut, ChevronLeft, ChevronRight,
@@ -7,6 +7,7 @@ import {
   Eye, Code2, UserPlus, Building2, SlidersHorizontal,
   ExternalLink, CheckCircle2, XCircle
 } from "lucide-react";
+import {Skeleton} from "./components/ui/skeleton"
 
 type Screen = "auth" | "dashboard" | "discover" | "projects" | "applications" | "messages" | "profile" | "settings";
 
@@ -430,7 +431,123 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
 
 // ── Dashboard ──────────────────────────────────────────────────
 
+function DashboardSkeleton() {
+  return (
+    <div className="p-6 lg:p-8 max-w-[1200px]">
+      {/* Header */}
+      <div className="mb-8">
+        <Skeleton className="h-8 w-48 mb-2" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-[#111111] border border-white/[0.07] rounded-xl p-5">
+            <Skeleton className="h-3 w-24 mb-3" />
+            <Skeleton className="h-9 w-16 mb-1" />
+            <Skeleton className="h-3 w-28" />
+          </div>
+        ))}
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 space-y-5">
+
+          {/* Recent Activity */}
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/[0.06]">
+              <Skeleton className="h-4 w-32" />
+            </div>
+            <div className="divide-y divide-white/[0.04]">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-start gap-3.5 px-5 py-3.5">
+                  <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                  <div className="flex-1">
+                    <Skeleton className="h-3.5 w-3/4 mb-1.5" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                  <Skeleton className="w-7 h-7 rounded-lg shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Suggested Builders */}
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-3 w-14" />
+            </div>
+            <div className="divide-y divide-white/[0.04]">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3.5 px-5 py-3.5">
+                  <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                  <div className="flex-1">
+                    <Skeleton className="h-3.5 w-28 mb-1.5" />
+                    <Skeleton className="h-3 w-40" />
+                  </div>
+                  <Skeleton className="h-7 w-20 rounded-lg shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        <div className="space-y-5">
+          {/* Recent Applications */}
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+              <Skeleton className="h-4 w-36" />
+              <Skeleton className="h-3 w-8" />
+            </div>
+            <div className="divide-y divide-white/[0.04]">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="px-5 py-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                    <div className="flex-1">
+                      <Skeleton className="h-3.5 w-24 mb-1.5" />
+                      <Skeleton className="h-3 w-20 mb-1" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-7 w-20 rounded-lg" />
+                    <Skeleton className="h-7 w-20 rounded-lg" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl p-4">
+            <Skeleton className="h-3 w-24 mb-3" />
+            <div className="space-y-1">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-3.5 py-2.5">
+                  <Skeleton className="w-4 h-4 rounded shrink-0" />
+                  <Skeleton className="h-3.5 flex-1" />
+                  <Skeleton className="w-3 h-3 shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
 function DashboardScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  if (loading) return <div className="h-full overflow-auto"><DashboardSkeleton /></div>;
   const stats = [
     { label: "Active Projects", value: "4", note: "+1 this week" },
     { label: "Applications", value: "12", note: "3 pending review" },
@@ -727,9 +844,101 @@ function ProjectCardBody({ p }: { p: typeof BUILD_POSTS[0] }) {
   );
 }
 
+function ProjectsSkeleton() {
+  return (
+    <div className="p-6 lg:p-8">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <Skeleton className="h-6 w-36 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <Skeleton className="h-9 w-32 rounded-lg" />
+      </div>
+
+      {/* Filter tabs */}
+      <div className="flex gap-2 mb-6">
+        {[...Array(5)].map((_, i) => (
+          <Skeleton key={i} className="h-8 w-20 rounded-lg" />
+        ))}
+      </div>
+
+      {/* Featured section */}
+      <Skeleton className="h-3 w-16 mb-4" />
+      <div className="grid md:grid-cols-2 gap-4 mb-8">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="bg-[#111111] border border-white/[0.07] rounded-xl overflow-hidden">
+            {/* Cover image */}
+            <Skeleton className="w-full h-32" />
+            {/* Card body */}
+            <div className="p-4">
+              <div className="flex items-center gap-2.5 mb-3">
+                <Skeleton className="w-6 h-6 rounded-full shrink-0" />
+                <Skeleton className="h-3 w-28 flex-1" />
+                <Skeleton className="h-5 w-12 rounded" />
+              </div>
+              <Skeleton className="h-3.5 w-full mb-1.5" />
+              <Skeleton className="h-3.5 w-4/5 mb-3.5" />
+              <Skeleton className="h-3 w-20 mb-1.5" />
+              <div className="flex gap-1.5 mb-3">
+                <Skeleton className="h-6 w-24 rounded-md" />
+                <Skeleton className="h-6 w-24 rounded-md" />
+              </div>
+              <div className="flex gap-1.5 mb-3.5">
+                {[...Array(4)].map((_, j) => (
+                  <Skeleton key={j} className="h-6 w-14 rounded-md" />
+                ))}
+              </div>
+              <Skeleton className="h-1.5 w-full rounded-full mb-4" />
+              <Skeleton className="h-8 w-full rounded-lg" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* All projects */}
+      <Skeleton className="h-3 w-20 mb-4" />
+      <div className="grid md:grid-cols-2 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-[#111111] border border-white/[0.07] rounded-xl overflow-hidden">
+            <div className="p-4">
+              <div className="flex items-center gap-2.5 mb-3">
+                <Skeleton className="w-6 h-6 rounded-full shrink-0" />
+                <Skeleton className="h-3 w-28 flex-1" />
+                <Skeleton className="h-5 w-12 rounded" />
+              </div>
+              <Skeleton className="h-3.5 w-full mb-1.5" />
+              <Skeleton className="h-3.5 w-4/5 mb-3.5" />
+              <div className="flex gap-1.5 mb-3">
+                <Skeleton className="h-6 w-24 rounded-md" />
+                <Skeleton className="h-6 w-24 rounded-md" />
+              </div>
+              <div className="flex gap-1.5 mb-3.5">
+                {[...Array(4)].map((_, j) => (
+                  <Skeleton key={j} className="h-6 w-14 rounded-md" />
+                ))}
+              </div>
+              <Skeleton className="h-1.5 w-full rounded-full mb-4" />
+              <Skeleton className="h-8 w-full rounded-lg" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 function ProjectsScreen() {
+  const [loading, setLoading] = useState(true);
+
   const [showModal, setShowModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  if (loading) return <div className="h-full overflow-auto"><ProjectsSkeleton /></div>;
+
+ 
   const filters = ["All", "Featured", "Remote", "MVP", "Early Stage"];
   const techStack = ["React", "Python", "TypeScript", "Go", "Rust", "Next.js", "FastAPI", "PostgreSQL", "Docker", "AWS"];
 
@@ -883,9 +1092,75 @@ function ApplicationsScreen() {
 
 // ── Messages ───────────────────────────────────────────────────
 
+
+function MessagesSkeleton() {
+  return (
+    <div className="h-full flex overflow-hidden">
+      <div className="w-[264px] flex-shrink-0 border-r border-white/[0.07] flex flex-col">
+        <div className="p-4 border-b border-white/[0.07]">
+          <Skeleton className="h-4 w-20 mb-3" />
+          <Skeleton className="h-8 w-full rounded-lg" />
+        </div>
+        <div className="flex-1">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.04]">
+              <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <Skeleton className="h-3.5 w-24" />
+                  <Skeleton className="h-3 w-6" />
+                </div>
+                <Skeleton className="h-3 w-40" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="h-[58px] border-b border-white/[0.07] flex items-center gap-3.5 px-5 shrink-0">
+          <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+          <div>
+            <Skeleton className="h-3.5 w-24 mb-1.5" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+          <div className="ml-auto">
+            <Skeleton className="w-8 h-8 rounded-lg" />
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-auto p-5 space-y-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className={`flex items-end gap-2.5 ${i % 2 === 0 ? "" : "flex-row-reverse"}`}>
+              {i % 2 === 0 && <Skeleton className="w-6 h-6 rounded-full shrink-0" />}
+              <div className={`flex flex-col gap-1 ${i % 2 === 0 ? "items-start" : "items-end"}`}>
+                <Skeleton className={`h-10 rounded-2xl ${i % 2 === 0 ? "w-64" : "w-48"}`} />
+                <Skeleton className="h-3 w-12" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 border-t border-white/[0.07] shrink-0">
+          <Skeleton className="h-12 w-full rounded-xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MessagesScreen() {
+  const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(CONVERSATIONS[0]);
   const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <MessagesSkeleton />;
 
   return (
     <div className="h-full flex overflow-hidden">
@@ -971,9 +1246,104 @@ function MessagesScreen() {
 }
 
 // ── Profile ────────────────────────────────────────────────────
+function ProfileSkeleton() {
+  return (
+    <div className="p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto grid lg:grid-cols-3 gap-6">
+        
+        <div className="space-y-4">
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl p-5">
+            <div className="flex flex-col items-center">
+              <Skeleton className="w-20 h-20 rounded-2xl mb-4" />
+              <Skeleton className="h-5 w-32 mb-2" />
+              <Skeleton className="h-3.5 w-24 mb-2" />
+              <Skeleton className="h-3 w-28 mb-4" />
+              <Skeleton className="h-7 w-36 rounded-full mb-5" />
+              <div className="flex gap-2">
+                <Skeleton className="w-8 h-8 rounded-lg" />
+                <Skeleton className="w-8 h-8 rounded-lg" />
+                <Skeleton className="w-8 h-8 rounded-lg" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl p-5">
+            <Skeleton className="h-3 w-16 mb-3" />
+            <div className="flex flex-wrap gap-1.5">
+              {[...Array(9)].map((_, i) => (
+                <Skeleton key={i} className="h-6 w-16 rounded-md" />
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl p-5">
+            <Skeleton className="h-3 w-20 mb-3" />
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <Skeleton className="w-8 h-8 rounded-lg shrink-0" />
+                  <div className="flex-1">
+                    <Skeleton className="h-3.5 w-28 mb-1.5" />
+                    <Skeleton className="h-3 w-36" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 space-y-5">
+          <div className="bg-[#111111] border border-white/[0.07] rounded-xl p-5">
+            <Skeleton className="h-4 w-16 mb-3" />
+            <Skeleton className="h-3.5 w-full mb-2" />
+            <Skeleton className="h-3.5 w-full mb-2" />
+            <Skeleton className="h-3.5 w-3/4 mb-4" />
+            <Skeleton className="h-3.5 w-full mb-2" />
+            <Skeleton className="h-3.5 w-2/3" />
+          </div>
+
+          <div className="flex gap-1 p-1 bg-[#111111] border border-white/[0.07] rounded-xl w-fit">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-7 w-24 rounded-lg" />
+            ))}
+          </div>
+
+          {/* Project cards */}
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-[#111111] border border-white/[0.07] rounded-xl p-4">
+                <div className="flex items-start justify-between mb-1.5">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-5 w-12 rounded" />
+                </div>
+                <Skeleton className="h-3.5 w-full mb-2" />
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-6 w-16 rounded-md" />
+                  <Skeleton className="h-6 w-16 rounded-md" />
+                  <Skeleton className="h-6 w-16 rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 
 function ProfileScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
+  const [loading,setLoading]=useState(true)
   const [tab, setTab] = useState("projects");
+
+  useEffect(()=>{
+    const timer=setTimeout(()=>setLoading(false),1500);
+    return()=>clearTimeout(timer)
+  
+  },[])
+  if (loading) return <div className="h-full overflow-auto"><ProfileSkeleton /></div>;
+  
   const expItems = [
     { title: "Senior Engineer", company: "Stripe", period: "2022–2024", desc: "Core infrastructure for the Stripe Dashboard. Led team of 4. Shipped billing products used by 100k+ customers." },
     { title: "Software Engineer", company: "Vercel", period: "2020–2022", desc: "Frontend infra for the Vercel platform. Contributed to Edge Runtime and Next.js core." },
