@@ -1,3 +1,4 @@
+````md
 # DevLink
 
 <p align="center">
@@ -11,287 +12,417 @@
 </p>
 
 <p align="center">
-  A platform that helps developers, founders, designers, AI engineers, and builders discover teammates, join projects, collaborate effectively, and launch products together.
+  A modern platform where developers, founders, designers, AI engineers, and builders discover teammates, collaborate on projects, and launch products together.
+</p>
+
+<p align="center">
+
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![Vite](https://img.shields.io/badge/Vite-Latest-646CFF)
+![Open Source](https://img.shields.io/badge/Open%20Source-Welcome-success)
+
 </p>
 
 ---
 
 ## Project Purpose
 
-DevLink solves one of the biggest challenges in technology:
+Finding great people to build with is harder than building the product itself.
 
-**Finding the right people to build with.**
+Current platforms solve only part of the problem.
 
-Current platforms solve only part of the problem:
+- GitHub helps developers write code.
+- LinkedIn helps professionals network.
+- Discord helps communities communicate.
 
-* LinkedIn helps people network.
-* GitHub helps people code.
-* Discord helps people communicate.
+DevLink combines these experiences into a single platform focused on building products together.
 
-DevLink helps people build.
-
-The platform enables users to discover projects, connect with skilled builders, form teams, collaborate, and turn ideas into successful products.
+Whether you're launching a startup, contributing to open source, or preparing for a hackathon, DevLink helps you find teammates, discover projects, collaborate effectively, and ship faster.
 
 ---
 
-## Who It Is For
+## Who Is DevLink For?
 
-* Developers
-* Startup Founders
-* AI Engineers
-* Product Designers
-* Students
-* Open Source Contributors
-* Hackathon Participants
-* Indie Hackers
-
----
-
-## Core Features
-
-### Builder Discovery
-
-* Discover talented builders
-* Filter by skills and expertise
-* Explore public profiles
-* Connect with potential teammates
-
-### Project Marketplace
-
-* Browse active projects
-* Join startups and side projects
-* Discover hackathon opportunities
-* Find collaborators
-
-### Team Matching
-
-* Skill-based matching
-* AI-powered recommendations
-* Compatibility scoring
-* Team formation workflows
-
-### Builder Profiles
-
-* Skills showcase
-* Experience tracking
-* Portfolio integration
-* GitHub and LinkedIn links
-
-### Reputation System
-
-* Contribution tracking
-* Builder credibility scores
-* Project achievements
-* Community endorsements
-
-### Collaboration Workspace
-
-* Team discussions
-* Progress tracking
-* Activity feeds
-* Shared project spaces
-
-### Messaging
-
-* Direct messaging
-* Team conversations
-* Project-specific chats
-* Real-time communication
+- Developers
+- Startup Founders
+- AI Engineers
+- Product Designers
+- Students
+- Open Source Contributors
+- Hackathon Participants
+- Indie Hackers
 
 ---
 
-## Platform Modules
+# Features
+
+## Builder Discovery
+
+- Search developers by skills
+- Public developer profiles
+- AI-powered recommendations
+- Smart filtering
+
+---
+
+## Project Marketplace
+
+- Browse active projects
+- Join startups
+- Discover side projects
+- Explore hackathons
+
+---
+
+## Team Matching
+
+- Skill matching
+- Compatibility scoring
+- Team recommendations
+- Role suggestions
+
+---
+
+## Builder Profiles
+
+- Skills
+- Experience
+- Portfolio
+- GitHub integration
+- LinkedIn integration
+
+---
+
+## Reputation System
+
+- Contribution history
+- Builder score
+- Project achievements
+- Community endorsements
+
+---
+
+## Collaboration Workspace
+
+- Shared workspace
+- Progress tracking
+- Activity feeds
+- Team management
+
+---
+
+## Messaging
+
+- Direct messages
+- Team chats
+- Real-time conversations
+
+---
+
+# Platform Modules
 
 ### Landing Page
 
-Marketing website showcasing:
-
-* Hero Section
-* Product Overview
-* Benefits
-* Product Screenshots
-* Roadmap
-* FAQ
-* Waitlist
+- Hero
+- Features
+- Screenshots
+- Roadmap
+- FAQ
+- Waitlist
 
 ### Authentication
 
-* Sign Up
-* Login
-* Google Authentication
-* GitHub Authentication
-* Password Recovery
-* Email Verification
+- Sign Up
+- Login
+- Google OAuth
+- GitHub OAuth
+- Password Recovery
+- Email Verification
 
 ### Dashboard
 
-* Recommended Projects
-* Recommended Builders
-* Notifications
-* Match Suggestions
-* Activity Feed
+- Recommended Builders
+- Recommended Projects
+- Notifications
+- Activity Feed
 
 ### Project Hub
 
-* Create Projects
-* Manage Teams
-* View Applications
-* Track Progress
+- Create Projects
+- Manage Team
+- Applications
+- Project Timeline
 
-### Startup Formation Hub
+### Startup Hub
 
-* Startup Profiles
-* Team Recruitment
-* Roadmaps
-* Milestones
-* Growth Tracking
-
----
-
-## Tech Stack
-
-### Frontend
-
-* React
-* TypeScript
-* Vite
-* Tailwind CSS
-* Shadcn UI
-* Framer Motion
-
-### Backend
-
-* Next.js API Routes / Node.js
-* TypeScript
-
-### Database
-
-* PostgreSQL
-
-### ORM
-
-* Prisma
-
-### Authentication
-
-* Clerk / NextAuth
-
-### Deployment
-
-* Vercel
-* Neon PostgreSQL
+- Startup Profiles
+- Recruitment
+- Roadmaps
+- Milestones
 
 ---
 
-## Project Structure
+# Tech Stack
+
+## Frontend
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+- Framer Motion
+
+## Backend
+
+- Next.js API Routes
+- Node.js
+- TypeScript
+
+## Database
+
+- PostgreSQL
+
+## ORM
+
+- Prisma
+
+## Authentication
+
+- Clerk / NextAuth
+
+## Deployment
+
+- Vercel
+- Neon PostgreSQL
+
+---
+
+# Project Structure
 
 ```text
-src/
-├── components/
-├── pages/
-├── layouts/
-├── hooks/
-├── services/
-├── lib/
-├── types/
-├── assets/
-├── styles/
-└── utils/
+devlink
+│
+├── public/
+├── prisma/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── hooks/
+│   ├── layouts/
+│   ├── lib/
+│   ├── pages/
+│   ├── services/
+│   ├── styles/
+│   ├── types/
+│   └── utils/
+│
+├── docs/
+│   ├── architecture.png
+│   └── screenshots/
+│
+├── README.md
+├── CONTRIBUTING.md
+├── LICENSE
+└── package.json
+````
 
-public/
-prisma/
+---
+
+# Architecture
+
+```text
+                    ┌────────────────────────┐
+                    │      Web Browser       │
+                    └────────────┬───────────┘
+                                 │
+                           HTTPS / REST
+                                 │
+             ┌───────────────────▼───────────────────┐
+             │      React + TypeScript + Vite        │
+             │       Tailwind CSS + shadcn/ui        │
+             └───────────────────┬───────────────────┘
+                                 │
+                         Authentication
+                     (Clerk / NextAuth)
+                                 │
+             ┌───────────────────▼───────────────────┐
+             │       Next.js API / Node.js           │
+             │        Business Logic Layer           │
+             └───────────────────┬───────────────────┘
+                                 │
+                              Prisma ORM
+                                 │
+             ┌───────────────────▼───────────────────┐
+             │          PostgreSQL Database          │
+             └───────────────────────────────────────┘
+```
+
+### Application Flow
+
+1. User signs in using Google or GitHub.
+2. Frontend sends authenticated requests.
+3. Backend processes business logic.
+4. Prisma communicates with PostgreSQL.
+5. Results are returned to the frontend.
+
+---
+
+# Screenshots
+
+> Screenshots will be added as the project evolves.
+
+| Screen              | Status      |
+| ------------------- | ----------- |
+| Landing Page        | Coming Soon |
+| Login               | Coming Soon |
+| Dashboard           | Coming Soon |
+| Builder Profile     | Coming Soon |
+| Project Marketplace | Coming Soon |
+| Messaging           | Coming Soon |
+
+Store screenshots inside:
+
+```text
+docs/
+└── screenshots/
+    ├── landing.png
+    ├── dashboard.png
+    ├── profile.png
+    ├── projects.png
+    ├── messaging.png
+    └── settings.png
 ```
 
 ---
 
-## Design Philosophy
+# Design Philosophy
 
-DevLink follows modern SaaS principles inspired by:
+Inspired by products such as:
 
 * Linear
+* Vercel
 * Stripe
 * Notion
-* Vercel
 * Railway
 
-Design priorities:
+Core principles:
 
 * Simplicity
-* Clarity
-* Speed
-* Professionalism
+* Performance
 * Accessibility
+* Professionalism
+* Consistency
 
 ---
 
-## Roadmap
+# Roadmap
 
-### Phase 1
+## Phase 1
 
 * Landing Page
 * Authentication
 * Builder Profiles
 * Project Discovery
 
-### Phase 2
+## Phase 2
 
 * Team Matching
-* Project Applications
-* Messaging System
+* Applications
+* Messaging
 
-### Phase 3
+## Phase 3
 
-* Collaboration Workspaces
-* Reputation Engine
+* Collaboration Workspace
+* Reputation System
 * AI Recommendations
 
-### Phase 4
+## Phase 4
 
-* Startup Formation Hub
-* Founder Tools
+* Startup Hub
+* Founder Dashboard
 * Team Analytics
 
-### Phase 5
+## Phase 5
 
 * AI Collaboration Assistant
-* Smart Team Building
 * Productivity Insights
+* Smart Team Building
 
 ---
 
-## Installation
+# Getting Started
 
-Clone the repository:
+## Prerequisites
+
+* Node.js 20+
+* npm
+* Git
+
+---
+
+## Clone Repository
 
 ```bash
 git clone https://github.com/nensii21/devlink.git
-```
-
-Move into the project:
-
-```bash
 cd devlink
 ```
 
-Install dependencies:
+---
+
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-Run development server:
+---
+
+## Configure Environment Variables
+
+Create a `.env.local`
+
+```env
+DATABASE_URL=
+
+NEXTAUTH_SECRET=
+
+NEXTAUTH_URL=
+
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+---
+
+## Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Build production version:
+Visit
+
+```
+http://localhost:5173
+```
+
+---
+
+## Build Production
 
 ```bash
 npm run build
 ```
 
-Preview production build:
+---
+
+## Preview Production Build
 
 ```bash
 npm run preview
@@ -299,57 +430,75 @@ npm run preview
 
 ---
 
-## Future Vision
+# Contributing
 
-Our mission is simple:
+Contributions are welcome.
 
-**Make finding great teammates as easy as finding great ideas.**
-
-DevLink aims to become the go-to platform for:
-
-* Team Formation
-* Startup Building
-* Open Source Collaboration
-* Hackathon Networking
-* Product Development
-
----
-
-## Contributing
-
-We welcome contributors interested in:
-
-* Frontend Development
-* Backend Development
-* UI/UX Design
-* Documentation
-* Open Source Collaboration
-
-Before contributing:
+## How to Contribute
 
 1. Fork the repository.
+
 2. Create a feature branch.
+
+```bash
+git checkout -b feat/amazing-feature
+```
+
 3. Commit your changes.
-4. Submit a pull request.
+
+```bash
+git commit -m "feat: add amazing feature"
+```
+
+4. Push the branch.
+
+```bash
+git push origin feat/amazing-feature
+```
+
+5. Open a Pull Request.
 
 ---
 
-## License
+## Contribution Guidelines
 
-This project is released under the MIT License.
+* Follow the existing folder structure.
+* Keep pull requests focused on a single feature.
+* Write clean and maintainable code.
+* Update documentation when required.
+* Ensure the project builds successfully.
 
 ---
 
-## Author
+# Future Vision
+
+DevLink aims to become the leading platform where builders connect, collaborate, and launch products together.
+
+The long-term vision includes:
+
+* Startup formation
+* AI-powered team matching
+* Open source collaboration
+* Hackathon ecosystem
+* Builder reputation network
+
+---
+
+# License
+
+Distributed under the MIT License.
+
+---
+
+# Author
 
 **nensii21**
 
-
-
-Building products at the intersection of AI, collaboration, startups, and developer productivity.
+Building developer tools that empower builders to collaborate, innovate, and launch impactful products.
 
 ---
 
 <p align="center">
-  Made  for developers, founders, and builders worldwide.
+Made  for developers, founders, designers, and builders worldwide.
 </p>
+```
