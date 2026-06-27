@@ -11,11 +11,11 @@ services:
     container_name: devlink-postgres
 
     restart: unless-stopped
-
+    
     environment:
-      POSTGRES_DB: devlink
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+     POSTGRES_DB: devlink
+     POSTGRES_USER: postgres
+     POSTGRES_PASSWORD: devlink123
 
     ports:
       - "5432:5432"
