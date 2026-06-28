@@ -1,0 +1,54 @@
+
+name: Greetings
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Welcome First-Time Contributors
+        uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          issue-message: |
+            👋 Welcome to **DevLink**!
+
+            Thank you for opening your first issue and contributing to our community.
+
+            Before getting started, please:
+
+            - Read the CONTRIBUTING guidelines.
+            - Search existing issues to avoid duplicates.
+            - Provide clear steps, screenshots, or feature details when applicable.
+
+            We appreciate your contribution and look forward to building DevLink together.
+
+            Happy coding! 🚀
+
+          pr-message: |
+            🎉 Thank you for your first Pull Request to **DevLink**!
+
+            We appreciate your contribution to our open-source community.
+
+            Before your PR is reviewed, please ensure:
+
+            - ✅ The project builds successfully.
+            - ✅ Your code follows the project's coding standards.
+            - ✅ You have tested your changes.
+            - ✅ Related documentation has been updated if necessary.
+
+            Our maintainers will review your PR as soon as possible.
+
+            Thank you for helping improve DevLink! 💙
+

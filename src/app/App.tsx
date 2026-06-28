@@ -327,11 +327,36 @@ function Sidebar({ screen, setScreen, collapsed, setCollapsed }: {
   );
 }
 
+
+
+
 // ── Auth ───────────────────────────────────────────────────────
+
+const AUTH_SLIDES = [
+  {
+    quote: "Connect with Builders, Ship Great Products",
+    testimonial: '"Found my co-founder in 3 days."',
+    name: "Aisha K.", role: "AI Engineer",
+    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=40&h=40&fit=crop&auto=format",
+  },
+  {
+    quote: "Assembled a full team in under a week.",
+    testimonial: '"Best place to find people who actually ship."',
+    name: "Taro Y.", role: "Backend Dev",
+    img: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=40&h=40&fit=crop&auto=format",
+  },
+  {
+    quote: "The fastest way to find your next co-founder.",
+    testimonial: '"Went from idea to a full team in one week."',
+    name: "Elena V.", role: "Product Designer",
+    img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&auto=format",
+  },
+];
 
 function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [showPw, setShowPw] = useState(false);
+
   const [showConfirm, setShowConfirm] = useState(false);
 
   const inp = [
@@ -411,6 +436,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
               {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
+
         </div>
 
         {/* Forgot password — signin only */}
