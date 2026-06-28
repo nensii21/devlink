@@ -38,13 +38,10 @@ class FollowerService:
         following_id: uuid.UUID,
     ) -> Follower | None:
 
-        stmt = (
-            select(Follower)
-            .where(
-                and_(
-                    Follower.follower_id == follower_id,
-                    Follower.following_id == following_id,
-                )
+        stmt = select(Follower).where(
+            and_(
+                Follower.follower_id == follower_id,
+                Follower.following_id == following_id,
             )
         )
 
@@ -57,13 +54,10 @@ class FollowerService:
         following_id: uuid.UUID,
     ) -> bool:
 
-        stmt = (
-            select(Follower)
-            .where(
-                and_(
-                    Follower.follower_id == follower_id,
-                    Follower.following_id == following_id,
-                )
+        stmt = select(Follower).where(
+            and_(
+                Follower.follower_id == follower_id,
+                Follower.following_id == following_id,
             )
         )
 
@@ -103,10 +97,7 @@ class FollowerService:
         user_id: uuid.UUID,
     ) -> int:
 
-        stmt = (
-            select(Follower)
-            .where(Follower.following_id == user_id)
-        )
+        stmt = select(Follower).where(Follower.following_id == user_id)
 
         return len(list(db.scalars(stmt)))
 
@@ -116,10 +107,7 @@ class FollowerService:
         user_id: uuid.UUID,
     ) -> int:
 
-        stmt = (
-            select(Follower)
-            .where(Follower.follower_id == user_id)
-        )
+        stmt = select(Follower).where(Follower.follower_id == user_id)
 
         return len(list(db.scalars(stmt)))
 
@@ -133,16 +121,11 @@ class FollowerService:
         user_a_following = {
             relation.following_id
             for relation in db.scalars(
-                select(Follower).where(
-                    Follower.follower_id == user_a
-                )
+                select(Follower).where(Follower.follower_id == user_a)
             )
         }
 
-        stmt = (
-            select(Follower)
-            .where(Follower.follower_id == user_b)
-        )
+        stmt = select(Follower).where(Follower.follower_id == user_b)
 
         return [
             relation

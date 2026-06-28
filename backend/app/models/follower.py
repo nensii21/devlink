@@ -85,9 +85,4 @@ class Follower(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<Follower("
-            f"{self.follower_id} -> "
-            f"{self.following_id}"
-            f")>"
-        )
+        return f"<Follower(" f"{self.follower_id} -> " f"{self.following_id}" f")>"

@@ -34,11 +34,7 @@ class UserService:
         skip: int = 0,
         limit: int = 20,
     ) -> list[User]:
-        stmt = (
-            select(User)
-            .offset(skip)
-            .limit(limit)
-        )
+        stmt = select(User).offset(skip).limit(limit)
         return list(db.scalars(stmt))
 
     @staticmethod

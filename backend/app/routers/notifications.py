@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Notifications"],
 )
 
+
 @router.post(
     "/",
     response_model=NotificationResponse,
@@ -37,7 +38,8 @@ def create_notification(
         sender_id=current_user.id,
         notification=notification,
     )
-    
+
+
 @router.get(
     "/{notification_id}",
     response_model=NotificationResponse,
@@ -60,6 +62,7 @@ def get_notification(
 
     return notification
 
+
 @router.get(
     "/",
     response_model=list[NotificationResponse],
@@ -73,7 +76,8 @@ def list_notifications(
         db,
         current_user.id,
     )
-    
+
+
 @router.get(
     "/unread",
     response_model=list[NotificationResponse],
@@ -87,7 +91,8 @@ def unread_notifications(
         db,
         current_user.id,
     )
-    
+
+
 @router.get(
     "/unread/count",
 )
@@ -102,7 +107,8 @@ def unread_count(
             current_user.id,
         )
     }
-    
+
+
 @router.patch(
     "/{notification_id}/read",
     response_model=NotificationResponse,
@@ -127,7 +133,8 @@ def mark_as_read(
         db,
         notification,
     )
-    
+
+
 @router.patch(
     "/read-all",
 )
@@ -144,7 +151,8 @@ def mark_all_as_read(
     return {
         "message": "All notifications marked as read",
     }
-    
+
+
 @router.put(
     "/{notification_id}",
     response_model=NotificationResponse,
@@ -171,7 +179,8 @@ def update_notification(
         db_notification,
         notification,
     )
-    
+
+
 @router.delete(
     "/{notification_id}",
     status_code=status.HTTP_204_NO_CONTENT,

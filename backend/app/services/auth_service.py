@@ -40,14 +40,10 @@ class AuthService:
     # =====================================================
 
     def get_user_by_email(self, email: str) -> Optional[User]:
-        return self.db.scalar(
-            select(User).where(User.email == email.lower())
-        )
+        return self.db.scalar(select(User).where(User.email == email.lower()))
 
     def get_user_by_username(self, username: str) -> Optional[User]:
-        return self.db.scalar(
-            select(User).where(User.username == username)
-        )
+        return self.db.scalar(select(User).where(User.username == username))
 
     # =====================================================
     # Register
@@ -142,9 +138,7 @@ class AuthService:
             },
         )
 
-        refresh_token = create_refresh_token(
-            str(user.id)
-        )
+        refresh_token = create_refresh_token(str(user.id))
 
         log_security_event(
             event="Successful login",
@@ -157,8 +151,9 @@ class AuthService:
             "token_type": "bearer",
             "user": user,
         }
-        
-            # =====================================================
+
+        # =====================================================
+
     # Get User by ID
     # =====================================================
 
@@ -203,9 +198,7 @@ class AuthService:
             },
         )
 
-        refresh_token = create_refresh_token(
-            str(user.id)
-        )
+        refresh_token = create_refresh_token(str(user.id))
 
         log_security_event(
             event="Access token refreshed",
@@ -271,9 +264,7 @@ class AuthService:
             }
 
         user.is_verified = True
-        user.email_verified_at = datetime.now(
-            timezone.utc
-        )
+        user.email_verified_at = datetime.now(timezone.utc)
 
         self.db.commit()
 
@@ -316,10 +307,7 @@ class AuthService:
         if not user:
             return {
                 "success": True,
-                "message": (
-                    "If the account exists, a reset email "
-                    "has been sent."
-                ),
+                "message": ("If the account exists, a reset email " "has been sent."),
             }
 
         # TODO:
@@ -333,9 +321,7 @@ class AuthService:
 
         return {
             "success": True,
-            "message": (
-                "Password reset email sent."
-            ),
+            "message": ("Password reset email sent."),
         }
 
     # =====================================================
@@ -352,9 +338,7 @@ class AuthService:
 
         user = self.get_current_user(user_id)
 
-        user.password_hash = hash_password(
-            new_password
-        )
+        user.password_hash = hash_password(new_password)
 
         self.db.commit()
 
@@ -365,7 +349,5 @@ class AuthService:
 
         return {
             "success": True,
-            "message": (
-                "Password has been reset."
-            ),
+            "message": ("Password has been reset."),
         }

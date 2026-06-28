@@ -6,10 +6,10 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 
-
 # ==========================================================
 # Base User Schema
 # ==========================================================
+
 
 class UserBase(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=100)
@@ -52,6 +52,7 @@ class UserBase(BaseModel):
 # Create User
 # ==========================================================
 
+
 class UserCreate(UserBase):
     password: str = Field(
         ...,
@@ -63,6 +64,7 @@ class UserCreate(UserBase):
 # ==========================================================
 # Update User
 # ==========================================================
+
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
@@ -90,6 +92,7 @@ class UserUpdate(BaseModel):
 # Public User Response
 # ==========================================================
 
+
 class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
@@ -110,6 +113,7 @@ class UserResponse(UserBase):
 # Private User Response
 # ==========================================================
 
+
 class CurrentUser(UserResponse):
     email_verified_at: Optional[datetime] = None
     last_login: Optional[datetime] = None
@@ -118,6 +122,7 @@ class CurrentUser(UserResponse):
 # ==========================================================
 # Profile Statistics
 # ==========================================================
+
 
 class UserStats(BaseModel):
     projects: int = 0
@@ -131,6 +136,7 @@ class UserStats(BaseModel):
 # Developer Profile
 # ==========================================================
 
+
 class DeveloperProfile(BaseModel):
     user: UserResponse
     stats: UserStats
@@ -139,6 +145,7 @@ class DeveloperProfile(BaseModel):
 # ==========================================================
 # Generic API Response
 # ==========================================================
+
 
 class UserMessage(BaseModel):
     message: str

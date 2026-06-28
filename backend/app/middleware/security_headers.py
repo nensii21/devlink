@@ -33,14 +33,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
         if settings.ENABLE_HSTS:
-            response.headers[
-                "Strict-Transport-Security"
-            ] = "max-age=63072000; includeSubDomains; preload"
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=63072000; includeSubDomains; preload"
+            )
 
         if settings.ENABLE_CSP:
-            response.headers[
-                "Content-Security-Policy"
-            ] = (
+            response.headers["Content-Security-Policy"] = (
                 "default-src 'self'; "
                 "script-src 'self'; "
                 "style-src 'self' 'unsafe-inline'; "

@@ -67,9 +67,4 @@ class Bookmark(Base):
     )
 
     def __repr__(self):
-        return (
-            f"<Bookmark("
-            f"user={self.user_id}, "
-            f"project={self.project_id}"
-            f")>"
-        )
+        return f"<Bookmark(" f"user={self.user_id}, " f"project={self.project_id}" f")>"

@@ -77,9 +77,7 @@ def create_access_token(
 
     return _create_token(
         subject=user_id,
-        expires_delta=timedelta(
-            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-        ),
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         token_type="access",
         extra=extra,
     )
@@ -94,9 +92,7 @@ def create_refresh_token(
 
     return _create_token(
         subject=user_id,
-        expires_delta=timedelta(
-            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
-        ),
+        expires_delta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         token_type="refresh",
     )
 

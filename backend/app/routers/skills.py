@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Skills"],
 )
 
+
 @router.post(
     "/",
     response_model=SkillResponse,
@@ -41,7 +42,8 @@ def create_skill(
         db=db,
         skill=skill,
     )
-    
+
+
 @router.get(
     "/{skill_id}",
     response_model=SkillResponse,
@@ -63,6 +65,8 @@ def get_skill(
         )
 
     return skill
+
+
 @router.get(
     "/slug/{slug}",
     response_model=SkillResponse,
@@ -84,6 +88,8 @@ def get_skill_by_slug(
         )
 
     return skill
+
+
 @router.get(
     "/",
     response_model=list[SkillResponse],
@@ -99,7 +105,8 @@ def list_skills(
         skip,
         limit,
     )
-    
+
+
 @router.get(
     "/search/{keyword}",
     response_model=list[SkillResponse],
@@ -113,6 +120,8 @@ def search_skills(
         db,
         keyword,
     )
+
+
 @router.put(
     "/{skill_id}",
     response_model=SkillResponse,
@@ -139,7 +148,8 @@ def update_skill(
         db_skill,
         skill,
     )
-    
+
+
 @router.delete(
     "/{skill_id}",
     status_code=status.HTTP_204_NO_CONTENT,

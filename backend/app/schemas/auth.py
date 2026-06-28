@@ -5,10 +5,10 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-
 # ==========================================================
 # Register
 # ==========================================================
+
 
 class RegisterRequest(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=100)
@@ -29,6 +29,7 @@ class RegisterRequest(BaseModel):
 # Login
 # ==========================================================
 
+
 class LoginRequest(BaseModel):
     email: EmailStr
 
@@ -42,6 +43,7 @@ class LoginRequest(BaseModel):
 # ==========================================================
 # JWT Tokens
 # ==========================================================
+
 
 class Token(BaseModel):
     access_token: str
@@ -59,6 +61,7 @@ class TokenPayload(BaseModel):
 # Authentication Response
 # ==========================================================
 
+
 class AuthResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -73,6 +76,7 @@ class AuthResponse(BaseModel):
 # Refresh Token
 # ==========================================================
 
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
@@ -80,6 +84,7 @@ class RefreshTokenRequest(BaseModel):
 # ==========================================================
 # Logout
 # ==========================================================
+
 
 class LogoutResponse(BaseModel):
     success: bool = True
@@ -89,6 +94,7 @@ class LogoutResponse(BaseModel):
 # ==========================================================
 # Forgot Password
 # ==========================================================
+
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
@@ -102,6 +108,7 @@ class ForgotPasswordResponse(BaseModel):
 # ==========================================================
 # Reset Password
 # ==========================================================
+
 
 class ResetPasswordRequest(BaseModel):
     token: str
@@ -117,6 +124,7 @@ class ResetPasswordRequest(BaseModel):
 # Change Password
 # ==========================================================
 
+
 class ChangePasswordRequest(BaseModel):
     current_password: str
 
@@ -131,6 +139,7 @@ class ChangePasswordRequest(BaseModel):
 # Verify Email
 # ==========================================================
 
+
 class VerifyEmailRequest(BaseModel):
     token: str
 
@@ -144,6 +153,7 @@ class VerifyEmailResponse(BaseModel):
 # Resend Verification Email
 # ==========================================================
 
+
 class ResendVerificationEmailRequest(BaseModel):
     email: EmailStr
 
@@ -151,6 +161,7 @@ class ResendVerificationEmailRequest(BaseModel):
 # ==========================================================
 # Current User
 # ==========================================================
+
 
 class CurrentUserResponse(BaseModel):
     id: str
@@ -175,6 +186,7 @@ class CurrentUserResponse(BaseModel):
 # Generic Success
 # ==========================================================
 
+
 class SuccessResponse(BaseModel):
     success: bool = True
     message: str
@@ -183,6 +195,7 @@ class SuccessResponse(BaseModel):
 # ==========================================================
 # Generic Error
 # ==========================================================
+
 
 class ErrorResponse(BaseModel):
     success: bool = False

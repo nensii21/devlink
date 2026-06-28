@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Projects"],
 )
 
+
 @router.post(
     "/",
     response_model=ProjectResponse,
@@ -42,7 +43,8 @@ def create_project(
         owner_id=current_user.id,
         project=project,
     )
-    
+
+
 @router.get(
     "/{project_id}",
     response_model=ProjectResponse,
@@ -70,6 +72,7 @@ def get_project(
 
     return project
 
+
 @router.get(
     "/slug/{slug}",
     response_model=ProjectResponse,
@@ -92,6 +95,7 @@ def get_project_by_slug(
 
     return project
 
+
 @router.get(
     "/",
     response_model=list[ProjectResponse],
@@ -107,7 +111,8 @@ def list_projects(
         skip,
         limit,
     )
-    
+
+
 @router.get(
     "/me/list",
     response_model=list[ProjectResponse],
@@ -121,7 +126,8 @@ def my_projects(
         db,
         current_user.id,
     )
-    
+
+
 @router.put(
     "/{project_id}",
     response_model=ProjectResponse,
@@ -155,7 +161,8 @@ def update_project(
         db_project,
         project,
     )
-    
+
+
 @router.patch(
     "/{project_id}/archive",
     response_model=ProjectResponse,
@@ -187,7 +194,8 @@ def archive_project(
         db,
         project,
     )
-    
+
+
 @router.patch(
     "/{project_id}/restore",
     response_model=ProjectResponse,
@@ -219,7 +227,8 @@ def restore_project(
         db,
         project,
     )
-    
+
+
 @router.patch(
     "/{project_id}/feature",
     response_model=ProjectResponse,
@@ -244,7 +253,8 @@ def feature_project(
         db,
         project,
     )
-    
+
+
 @router.post(
     "/{project_id}/star",
 )
@@ -272,7 +282,8 @@ def star_project(
     return {
         "message": "Project starred",
     }
-    
+
+
 @router.delete(
     "/{project_id}/star",
 )
@@ -300,7 +311,8 @@ def unstar_project(
     return {
         "message": "Project unstarred",
     }
-    
+
+
 @router.delete(
     "/{project_id}",
     status_code=status.HTTP_204_NO_CONTENT,

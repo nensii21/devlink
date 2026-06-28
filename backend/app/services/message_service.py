@@ -155,9 +155,6 @@ class MessageService:
         conversation_id: uuid.UUID,
     ) -> int:
 
-        stmt = (
-            select(Message)
-            .where(Message.conversation_id == conversation_id)
-        )
+        stmt = select(Message).where(Message.conversation_id == conversation_id)
 
         return len(list(db.scalars(stmt)))

@@ -68,11 +68,7 @@ class ProjectService:
         limit: int = 20,
     ) -> list[Project]:
 
-        stmt = (
-            select(Project)
-            .offset(skip)
-            .limit(limit)
-        )
+        stmt = select(Project).offset(skip).limit(limit)
 
         return list(db.scalars(stmt))
 
@@ -82,10 +78,7 @@ class ProjectService:
         owner_id: uuid.UUID,
     ) -> list[Project]:
 
-        stmt = (
-            select(Project)
-            .where(Project.owner_id == owner_id)
-        )
+        stmt = select(Project).where(Project.owner_id == owner_id)
 
         return list(db.scalars(stmt))
 

@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Organizations"],
 )
 
+
 @router.post(
     "/",
     response_model=OrganizationResponse,
@@ -42,7 +43,8 @@ def create_organization(
         owner_id=current_user.id,
         organization=organization,
     )
-    
+
+
 @router.get(
     "/{organization_id}",
     response_model=OrganizationResponse,
@@ -64,6 +66,7 @@ def get_organization(
         )
 
     return organization
+
 
 @router.get(
     "/slug/{slug}",
@@ -87,6 +90,7 @@ def get_organization_by_slug(
 
     return organization
 
+
 @router.get(
     "/",
     response_model=list[OrganizationResponse],
@@ -102,7 +106,8 @@ def list_organizations(
         skip,
         limit,
     )
-    
+
+
 @router.get(
     "/me",
     response_model=list[OrganizationResponse],
@@ -116,7 +121,8 @@ def my_organizations(
         db,
         current_user.id,
     )
-    
+
+
 @router.get(
     "/search/{keyword}",
     response_model=list[OrganizationResponse],
@@ -130,7 +136,8 @@ def search_organizations(
         db,
         keyword,
     )
-    
+
+
 @router.put(
     "/{organization_id}",
     response_model=OrganizationResponse,
@@ -157,7 +164,8 @@ def update_organization(
         db_organization,
         organization,
     )
-    
+
+
 @router.patch(
     "/{organization_id}/verify",
     response_model=OrganizationResponse,
@@ -182,7 +190,8 @@ def verify_organization(
         db,
         organization,
     )
-    
+
+
 @router.patch(
     "/{organization_id}/activate",
     response_model=OrganizationResponse,
@@ -207,7 +216,8 @@ def activate_organization(
         db,
         organization,
     )
-    
+
+
 @router.patch(
     "/{organization_id}/deactivate",
     response_model=OrganizationResponse,
@@ -232,7 +242,8 @@ def deactivate_organization(
         db,
         organization,
     )
-    
+
+
 @router.patch(
     "/{organization_id}/enable-hiring",
     response_model=OrganizationResponse,
@@ -257,7 +268,8 @@ def enable_hiring(
         db,
         organization,
     )
-    
+
+
 @router.patch(
     "/{organization_id}/disable-hiring",
     response_model=OrganizationResponse,
@@ -282,7 +294,8 @@ def disable_hiring(
         db,
         organization,
     )
-    
+
+
 @router.delete(
     "/{organization_id}",
     status_code=status.HTTP_204_NO_CONTENT,

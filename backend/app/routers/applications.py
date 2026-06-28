@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Applications"],
 )
 
+
 @router.post(
     "/",
     response_model=ApplicationResponse,
@@ -38,6 +39,7 @@ def create_application(
         flare_id=application.flare_id,
         application=application,
     )
+
 
 @router.get(
     "/{application_id}",
@@ -61,6 +63,7 @@ def get_application(
 
     return db_application
 
+
 @router.get(
     "/me",
     response_model=list[ApplicationResponse],
@@ -74,7 +77,8 @@ def my_applications(
         db,
         current_user.id,
     )
-    
+
+
 @router.get(
     "/project/{project_id}",
     response_model=list[ApplicationResponse],
@@ -88,7 +92,8 @@ def project_applications(
         db,
         project_id,
     )
-    
+
+
 @router.put(
     "/{application_id}",
     response_model=ApplicationResponse,
@@ -115,7 +120,8 @@ def update_application(
         db_application,
         application,
     )
-    
+
+
 @router.patch(
     "/{application_id}/accept",
     response_model=ApplicationResponse,
@@ -140,7 +146,8 @@ def accept_application(
         db,
         db_application,
     )
-    
+
+
 @router.patch(
     "/{application_id}/reject",
     response_model=ApplicationResponse,
@@ -165,7 +172,8 @@ def reject_application(
         db,
         db_application,
     )
-    
+
+
 @router.patch(
     "/{application_id}/withdraw",
     response_model=ApplicationResponse,
@@ -190,7 +198,8 @@ def withdraw_application(
         db,
         db_application,
     )
-    
+
+
 @router.delete(
     "/{application_id}",
     status_code=status.HTTP_204_NO_CONTENT,

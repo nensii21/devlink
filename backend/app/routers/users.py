@@ -21,6 +21,7 @@ router = APIRouter(
     tags=["Users"],
 )
 
+
 @router.post(
     "/",
     response_model=UserResponse,
@@ -52,7 +53,8 @@ def create_user(
         user=user,
         password_hash=password_hash,
     )
-    
+
+
 @router.get(
     "/me",
     response_model=UserResponse,
@@ -62,6 +64,7 @@ def get_me(
 ):
 
     return current_user
+
 
 @router.get(
     "/{user_id}",
@@ -85,6 +88,7 @@ def get_user(
 
     return user
 
+
 @router.get(
     "/",
     response_model=list[UserResponse],
@@ -100,7 +104,8 @@ def list_users(
         skip,
         limit,
     )
-    
+
+
 @router.put(
     "/me",
     response_model=UserResponse,
@@ -116,7 +121,8 @@ def update_me(
         current_user,
         user,
     )
-    
+
+
 @router.delete(
     "/me",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -130,7 +136,8 @@ def delete_me(
         db,
         current_user,
     )
-    
+
+
 @router.patch(
     "/{user_id}/activate",
     response_model=UserResponse,
@@ -152,7 +159,8 @@ def activate_user(
         db,
         user,
     )
-    
+
+
 @router.patch(
     "/{user_id}/deactivate",
     response_model=UserResponse,
@@ -174,7 +182,8 @@ def deactivate_user(
         db,
         user,
     )
-    
+
+
 @router.patch(
     "/{user_id}/verify",
     response_model=UserResponse,

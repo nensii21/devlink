@@ -173,8 +173,5 @@ class AuditLog(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<AuditLog("
-            f"action='{self.action.value}', "
-            f"user={self.user_id}"
-            f")>"
+            f"<AuditLog(" f"action='{self.action.value}', " f"user={self.user_id}" f")>"
         )

@@ -11,7 +11,6 @@ from urllib.parse import urlparse
 
 from fastapi import HTTPException, status
 
-
 # ==========================================================
 # Username Validation
 # ==========================================================
@@ -101,9 +100,7 @@ def validate_password(password: str) -> str:
 # ==========================================================
 
 
-EMAIL_REGEX = re.compile(
-    r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-)
+EMAIL_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
 
 def validate_email(email: str) -> str:

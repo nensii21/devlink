@@ -25,12 +25,7 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "default": {
-            "format": (
-                "[%(asctime)s] "
-                "[%(levelname)s] "
-                "[%(name)s] "
-                "%(message)s"
-            ),
+            "format": ("[%(asctime)s] " "[%(levelname)s] " "[%(name)s] " "%(message)s"),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "access": {
@@ -78,6 +73,7 @@ logging.config.dictConfig(LOGGING_CONFIG)
 # Logger Factory
 # ---------------------------------------------------------------------
 
+
 def get_logger(name: str) -> logging.Logger:
     """
     Return a configured logger.
@@ -99,6 +95,7 @@ logger = get_logger("devlink")
 # Startup Logs
 # ---------------------------------------------------------------------
 
+
 def log_startup() -> None:
     logger.info("=" * 60)
     logger.info("Starting DevLink Backend")
@@ -112,6 +109,7 @@ def log_startup() -> None:
 # Shutdown Logs
 # ---------------------------------------------------------------------
 
+
 def log_shutdown() -> None:
     logger.info("=" * 60)
     logger.info("Stopping DevLink Backend")
@@ -121,6 +119,7 @@ def log_shutdown() -> None:
 # ---------------------------------------------------------------------
 # Security Logging
 # ---------------------------------------------------------------------
+
 
 def log_security_event(
     event: str,
@@ -146,6 +145,7 @@ def log_security_event(
 # API Logging
 # ---------------------------------------------------------------------
 
+
 def log_request(
     method: str,
     path: str,
@@ -153,15 +153,14 @@ def log_request(
     duration_ms: float,
 ) -> None:
     logger.info(
-        f"{method} {path} "
-        f"status={status_code} "
-        f"time={duration_ms:.2f}ms"
+        f"{method} {path} " f"status={status_code} " f"time={duration_ms:.2f}ms"
     )
 
 
 # ---------------------------------------------------------------------
 # Exception Logging
 # ---------------------------------------------------------------------
+
 
 def log_exception(exc: Exception) -> None:
     logger.exception(str(exc))

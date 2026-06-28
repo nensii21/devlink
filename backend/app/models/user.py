@@ -112,7 +112,7 @@ class User(Base):
         nullable=True,
     )
 
-    github_url: Mapped[str |None] = mapped_column(
+    github_url: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
     )
@@ -217,9 +217,4 @@ class User(Base):
     # ------------------------------------------------------------------
 
     def __repr__(self) -> str:
-        return (
-            f"<User("
-            f"username='{self.username}', "
-            f"email='{self.email}'"
-            f")>"
-        )
+        return f"<User(" f"username='{self.username}', " f"email='{self.email}'" f")>"

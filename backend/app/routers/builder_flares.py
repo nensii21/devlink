@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Builder Flares"],
 )
 
+
 @router.post(
     "/",
     response_model=BuilderFlareResponse,
@@ -37,7 +38,8 @@ def create_builder_flare(
         project_id=flare.project_id,
         flare=flare,
     )
-    
+
+
 @router.get(
     "/{flare_id}",
     response_model=BuilderFlareResponse,
@@ -60,6 +62,7 @@ def get_builder_flare(
 
     return flare
 
+
 @router.get(
     "/open",
     response_model=list[BuilderFlareResponse],
@@ -69,6 +72,7 @@ def list_open_builder_flares(
 ):
 
     return BuilderFlareService.list_open_flares(db)
+
 
 @router.get(
     "/project/{project_id}",
@@ -83,7 +87,8 @@ def list_project_builder_flares(
         db,
         project_id,
     )
-    
+
+
 @router.put(
     "/{flare_id}",
     response_model=BuilderFlareResponse,
@@ -110,7 +115,8 @@ def update_builder_flare(
         db_flare,
         flare,
     )
-    
+
+
 @router.patch(
     "/{flare_id}/close",
     response_model=BuilderFlareResponse,
@@ -135,7 +141,8 @@ def close_builder_flare(
         db,
         db_flare,
     )
-    
+
+
 @router.delete(
     "/{flare_id}",
     status_code=status.HTTP_204_NO_CONTENT,

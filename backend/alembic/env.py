@@ -28,7 +28,6 @@ from app.models.activity import Activity
 from app.models.refresh_token import RefreshToken
 from app.models.audit_log import AuditLog
 
-
 config = context.config
 
 config.set_main_option(

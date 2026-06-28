@@ -119,11 +119,7 @@ class ActivityService:
         limit: int = 100,
     ) -> list[Activity]:
 
-        stmt = (
-            select(Activity)
-            .order_by(Activity.created_at.desc())
-            .limit(limit)
-        )
+        stmt = select(Activity).order_by(Activity.created_at.desc()).limit(limit)
 
         return list(db.scalars(stmt))
 

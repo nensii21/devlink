@@ -59,10 +59,7 @@ class ApplicationService:
         project_id: uuid.UUID,
     ) -> list[Application]:
 
-        stmt = (
-            select(Application)
-            .where(Application.project_id == project_id)
-        )
+        stmt = select(Application).where(Application.project_id == project_id)
 
         return list(db.scalars(stmt))
 
@@ -72,10 +69,7 @@ class ApplicationService:
         applicant_id: uuid.UUID,
     ) -> list[Application]:
 
-        stmt = (
-            select(Application)
-            .where(Application.applicant_id == applicant_id)
-        )
+        stmt = select(Application).where(Application.applicant_id == applicant_id)
 
         return list(db.scalars(stmt))
 

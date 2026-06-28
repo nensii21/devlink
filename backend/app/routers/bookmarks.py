@@ -16,6 +16,7 @@ router = APIRouter(
     tags=["Bookmarks"],
 )
 
+
 @router.post(
     "/project/{project_id}",
     response_model=BookmarkResponse,
@@ -44,7 +45,8 @@ def bookmark_project(
         current_user.id,
         project_id,
     )
-    
+
+
 @router.get(
     "/{bookmark_id}",
     response_model=BookmarkResponse,
@@ -67,6 +69,7 @@ def get_bookmark(
 
     return bookmark
 
+
 @router.get(
     "/",
     response_model=list[BookmarkResponse],
@@ -80,7 +83,8 @@ def my_bookmarks(
         db,
         current_user.id,
     )
-    
+
+
 @router.get(
     "/project/{project_id}",
     response_model=list[BookmarkResponse],
@@ -94,7 +98,8 @@ def project_bookmarks(
         db,
         project_id,
     )
-    
+
+
 @router.get(
     "/check/{project_id}",
 )
@@ -111,6 +116,8 @@ def check_bookmark(
             project_id,
         )
     }
+
+
 @router.get(
     "/project/{project_id}/count",
 )
@@ -125,7 +132,8 @@ def bookmark_count(
             project_id,
         )
     }
-    
+
+
 @router.delete(
     "/{bookmark_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -150,7 +158,8 @@ def remove_bookmark(
         db,
         bookmark,
     )
-    
+
+
 @router.delete(
     "/me/all",
     status_code=status.HTTP_204_NO_CONTENT,

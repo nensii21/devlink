@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Conversations"],
 )
 
+
 @router.post(
     "/",
     response_model=ConversationResponse,
@@ -36,6 +37,8 @@ def create_conversation(
         owner_id=current_user.id,
         conversation=conversation,
     )
+
+
 @router.post(
     "/",
     response_model=ConversationResponse,
@@ -52,7 +55,8 @@ def create_conversation(
         owner_id=current_user.id,
         conversation=conversation,
     )
-    
+
+
 @router.post(
     "/",
     response_model=ConversationResponse,
@@ -69,7 +73,8 @@ def create_conversation(
         owner_id=current_user.id,
         conversation=conversation,
     )
-    
+
+
 @router.get(
     "/{conversation_id}",
     response_model=ConversationResponse,
@@ -92,6 +97,7 @@ def get_conversation(
 
     return conversation
 
+
 @router.get(
     "/",
     response_model=list[ConversationResponse],
@@ -105,7 +111,8 @@ def list_my_conversations(
         db,
         current_user.id,
     )
-    
+
+
 @router.put(
     "/{conversation_id}",
     response_model=ConversationResponse,
@@ -132,7 +139,8 @@ def update_conversation(
         db_conversation,
         conversation,
     )
-    
+
+
 @router.post(
     "/{conversation_id}/members/{user_id}",
     status_code=status.HTTP_201_CREATED,
@@ -148,7 +156,8 @@ def add_member(
         conversation_id,
         user_id,
     )
-    
+
+
 @router.delete(
     "/{conversation_id}/members/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -164,7 +173,8 @@ def remove_member(
         conversation_id,
         user_id,
     )
-    
+
+
 @router.patch(
     "/{conversation_id}/archive",
     response_model=ConversationResponse,
@@ -189,7 +199,8 @@ def archive_conversation(
         db,
         conversation,
     )
-    
+
+
 @router.patch(
     "/{conversation_id}/restore",
     response_model=ConversationResponse,
@@ -214,7 +225,8 @@ def restore_conversation(
         db,
         conversation,
     )
-    
+
+
 @router.delete(
     "/{conversation_id}",
     status_code=status.HTTP_204_NO_CONTENT,

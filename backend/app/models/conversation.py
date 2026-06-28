@@ -122,9 +122,4 @@ class Conversation(Base):
     )
 
     def __repr__(self):
-        return (
-            f"<Conversation("
-            f"type='{self.type.value}', "
-            f"id={self.id}"
-            f")>"
-        )
+        return f"<Conversation(" f"type='{self.type.value}', " f"id={self.id}" f")>"

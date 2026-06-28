@@ -1,0 +1,44 @@
+name: Require Repository Star
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-star:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if contributor starred the repository
+        env:
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          USER: ${{ github.event.pull_request.user.login }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+          PAGE=1
+          FOUND=false
+
+          while true; do
+            USERS=$(curl -s "https://api.github.com/repos/$OWNER/$REPO/stargazers?per_page=100&page=$PAGE" \
+              -H "Accept: application/vnd.github+json")
+
+            COUNT=$(echo "$USERS" | jq length)
+
+            if echo "$USERS" | jq -e --arg USER "$USER" '.[] | select(.login==$USER)' > /dev/null; then
+              FOUND=true
+              break
+            fi
+
+            [ "$COUNT" -lt 100 ] && break
+            PAGE=$((PAGE+1))
+          done
+
+          if [ "$FOUND" = false ]; then
+            echo " Please star the repository before your pull request can be merged."
+            exit 1
+          fi
+
+          echo "Repository is starred."

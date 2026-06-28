@@ -21,6 +21,7 @@ router = APIRouter(
     tags=["Activities"],
 )
 
+
 @router.post(
     "/",
     response_model=ActivityResponse,
@@ -37,7 +38,8 @@ def create_activity(
         actor_id=current_user.id,
         activity=activity,
     )
-    
+
+
 @router.get(
     "/{activity_id}",
     response_model=ActivityResponse,
@@ -60,6 +62,7 @@ def get_activity(
 
     return activity
 
+
 @router.get(
     "/",
     response_model=list[ActivityResponse],
@@ -73,7 +76,8 @@ def recent_activities(
         db,
         limit,
     )
-    
+
+
 @router.get(
     "/user/{user_id}",
     response_model=list[ActivityResponse],
@@ -87,7 +91,8 @@ def user_activities(
         db,
         user_id,
     )
-    
+
+
 @router.get(
     "/project/{project_id}",
     response_model=list[ActivityResponse],
@@ -101,7 +106,8 @@ def project_activities(
         db,
         project_id,
     )
-    
+
+
 @router.get(
     "/organization/{organization_id}",
     response_model=list[ActivityResponse],
@@ -115,7 +121,8 @@ def organization_activities(
         db,
         organization_id,
     )
-    
+
+
 @router.get(
     "/repository/{repository_id}",
     response_model=list[ActivityResponse],
@@ -129,7 +136,8 @@ def repository_activities(
         db,
         repository_id,
     )
-    
+
+
 @router.get(
     "/type/{activity_type}",
     response_model=list[ActivityResponse],
@@ -143,7 +151,8 @@ def activities_by_type(
         db,
         activity_type,
     )
-    
+
+
 @router.put(
     "/{activity_id}",
     response_model=ActivityResponse,
@@ -170,7 +179,8 @@ def update_activity(
         db_activity,
         activity,
     )
-    
+
+
 @router.delete(
     "/{activity_id}",
     status_code=status.HTTP_204_NO_CONTENT,

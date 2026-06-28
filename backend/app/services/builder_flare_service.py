@@ -57,10 +57,7 @@ class BuilderFlareService:
         db: Session,
     ) -> list[BuilderFlare]:
 
-        stmt = (
-            select(BuilderFlare)
-            .where(BuilderFlare.status == "open")
-        )
+        stmt = select(BuilderFlare).where(BuilderFlare.status == "open")
 
         return list(db.scalars(stmt))
 
@@ -70,10 +67,7 @@ class BuilderFlareService:
         project_id: uuid.UUID,
     ) -> list[BuilderFlare]:
 
-        stmt = (
-            select(BuilderFlare)
-            .where(BuilderFlare.project_id == project_id)
-        )
+        stmt = select(BuilderFlare).where(BuilderFlare.project_id == project_id)
 
         return list(db.scalars(stmt))
 

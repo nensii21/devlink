@@ -20,6 +20,7 @@ security = HTTPBearer(auto_error=True)
 # Database Dependency
 # ---------------------------------------------------------------------
 
+
 def get_database() -> Session:
     """
     Alias for get_db().
@@ -31,6 +32,7 @@ def get_database() -> Session:
 # ---------------------------------------------------------------------
 # Current User
 # ---------------------------------------------------------------------
+
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -77,6 +79,7 @@ def get_current_user(
 # Active User
 # ---------------------------------------------------------------------
 
+
 def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
@@ -97,6 +100,7 @@ def get_current_active_user(
 # Verified User
 # ---------------------------------------------------------------------
 
+
 def get_current_verified_user(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
@@ -116,6 +120,7 @@ def get_current_verified_user(
 # ---------------------------------------------------------------------
 # Admin User
 # ---------------------------------------------------------------------
+
 
 def get_current_admin(
     current_user: User = Depends(get_current_verified_user),

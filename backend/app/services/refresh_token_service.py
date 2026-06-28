@@ -32,10 +32,7 @@ class RefreshTokenService:
         token: str,
     ) -> RefreshToken | None:
 
-        stmt = (
-            select(RefreshToken)
-            .where(RefreshToken.token == token)
-        )
+        stmt = select(RefreshToken).where(RefreshToken.token == token)
 
         return db.scalar(stmt)
 
@@ -73,10 +70,7 @@ class RefreshTokenService:
         user_id: uuid.UUID,
     ) -> None:
 
-        stmt = (
-            select(RefreshToken)
-            .where(RefreshToken.user_id == user_id)
-        )
+        stmt = select(RefreshToken).where(RefreshToken.user_id == user_id)
 
         tokens = list(db.scalars(stmt))
 

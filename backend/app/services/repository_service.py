@@ -67,10 +67,7 @@ class RepositoryService:
         full_name: str,
     ) -> Repository | None:
 
-        stmt = (
-            select(Repository)
-            .where(Repository.full_name == full_name)
-        )
+        stmt = select(Repository).where(Repository.full_name == full_name)
 
         return db.scalar(stmt)
 
@@ -80,10 +77,7 @@ class RepositoryService:
         project_id: uuid.UUID,
     ) -> list[Repository]:
 
-        stmt = (
-            select(Repository)
-            .where(Repository.project_id == project_id)
-        )
+        stmt = select(Repository).where(Repository.project_id == project_id)
 
         return list(db.scalars(stmt))
 
@@ -93,10 +87,7 @@ class RepositoryService:
         user_id: uuid.UUID,
     ) -> list[Repository]:
 
-        stmt = (
-            select(Repository)
-            .where(Repository.connected_by == user_id)
-        )
+        stmt = select(Repository).where(Repository.connected_by == user_id)
 
         return list(db.scalars(stmt))
 

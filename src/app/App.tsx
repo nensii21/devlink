@@ -390,7 +390,6 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
         </div>
 
 
-
         {mode === "signup" && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
@@ -423,6 +422,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
             </button>
           </div>
         </div>
+
 
 
         {/* Forgot password — signin only */}
@@ -475,6 +475,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
           )}
         </p>
       </div>
+
 
       {/* Footer */}
       <div className="flex items-center gap-5 mt-6">

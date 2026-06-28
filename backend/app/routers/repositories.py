@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Repositories"],
 )
 
+
 @router.post(
     "/",
     response_model=RepositoryResponse,
@@ -46,7 +47,8 @@ def connect_repository(
         user_id=current_user.id,
         repository=repository,
     )
-    
+
+
 @router.get(
     "/{repository_id}",
     response_model=RepositoryResponse,
@@ -69,6 +71,7 @@ def get_repository(
 
     return repository
 
+
 @router.get(
     "/project/{project_id}",
     response_model=list[RepositoryResponse],
@@ -82,7 +85,8 @@ def list_project_repositories(
         db,
         project_id,
     )
-    
+
+
 @router.get(
     "/me",
     response_model=list[RepositoryResponse],
@@ -96,7 +100,8 @@ def my_repositories(
         db,
         current_user.id,
     )
-    
+
+
 @router.put(
     "/{repository_id}",
     response_model=RepositoryResponse,
@@ -123,7 +128,8 @@ def update_repository(
         db_repository,
         repository,
     )
-    
+
+
 @router.patch(
     "/{repository_id}/sync",
     response_model=RepositoryResponse,
@@ -155,7 +161,8 @@ def sync_repository(
         language=repository.language,
         default_branch=repository.default_branch,
     )
-    
+
+
 @router.patch(
     "/{repository_id}/unsync",
     response_model=RepositoryResponse,
@@ -180,7 +187,8 @@ def mark_unsynced(
         db,
         repository,
     )
-    
+
+
 @router.delete(
     "/{repository_id}",
     status_code=status.HTTP_204_NO_CONTENT,

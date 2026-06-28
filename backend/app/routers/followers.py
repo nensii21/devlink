@@ -16,6 +16,7 @@ router = APIRouter(
     tags=["Followers"],
 )
 
+
 @router.post(
     "/{user_id}",
     response_model=FollowerResponse,
@@ -50,7 +51,8 @@ def follow_user(
         current_user.id,
         user_id,
     )
-    
+
+
 @router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -77,7 +79,8 @@ def unfollow_user(
         db,
         relationship,
     )
-    
+
+
 @router.get(
     "/",
     response_model=list[FollowerResponse],
@@ -91,7 +94,8 @@ def my_following(
         db,
         current_user.id,
     )
-    
+
+
 @router.get(
     "/{user_id}",
     response_model=list[FollowerResponse],
@@ -105,7 +109,8 @@ def user_followers(
         db,
         user_id,
     )
-    
+
+
 @router.get(
     "/{user_id}/following",
     response_model=list[FollowerResponse],
@@ -119,6 +124,8 @@ def user_following(
         db,
         user_id,
     )
+
+
 @router.get(
     "/{user_id}/count",
 )
@@ -133,7 +140,8 @@ def follower_count(
             user_id,
         )
     }
-    
+
+
 @router.get(
     "/{user_id}/following-count",
 )
@@ -148,7 +156,8 @@ def following_count(
             user_id,
         )
     }
-    
+
+
 @router.get(
     "/{user_id}/is-following",
 )
@@ -165,7 +174,8 @@ def is_following(
             user_id,
         )
     }
-    
+
+
 @router.get(
     "/mutual/{user_id}",
     response_model=list[FollowerResponse],

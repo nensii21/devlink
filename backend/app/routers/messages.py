@@ -20,6 +20,7 @@ router = APIRouter(
     tags=["Messages"],
 )
 
+
 @router.post(
     "/",
     response_model=MessageResponse,
@@ -37,7 +38,8 @@ def send_message(
         sender_id=current_user.id,
         message=message,
     )
-    
+
+
 @router.get(
     "/{message_id}",
     response_model=MessageResponse,
@@ -60,6 +62,7 @@ def get_message(
 
     return message
 
+
 @router.get(
     "/conversation/{conversation_id}",
     response_model=list[MessageResponse],
@@ -75,7 +78,8 @@ def list_conversation_messages(
         conversation_id,
         limit,
     )
-    
+
+
 @router.get(
     "/me",
     response_model=list[MessageResponse],
@@ -89,7 +93,8 @@ def my_messages(
         db,
         current_user.id,
     )
-    
+
+
 @router.get(
     "/search/{conversation_id}",
     response_model=list[MessageResponse],
@@ -105,7 +110,8 @@ def search_messages(
         conversation_id,
         keyword,
     )
-    
+
+
 @router.put(
     "/{message_id}",
     response_model=MessageResponse,
@@ -132,7 +138,8 @@ def update_message(
         db_message,
         message,
     )
-    
+
+
 @router.patch(
     "/{message_id}/restore",
     response_model=MessageResponse,
@@ -157,7 +164,8 @@ def restore_message(
         db,
         db_message,
     )
-    
+
+
 @router.delete(
     "/{message_id}",
     response_model=MessageResponse,
@@ -182,7 +190,8 @@ def delete_message(
         db,
         db_message,
     )
-    
+
+
 @router.get(
     "/conversation/{conversation_id}/count",
 )

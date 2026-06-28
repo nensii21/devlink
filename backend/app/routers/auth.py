@@ -27,6 +27,7 @@ router = APIRouter(
 # Register
 # ==========================================================
 
+
 @router.post(
     "/register",
     response_model=UserResponse,
@@ -52,6 +53,7 @@ def register(
 # Login
 # ==========================================================
 
+
 @router.post(
     "/login",
     response_model=AuthResponse,
@@ -68,6 +70,7 @@ def login(
     auth_service = AuthService(db)
 
     return auth_service.login(payload)
+
 
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -87,6 +90,7 @@ security = HTTPBearer()
 # ==========================================================
 # Current Authenticated User Dependency
 # ==========================================================
+
 
 def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -111,6 +115,7 @@ def get_current_user_id(
 # Current User
 # ==========================================================
 
+
 @router.get(
     "/me",
     response_model=CurrentUserResponse,
@@ -129,6 +134,7 @@ def me(
 # ==========================================================
 # Refresh Access Token
 # ==========================================================
+
 
 @router.post(
     "/refresh",
@@ -157,14 +163,13 @@ def refresh(
 
     auth_service = AuthService(db)
 
-    return auth_service.refresh_token(
-        token_payload["sub"]
-    )
+    return auth_service.refresh_token(token_payload["sub"])
 
 
 # ==========================================================
 # Logout
 # ==========================================================
+
 
 @router.post(
     "/logout",
@@ -180,6 +185,7 @@ def logout(
 
     return auth_service.logout(user_id)
 
+
 from app.schemas.auth import (
     ChangePasswordRequest,
     ForgotPasswordRequest,
@@ -191,10 +197,10 @@ from app.schemas.auth import (
     ResendVerificationEmailRequest,
 )
 
-
 # ==========================================================
 # Change Password
 # ==========================================================
+
 
 @router.patch(
     "/change-password",
@@ -220,6 +226,7 @@ def change_password(
 # Forgot Password
 # ==========================================================
 
+
 @router.post(
     "/forgot-password",
     response_model=ForgotPasswordResponse,
@@ -240,6 +247,7 @@ def forgot_password(
 # ==========================================================
 # Reset Password
 # ==========================================================
+
 
 @router.post(
     "/reset-password",
@@ -281,6 +289,7 @@ def reset_password(
 # Verify Email
 # ==========================================================
 
+
 @router.post(
     "/verify-email",
     response_model=VerifyEmailResponse,
@@ -311,6 +320,7 @@ def verify_email(
 # Resend Verification Email
 # ==========================================================
 
+
 @router.post(
     "/resend-verification",
     response_model=SuccessResponse,
@@ -337,8 +347,7 @@ def resend_verification(
         return {
             "success": True,
             "message": (
-                "If the account exists, "
-                "a verification email has been sent."
+                "If the account exists, " "a verification email has been sent."
             ),
         }
 

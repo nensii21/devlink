@@ -91,12 +91,9 @@ class NotificationService:
         recipient_id: uuid.UUID,
     ) -> int:
 
-        stmt = (
-            select(Notification)
-            .where(
-                Notification.recipient_id == recipient_id,
-                Notification.is_read.is_(False),
-            )
+        stmt = select(Notification).where(
+            Notification.recipient_id == recipient_id,
+            Notification.is_read.is_(False),
         )
 
         return len(list(db.scalars(stmt)))
@@ -121,12 +118,9 @@ class NotificationService:
         recipient_id: uuid.UUID,
     ) -> None:
 
-        stmt = (
-            select(Notification)
-            .where(
-                Notification.recipient_id == recipient_id,
-                Notification.is_read.is_(False),
-            )
+        stmt = select(Notification).where(
+            Notification.recipient_id == recipient_id,
+            Notification.is_read.is_(False),
         )
 
         notifications = list(db.scalars(stmt))

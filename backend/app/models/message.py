@@ -162,9 +162,4 @@ class Message(Base):
     )
 
     def __repr__(self):
-        return (
-            f"<Message("
-            f"id={self.id}, "
-            f"type='{self.type.value}'"
-            f")>"
-        )
+        return f"<Message(" f"id={self.id}, " f"type='{self.type.value}'" f")>"

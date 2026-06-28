@@ -114,13 +114,10 @@ class ConversationService:
         user_id: uuid.UUID,
     ) -> None:
 
-        stmt = (
-            select(ConversationMember)
-            .where(
-                and_(
-                    ConversationMember.conversation_id == conversation_id,
-                    ConversationMember.user_id == user_id,
-                )
+        stmt = select(ConversationMember).where(
+            and_(
+                ConversationMember.conversation_id == conversation_id,
+                ConversationMember.user_id == user_id,
             )
         )
 

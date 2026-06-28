@@ -46,13 +46,10 @@ class BookmarkService:
         project_id: uuid.UUID,
     ) -> Bookmark | None:
 
-        stmt = (
-            select(Bookmark)
-            .where(
-                and_(
-                    Bookmark.user_id == user_id,
-                    Bookmark.project_id == project_id,
-                )
+        stmt = select(Bookmark).where(
+            and_(
+                Bookmark.user_id == user_id,
+                Bookmark.project_id == project_id,
             )
         )
 
@@ -78,10 +75,7 @@ class BookmarkService:
         project_id: uuid.UUID,
     ) -> list[Bookmark]:
 
-        stmt = (
-            select(Bookmark)
-            .where(Bookmark.project_id == project_id)
-        )
+        stmt = select(Bookmark).where(Bookmark.project_id == project_id)
 
         return list(db.scalars(stmt))
 
@@ -92,13 +86,10 @@ class BookmarkService:
         project_id: uuid.UUID,
     ) -> bool:
 
-        stmt = (
-            select(Bookmark)
-            .where(
-                and_(
-                    Bookmark.user_id == user_id,
-                    Bookmark.project_id == project_id,
-                )
+        stmt = select(Bookmark).where(
+            and_(
+                Bookmark.user_id == user_id,
+                Bookmark.project_id == project_id,
             )
         )
 
@@ -110,10 +101,7 @@ class BookmarkService:
         project_id: uuid.UUID,
     ) -> int:
 
-        stmt = (
-            select(Bookmark)
-            .where(Bookmark.project_id == project_id)
-        )
+        stmt = select(Bookmark).where(Bookmark.project_id == project_id)
 
         return len(list(db.scalars(stmt)))
 
@@ -132,10 +120,7 @@ class BookmarkService:
         user_id: uuid.UUID,
     ) -> None:
 
-        stmt = (
-            select(Bookmark)
-            .where(Bookmark.user_id == user_id)
-        )
+        stmt = select(Bookmark).where(Bookmark.user_id == user_id)
 
         bookmarks = list(db.scalars(stmt))
 

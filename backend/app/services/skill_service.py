@@ -67,12 +67,7 @@ class SkillService:
         limit: int = 100,
     ) -> list[Skill]:
 
-        stmt = (
-            select(Skill)
-            .order_by(Skill.name)
-            .offset(skip)
-            .limit(limit)
-        )
+        stmt = select(Skill).order_by(Skill.name).offset(skip).limit(limit)
 
         return list(db.scalars(stmt))
 
@@ -83,9 +78,7 @@ class SkillService:
     ) -> list[Skill]:
 
         stmt = (
-            select(Skill)
-            .where(Skill.name.ilike(f"%{keyword}%"))
-            .order_by(Skill.name)
+            select(Skill).where(Skill.name.ilike(f"%{keyword}%")).order_by(Skill.name)
         )
 
         return list(db.scalars(stmt))

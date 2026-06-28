@@ -136,10 +136,7 @@ class AuditLogService:
         user_id: uuid.UUID,
     ) -> None:
 
-        stmt = (
-            select(AuditLog)
-            .where(AuditLog.user_id == user_id)
-        )
+        stmt = select(AuditLog).where(AuditLog.user_id == user_id)
 
         logs = list(db.scalars(stmt))
 

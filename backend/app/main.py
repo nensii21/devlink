@@ -13,7 +13,6 @@ from slowapi.middleware import SlowAPIMiddleware
 from slowapi import _rate_limit_exceeded_handler
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -147,13 +146,14 @@ from app.routers import applications
 from app.routers import skills
 from app.routers import users
 
-
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
 app.include_router(builder_flare.router, prefix="/api/flare", tags=["Builder's Flare"])
 app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
-app.include_router(notifications.router, prefix="/api/notifications", tags=["Notifications"])
+app.include_router(
+    notifications.router, prefix="/api/notifications", tags=["Notifications"]
+)
 app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
 app.include_router(followers.router)
 app.include_router(bookmarks.router)
