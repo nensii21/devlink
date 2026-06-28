@@ -329,34 +329,12 @@ function Sidebar({ screen, setScreen, collapsed, setCollapsed }: {
 
 
 
-
 // ── Auth ───────────────────────────────────────────────────────
 
-const AUTH_SLIDES = [
-  {
-    quote: "Connect with Builders, Ship Great Products",
-    testimonial: '"Found my co-founder in 3 days."',
-    name: "Aisha K.", role: "AI Engineer",
-    img: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=40&h=40&fit=crop&auto=format",
-  },
-  {
-    quote: "Assembled a full team in under a week.",
-    testimonial: '"Best place to find people who actually ship."',
-    name: "Taro Y.", role: "Backend Dev",
-    img: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=40&h=40&fit=crop&auto=format",
-  },
-  {
-    quote: "The fastest way to find your next co-founder.",
-    testimonial: '"Went from idea to a full team in one week."',
-    name: "Elena V.", role: "Product Designer",
-    img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&auto=format",
-  },
-];
 
 function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [showPw, setShowPw] = useState(false);
-
   const [showConfirm, setShowConfirm] = useState(false);
 
   const inp = [
@@ -368,17 +346,21 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center px-4"
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-10 overflow-y-auto"
       style={{ background: "#F6F8FA", fontFamily: "'Inter', system-ui, sans-serif" }}
     >
-      {/* Logo — uses your svg file */}
-      <div className="flex items-center gap-2.5 mb-6">
-        <img src="/lodo-dev.jpeg" alt="" className="h-15 w-15 rounded-full" />
-         <span className="text-[40px] font-bold text-[#1F2328] tracking-tight">DevLink</span>
+      {/* Logo + brand name */}
+      <div className="flex items-center gap-3 mb-6">
+        <img
+          src="/lodo-dev.jpeg"
+          alt="DevLink"
+          className="h-10 w-10 rounded-full object-cover"
+        />
+        <span className="text-[32px] font-bold text-[#1F2328] tracking-tight">DevLink</span>
       </div>
 
       {/* Card */}
-      <div className="w-full max-w-[500px] bg-white border border-[#D0D7DE] rounded-md px-8 py-6">
+      <div className="w-full max-w-[420px] bg-white border border-[#D0D7DE] rounded-md px-8 py-6">
 
         {/* GitHub */}
         <button className="w-full flex items-center justify-center gap-2.5 border border-[#D0D7DE] rounded-md py-[8px] px-3 text-[14px] font-medium text-[#1F2328] bg-white hover:bg-[#F3F4F6] transition-colors mb-3">
@@ -404,7 +386,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
           <div className="flex-1 h-px bg-[#D0D7DE]" />
         </div>
 
-        {/* Sign up — name row */}
+        {/* Name row — signup only */}
         {mode === "signup" && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
@@ -426,9 +408,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
 
         {/* Password */}
         <div className="mb-1">
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-[13px] font-semibold text-[#1F2328]">Password</label>
-          </div>
+          <label className="block text-[13px] font-semibold text-[#1F2328] mb-1">Password</label>
           <div className="relative">
             <input type={showPw ? "text" : "password"} className={inp + " pr-9"} />
             <button type="button" onClick={() => setShowPw(s => !s)}
@@ -436,7 +416,6 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
               {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
-
         </div>
 
         {/* Forgot password — signin only */}
