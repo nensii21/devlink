@@ -1,3 +1,4 @@
+import { Header } from "./components/layout/Header";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, FolderOpen, FileText, MessageSquare,
@@ -8,113 +9,16 @@ import {
   ExternalLink, CheckCircle2, XCircle, EyeOff
 } from "lucide-react";
 import {Skeleton} from "./components/ui/skeleton"
+import { ME, BUILDERS } from "./data/builders";
+import {
+  CONVERSATIONS,
+  MESSAGES,
+} from "./data/messages";
+import { PROJECTS } from "./data/projects";
 
 type Screen = "auth" | "dashboard" | "discover" | "projects" | "applications" | "messages" | "profile" | "settings";
 
-// ── Data ──────────────────────────────────────────────────────
 
-const ME = {
-  name: "Nancy Wells",
-  role: "Full-Stack Engineer",
-  avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&auto=format",
-  location: "San Francisco, CA",
-};
-
-const BUILDERS = [
-  {
-    id: 1, name: "Marcus Rivera", role: "ML Engineer",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&auto=format",
-    skills: ["Python", "PyTorch", "LangChain", "FastAPI"],
-    bio: "Turning research papers into production ML systems. Previously DeepMind. 6 shipped products.",
-    location: "Austin, TX", available: true, online: false, xp: "5 years",
-  },
-  {
-    id: 2, name: "Priya Nair", role: "Cloud Architect",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&auto=format",
-    skills: ["Kubernetes", "Terraform", "Go", "AWS"],
-    bio: "Infrastructure that scales from 0 to millions. Open-source contributor. Remote-first.",
-    location: "Remote", available: true, online: true, xp: "6 years",
-  },
-  {
-    id: 3, name: "James Okafor", role: "Mobile Developer",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&auto=format",
-    skills: ["Swift", "Kotlin", "React Native", "Expo"],
-    bio: "Crafting native mobile experiences with real attention to detail. Apps with 1M+ downloads.",
-    location: "London, UK", available: false, online: true, xp: "4 years",
-  },
-  {
-    id: 4, name: "Elena Volkov", role: "Product Designer",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&fit=crop&auto=format",
-    skills: ["Figma", "Framer", "Design Systems", "Prototyping"],
-    bio: "Systems thinker. Ex-Notion design team. Obsessed with craft, clarity, and shipping.",
-    location: "Berlin, Germany", available: true, online: false, xp: "7 years",
-  },
-  {
-    id: 5, name: "Taro Yamamoto", role: "Backend Engineer",
-    avatar: "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=80&h=80&fit=crop&auto=format",
-    skills: ["Go", "Rust", "PostgreSQL", "gRPC"],
-    bio: "High-performance systems at scale. OSS contributor. Strong opinions about observability.",
-    location: "Tokyo, Japan", available: true, online: true, xp: "8 years",
-  },
-  {
-    id: 6, name: "Aisha Kamara", role: "AI Engineer",
-    avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&h=80&fit=crop&auto=format",
-    skills: ["Python", "TensorFlow", "RAG", "Vector DBs"],
-    bio: "Building the layer between LLMs and real products. YC alum. Previously Scale AI.",
-    location: "New York, NY", available: false, online: true, xp: "4 years",
-  },
-];
-
-const BUILD_POSTS = [
-  {
-    id: 1, title: "AI Startup Platform", founder: BUILDERS[5],
-    desc: "AI-powered platform that helps non-technical founders define, validate, and ship SaaS ideas end-to-end. Think Notion meets an AI co-founder.",
-    skills: ["React", "Python", "FastAPI", "OpenAI"], teamSize: 3, maxTeam: 5,
-    stage: "MVP", remote: true, apps: 12, featured: true,
-    cover: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&h=200&fit=crop&auto=format",
-    rolesNeeded: ["Frontend Developer", "AI Engineer"],
-  },
-  {
-    id: 2, title: "Open Source Analytics", founder: BUILDERS[0],
-    desc: "Privacy-first, self-hosted analytics alternative to Mixpanel. Zero tracking of your users. Open source from day one.",
-    skills: ["Go", "React", "ClickHouse", "Docker"], teamSize: 2, maxTeam: 4,
-    stage: "Early", remote: true, apps: 8, featured: true,
-    cover: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=200&fit=crop&auto=format",
-    rolesNeeded: ["React Developer", "UI Designer"],
-  },
-  {
-    id: 3, title: "SaaS Productivity App", founder: BUILDERS[4],
-    desc: "All-in-one async workspace for distributed teams — tasks, docs, and decisions in one focused product. No fluff.",
-    skills: ["Next.js", "TypeScript", "Prisma", "Stripe"], teamSize: 4, maxTeam: 6,
-    stage: "Beta", remote: false, apps: 19, featured: false,
-    cover: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=200&fit=crop&auto=format",
-    rolesNeeded: ["Backend Developer", "Product Designer"],
-  },
-  {
-    id: 4, title: "Developer Portfolio Builder", founder: BUILDERS[3],
-    desc: "The fastest way to build a beautiful developer portfolio — powered by your GitHub data. Zero config. Ship in minutes.",
-    skills: ["React", "Next.js", "GitHub API", "Tailwind"], teamSize: 1, maxTeam: 3,
-    stage: "Idea", remote: true, apps: 4, featured: false,
-    cover: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=600&h=200&fit=crop&auto=format",
-    rolesNeeded: ["Full-Stack Dev", "Growth"],
-  },
-];
-
-const CONVERSATIONS = [
-  { id: 1, with: BUILDERS[0], lastMsg: "Let me know when you push the first commit.", time: "2m", unread: 2 },
-  { id: 2, with: BUILDERS[3], lastMsg: "The Figma handoff is ready for review.", time: "1h", unread: 0 },
-  { id: 3, with: BUILDERS[1], lastMsg: "K8s setup is done, ping me when ready.", time: "3h", unread: 1 },
-  { id: 4, with: BUILDERS[5], lastMsg: "The RAG pipeline is working great now!", time: "1d", unread: 0 },
-];
-
-const CHAT_HISTORY = [
-  { id: 1, text: "Hey! I saw your Build With Me post for the AI Platform project.", own: false, time: "10:02 AM" },
-  { id: 2, text: "Hi Marcus! Yes, still looking for an ML engineer. Your profile looks like a great fit.", own: true, time: "10:05 AM" },
-  { id: 3, text: "Awesome. I've been working on RAG pipelines lately — exactly what you need. Want to hop on a call?", own: false, time: "10:07 AM" },
-  { id: 4, text: "Definitely. How does Thursday work for you?", own: true, time: "10:09 AM" },
-  { id: 5, text: "Thursday at 3pm PT works perfectly. I'll send a Cal invite.", own: false, time: "10:11 AM" },
-  { id: 6, text: "Let me know when you push the first commit.", own: false, time: "10:14 AM" },
-];
 
 const APPLICATIONS = [
   { id: 1, applicant: BUILDERS[0], project: "AI Startup Platform", role: "ML Engineer", xp: "5 years", status: "pending", appliedAt: "2 days ago", bio: "5 years ML engineering. Shipped 3 production LLM products. Open to equity." },
@@ -629,11 +533,10 @@ function DashboardScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
   ];
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="p-6 lg:p-8 max-w-[1200px]">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white tracking-tight">Welcome back, Nancy</h1>
-          <p className="text-sm text-[#A1A1AA] mt-1">Continue building with your team.</p>
+    <div className="h-full overflow-auto p-6 lg:p-8">
+    <div className="mb-8">
+      <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Welcome back, Nensi</h1>
+      <p className="text-sm text-gray-500 mt-1">Continue building with your team.</p>
         </div>
 
         {/* Stats */}
@@ -677,7 +580,6 @@ function DashboardScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
                 ))}
               </div>
             </div>
-
             {/* Suggested */}
             <div className="bg-[#111111] border border-white/[0.07] rounded-xl overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
@@ -756,7 +658,6 @@ function DashboardScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
@@ -1700,11 +1601,9 @@ export default function App() {
 
   return (
     <div className="flex h-screen bg-[#0A0A0A] overflow-hidden" style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}>
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-300px] left-[25%] w-[700px] h-[500px] bg-[#4F8CFF]/[0.02] rounded-full blur-[160px]" />
-      </div>
       <Sidebar screen={screen} setScreen={setScreen} collapsed={collapsed} setCollapsed={setCollapsed} />
-      <main className="flex-1 overflow-hidden relative z-10">
+      <main className="flex-1 flex flex-col overflow-hidden relative z-10"><Header />
+      <div className="flex-1 overflow-hidden">
         {screen === "dashboard" && <DashboardScreen setScreen={setScreen} />}
         {screen === "discover" && <DiscoverScreen setScreen={setScreen} />}
         {screen === "projects" && <ProjectsScreen />}
@@ -1712,6 +1611,7 @@ export default function App() {
         {screen === "messages" && <MessagesScreen />}
         {screen === "profile" && <ProfileScreen setScreen={setScreen} />}
         {screen === "settings" && <SettingsScreen />}
+          </div>
       </main>
     </div>
   );
