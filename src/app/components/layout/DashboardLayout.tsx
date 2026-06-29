@@ -1,33 +1,37 @@
-import React from 'react';
-import { Sidebar } from './Sidebar';
-import { Header } from './Header';
-import { motion } from 'motion/react';
+import React from "react";
+import { motion } from "motion/react";
+import { Sidebar } from "./Sidebar";
+import { Header } from "./Header";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   onLogout?: () => void;
 }
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onLogout }) => {
+export default function DashboardLayout({
+  children,
+  onLogout,
+}: DashboardLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full bg-background selection:bg-primary/10 selection:text-primary antialiased">
-      {/* Sidebar - Fixed on desktop */}
-      <div className="hidden lg:block">
-        <Sidebar onLogout={onLogout} />
-      </div>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Sidebar */}
+      <Sidebar onLogout={onLogout} />
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 flex-col lg:pl-[280px]">
-        {/* Header - Sticky */}
+      {/* Main Content */}
+      <div className="ml-[280px] flex min-h-screen flex-col">
+        {/* Top Header */}
         <Header />
 
-        {/* Content Area */}
-        <main className="flex-1">
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
+        {/* Page Content */}
+        <main className="flex-1 px-10 py-8">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="mx-auto w-full max-w-[1600px] p-6 lg:p-10"
+            transition={{
+              duration: 0.35,
+              ease: "easeOut",
+            }}
+            className="mx-auto w-full max-w-[1600px]"
           >
             {children}
           </motion.div>
@@ -35,4 +39,4 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, onLo
       </div>
     </div>
   );
-};
+}
