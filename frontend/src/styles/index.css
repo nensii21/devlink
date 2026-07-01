@@ -1,9 +1,0 @@
-@import './fonts.css';
-@import './tailwind.css';
-@import './theme.css';
-
-/* DevLink subtle gradient background */
-body {
-  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
-  min-height: 100vh;
-}
