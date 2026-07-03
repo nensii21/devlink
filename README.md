@@ -6,57 +6,174 @@
 
 <h1 align="center">DevLink</h1>
 
-<p align="center"><strong>Build With People Who Actually Ship.</strong></p>
-
 <p align="center">
-A modern collaboration platform where developers, founders, designers, AI engineers, and builders discover teammates, collaborate on projects, and launch products together.
+<strong>Build With People Who Actually Ship.</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript" />
-  <img src="https://img.shields.io/badge/Vite-Latest-646CFF?logo=vite" />
-  <img src="https://img.shields.io/badge/TailwindCSS-38BDF8?logo=tailwindcss" />
-  <img src="https://img.shields.io/badge/License-MIT-green" />
+An open-source collaboration platform where developers, founders, designers,
+AI engineers, and builders discover teammates, collaborate on projects,
+participate in hackathons, and launch products together.
 </p>
 
 <p align="center">
-<a href="#overview">Overview</a> •
-<a href="#features">Features</a> •
-<a href="#architecture">Architecture</a> •
-<a href="#tech-stack">Tech Stack</a> •
-<a href="#getting-started">Getting Started</a> •
-<a href="#roadmap">Roadmap</a> •
-<a href="#contributing">Contributing</a>
+
+<img src="https://img.shields.io/github/license/nensii21/devlink?style=for-the-badge">
+
+<img src="https://img.shields.io/github/stars/nensii21/devlink?style=for-the-badge">
+
+<img src="https://img.shields.io/github/forks/nensii21/devlink?style=for-the-badge">
+
+<img src="https://img.shields.io/github/issues/nensii21/devlink?style=for-the-badge">
+
+<img src="https://img.shields.io/github/issues-pr/nensii21/devlink?style=for-the-badge">
+
+<img src="https://img.shields.io/github/contributors/nensii21/devlink?style=for-the-badge">
+
+<img src="https://img.shields.io/badge/ECSoc-2026-blue?style=for-the-badge">
+
+<img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge">
+
 </p>
+
+---
+
+## 🌐 Live Demo
+
+| Website | Status |
+|----------|--------|
+| Coming Soon | 🚧 Under Development |
+
+---
+
+# Table of Contents
+
+- Overview
+- Why DevLink?
+- Features
+- Architecture
+- Tech Stack
+- Project Structure
+- Screenshots
+- Getting Started
+- Environment Variables
+- Development Workflow
+- API Documentation
+- Roadmap
+- Contributing
+- ECSoc 2026
+- Security
+- Code of Conduct
+- License
+- Maintainers
 
 ---
 
 # Overview
 
-DevLink is an open-source collaboration platform that helps developers, founders, designers, AI engineers, and builders find teammates, join projects, collaborate efficiently, and launch products together.
+DevLink is an open-source developer collaboration platform designed for developers, startup founders, designers, AI engineers, and builders.
 
-## Why DevLink?
+Finding the right people to build with shouldn't require endless scrolling through Discord servers, LinkedIn, GitHub repositories, or Twitter.
 
-- Discover talented builders
-- Find meaningful projects
-- Form startup teams
-- Collaborate in one place
-- Build products faster
+DevLink brings everything together in one place.
+
+Whether you're looking for:
+
+- Open Source Contributors
+- Startup Co-founders
+- Hackathon Teammates
+- Freelance Developers
+- AI Engineers
+- UI/UX Designers
+
+DevLink helps you discover builders, showcase your skills, collaborate on projects, and ship products faster.
+
+---
+
+# Why DevLink?
+
+### Discover Builders
+
+Find developers with matching skills and interests.
+
+### Build Together
+
+Create projects and invite teammates.
+
+### Showcase Your Work
+
+Build a developer portfolio that goes beyond a traditional resume.
+
+### Join Hackathons
+
+Discover hackathons and find teammates instantly.
+
+### AI-Powered Recommendations
+
+Get intelligent teammate and project recommendations.
+
+### One Platform
+
+Everything developers need—from networking to collaboration.
 
 ---
 
 # Features
 
-- Builder Discovery
-- Project Marketplace
-- Team Matching
-- Builder Profiles
+## Developer Profiles
+
+- Professional portfolios
+- Skills & tech stack
+- Experience
+- GitHub integration
+- Social links
+
+---
+
+## Project Marketplace
+
+- Browse projects
+- Create projects
+- Join teams
+- Apply to contribute
+- Bookmark projects
+
+---
+
+## Team Matching
+
+- Skill matching
+- Experience matching
+- AI recommendations
+- Availability filters
+
+---
+
+## Collaboration
+
+- Real-time messaging
+- Team workspaces
+- Notifications
+- Discussions
+
+---
+
+## Community
+
+- Builder feed
+- Open Source projects
 - Startup Hub
-- Real-time Messaging
-- Collaboration Workspace
-- Reputation System
-- AI-powered Recommendations
+- Events
+- Hackathons
+
+---
+
+## AI Features
+
+- Smart teammate recommendations
+- Project recommendations
+- AI profile suggestions
+- AI skill analysis
 
 ---
 
@@ -64,12 +181,30 @@ DevLink is an open-source collaboration platform that helps developers, founders
 
 ```mermaid
 graph TD
-A[React + Vite] --> B[Next.js API]
-B --> C[Prisma ORM]
-C --> D[(PostgreSQL)]
-B --> E[Authentication]
-E --> F[GitHub OAuth]
-E --> G[Google OAuth]
+
+A[Frontend]
+
+A --> B[React]
+
+A --> C[TypeScript]
+
+A --> D[Tailwind CSS]
+
+B --> E[FastAPI Backend]
+
+E --> F[JWT Authentication]
+
+E --> G[GitHub OAuth]
+
+E --> H[OpenAI API]
+
+E --> I[(PostgreSQL)]
+
+E --> J[SQLAlchemy]
+
+E --> K[WebSockets]
+
+E --> L[Redis]
 ```
 
 ---
@@ -77,40 +212,98 @@ E --> G[Google OAuth]
 # Tech Stack
 
 | Layer | Technology |
-|------|------------|
-| Frontend | React, TypeScript, Vite, Tailwind CSS, shadcn/ui |
-| Backend | Next.js API Routes, Node.js |
+|--------|------------|
+| Frontend | React 19 |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Backend | Python, FastAPI |
 | Database | PostgreSQL |
-| ORM | Prisma |
-| Authentication | Clerk / NextAuth |
-| Deployment | Vercel, Neon |
+| ORM | SQLAlchemy |
+| Authentication | JWT, GitHub OAuth |
+| Validation | Pydantic |
+| Realtime | WebSockets |
+| AI | OpenAI API, MCP |
+| DevOps | Docker, GitHub Actions |
+| Deployment | Vercel |
 
 ---
 
 # Project Structure
 
-```text
-devlink/
-├── docs/
-│   └── screenshots/
-├── prisma/
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── hooks/
-│   ├── layouts/
-│   ├── lib/
-│   ├── pages/
-│   ├── services/
-│   ├── styles/
-│   ├── types/
-│   └── utils/
-├── README.md
-├── CONTRIBUTING.md
-├── LICENSE
-└── package.json
 ```
+devlink/
+
+├── backend/
+│   ├── app/
+│   ├── api/
+│   ├── models/
+│   ├── schemas/
+│   ├── services/
+│   ├── core/
+│   └── tests/
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── types/
+│   │   └── utils/
+│
+├── docs/
+│
+├── .github/
+│
+├── docker/
+│
+├── public/
+│
+├── README.md
+│
+├── CONTRIBUTING.md
+│
+├── CODE_OF_CONDUCT.md
+│
+├── SECURITY.md
+│
+└── LICENSE
+```
+
+---
+
+# Screenshots
+
+## Landing Page
+
+> Coming Soon
+
+---
+
+## Dashboard
+
+> Coming Soon
+
+---
+
+## Builder Profile
+
+> Coming Soon
+
+---
+
+## Project Marketplace
+
+> Coming Soon
+
+---
+
+## Messages
+
+> Coming Soon
 
 ---
 
@@ -119,102 +312,278 @@ devlink/
 ## Prerequisites
 
 - Node.js 20+
-- npm
+- Python 3.11+
+- PostgreSQL
 - Git
+- Docker (Optional)
 
-## Installation
+---
+
+## Clone Repository
 
 ```bash
 git clone https://github.com/nensii21/devlink.git
+
 cd devlink
+```
+
+---
+
+## Backend Setup
+
+```bash
+cd backend
+
+python -m venv venv
+
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+```
+
+---
+
+## Frontend Setup
+
+```bash
+cd frontend
+
 npm install
+
 npm run dev
 ```
 
-Visit:
+---
+
+Visit
 
 ```
 http://localhost:5173
 ```
 
-## Environment Variables
+---
 
-Create `.env.local`
+# Environment Variables
+
+Backend
 
 ```env
 DATABASE_URL=
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
+
+SECRET_KEY=
+
+JWT_ALGORITHM=
+
+ACCESS_TOKEN_EXPIRE_MINUTES=
+
 GITHUB_CLIENT_ID=
+
 GITHUB_CLIENT_SECRET=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+
+OPENAI_API_KEY=
+```
+
+Frontend
+
+```env
+VITE_API_URL=http://localhost:8000
+
+VITE_APP_NAME=DevLink
 ```
 
 ---
 
-# Screenshots
+# Development Workflow
 
-Create:
+```
+Fork Repository
 
-```text
-docs/
-└── screenshots/
-    ├── landing.png
-    ├── dashboard.png
-    ├── profile.png
-    ├── projects.png
-    └── messages.png
+↓
+
+Create Branch
+
+↓
+
+Develop Feature
+
+↓
+
+Test Changes
+
+↓
+
+Commit Changes
+
+↓
+
+Push Branch
+
+↓
+
+Open Pull Request
+
+↓
+
+Code Review
+
+↓
+
+Merge
 ```
 
-Then showcase them here.
+---
+
+# API Documentation
+
+API documentation will be available at
+
+```
+http://localhost:8000/docs
+```
+
+Swagger UI will automatically generate API documentation using FastAPI.
 
 ---
 
 # Roadmap
 
-- [x] Landing Page
-- [x] Authentication
-- [x] Dashboard UI
-- [ ] Backend APIs
-- [ ] Project Marketplace
-- [ ] Builder Discovery
-- [ ] Messaging
-- [ ] AI Team Matching
-- [ ] Startup Hub
-- [ ] Production Deployment
+## Phase 1
+
+- ✅ Landing Page
+- ✅ Authentication UI
+- ✅ Dashboard UI
+- ✅ Builder Profiles
+
+---
+
+## Phase 2
+
+- ⬜ Backend APIs
+- ⬜ Project Marketplace
+- ⬜ Team Applications
+- ⬜ Search
+- ⬜ Notifications
+
+---
+
+## Phase 3
+
+- ⬜ AI Team Matching
+- ⬜ AI Recommendations
+- ⬜ Startup Hub
+- ⬜ Messaging
+- ⬜ Hackathons
+
+---
+
+## Phase 4
+
+- ⬜ Mobile App
+- ⬜ Organizations
+- ⬜ Premium Features
+- ⬜ Public API
+- ⬜ Browser Extension
 
 ---
 
 # Contributing
 
+We welcome contributions from developers of all experience levels.
+
+Please read **CONTRIBUTING.md** before creating a Pull Request.
+
+### Contribution Workflow
+
 ```bash
 git checkout -b feat/feature-name
+
 git commit -m "feat: add feature"
+
 git push origin feat/feature-name
 ```
 
-Contribution guidelines:
+Please ensure:
 
-- Keep PRs focused.
-- Follow existing code style.
-- Update documentation.
-- Ensure the project builds successfully.
+- Code follows existing style
+- No breaking changes
+- Documentation is updated
+- Build passes successfully
+- Pull Requests remain focused
+
+---
+
+# ECSoc 2026
+
+DevLink is proud to participate in **ECSoc 2026**.
+
+We welcome contributors from all backgrounds.
+
+Look for labels such as:
+
+- good first issue
+- frontend
+- backend
+- documentation
+- accessibility
+- enhancement
+- help wanted
+
+We encourage first-time contributors to start with beginner-friendly issues.
+
+---
+
+# Security
+
+If you discover a security vulnerability, please **do not** create a public issue.
+
+Instead, report it privately by following the instructions in **SECURITY.md**.
+
+---
+
+# Code of Conduct
+
+Please read our **CODE_OF_CONDUCT.md** before participating.
+
+We are committed to creating a welcoming, inclusive, and respectful community.
 
 ---
 
 # License
 
-MIT License
+Distributed under the **MIT License**.
+
+See **LICENSE** for more information.
 
 ---
 
-# Author
+# Maintainers
 
-**nensii21**
+| Name | Role |
+|------|------|
+| **Nensi Patel (@nensii21)** | Project Lead & Maintainer |
 
-Building products at the intersection of AI, startups, collaboration, and developer productivity.
+---
+
+# Acknowledgements
+
+Special thanks to:
+
+- All open-source contributors
+- ECSoc 2026
+- The React community
+- The FastAPI community
+- Every developer helping build DevLink
+
+---
 
 <p align="center">
-Made for developers, founders, and builders worldwide.
+
+## ⭐ If you like DevLink, consider giving the repository a star!
+
+Made with ❤️ by developers, for developers.
+
+Building the future of developer collaboration.
+
 </p>
