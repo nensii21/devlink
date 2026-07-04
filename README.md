@@ -329,6 +329,21 @@ cd devlink
 
 ---
 
+## One-Click Setup (Docker)
+
+The easiest way to run the entire DevLink stack (Frontend, Backend, PostgreSQL, and Redis) locally is using Docker Compose.
+
+```bash
+docker compose up --build
+```
+
+The application will be available at:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:8000`
+- API Documentation: `http://localhost:8000/docs`
+
+---
+
 ## Backend Setup
 
 ```bash
