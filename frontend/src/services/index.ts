@@ -4,6 +4,43 @@ import * as seed from "@/mocks/seed";
 const mock = <T>(v: T, delay = 120): Promise<T> =>
   new Promise((r) => setTimeout(() => r(v), delay));
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+
+async function fetchJson<T>(path: string): Promise<T> {
+  const response = await fetch(`${apiBaseUrl}${path}`);
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+export interface ActivityActor {
+  id: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  profile_image?: string | null;
+}
+
+export interface BackendActivity {
+  id: string;
+  actor_id: string;
+  actor?: ActivityActor | null;
+  activity_type: string;
+  title: string;
+  description?: string | null;
+  project_id?: string | null;
+  organization_id?: string | null;
+  repository_id?: string | null;
+  application_id?: string | null;
+  builder_flare_id?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  created_at: string;
+}
+
 export const projectsService = {
   list: () => mock(seed.projects),
   get: (id: string) => mock(seed.projects.find((p) => p.id === id) ?? null),
@@ -23,6 +60,11 @@ export const dashboardService = {
   builderRequests: () => mock(seed.builderRequests),
   inviteRequests: () => mock(seed.inviteRequests),
   deadlines: () => mock(seed.deadlines),
+};
+
+export const activitiesService = {
+  list: (limit = 20) => fetchJson<BackendActivity[]>(`/activities/?limit=${limit}`),
+  user: (userId: string) => fetchJson<BackendActivity[]>(`/activities/user/${userId}`),
 };
 
 export const flaresService = {
