@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { Card, Avatar } from "@/components/shared/primitives";
+import { BioCard, SkillsCard, TechStackCard, ExperienceCard, EducationCard, SocialLinksCard } from "@/components/profile";
 import { builders, currentUser, projects } from "@/mocks/seed";
 import { MapPin, Calendar, Link as LinkIcon } from "lucide-react";
 
@@ -17,7 +18,32 @@ function ProfilePage() {
   const { username } = Route.useParams();
   const me = username === currentUser.handle;
   const b = me
-    ? { ...builders[0], name: currentUser.name, handle: currentUser.handle, avatar: currentUser.avatar, bio: "Product engineer. Ships fast, sleeps sometimes.", role: "Full Stack Developer" }
+    ? {
+        ...builders[0],
+        name: currentUser.name,
+        handle: currentUser.handle,
+        avatar: currentUser.avatar,
+        bio: "Product engineer. Ships fast, sleeps sometimes.",
+        role: "Full Stack Developer",
+        headline: "Building dependable product experiences across the stack",
+        location: "Bengaluru, India",
+        timezone: "IST (UTC+5:30)",
+        website: "https://devlink.io",
+        portfolioUrl: "https://devlink.io/portfolio",
+        githubUrl: "https://github.com/devlink",
+        linkedinUrl: "https://linkedin.com/company/devlink",
+        experienceLevel: "Senior",
+        company: "DevLink",
+        profileSkills: [
+          { name: "React", level: "Advanced", category: "frontend", yearsOfExperience: 4 },
+          { name: "Next.js", level: "Advanced", category: "frontend", yearsOfExperience: 3 },
+          { name: "TypeScript", level: "Expert", category: "frontend", yearsOfExperience: 5 },
+          { name: "Node.js", level: "Intermediate", category: "backend", yearsOfExperience: 2 },
+          { name: "Docker", level: "Intermediate", category: "devops", yearsOfExperience: 2 },
+        ],
+        techStack: ["React", "Next.js", "TypeScript", "Node.js", "Docker"],
+        education: [{ school: "IIT Delhi", degree: "B.Tech in Computer Science", years: "2017–2021" }],
+      }
     : builders.find((x) => x.handle === username);
   if (!b) throw notFound();
 
@@ -44,14 +70,14 @@ function ProfilePage() {
         </div>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="p-4">
-          <p className="text-[13px] font-semibold text-foreground">Skills</p>
-          <div className="mt-3 flex flex-wrap gap-1">
-            {b.skills.map((s) => <TagChip key={s}>{s}</TagChip>)}
-          </div>
-        </Card>
-        <Card className="p-4 lg:col-span-2">
+      <div className="grid gap-4 xl:grid-cols-3">
+        <BioCard headline={b.headline} bio={b.bio} location={b.location} timezone={b.timezone} />
+        <ExperienceCard role={b.role} company={b.company} experienceLevel={b.experienceLevel} />
+        <SkillsCard skills={b.profileSkills ?? []} />
+        <TechStackCard skills={b.profileSkills ?? []} techStack={b.techStack} />
+        <SocialLinksCard githubUrl={b.githubUrl} linkedinUrl={b.linkedinUrl} portfolioUrl={b.portfolioUrl} website={b.website} />
+        <EducationCard education={b.education ?? []} />
+        <Card className="p-4 xl:col-span-3">
           <p className="text-[13px] font-semibold text-foreground">Projects</p>
           <ul className="mt-3 divide-y divide-border">
             {projects.slice(0, 4).map((p) => (

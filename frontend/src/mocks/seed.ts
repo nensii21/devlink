@@ -4,6 +4,17 @@
 export type ID = string;
 
 export interface Skill { name: string; }
+export interface ProfileSkill {
+  name: string;
+  level?: string;
+  category?: string;
+  yearsOfExperience?: number;
+}
+export interface EducationEntry {
+  school: string;
+  degree?: string | null;
+  years?: string | null;
+}
 export interface Builder {
   id: ID;
   name: string;
@@ -16,6 +27,18 @@ export interface Builder {
   skills: string[];
   online: boolean;
   bio: string;
+  headline?: string;
+  location?: string;
+  timezone?: string;
+  website?: string;
+  portfolioUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  experienceLevel?: string;
+  company?: string;
+  profileSkills?: ProfileSkill[];
+  techStack?: string[];
+  education?: EducationEntry[];
 }
 export interface Project {
   id: ID;
@@ -110,7 +133,14 @@ const AV = (seed: string) =>
   `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
 export const builders: Builder[] = [
-  { id: "b1", name: "Priya Sharma", handle: "priya_dev", role: "Frontend Developer", avatar: AV("Priya"), country: "India", yearsExp: 3, matchScore: 92, skills: ["React", "Next.js", "TypeScript"], online: true, bio: "Loves accessible UIs and design systems." },
+  { id: "b1", name: "Priya Sharma", handle: "priya_dev", role: "Frontend Developer", avatar: AV("Priya"), country: "India", yearsExp: 3, matchScore: 92, skills: ["React", "Next.js", "TypeScript"], online: true, bio: "Loves accessible UIs and design systems.", headline: "Designing polished, accessible product experiences", location: "Bengaluru, India", timezone: "IST (UTC+5:30)", website: "https://priya.dev", portfolioUrl: "https://priya.dev/portfolio", githubUrl: "https://github.com/priya", linkedinUrl: "https://linkedin.com/in/priya", experienceLevel: "Senior", company: "Northstar Labs", profileSkills: [
+    { name: "React", level: "Advanced", category: "frontend", yearsOfExperience: 4 },
+    { name: "Next.js", level: "Advanced", category: "frontend", yearsOfExperience: 3 },
+    { name: "TypeScript", level: "Expert", category: "frontend", yearsOfExperience: 5 },
+    { name: "Tailwind CSS", level: "Advanced", category: "frontend", yearsOfExperience: 3 },
+    { name: "Node.js", level: "Intermediate", category: "backend", yearsOfExperience: 2 },
+    { name: "Docker", level: "Intermediate", category: "devops", yearsOfExperience: 2 },
+  ], techStack: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Figma"], education: [{ school: "IIIT Bangalore", degree: "B.Tech in Computer Science", years: "2018–2022" }] },
   { id: "b2", name: "Rahul Verma", handle: "rahul_v", role: "Full Stack Developer", avatar: AV("Rahul"), country: "India", yearsExp: 4, matchScore: 89, skills: ["Node.js", "MongoDB", "Express"], online: true, bio: "Builds end-to-end features fast." },
   { id: "b3", name: "Ankit Singh", handle: "ankit_be", role: "Backend Developer", avatar: AV("Ankit"), country: "India", yearsExp: 2, matchScore: 87, skills: ["Python", "FastAPI", "PostgreSQL"], online: false, bio: "APIs, queues and Postgres tuning." },
   { id: "b4", name: "Sneha Iyer", handle: "sneha_ux", role: "UI/UX Designer", avatar: AV("Sneha"), country: "India", yearsExp: 3, matchScore: 94, skills: ["Figma", "Adobe XD"], online: true, bio: "Product design for early-stage teams." },
