@@ -64,9 +64,7 @@ const groups: Group[] = [
   },
   {
     label: "Account",
-    items: [
-      { label: "Settings", to: "/settings", icon: <Settings size={16} /> },
-    ],
+    items: [{ label: "Settings", to: "/settings", icon: <Settings size={16} /> }],
   },
 ];
 
@@ -147,10 +145,7 @@ function SidebarGroup({ group, onNav }: { group: Group; onNav: () => void }) {
         className="flex w-full items-center justify-between px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
       >
         {group.label}
-        <ChevronRight
-          size={12}
-          className={cn("transition-transform", open && "rotate-90")}
-        />
+        <ChevronRight size={12} className={cn("transition-transform", open && "rotate-90")} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -161,7 +156,8 @@ function SidebarGroup({ group, onNav }: { group: Group; onNav: () => void }) {
             className="overflow-hidden"
           >
             {group.items.map((item) => {
-              const active = pathname === item.to || pathname.startsWith(item.to.split("?")[0] + "/");
+              const active =
+                pathname === item.to || pathname.startsWith(item.to.split("?")[0] + "/");
               return (
                 <li key={item.label}>
                   <Link
