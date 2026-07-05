@@ -31,6 +31,7 @@ export interface Builder {
   location?: string;
   timezone?: string;
   website?: string;
+  resumeUrl?: string;
   portfolioUrl?: string;
   githubUrl?: string;
   linkedinUrl?: string;

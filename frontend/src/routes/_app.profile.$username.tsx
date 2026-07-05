@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Card, Avatar } from "@/components/shared/primitives";
-import { BioCard, SkillsCard, TechStackCard, ExperienceCard, EducationCard, SocialLinksCard } from "@/components/profile";
+import { BioCard, SkillsCard, TechStackCard, ExperienceCard, EducationCard, SocialLinksCard, ResumeUploadCard } from "@/components/profile";
 import { builders, currentUser, projects, type Builder, type ProfileSkill } from "@/mocks/seed";
 import { MapPin, Calendar, Link as LinkIcon } from "lucide-react";
 import { validateBio, validateHeadline, validateProfileUrls, validateSkillEntry, validateSkillList } from "@/lib/validation/profile";
@@ -24,6 +24,7 @@ type ProfileFormValues = {
   location: string;
   timezone: string;
   website: string;
+  resumeUrl: string;
   portfolioUrl: string;
   githubUrl: string;
   linkedinUrl: string;
@@ -41,6 +42,7 @@ function mapBuilderToFormValues(builder: Builder): ProfileFormValues {
     location: builder.location ?? "",
     timezone: builder.timezone ?? "",
     website: builder.website ?? "",
+    resumeUrl: builder.resumeUrl ?? "",
     portfolioUrl: builder.portfolioUrl ?? "",
     githubUrl: builder.githubUrl ?? "",
     linkedinUrl: builder.linkedinUrl ?? "",
@@ -63,6 +65,7 @@ function buildUpdatedBuilder(builder: Builder, values: ProfileFormValues): Build
     location: values.location || undefined,
     timezone: values.timezone || undefined,
     website: values.website || undefined,
+    resumeUrl: values.resumeUrl || undefined,
     portfolioUrl: values.portfolioUrl || undefined,
     githubUrl: values.githubUrl || undefined,
     linkedinUrl: values.linkedinUrl || undefined,
@@ -97,6 +100,7 @@ function ProfilePage() {
         location: "Bengaluru, India",
         timezone: "IST (UTC+5:30)",
         website: "https://devlink.io",
+        resumeUrl: "",
         portfolioUrl: "https://devlink.io/portfolio",
         githubUrl: "https://github.com/devlink",
         linkedinUrl: "https://linkedin.com/company/devlink",
@@ -354,6 +358,7 @@ function ProfilePage() {
           errors={formErrors}
           onFieldChange={handleFieldChange}
         />
+        <ResumeUploadCard resumeUrl={profile.resumeUrl} editable={isOwnProfile && isEditing} />
         <EducationCard education={profile.education ?? []} />
         <Card className="p-4 xl:col-span-3">
           <p className="text-[13px] font-semibold text-foreground">Projects</p>

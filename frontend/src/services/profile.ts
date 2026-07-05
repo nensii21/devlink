@@ -21,6 +21,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export interface ResumeUploadResponse {
+  resume_url?: string | null;
+  resumeUrl?: string | null;
+}
+
 export interface ProfilePayload {
   headline?: string | null;
   bio?: string | null;
@@ -51,6 +56,23 @@ export async function updateCurrentUserProfile(payload: ProfilePayload) {
     method: "PUT",
     body: JSON.stringify(payload),
   });
+}
+
+export async function uploadCurrentUserResume(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${API_BASE_URL}/users/me/resume`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Unable to upload resume right now.");
+  }
+
+  return response.json() as Promise<ResumeUploadResponse>;
 }
 
 export async function listSkills() {

@@ -37,6 +37,7 @@ class UserBase(BaseModel):
     timezone: Optional[str] = None
 
     website: Optional[HttpUrl] = None
+    resume_url: Optional[str] = None
     portfolio_url: Optional[HttpUrl] = None
     github_url: Optional[HttpUrl] = None
     linkedin_url: Optional[HttpUrl] = None
@@ -77,6 +78,7 @@ class UserUpdate(BaseModel):
     timezone: Optional[str] = None
 
     website: Optional[HttpUrl] = None
+    resume_url: Optional[str] = None
     portfolio_url: Optional[HttpUrl] = None
     github_url: Optional[HttpUrl] = None
     linkedin_url: Optional[HttpUrl] = None

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
@@ -15,6 +15,7 @@ from app.schemas.user import (
 )
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
+from app.utils.uploads import save_resume_upload, validate_resume_upload
 
 router = APIRouter(
     prefix="/users",
@@ -121,6 +122,33 @@ def update_me(
         current_user,
         user,
     )
+
+
+@router.post(
+    "/me/resume",
+    response_model=UserResponse,
+)
+async def upload_resume(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    contents = await file.read()
+    try:
+        validate_resume_upload(file.filename, file.content_type, len(contents))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    resume_url = save_resume_upload(contents, file.filename, current_user.id)
+    current_user.resume_url = str(request.base_url).rstrip("/") + resume_url
+    db.commit()
+    db.refresh(current_user)
+
+    return current_user
 
 
 @router.delete(
