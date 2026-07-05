@@ -2,19 +2,17 @@
 
 import * as React from "react";
 
-import { searchProjects, searchUsers, type ProjectSearchResult, type DeveloperSearchResult } from "@/lib/api";
+import {
+  searchProjects,
+  searchUsers,
+  type ProjectSearchResult,
+  type DeveloperSearchResult,
+} from "@/lib/api";
 
 import { includesCaseInsensitive } from "@/lib/commandSearchUtils";
 
-
-
 export type CommandPalettePageId =
-  | "dashboard"
-  | "projects"
-  | "builders"
-  | "messages"
-  | "notifications"
-  | "settings";
+  "dashboard" | "projects" | "builders" | "messages" | "notifications" | "settings";
 
 export type CommandPaletteRouteResult = {
   id: string;
@@ -26,7 +24,11 @@ export type CommandPaletteRouteResult = {
 const STATIC_PAGES: Array<{ id: CommandPalettePageId; title: string; matchTokens: string[] }> = [
   { id: "dashboard", title: "Dashboard", matchTokens: ["dashboard", "home"] },
   { id: "projects", title: "Projects", matchTokens: ["projects", "project"] },
-  { id: "builders", title: "Builder's Flare", matchTokens: ["flare", "builder's flare", "builders"] },
+  {
+    id: "builders",
+    title: "Builder's Flare",
+    matchTokens: ["flare", "builder's flare", "builders"],
+  },
   { id: "messages", title: "Messages", matchTokens: ["messages", "inbox", "chat"] },
   {
     id: "notifications",
@@ -41,7 +43,6 @@ function normalizeQuery(query: string): string {
 }
 
 function toDeveloperResult(user: DeveloperSearchResult): CommandPaletteRouteResult {
-
   return {
     id: user.id,
     title: user.username,
@@ -51,7 +52,6 @@ function toDeveloperResult(user: DeveloperSearchResult): CommandPaletteRouteResu
 }
 
 function toProjectResult(project: ProjectSearchResult): CommandPaletteRouteResult {
-
   return {
     id: project.id,
     title: project.title,
@@ -82,21 +82,19 @@ export function useCommandSearch(query: string): UseCommandSearchResult {
     return () => window.clearTimeout(handle);
   }, [query]);
 
-
-
   const pages = React.useMemo<CommandPaletteRouteResult[]>(() => {
     const q = debouncedQuery;
     if (!q) {
       return STATIC_PAGES.map((p) => ({ id: p.id, title: p.title, group: "pages" }));
     }
 
-    return STATIC_PAGES.filter((p) =>
-      p.matchTokens.some((t) => includesCaseInsensitive(t, q)),
-    ).map((p) => ({
-      id: p.id,
-      title: p.title,
-      group: "pages",
-    }));
+    return STATIC_PAGES.filter((p) => p.matchTokens.some((t) => includesCaseInsensitive(t, q))).map(
+      (p) => ({
+        id: p.id,
+        title: p.title,
+        group: "pages",
+      }),
+    );
   }, [debouncedQuery]);
 
   React.useEffect(() => {
@@ -111,16 +109,12 @@ export function useCommandSearch(query: string): UseCommandSearchResult {
       return;
     }
 
-
     const controller = new AbortController();
 
     setIsLoading(true);
     setError(null);
 
-    Promise.all([
-      searchProjects(q, controller.signal),
-      searchUsers(q, controller.signal),
-    ])
+    Promise.all([searchProjects(q, controller.signal), searchUsers(q, controller.signal)])
       .then(([projects, users]) => {
         if (controller.signal.aborted) return;
 

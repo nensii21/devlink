@@ -157,17 +157,12 @@ export function CommandPalette<TItem extends CommandPaletteItemBase>(
   if (!open) return <React.Fragment />;
 
   return (
-    <div
-      className="fixed inset-0 z-50"
-      role="presentation"
-      onMouseDown={onBackdropMouseDown}
-    >
+    <div className="fixed inset-0 z-50" role="presentation" onMouseDown={onBackdropMouseDown}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" role="presentation" />
 
       <div
         className={
-          "relative mx-auto w-full px-3 sm:px-0 sm:flex sm:justify-center" +
-          " sm:items-start"
+          "relative mx-auto w-full px-3 sm:px-0 sm:flex sm:justify-center" + " sm:items-start"
         }
       >
         <div
@@ -265,4 +260,3 @@ export function CommandPalette<TItem extends CommandPaletteItemBase>(
     </div>
   );
 }
-

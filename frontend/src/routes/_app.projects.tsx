@@ -18,7 +18,16 @@ export const Route = createFileRoute("/_app/projects")({
 
 const LANGUAGES = ["JavaScript", "TypeScript", "Python", "Go", "Rust", "Java", "C++"];
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
-const BOOL_FILTERS = ["remote", "paid", "openSource", "ai", "web", "mobile", "backend", "frontend"] as const;
+const BOOL_FILTERS = [
+  "remote",
+  "paid",
+  "openSource",
+  "ai",
+  "web",
+  "mobile",
+  "backend",
+  "frontend",
+] as const;
 type BoolFilter = (typeof BOOL_FILTERS)[number];
 
 const BOOL_LABELS: Record<BoolFilter, string> = {
@@ -62,13 +71,18 @@ function toggle<T>(set: T[], val: T): T[] {
 
 function ProjectsPage() {
   const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "planning" | "shipped">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "planning" | "shipped">(
+    "all",
+  );
   const [showFilters, setShowFilters] = useState(false);
   const [langs, setLangs] = useState<string[]>([]);
   const [difficulties, setDifficulties] = useState<string[]>([]);
   const [boolFilters, setBoolFilters] = useState<BoolFilter[]>([]);
 
-  const { data = [], isLoading } = useQuery({ queryKey: ["projects"], queryFn: projectsService.list });
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["projects"],
+    queryFn: projectsService.list,
+  });
 
   const hasActiveFilters = langs.length > 0 || difficulties.length > 0 || boolFilters.length > 0;
 
@@ -82,7 +96,8 @@ function ProjectsPage() {
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
     if (q && !p.name.toLowerCase().includes(q.toLowerCase())) return false;
     if (langs.length > 0 && (!p.language || !langs.includes(p.language))) return false;
-    if (difficulties.length > 0 && (!p.difficulty || !difficulties.includes(p.difficulty))) return false;
+    if (difficulties.length > 0 && (!p.difficulty || !difficulties.includes(p.difficulty)))
+      return false;
     for (const f of boolFilters) {
       if (!p[f]) return false;
     }
@@ -94,7 +109,9 @@ function ProjectsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-[22px] font-bold tracking-tight text-foreground">Projects</h1>
-          <p className="text-[13px] text-muted-foreground">Everything you're building, in one place.</p>
+          <p className="text-[13px] text-muted-foreground">
+            Everything you're building, in one place.
+          </p>
         </div>
         <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
           <Plus size={14} /> New project
@@ -104,7 +121,10 @@ function ProjectsPage() {
       <Card className="p-3">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -118,7 +138,9 @@ function ProjectsPage() {
                 key={f}
                 onClick={() => setStatusFilter(f)}
                 className={`rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors ${
-                  statusFilter === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  statusFilter === f
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {f}
@@ -148,10 +170,16 @@ function ProjectsPage() {
           <div className="mt-3 space-y-3 border-t border-border pt-3">
             {/* Language */}
             <div>
-              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Language</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Language
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {LANGUAGES.map((lang) => (
-                  <FilterChip key={lang} active={langs.includes(lang)} onClick={() => setLangs(toggle(langs, lang))}>
+                  <FilterChip
+                    key={lang}
+                    active={langs.includes(lang)}
+                    onClick={() => setLangs(toggle(langs, lang))}
+                  >
                     {lang}
                   </FilterChip>
                 ))}
@@ -160,10 +188,16 @@ function ProjectsPage() {
 
             {/* Difficulty */}
             <div>
-              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Difficulty</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Difficulty
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {DIFFICULTIES.map((d) => (
-                  <FilterChip key={d} active={difficulties.includes(d)} onClick={() => setDifficulties(toggle(difficulties, d))}>
+                  <FilterChip
+                    key={d}
+                    active={difficulties.includes(d)}
+                    onClick={() => setDifficulties(toggle(difficulties, d))}
+                  >
                     <span className="capitalize">{d}</span>
                   </FilterChip>
                 ))}
@@ -172,10 +206,16 @@ function ProjectsPage() {
 
             {/* Boolean tags */}
             <div>
-              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Tags</p>
+              <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Tags
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {BOOL_FILTERS.map((f) => (
-                  <FilterChip key={f} active={boolFilters.includes(f)} onClick={() => setBoolFilters(toggle(boolFilters, f))}>
+                  <FilterChip
+                    key={f}
+                    active={boolFilters.includes(f)}
+                    onClick={() => setBoolFilters(toggle(boolFilters, f))}
+                  >
                     {BOOL_LABELS[f]}
                   </FilterChip>
                 ))}
@@ -202,11 +242,20 @@ function ProjectsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground">🔍</div>
-          <p className="text-[14px] font-semibold text-foreground">No projects match your filters</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">Try adjusting or resetting your filters.</p>
+          <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground">
+            🔍
+          </div>
+          <p className="text-[14px] font-semibold text-foreground">
+            No projects match your filters
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Try adjusting or resetting your filters.
+          </p>
           {hasActiveFilters && (
-            <button onClick={resetFilters} className="mt-3 text-[13px] font-medium text-primary hover:underline">
+            <button
+              onClick={resetFilters}
+              className="mt-3 text-[13px] font-medium text-primary hover:underline"
+            >
               Reset filters
             </button>
           )}
@@ -214,13 +263,22 @@ function ProjectsPage() {
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <Link key={p.id} to="/projects/$projectId" params={{ projectId: p.id }} className="block">
+            <Link
+              key={p.id}
+              to="/projects/$projectId"
+              params={{ projectId: p.id }}
+              className="block"
+            >
               <Card interactive className="p-4">
                 <div className="flex items-start gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">{p.icon}</span>
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
+                    {p.icon}
+                  </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[14px] font-semibold text-foreground">{p.name}</p>
-                    <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">{p.description}</p>
+                    <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
+                      {p.description}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-1">
@@ -228,11 +286,15 @@ function ProjectsPage() {
                     <TagChip key={s}>{s}</TagChip>
                   ))}
                   {p.difficulty && (
-                    <TagChip className={cn(
-                      p.difficulty === "beginner" ? "border-success/30 bg-success/10 text-success" :
-                      p.difficulty === "intermediate" ? "border-warning/30 bg-warning/10 text-warning" :
-                      "border-destructive/30 bg-destructive/10 text-destructive"
-                    )}>
+                    <TagChip
+                      className={cn(
+                        p.difficulty === "beginner"
+                          ? "border-success/30 bg-success/10 text-success"
+                          : p.difficulty === "intermediate"
+                            ? "border-warning/30 bg-warning/10 text-warning"
+                            : "border-destructive/30 bg-destructive/10 text-destructive",
+                      )}
+                    >
                       {p.difficulty}
                     </TagChip>
                   )}
@@ -256,11 +318,17 @@ function ProjectsPage() {
                   <span className="inline-flex items-center gap-1">
                     <GitFork size={12} /> {p.forks}
                   </span>
-                  <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
-                    p.status === "active" ? "bg-success/10 text-success" :
-                    p.status === "planning" ? "bg-warning/10 text-warning" :
-                    "bg-muted text-muted-foreground"
-                  }`}>{p.status}</span>
+                  <span
+                    className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
+                      p.status === "active"
+                        ? "bg-success/10 text-success"
+                        : p.status === "planning"
+                          ? "bg-warning/10 text-warning"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {p.status}
+                  </span>
                 </div>
               </Card>
             </Link>

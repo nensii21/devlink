@@ -42,4 +42,3 @@ export function useCommandPalette(): UseCommandPaletteResult {
 
   return { open, setOpen, toggle };
 }
-
