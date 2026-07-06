@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+.venv/
+
+# Environment files
+.env
+*.env
+backend/.env
+
+# Node
+node_modules/
+dist/
+frontend/dist/
+frontend/node_modules/
+
+# Build
+.vite/
+/.nitro
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+
+# Logs
+logs/
+*.log
