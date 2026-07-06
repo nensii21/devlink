@@ -22,7 +22,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         />
         <input
           type="search"
-          placeholder="Search developers, projects, skills…"
+          placeholder="Search for developers, projects, or skills..."
           className="w-full rounded-md border border-border bg-surface py-[7px] pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
       </div>

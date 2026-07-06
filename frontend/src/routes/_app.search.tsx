@@ -34,7 +34,7 @@ function SearchPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search DevLink…"
+          placeholder="Search DevLink for developers, projects, or skills..."
           className="w-full rounded-md border border-border bg-surface py-2.5 pl-10 pr-3 text-[14px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
           autoFocus
         />

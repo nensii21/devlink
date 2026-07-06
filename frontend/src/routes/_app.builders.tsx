@@ -58,7 +58,7 @@ function BuildersPage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by name or skill…"
+            placeholder="Search by builder name or skill..."
             className="w-full rounded-md border border-border bg-surface py-[7px] pl-9 pr-3 text-[13px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
         </div>
