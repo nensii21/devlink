@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { APP_LOGO } from "@/lib/logo";
+import { Avatar } from "@/components/shared/primitives";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -64,9 +65,7 @@ const groups: Group[] = [
   },
   {
     label: "Account",
-    items: [
-      { label: "Settings", to: "/settings", icon: <Settings size={16} /> },
-    ],
+    items: [{ label: "Settings", to: "/settings", icon: <Settings size={16} /> }],
   },
 ];
 
@@ -111,10 +110,11 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             onClick={onClose}
             className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-sidebar-accent"
           >
-            <img
+            <Avatar
               src={currentUser.avatar}
-              alt=""
-              className="h-9 w-9 rounded-full border border-border bg-muted"
+              alt={currentUser.name}
+              name={currentUser.name}
+              size={36}
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-semibold text-foreground">
@@ -147,10 +147,7 @@ function SidebarGroup({ group, onNav }: { group: Group; onNav: () => void }) {
         className="flex w-full items-center justify-between px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
       >
         {group.label}
-        <ChevronRight
-          size={12}
-          className={cn("transition-transform", open && "rotate-90")}
-        />
+        <ChevronRight size={12} className={cn("transition-transform", open && "rotate-90")} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -161,7 +158,8 @@ function SidebarGroup({ group, onNav }: { group: Group; onNav: () => void }) {
             className="overflow-hidden"
           >
             {group.items.map((item) => {
-              const active = pathname === item.to || pathname.startsWith(item.to.split("?")[0] + "/");
+              const active =
+                pathname === item.to || pathname.startsWith(item.to.split("?")[0] + "/");
               return (
                 <li key={item.label}>
                   <Link
