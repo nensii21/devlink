@@ -1,8 +1,10 @@
-import { Bell, MessageSquare, Plus, Search, Sparkles, Menu } from "lucide-react";
+import { Bell, MessageSquare, Plus, Search, Sparkles, Menu, Moon, Sun } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { currentUser } from "@/mocks/seed";
+import { useTheme } from "@/hooks/useTheme";
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
+  const { isDark, toggleTheme } = useTheme();
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur">
       <button
@@ -35,6 +37,15 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
       </div>
 
       <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
         <IconButton to="/notifications" count={8}>
           <Bell size={16} />
         </IconButton>

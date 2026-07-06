@@ -1,6 +1,7 @@
 import React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { APP_LOGO } from "@/lib/logo";
+import { useTheme } from "@/hooks/useTheme";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -10,6 +11,8 @@ import {
   Github,
   ArrowRight,
   Check,
+  Moon,
+  Sun,
   Menu,
   X,
 } from "lucide-react";
@@ -34,6 +37,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { isDark, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   React.useEffect(() => {
     if (mobileMenuOpen) {
@@ -67,6 +71,16 @@ function Landing() {
           </nav>
           <div className="ml-auto flex items-center gap-2">
             <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
+              type="button"
               className="md:hidden rounded-md p-2 hover:bg-muted"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
