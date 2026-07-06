@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
 import { Card, TagChip, SectionHeader } from "@/components/shared/primitives";
+import { EmptySearchState } from "@/components/shared/EmptySearchState";
 import { Star, GitFork, Users2, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -73,6 +74,14 @@ function ProjectsPage() {
   const hasActiveFilters = langs.length > 0 || difficulties.length > 0 || boolFilters.length > 0;
 
   function resetFilters() {
+    setLangs([]);
+    setDifficulties([]);
+    setBoolFilters([]);
+  }
+
+  function clearAll() {
+    setQ("");
+    setStatusFilter("all");
     setLangs([]);
     setDifficulties([]);
     setBoolFilters([]);
@@ -200,17 +209,10 @@ function ProjectsPage() {
             <Card key={i} className="h-40 animate-pulse" />
           ))}
         </div>
+      ) : filtered.length === 0 && (q || statusFilter !== "all" || hasActiveFilters) ? (
+        <EmptySearchState onReset={clearAll} />
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground">🔍</div>
-          <p className="text-[14px] font-semibold text-foreground">No projects match your filters</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">Try adjusting or resetting your filters.</p>
-          {hasActiveFilters && (
-            <button onClick={resetFilters} className="mt-3 text-[13px] font-medium text-primary hover:underline">
-              Reset filters
-            </button>
-          )}
-        </div>
+        <EmptySearchState title="No projects yet." description="Create your first project to get started." onReset={undefined} />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
