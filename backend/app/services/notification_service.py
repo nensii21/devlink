@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
@@ -91,12 +91,12 @@ class NotificationService:
         recipient_id: uuid.UUID,
     ) -> int:
 
-        stmt = select(Notification).where(
+        stmt = select(func.count()).select_from(Notification).where(
             Notification.recipient_id == recipient_id,
             Notification.is_read.is_(False),
         )
 
-        return len(list(db.scalars(stmt)))
+        return db.scalar(stmt) or 0
 
     @staticmethod
     def mark_as_read(
