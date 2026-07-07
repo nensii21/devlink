@@ -10,7 +10,9 @@ ALLOWED_RESUME_MIME_TYPES: Final[set[str]] = {"application/pdf"}
 MAX_RESUME_SIZE_BYTES: Final[int] = settings.RESUME_MAX_SIZE_MB * 1024 * 1024
 
 
-def validate_resume_upload(filename: str | None, content_type: str | None, size_bytes: int) -> None:
+def validate_resume_upload(
+    filename: str | None, content_type: str | None, size_bytes: int
+) -> None:
     if not filename or not filename.lower().endswith(".pdf"):
         raise ValueError("Please upload a PDF file.")
 
@@ -19,7 +21,9 @@ def validate_resume_upload(filename: str | None, content_type: str | None, size_
         raise ValueError("Please upload a PDF file.")
 
     if size_bytes > MAX_RESUME_SIZE_BYTES:
-        raise ValueError(f"Resume file must be smaller than {settings.RESUME_MAX_SIZE_MB}MB.")
+        raise ValueError(
+            f"Resume file must be smaller than {settings.RESUME_MAX_SIZE_MB}MB."
+        )
 
 
 def save_resume_upload(contents: bytes, filename: str, user_id: uuid.UUID | str) -> str:
