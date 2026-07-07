@@ -1,3 +1,4 @@
+import React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { APP_LOGO } from "@/lib/logo";
 import { motion } from "framer-motion";
@@ -23,6 +24,19 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { isDark, toggleTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  React.useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-surface/80 backdrop-blur">
@@ -43,24 +57,98 @@ function Landing() {
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Link
-              to="/auth"
-              className="rounded-md px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-muted"
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              Sign in
-            </Link>
-            <Link
-              to="/auth"
-              className="rounded-md bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground hover:opacity-90"
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
+              type="button"
+              className="md:hidden rounded-md p-2 hover:bg-muted"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
             >
-              Get started
-            </Link>
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+
+            <div className="hidden md:flex items-center gap-2">
+              <Link
+                to="/auth"
+                className="rounded-md px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-muted"
+              >
+                Sign in
+              </Link>
+
+              <Link
+                to="/auth"
+                className="rounded-md bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Get started
+              </Link>
+            </div>
           </div>
         </div>
       </header>
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-b border-border bg-surface"
+          >
+            <div className="flex flex-col px-4 py-4 space-y-3">
+              <a
+                href="#features"
+                className="text-sm text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Features
+              </a>
+
+              <a
+                href="#builders"
+                className="text-sm text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Builders
+              </a>
+
+              <a
+                href="#pricing"
+                className="text-sm text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pricing
+              </a>
+
+              <Link
+                to="/auth"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-md border border-border px-3 py-2 text-center"
+              >
+                Sign In
+              </Link>
+
+              <Link
+                to="/auth"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-md bg-primary px-3 py-2 text-center text-primary-foreground"
+              >
+                Get Started
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 text-center">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-24 text-center">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -76,7 +164,7 @@ function Landing() {
               Match with teammates by skills and vibe, run projects with real-time messaging, and
               enter hackathons together — all in one clean workspace.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/auth"
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[14px] font-semibold text-primary-foreground hover:opacity-90"
