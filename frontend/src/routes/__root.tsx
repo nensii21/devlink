@@ -7,21 +7,32 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Toaster } from "sonner";
-import Lottie from "lottie-react";
+import lottie from "lottie-web";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import searchAnimation from "@/assets/404 Error - Doodle animation.json";
 
 function NotFoundComponent() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const anim = lottie.loadAnimation({
+      container: ref.current,
+      animationData: searchAnimation,
+      loop: true,
+      autoplay: true,
+    });
+    return () => anim.destroy();
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-background px-4">
       <div className="w-full max-w-md text-center">
-        <div className="mx-auto w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64" aria-hidden="true">
-          <Lottie animationData={searchAnimation} loop autoplay />
-        </div>
+        <div ref={ref} className="mx-auto w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64" />
 
         <h1 className="-mt-2 text-2xl font-bold text-foreground sm:text-3xl">
           Page not found
