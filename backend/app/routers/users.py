@@ -132,9 +132,76 @@ def delete_me(
     db: Session = Depends(get_db),
 ):
 
-    UserService.delete_user(
+    UserService.soft_delete_user(
         db,
         current_user,
+        deleted_by_id=current_user.id,
+    )
+
+
+@router.patch(
+    "/{user_id}/restore",
+    response_model=UserResponse,
+)
+def restore_user(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admins can restore users",
+        )
+
+    user = UserService.get_user_including_deleted(db, user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    if user.deleted_at is None:
+        raise HTTPException(
+            status_code=400,
+            detail="User is not deleted",
+        )
+
+    return UserService.restore_user(
+        db,
+        user,
+    )
+
+
+@router.delete(
+    "/{user_id}/hard",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def hard_delete_user(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admins can permanently delete users",
+        )
+
+    user = UserService.get_user_including_deleted(db, user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    UserService.hard_delete_user(
+        db,
+        user,
     )
 
 

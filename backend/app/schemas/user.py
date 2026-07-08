@@ -108,6 +108,9 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: datetime
 
+    deleted_at: Optional[datetime] = None
+    deleted_by_id: Optional[uuid.UUID] = None
+
 
 # ==========================================================
 # Private User Response

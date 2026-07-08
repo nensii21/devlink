@@ -303,6 +303,7 @@ def disable_hiring(
 def delete_organization(
     organization_id: uuid.UUID,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
 
     organization = OrganizationService.get_organization(
@@ -316,7 +317,78 @@ def delete_organization(
             detail="Organization not found",
         )
 
-    OrganizationService.delete_organization(
+    OrganizationService.soft_delete_organization(
+        db,
+        organization,
+        deleted_by_id=current_user.id,
+    )
+
+
+@router.patch(
+    "/{organization_id}/restore-soft-delete",
+    response_model=OrganizationResponse,
+)
+def restore_organization_soft_delete(
+    organization_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    organization = OrganizationService.get_organization_including_deleted(
+        db, organization_id
+    )
+
+    if organization is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Organization not found",
+        )
+
+    if organization.deleted_at is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Organization is not deleted",
+        )
+
+    if organization.owner_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Permission denied",
+        )
+
+    return OrganizationService.restore_soft_deleted_organization(
+        db,
+        organization,
+    )
+
+
+@router.delete(
+    "/{organization_id}/hard",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def hard_delete_organization(
+    organization_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admins can permanently delete organizations",
+        )
+
+    organization = OrganizationService.get_organization_including_deleted(
+        db, organization_id
+    )
+
+    if organization is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Organization not found",
+        )
+
+    OrganizationService.hard_delete_organization(
         db,
         organization,
     )

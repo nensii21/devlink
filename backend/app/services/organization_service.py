@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.organization import Organization
@@ -54,6 +54,18 @@ class OrganizationService:
         organization_id: uuid.UUID,
     ) -> Organization | None:
 
+        stmt = select(Organization).where(
+            Organization.id == organization_id,
+            Organization.deleted_at.is_(None),
+        )
+        return db.scalar(stmt)
+
+    @staticmethod
+    def get_organization_including_deleted(
+        db: Session,
+        organization_id: uuid.UUID,
+    ) -> Organization | None:
+        """Retrieve an organization regardless of soft-delete status (admin use)."""
         return db.get(Organization, organization_id)
 
     @staticmethod
@@ -62,7 +74,10 @@ class OrganizationService:
         slug: str,
     ) -> Organization | None:
 
-        stmt = select(Organization).where(Organization.slug == slug)
+        stmt = select(Organization).where(
+            Organization.slug == slug,
+            Organization.deleted_at.is_(None),
+        )
 
         return db.scalar(stmt)
 
@@ -73,7 +88,12 @@ class OrganizationService:
         limit: int = 20,
     ) -> list[Organization]:
 
-        stmt = select(Organization).offset(skip).limit(limit)
+        stmt = (
+            select(Organization)
+            .where(Organization.deleted_at.is_(None))
+            .offset(skip)
+            .limit(limit)
+        )
 
         return list(db.scalars(stmt))
 
@@ -83,7 +103,10 @@ class OrganizationService:
         owner_id: uuid.UUID,
     ) -> list[Organization]:
 
-        stmt = select(Organization).where(Organization.owner_id == owner_id)
+        stmt = select(Organization).where(
+            Organization.owner_id == owner_id,
+            Organization.deleted_at.is_(None),
+        )
 
         return list(db.scalars(stmt))
 
@@ -93,7 +116,10 @@ class OrganizationService:
         keyword: str,
     ) -> list[Organization]:
 
-        stmt = select(Organization).where(Organization.name.ilike(f"%{keyword}%"))
+        stmt = select(Organization).where(
+            Organization.name.ilike(f"%{keyword}%"),
+            Organization.deleted_at.is_(None),
+        )
 
         return list(db.scalars(stmt))
 
@@ -180,10 +206,33 @@ class OrganizationService:
         return db_organization
 
     @staticmethod
-    def delete_organization(
+    def soft_delete_organization(
+        db: Session,
+        db_organization: Organization,
+        deleted_by_id: uuid.UUID,
+    ) -> None:
+        """Mark an organization as deleted without removing the row."""
+        db_organization.deleted_at = func.now()
+        db_organization.deleted_by_id = deleted_by_id
+        db.commit()
+
+    @staticmethod
+    def restore_soft_deleted_organization(
+        db: Session,
+        db_organization: Organization,
+    ) -> Organization:
+        """Restore a soft-deleted organization."""
+        db_organization.deleted_at = None
+        db_organization.deleted_by_id = None
+        db.commit()
+        db.refresh(db_organization)
+        return db_organization
+
+    @staticmethod
+    def hard_delete_organization(
         db: Session,
         db_organization: Organization,
     ) -> None:
-
+        """Permanently remove an organization from the database (admin only)."""
         db.delete(db_organization)
         db.commit()

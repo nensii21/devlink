@@ -340,7 +340,74 @@ def delete_project(
             detail="Permission denied",
         )
 
-    ProjectService.delete_project(
+    ProjectService.soft_delete_project(
+        db,
+        project,
+        deleted_by_id=current_user.id,
+    )
+
+
+@router.patch(
+    "/{project_id}/restore-soft-delete",
+    response_model=ProjectResponse,
+)
+def restore_project_soft_delete(
+    project_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    project = ProjectService.get_project_including_deleted(db, project_id)
+
+    if project is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found",
+        )
+
+    if project.deleted_at is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Project is not deleted",
+        )
+
+    if project.owner_id != current_user.id and not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Permission denied",
+        )
+
+    return ProjectService.restore_soft_deleted_project(
+        db,
+        project,
+    )
+
+
+@router.delete(
+    "/{project_id}/hard",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def hard_delete_project(
+    project_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=403,
+            detail="Only admins can permanently delete projects",
+        )
+
+    project = ProjectService.get_project_including_deleted(db, project_id)
+
+    if project is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found",
+        )
+
+    ProjectService.hard_delete_project(
         db,
         project,
     )

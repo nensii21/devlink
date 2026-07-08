@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -15,17 +15,38 @@ class UserService:
     """
 
     @staticmethod
-    def get_user(db: Session, user_id: uuid.UUID) -> User | None:
+    def get_user(
+        db: Session,
+        user_id: uuid.UUID,
+    ) -> User | None:
+        stmt = select(User).where(
+            User.id == user_id,
+            User.deleted_at.is_(None),
+        )
+        return db.scalar(stmt)
+
+    @staticmethod
+    def get_user_including_deleted(
+        db: Session,
+        user_id: uuid.UUID,
+    ) -> User | None:
+        """Retrieve a user regardless of soft-delete status (admin use)."""
         return db.get(User, user_id)
 
     @staticmethod
     def get_by_email(db: Session, email: str) -> User | None:
-        stmt = select(User).where(User.email == email)
+        stmt = select(User).where(
+            User.email == email,
+            User.deleted_at.is_(None),
+        )
         return db.scalar(stmt)
 
     @staticmethod
     def get_by_username(db: Session, username: str) -> User | None:
-        stmt = select(User).where(User.username == username)
+        stmt = select(User).where(
+            User.username == username,
+            User.deleted_at.is_(None),
+        )
         return db.scalar(stmt)
 
     @staticmethod
@@ -34,7 +55,12 @@ class UserService:
         skip: int = 0,
         limit: int = 20,
     ) -> list[User]:
-        stmt = select(User).offset(skip).limit(limit)
+        stmt = (
+            select(User)
+            .where(User.deleted_at.is_(None))
+            .offset(skip)
+            .limit(limit)
+        )
         return list(db.scalars(stmt))
 
     @staticmethod
@@ -76,11 +102,34 @@ class UserService:
         return db_user
 
     @staticmethod
-    def delete_user(
+    def soft_delete_user(
+        db: Session,
+        db_user: User,
+        deleted_by_id: uuid.UUID,
+    ) -> None:
+        """Mark a user as deleted without removing the row."""
+        db_user.deleted_at = func.now()
+        db_user.deleted_by_id = deleted_by_id
+        db.commit()
+
+    @staticmethod
+    def restore_user(
+        db: Session,
+        db_user: User,
+    ) -> User:
+        """Restore a soft-deleted user."""
+        db_user.deleted_at = None
+        db_user.deleted_by_id = None
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+
+    @staticmethod
+    def hard_delete_user(
         db: Session,
         db_user: User,
     ) -> None:
-
+        """Permanently remove a user from the database (admin only)."""
         db.delete(db_user)
         db.commit()
 

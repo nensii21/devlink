@@ -19,6 +19,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
 
+# Forward reference for type annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.user import User
+
 
 class ProjectStage(str, Enum):
     IDEA = "idea"
@@ -182,6 +188,28 @@ class Project(Base):
     is_archived: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
+    )
+
+    # ----------------------------------------------------------
+    # Soft Delete
+    # ----------------------------------------------------------
+
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+    )
+
+    deleted_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        default=None,
+    )
+
+    deleted_by: Mapped[User | None] = relationship(
+        "User",
+        foreign_keys=[deleted_by_id],
     )
 
     # ----------------------------------------------------------
