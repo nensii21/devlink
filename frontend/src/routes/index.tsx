@@ -1,6 +1,8 @@
+import React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { APP_LOGO } from "@/lib/logo";
-import { motion } from "framer-motion";
+import { useTheme } from "@/hooks/useTheme";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Users2,
@@ -9,6 +11,10 @@ import {
   Github,
   ArrowRight,
   Check,
+  Moon,
+  Sun,
+  Menu,
+  X,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -31,6 +37,19 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { isDark, toggleTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  React.useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-surface/80 backdrop-blur">
@@ -40,29 +59,109 @@ function Landing() {
             <span className="text-[16px] font-bold tracking-tight text-foreground">DevLink</span>
           </Link>
           <nav className="ml-6 hidden items-center gap-5 text-[13px] font-medium text-muted-foreground md:flex">
-            <a href="#features" className="hover:text-foreground">Features</a>
-            <a href="#builders" className="hover:text-foreground">Builders</a>
-            <a href="#pricing" className="hover:text-foreground">Pricing</a>
+            <a href="#features" className="hover:text-foreground">
+              Features
+            </a>
+            <a href="#builders" className="hover:text-foreground">
+              Builders
+            </a>
+            <a href="#pricing" className="hover:text-foreground">
+              Pricing
+            </a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Link
-              to="/auth"
-              className="rounded-md px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-muted"
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              Sign in
-            </Link>
-            <Link
-              to="/auth"
-              className="rounded-md bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground hover:opacity-90"
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
+              type="button"
+              className="md:hidden rounded-md p-2 hover:bg-muted"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
             >
-              Get started
-            </Link>
+              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+
+            <div className="hidden md:flex items-center gap-2">
+              <Link
+                to="/auth"
+                className="rounded-md px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-muted"
+              >
+                Sign in
+              </Link>
+
+              <Link
+                to="/auth"
+                className="rounded-md bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Get started
+              </Link>
+            </div>
           </div>
         </div>
       </header>
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-b border-border bg-surface"
+          >
+            <div className="flex flex-col px-4 py-4 space-y-3">
+              <a
+                href="#features"
+                className="text-sm text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Features
+              </a>
+
+              <a
+                href="#builders"
+                className="text-sm text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Builders
+              </a>
+
+              <a
+                href="#pricing"
+                className="text-sm text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pricing
+              </a>
+
+              <Link
+                to="/auth"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-md border border-border px-3 py-2 text-center"
+              >
+                Sign In
+              </Link>
+
+              <Link
+                to="/auth"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-md bg-primary px-3 py-2 text-center text-primary-foreground"
+              >
+                Get Started
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 text-center">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-24 text-center">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -71,15 +170,14 @@ function Landing() {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-[12px] font-medium text-muted-foreground">
               <Sparkles size={12} className="text-primary" /> AI-powered team matching · in beta
             </span>
-            <h1 className="mx-auto mt-6 max-w-3xl text-[36px] font-bold leading-tight tracking-tight text-foreground sm:text-[52px]">
-              Where builders connect,{" "}
-              <span className="text-primary">collaborate</span> and ship.
+            <h1 className="mx-auto mt-6 max-w-3xl text-[30px] sm:text-[52px] font-bold leading-tight tracking-tight text-foreground">
+              Where builders connect, <span className="text-primary">collaborate</span> and ship.
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground">
               Match with teammates by skills and vibe, run projects with real-time messaging, and
               enter hackathons together — all in one clean workspace.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 to="/auth"
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[14px] font-semibold text-primary-foreground hover:opacity-90"
@@ -100,10 +198,26 @@ function Landing() {
       <section id="features" className="border-b border-border">
         <div className="mx-auto grid max-w-6xl gap-4 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
           {[
-            { icon: Sparkles, title: "AI matches", desc: "Rank teammates by skill, availability and past work." },
-            { icon: Users2, title: "Builder profiles", desc: "One profile, everywhere. Skills, stack, contributions." },
-            { icon: MessageSquare, title: "Real-time chat", desc: "Threaded conversations with your team, in-app." },
-            { icon: Trophy, title: "Hackathons", desc: "Discover jams, form teams, ship in a weekend." },
+            {
+              icon: Sparkles,
+              title: "AI matches",
+              desc: "Rank teammates by skill, availability and past work.",
+            },
+            {
+              icon: Users2,
+              title: "Builder profiles",
+              desc: "One profile, everywhere. Skills, stack, contributions.",
+            },
+            {
+              icon: MessageSquare,
+              title: "Real-time chat",
+              desc: "Threaded conversations with your team, in-app.",
+            },
+            {
+              icon: Trophy,
+              title: "Hackathons",
+              desc: "Discover jams, form teams, ship in a weekend.",
+            },
           ].map((f) => (
             <div key={f.title} className="rounded-md border border-border bg-card p-5">
               <span className="grid h-9 w-9 place-items-center rounded-md bg-primary-soft text-primary">
@@ -128,8 +242,17 @@ function Landing() {
           </div>
           <div className="mx-auto mt-8 grid max-w-3xl gap-4 sm:grid-cols-2">
             {[
-              { name: "Free", price: "$0", perks: ["Up to 3 projects", "AI matching", "Community feed"] },
-              { name: "Pro", price: "$12/mo", perks: ["Unlimited projects", "Priority AI", "Team analytics", "Priority support"], featured: true },
+              {
+                name: "Free",
+                price: "$0",
+                perks: ["Up to 3 projects", "AI matching", "Community feed"],
+              },
+              {
+                name: "Pro",
+                price: "$12/mo",
+                perks: ["Unlimited projects", "Priority AI", "Team analytics", "Priority support"],
+                featured: true,
+              },
             ].map((p) => (
               <div
                 key={p.name}
@@ -169,7 +292,9 @@ function Landing() {
           </div>
           <div className="flex items-center gap-5 text-[12px] text-muted-foreground">
             {["Privacy", "Security", "Terms", "Status"].map((l) => (
-              <a key={l} href="#" className="hover:text-primary hover:underline">{l}</a>
+              <a key={l} href="#" className="hover:text-primary hover:underline">
+                {l}
+              </a>
             ))}
           </div>
         </div>

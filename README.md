@@ -30,10 +30,6 @@ participate in hackathons, and launch products together.
 
 <img src="https://img.shields.io/github/contributors/nensii21/devlink?style=for-the-badge">
 
-<img src="https://img.shields.io/badge/ECSoc-2026-blue?style=for-the-badge">
-
-<img src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge">
-
 </p>
 
 ---
@@ -587,3 +583,4 @@ Made with ❤️ by developers, for developers.
 Building the future of developer collaboration.
 
 </p>
+...
