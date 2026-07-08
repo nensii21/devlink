@@ -3,14 +3,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
-from app.core.config import settings
-from app.middleware.request_id import RequestIDMiddleware
-from app.middleware.security_headers import SecurityHeadersMiddleware
-from app.middleware.rate_limit import limiter
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from slowapi import _rate_limit_exceeded_handler
+
+from app.core.config import settings
+from app.middleware.rate_limit import limiter
+from app.middleware.request_id import RequestIDMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
 
 
 @asynccontextmanager
@@ -127,24 +127,25 @@ async def global_exception_handler(request, exc):
 
 # Uncomment as each router is created.
 
-from app.routers import auth
-from app.routers import users
-from app.routers import projects
-from app.routers import builders
-from app.routers import builder_flare
-from app.routers import messages
-from app.routers import notifications
-from app.routers import ai
-from app.routers import followers
-from app.routers import bookmarks
-from app.routers import activities
-from app.routers import notifications
-from app.routers import conversations
-from app.routers import repositories
-from app.routers import organizations
-from app.routers import applications
-from app.routers import skills
-from app.routers import users
+from app.routers import (
+    activities,
+    ai,
+    applications,
+    auth,
+    bookmarks,
+    builder_flare,
+    builders,
+    conversations,
+    followers,
+    messages,
+    notifications,
+    organizations,
+    projects,
+    recommendations,
+    repositories,
+    skills,
+    users,
+)
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
@@ -165,3 +166,4 @@ app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
 app.include_router(users.router)
+app.include_router(recommendations.router)
