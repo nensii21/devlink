@@ -20,7 +20,9 @@ function HackathonsPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-[22px] font-bold tracking-tight text-foreground">Hackathons</h1>
-        <p className="text-[13px] text-muted-foreground">Join a jam, build a team, ship something new.</p>
+        <p className="text-[13px] text-muted-foreground">
+          Join a jam, build a team, ship something new.
+        </p>
       </div>
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {data.map((h) => (
@@ -38,8 +40,12 @@ function HackathonsPage() {
             <p className="mt-3 text-[15px] font-semibold text-foreground">{h.name}</p>
             <p className="mt-0.5 text-[12px] text-muted-foreground">{h.theme}</p>
             <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-              <span className="inline-flex items-center gap-1"><Clock size={11} /> Starts in {h.startsIn}d</span>
-              <span className="inline-flex items-center gap-1"><Users2 size={11} /> {h.teamSize}</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock size={11} /> Starts in {h.startsIn}d
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Users2 size={11} /> {h.teamSize}
+              </span>
               <TagChip className="text-warning border-warning/30 bg-warning/10">{h.prize}</TagChip>
             </div>
             <button className="mt-4 w-full rounded-md bg-primary py-1.5 text-[12px] font-semibold text-primary-foreground hover:opacity-90">

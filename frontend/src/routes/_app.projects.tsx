@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouterState, Outlet } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
-import { Card, TagChip, SectionHeader } from "@/components/shared/primitives";
+import { Card, TagChip, SectionHeader, EmptyState } from "@/components/shared/primitives";
 import { Star, GitFork, Users2, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -215,16 +215,30 @@ function ProjectsPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground">🔍</div>
-          <p className="text-[14px] font-semibold text-foreground">No projects match your filters</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">Try adjusting or resetting your filters.</p>
-          {hasActiveFilters && (
-            <button onClick={resetFilters} className="mt-3 text-[13px] font-medium text-primary hover:underline">
-              Reset filters
-            </button>
-          )}
-        </div>
+        q !== "" ? (
+          <EmptyState
+            variant="search"
+            title="No projects found"
+            desc={`We couldn't find any projects matching "${q}".`}
+          />
+        ) : (
+          <EmptyState
+            variant="projects"
+            title="No projects yet"
+            desc={
+              statusFilter === "all"
+                ? "Create your first project to start collaborating with other builders."
+                : `There are no ${statusFilter} projects right now.`
+            }
+            action={
+              statusFilter === "all" ? (
+                <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+                  <Plus size={14} /> New project
+                </button>
+              ) : undefined
+            }
+          />
+        )
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
@@ -289,6 +303,7 @@ function ProjectsPage() {
           ))}
         </div>
       )}
+
     </div>
   );
 }

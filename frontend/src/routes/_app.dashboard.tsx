@@ -18,7 +18,10 @@ export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — DevLink" },
-      { name: "description", content: "Your DevLink command center: projects, matches, messages and streaks." },
+      {
+        name: "description",
+        content: "Your DevLink command center: projects, matches, messages and streaks.",
+      },
     ],
   }),
   component: Dashboard,

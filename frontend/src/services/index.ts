@@ -46,4 +46,13 @@ export const userService = {
   me: () => mock(seed.currentUser),
 };
 
-export type { Builder, Project, Activity, Flare, Conversation, Notification, Hackathon, Deadline } from "@/mocks/seed";
+export type {
+  Builder,
+  Project,
+  Activity,
+  Flare,
+  Conversation,
+  Notification,
+  Hackathon,
+  Deadline,
+} from "@/mocks/seed";

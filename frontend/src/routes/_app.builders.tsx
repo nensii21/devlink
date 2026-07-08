@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate, useRouterState, Outlet } from "@tan
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import type { Builder } from "@/services";
-import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { Card, TagChip, Avatar, EmptyState } from "@/components/shared/primitives";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -200,17 +200,39 @@ function BuildersPage() {
     queryFn: tab === "matches" ? buildersService.matches : buildersService.list,
   });
 
+  const [connections, setConnections] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem("devlink:connections");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleConnect = (id: string) => {
+    setConnections((prev) => {
+      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
+      localStorage.setItem("devlink:connections", JSON.stringify(next));
+      return next;
+    });
+  };
+
   const isDetails = pathname.split("/").filter(Boolean).length > 1;
 
   if (isDetails) {
     return <Outlet />;
   }
 
-  const filtered = data.filter(
+  const baseData = tab === "connections"
+    ? data.filter((b) => connections.includes(b.id))
+    : data;
+
+  const filtered = baseData.filter(
     (b) =>
       b.name.toLowerCase().includes(q.toLowerCase()) ||
       b.skills.some((s) => s.toLowerCase().includes(q.toLowerCase())),
   );
+
 
   const tabs = [
     { k: "discover", label: "Discover" },
@@ -256,7 +278,35 @@ function BuildersPage() {
         </div>
       </div>
 
-      {tab === "matches" ? (
+      {filtered.length === 0 ? (
+        q !== "" ? (
+          <EmptyState
+            variant="search"
+            title="No builders found"
+            desc={`We couldn't find any developers or skills matching "${q}".`}
+          />
+        ) : tab === "connections" ? (
+          <EmptyState
+            variant="connections"
+            title="No connections yet"
+            desc="Start connecting with other builders to collaborate, share flares, and message them."
+            action={
+              <button
+                onClick={() => navigate({ search: (prev) => ({ ...prev, tab: "discover" }) })}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90 cursor-pointer"
+              >
+                Discover builders
+              </button>
+            }
+          />
+        ) : (
+          <EmptyState
+            variant="default"
+            title="No builders yet"
+            desc="No builders are currently available in this section."
+          />
+        )
+      ) : tab === "matches" ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((b) => (
             <AIMatchCard key={b.id} builder={b} />
@@ -264,36 +314,60 @@ function BuildersPage() {
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((b) => (
-            <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-              <Card interactive className="p-4 text-center">
-                <div className="mx-auto w-fit">
-                  <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
-                </div>
-                <p className="mt-2 text-[14px] font-semibold text-foreground">{b.name}</p>
-                <p className="text-[12px] text-muted-foreground">{b.role}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  {b.country} · {b.yearsExp} yrs
-                </p>
-                <div className="mt-2 flex flex-wrap justify-center gap-1">
-                  {b.skills.slice(0, 3).map((s) => (
-                    <TagChip key={s}>{s}</TagChip>
-                  ))}
-                </div>
-                <p className="mt-2 text-[12px] font-semibold text-success">{b.matchScore}% Match</p>
-                <div className="mt-2 flex gap-1.5">
-                  <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
-                    Connect
-                  </button>
-                  <button className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted">
-                    Message
-                  </button>
-                </div>
-              </Card>
-            </Link>
-          ))}
+          {filtered.map((b) => {
+            const isConnected = connections.includes(b.id);
+            return (
+              <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
+                <Card interactive className="p-4 text-center h-full flex flex-col justify-between">
+                  <div>
+                    <div className="mx-auto w-fit">
+                      <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
+                    </div>
+                    <p className="mt-2 text-[14px] font-semibold text-foreground">{b.name}</p>
+                    <p className="text-[12px] text-muted-foreground">{b.role}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {b.country} · {b.yearsExp} yrs
+                    </p>
+                    <div className="mt-2 flex flex-wrap justify-center gap-1">
+                      {b.skills.slice(0, 3).map((s) => (
+                        <TagChip key={s}>{s}</TagChip>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-[12px] font-semibold text-success">{b.matchScore}% Match</p>
+                  </div>
+                  <div className="mt-3 flex gap-1.5">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleConnect(b.id);
+                      }}
+                      className={cn(
+                        "flex-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors cursor-pointer",
+                        isConnected
+                          ? "border border-success bg-success/10 text-success hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
+                          : "bg-primary text-primary-foreground hover:opacity-90",
+                      )}
+                    >
+                      {isConnected ? "Connected" : "Connect"}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted cursor-pointer"
+                    >
+                      Message
+                    </button>
+                  </div>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       )}
+
     </div>
   );
 }
