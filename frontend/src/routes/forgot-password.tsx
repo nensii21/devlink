@@ -3,6 +3,7 @@ import { APP_LOGO } from "@/lib/logo";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/components/shared/BackButton";
 
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
@@ -55,13 +56,11 @@ function ForgotPassword() {
             </button>
           </form>
         )}
-        <Link
-          to="/auth"
-          className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:underline"
-        >
-          <ArrowLeft size={14} /> Back to sign in
-        </Link>
-      </div>
+        <BackButton
+  to="/auth"
+  label="Back to sign in"
+/>
+      </div>  
     </div>
   );
 }

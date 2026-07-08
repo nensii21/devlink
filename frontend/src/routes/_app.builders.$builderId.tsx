@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { ArrowLeft, MessageSquare, UserPlus } from "lucide-react";
+import { BackButton } from "@/components/shared/BackButton";
 
 export const Route = createFileRoute("/_app/builders/$builderId")({
   head: ({ params }) => ({
@@ -18,9 +19,10 @@ function BuilderProfile() {
   if (!b) throw notFound();
   return (
     <div className="space-y-4">
-      <Link to="/builders" className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground">
-        <ArrowLeft size={14} /> Back to builders
-      </Link>
+      <BackButton
+  to="/builders"
+  label="Back to builders"
+/>
       <Card className="p-6">
         <div className="flex flex-wrap items-start gap-5">
           <Avatar src={b.avatar} alt={b.name} size={96} online={b.online} />
