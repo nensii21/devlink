@@ -7,7 +7,7 @@ function AppNotFound() {
   return (
     <div className="fixed inset-0 z-50 flex min-h-screen w-full items-center justify-center bg-background px-4">
       <div className="w-full max-w-md text-center">
-        <div className="mx-auto w-48 sm:w-56 md:w-64 aspect-square" aria-hidden="true">
+        <div className="mx-auto w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64" aria-hidden="true">
           <Lottie animationData={searchAnimation} loop autoplay />
         </div>
 
