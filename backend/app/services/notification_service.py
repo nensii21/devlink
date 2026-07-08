@@ -91,9 +91,13 @@ class NotificationService:
         recipient_id: uuid.UUID,
     ) -> int:
 
-        stmt = select(func.count()).select_from(Notification).where(
-            Notification.recipient_id == recipient_id,
-            Notification.is_read.is_(False),
+        stmt = (
+            select(func.count())
+            .select_from(Notification)
+            .where(
+                Notification.recipient_id == recipient_id,
+                Notification.is_read.is_(False),
+            )
         )
 
         return db.scalar(stmt) or 0
