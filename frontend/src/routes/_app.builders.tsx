@@ -223,16 +223,13 @@ function BuildersPage() {
     return <Outlet />;
   }
 
-  const baseData = tab === "connections"
-    ? data.filter((b) => connections.includes(b.id))
-    : data;
+  const baseData = tab === "connections" ? data.filter((b) => connections.includes(b.id)) : data;
 
   const filtered = baseData.filter(
     (b) =>
       b.name.toLowerCase().includes(q.toLowerCase()) ||
       b.skills.some((s) => s.toLowerCase().includes(q.toLowerCase())),
   );
-
 
   const tabs = [
     { k: "discover", label: "Discover" },
@@ -333,7 +330,9 @@ function BuildersPage() {
                         <TagChip key={s}>{s}</TagChip>
                       ))}
                     </div>
-                    <p className="mt-2 text-[12px] font-semibold text-success">{b.matchScore}% Match</p>
+                    <p className="mt-2 text-[12px] font-semibold text-success">
+                      {b.matchScore}% Match
+                    </p>
                   </div>
                   <div className="mt-3 flex gap-1.5">
                     <button
@@ -367,7 +366,6 @@ function BuildersPage() {
           })}
         </div>
       )}
-
     </div>
   );
 }
