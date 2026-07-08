@@ -1,6 +1,8 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { FollowButton } from "@/components/shared/FollowButton";
 import { builders, currentUser, projects } from "@/mocks/seed";
+import { useFollowStatus } from "@/hooks/useFollow";
 import { MapPin, Calendar, Link as LinkIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_app/profile/$username")({
@@ -21,6 +23,8 @@ function ProfilePage() {
     : builders.find((x) => x.handle === username);
   if (!b) throw notFound();
 
+  const { data: followStatus } = useFollowStatus(me ? undefined : b.id);
+
   return (
     <div className="space-y-4">
       <Card className="p-6">
@@ -34,13 +38,15 @@ function ProfilePage() {
               <span className="inline-flex items-center gap-1"><MapPin size={12} /> {b.country}</span>
               <span className="inline-flex items-center gap-1"><Calendar size={12} /> Joined 2024</span>
               <span className="inline-flex items-center gap-1"><LinkIcon size={12} /> devlink.io/{b.handle}</span>
+              {followStatus && (
+                <>
+                  <span className="font-semibold text-foreground">{followStatus.follower_count} <span className="font-normal text-muted-foreground">followers</span></span>
+                  <span className="font-semibold text-foreground">{followStatus.following_count} <span className="font-normal text-muted-foreground">following</span></span>
+                </>
+              )}
             </div>
           </div>
-          {!me && (
-            <button className="rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
-              Follow
-            </button>
-          )}
+          {!me && <FollowButton userId={b.id} />}
         </div>
       </Card>
 

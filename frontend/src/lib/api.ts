@@ -168,3 +168,49 @@ export function toastError(err: unknown, fallback = "Something went wrong") {
   toast.error(message);
 }
 
+// ------------------------------------------------------------------
+// Follow / Unfollow
+// ------------------------------------------------------------------
+
+export type FollowStatusResponse = {
+  is_following: boolean;
+  follower_count: number;
+  following_count: number;
+};
+
+export type FollowActionResponse = {
+  id: UUID;
+  follower_id: UUID;
+  following_id: UUID;
+  created_at: string;
+  follower_count: number;
+  following_count: number;
+};
+
+export type UnfollowResponse = {
+  message: string;
+  follower_count: number;
+  following_count: number;
+};
+
+export async function followUser(userId: UUID): Promise<FollowActionResponse> {
+  return requestJson<FollowActionResponse>({
+    url: `/users/${userId}/follow`,
+    method: "POST",
+  });
+}
+
+export async function unfollowUser(userId: UUID): Promise<UnfollowResponse> {
+  return requestJson<UnfollowResponse>({
+    url: `/users/${userId}/follow`,
+    method: "DELETE",
+  });
+}
+
+export async function getFollowStatus(userId: UUID): Promise<FollowStatusResponse> {
+  return requestJson<FollowStatusResponse>({
+    url: `/users/${userId}/follow-status`,
+    method: "GET",
+  });
+}
+

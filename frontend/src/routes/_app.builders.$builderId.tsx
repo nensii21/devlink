@@ -2,7 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
-import { ArrowLeft, MessageSquare, UserPlus } from "lucide-react";
+import { FollowButton } from "@/components/shared/FollowButton";
+import { ArrowLeft, MessageSquare } from "lucide-react";
 import { BackButton } from "@/components/shared/BackButton";
 
 export const Route = createFileRoute("/_app/builders/$builderId")({
@@ -35,9 +36,7 @@ function BuilderProfile() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
-              <UserPlus size={14} /> Connect
-            </button>
+            <FollowButton userId={b.id} />
             <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-[13px] font-medium text-foreground hover:bg-muted">
               <MessageSquare size={14} /> Message
             </button>

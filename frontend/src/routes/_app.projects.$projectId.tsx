@@ -7,10 +7,6 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
-import { ArrowLeft, Star, GitFork, Users2, Github } from "lucide-react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { builders, activity } from "@/mocks/seed";
 import { BackButton } from "@/components/shared/BackButton";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
@@ -97,16 +93,6 @@ function ProjectDetail() {
                 <Users2 size={12} /> {p.members}
               </span>
             </div>
-          <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
-            <span className="inline-flex items-center gap-1">
-              <Star size={12} /> {p.stars}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <GitFork size={12} /> {p.forks}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Users2 size={12} /> {p.members}
-            </span>
           </div>
         </div>
       </Card>

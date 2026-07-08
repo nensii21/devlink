@@ -26,6 +26,7 @@ import {
   Users2,
   FileText,
   BarChart3,
+  Trophy,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
