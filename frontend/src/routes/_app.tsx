@@ -1,19 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { DotLottieWorkerReact } from "@lottiefiles/dotlottie-react";
+import Lottie from "lottie-react";
 import { AppShell } from "@/components/layout/AppShell";
+import searchAnimation from "@/assets/404 Error - Doodle animation.json";
 
 function AppNotFound() {
   return (
     <div className="fixed inset-0 z-50 flex min-h-screen w-full items-center justify-center bg-background px-4">
       <div className="w-full max-w-md text-center">
         <div className="mx-auto w-48 sm:w-56 md:w-64 aspect-square" aria-hidden="true">
-          <DotLottieWorkerReact
-            src="https://lottie.host/fbd9369a-91c9-486a-9b07-57f0b209bc8d/R5PcT6HFe2.lottie"
-            loop
-            autoplay
-            renderConfig={{ freezeOnOffscreen: false }}
-            speed={0.75}
-          />
+          <Lottie animationData={searchAnimation} loop autoplay />
         </div>
 
         <h1 className="-mt-2 text-2xl font-bold text-foreground sm:text-3xl">
