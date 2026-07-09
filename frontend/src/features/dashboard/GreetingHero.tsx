@@ -73,7 +73,9 @@ function MiniStat({
         <p className="truncate text-[11px] font-medium text-muted-foreground">{label}</p>
         <p className="text-[15px] font-bold text-foreground">
           <span className={valueTint}>{value}</span>
-          {suffix && <span className="text-[12px] font-medium text-muted-foreground">{suffix}</span>}
+          {suffix && (
+            <span className="text-[12px] font-medium text-muted-foreground">{suffix}</span>
+          )}
         </p>
         {progress !== undefined && (
           <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted">

@@ -32,7 +32,10 @@ function ProjectDetail() {
 
   return (
     <div className="space-y-4">
-      <Link to="/projects" className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground">
+      <Link
+        to="/projects"
+        className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft size={14} /> Back to projects
       </Link>
       <Card className="p-5">
@@ -44,13 +47,21 @@ function ProjectDetail() {
             <h1 className="text-[22px] font-bold text-foreground">{p.name}</h1>
             <p className="mt-1 text-[13px] text-muted-foreground">{p.description}</p>
             <div className="mt-3 flex flex-wrap gap-1">
-              {p.stack.map((s) => <TagChip key={s}>{s}</TagChip>)}
+              {p.stack.map((s) => (
+                <TagChip key={s}>{s}</TagChip>
+              ))}
             </div>
           </div>
           <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
-            <span className="inline-flex items-center gap-1"><Star size={12} /> {p.stars}</span>
-            <span className="inline-flex items-center gap-1"><GitFork size={12} /> {p.forks}</span>
-            <span className="inline-flex items-center gap-1"><Users2 size={12} /> {p.members}</span>
+            <span className="inline-flex items-center gap-1">
+              <Star size={12} /> {p.stars}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <GitFork size={12} /> {p.forks}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Users2 size={12} /> {p.members}
+            </span>
           </div>
         </div>
       </Card>
@@ -62,7 +73,9 @@ function ProjectDetail() {
             onClick={() => setTab(t)}
             className={cn(
               "border-b-2 px-3 py-2 text-[13px] font-medium capitalize transition-colors",
-              tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground",
+              tab === t
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
             {t}
@@ -109,7 +122,10 @@ function ProjectDetail() {
         <Card>
           <ul className="divide-y divide-border">
             {activity.map((a) => (
-              <li key={a.id} className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-foreground">
+              <li
+                key={a.id}
+                className="flex items-center gap-3 px-4 py-2.5 text-[13px] text-foreground"
+              >
                 {a.text} <span className="ml-auto text-[11px] text-muted-foreground">{a.ago}</span>
               </li>
             ))}
@@ -120,7 +136,9 @@ function ProjectDetail() {
         <Card className="p-4">
           <div className="flex items-center gap-2 rounded-md border border-border p-3">
             <Github size={16} className="text-muted-foreground" />
-            <span className="text-[13px] font-medium text-foreground">devlink/{p.name.toLowerCase().replace(/\s+/g, "-")}</span>
+            <span className="text-[13px] font-medium text-foreground">
+              devlink/{p.name.toLowerCase().replace(/\s+/g, "-")}
+            </span>
             <span className="ml-auto text-[11px] text-muted-foreground">main · updated 2h ago</span>
           </div>
         </Card>

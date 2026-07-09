@@ -12,7 +12,10 @@ export const Route = createFileRoute("/_app/search")({
   head: () => ({
     meta: [
       { title: "Search — DevLink" },
-      { name: "description", content: "Global search across developers, projects, skills and flares." },
+      {
+        name: "description",
+        content: "Global search across developers, projects, skills and flares.",
+      },
     ],
   }),
   component: SearchPage,
@@ -22,15 +25,24 @@ function SearchPage() {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<Tab>("Developers");
 
-  const devs = builders.filter((b) => (b.name + b.skills.join(" ")).toLowerCase().includes(q.toLowerCase()));
-  const projs = projects.filter((p) => (p.name + p.stack.join(" ")).toLowerCase().includes(q.toLowerCase()));
-  const skillSet = Array.from(new Set(builders.flatMap((b) => b.skills))).filter((s) => s.toLowerCase().includes(q.toLowerCase()));
+  const devs = builders.filter((b) =>
+    (b.name + b.skills.join(" ")).toLowerCase().includes(q.toLowerCase()),
+  );
+  const projs = projects.filter((p) =>
+    (p.name + p.stack.join(" ")).toLowerCase().includes(q.toLowerCase()),
+  );
+  const skillSet = Array.from(new Set(builders.flatMap((b) => b.skills))).filter((s) =>
+    s.toLowerCase().includes(q.toLowerCase()),
+  );
   const fls = flares.filter((f) => f.content.toLowerCase().includes(q.toLowerCase()));
 
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+        />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -46,7 +58,9 @@ function SearchPage() {
             onClick={() => setTab(t)}
             className={cn(
               "rounded px-3 py-1.5 text-[12px] font-medium transition-colors",
-              tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+              tab === t
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {t}
@@ -75,10 +89,14 @@ function SearchPage() {
             <Link key={p.id} to="/projects/$projectId" params={{ projectId: p.id }}>
               <Card interactive className="p-4">
                 <div className="flex items-start gap-3">
-                  <span className="grid h-10 w-10 place-items-center rounded-md bg-muted text-xl">{p.icon}</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-md bg-muted text-xl">
+                    {p.icon}
+                  </span>
                   <div className="min-w-0">
                     <p className="truncate text-[13px] font-semibold text-foreground">{p.name}</p>
-                    <p className="truncate text-[12px] text-muted-foreground">{p.stack.join(" · ")}</p>
+                    <p className="truncate text-[12px] text-muted-foreground">
+                      {p.stack.join(" · ")}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -89,7 +107,11 @@ function SearchPage() {
       {tab === "Skills" && (
         <Card className="p-4">
           <div className="flex flex-wrap gap-2">
-            {skillSet.map((s) => <TagChip key={s} className="text-[12px]">{s}</TagChip>)}
+            {skillSet.map((s) => (
+              <TagChip key={s} className="text-[12px]">
+                {s}
+              </TagChip>
+            ))}
           </div>
         </Card>
       )}
