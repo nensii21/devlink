@@ -39,30 +39,30 @@ function SearchPage() {
   return (
     <div className="space-y-4">
       <div className="relative">
-  <Search
-    size={16}
-    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-  />
+        <Search
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+        />
 
-  <input
-    value={q}
-    onChange={(e) => setQ(e.target.value)}
-    placeholder="Search DevLink…"
-    className="w-full rounded-md border border-border bg-surface py-2.5 pl-10 pr-10 text-[14px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-    autoFocus
-  />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search DevLink…"
+          className="w-full rounded-md border border-border bg-surface py-2.5 pl-10 pr-10 text-[14px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+          autoFocus
+        />
 
-  {q && (
-    <button
-      type="button"
-      onClick={() => setQ("")}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-      aria-label="Clear search"
-    >
-      <X size={16} />
-    </button>
-  )}
-</div>
+        {q && (
+          <button
+            type="button"
+            onClick={() => setQ("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            aria-label="Clear search"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
       <div className="flex items-center gap-1 rounded-md border border-border bg-surface p-0.5">
         {tabs.map((t) => (
           <button

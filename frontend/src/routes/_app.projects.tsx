@@ -71,7 +71,9 @@ function toggle<T>(set: T[], val: T): T[] {
 
 function ProjectsPage() {
   const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "recruiting" | "in-progress" | "completed" | "archived">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "recruiting" | "in-progress" | "completed" | "archived"
+  >("all");
   const [showFilters, setShowFilters] = useState(false);
   const [langs, setLangs] = useState<string[]>([]);
   const [difficulties, setDifficulties] = useState<string[]>([]);
@@ -134,9 +136,9 @@ function ProjectsPage() {
             {(["all", "recruiting", "in-progress", "completed", "archived"] as const).map((f) => (
               <button
                 key={f
-  .split("-")
-  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-  .join(" ")}
+                  .split("-")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ")}
                 onClick={() => setStatusFilter(f)}
                 className={`rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors ${
                   statusFilter === f
@@ -319,18 +321,22 @@ function ProjectsPage() {
                   <span className="inline-flex items-center gap-1">
                     <GitFork size={12} /> {p.forks}
                   </span>
-                  <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
-  p.status === "recruiting"
-    ? "bg-primary/10 text-primary"
-    : p.status === "in-progress"
-      ? "bg-warning/10 text-warning"
-      : p.status === "completed"
-        ? "bg-success/10 text-success"
-        : "bg-muted text-muted-foreground"
-}`}>{p.status
-  .split("-")
-  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-  .join(" ")}</span>
+                  <span
+                    className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
+                      p.status === "recruiting"
+                        ? "bg-primary/10 text-primary"
+                        : p.status === "in-progress"
+                          ? "bg-warning/10 text-warning"
+                          : p.status === "completed"
+                            ? "bg-success/10 text-success"
+                            : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {p.status
+                      .split("-")
+                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(" ")}
+                  </span>
                 </div>
               </Card>
             </Link>

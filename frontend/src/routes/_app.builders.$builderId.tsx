@@ -25,10 +25,7 @@ function BuilderProfile() {
   if (!b) throw notFound();
   return (
     <div className="space-y-4">
-      <BackButton
-  to="/builders"
-  label="Back to builders"
-/>
+      <BackButton to="/builders" label="Back to builders" />
       <Card className="p-6">
         <div className="flex flex-wrap items-start gap-5">
           <Avatar src={b.avatar} alt={b.name} size={96} online={b.online} />
