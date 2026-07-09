@@ -3,7 +3,7 @@ import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { builders, projects, flares } from "@/mocks/seed";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 const tabs = ["Developers", "Projects", "Skills", "Flares"] as const;
 type Tab = (typeof tabs)[number];

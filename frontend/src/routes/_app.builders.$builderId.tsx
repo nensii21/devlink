@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { ArrowLeft, MessageSquare, UserPlus } from "lucide-react";
+import { BackButton } from "@/components/shared/BackButton";
 
 export const Route = createFileRoute("/_app/builders/$builderId")({
   head: ({ params }) => ({

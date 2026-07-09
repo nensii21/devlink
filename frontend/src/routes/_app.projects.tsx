@@ -133,9 +133,12 @@ function ProjectsPage() {
             />
           </div>
           <div className="flex items-center gap-1 rounded-md border border-border bg-surface p-0.5">
-            {(["all", "active", "planning", "shipped"] as const).map((f) => (
+            {(["all", "recruiting", "in-progress", "completed", "archived"] as const).map((f) => (
               <button
-                key={f}
+                key={f
+  .split("-")
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+  .join(" ")}
                 onClick={() => setStatusFilter(f)}
                 className={`rounded px-2.5 py-1 text-[12px] font-medium capitalize transition-colors ${
                   statusFilter === f
