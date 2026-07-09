@@ -27,7 +27,7 @@ export interface Project {
   stars: number;
   forks: number;
   progress: number;
-  status: "active" | "planning" | "shipped";
+  status: "recruiting" | "in-progress" | "completed" | "archived";
   icon: string;
   language?: string;
   difficulty?: "beginner" | "intermediate" | "advanced";
