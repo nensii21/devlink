@@ -46,7 +46,7 @@ def create_application(
     try:
         project = db.get(Project, created.project_id)
         if project is not None:
-            NotificationService.notify(
+            NotificationService.enqueue(
                 db,
                 recipient_id=project.owner_id,
                 sender_id=current_user.id,
@@ -171,7 +171,7 @@ def accept_application(
     )
 
     try:
-        NotificationService.notify(
+        NotificationService.enqueue(
             db,
             recipient_id=db_application.applicant_id,
             sender_id=current_user.id,
@@ -215,7 +215,7 @@ def reject_application(
     )
 
     try:
-        NotificationService.notify(
+        NotificationService.enqueue(
             db,
             recipient_id=db_application.applicant_id,
             sender_id=current_user.id,

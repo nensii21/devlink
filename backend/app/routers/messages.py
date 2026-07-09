@@ -53,7 +53,7 @@ def send_message(
         ).all()
 
         for recipient_id in recipient_ids:
-            NotificationService.notify(
+            NotificationService.enqueue(
                 db,
                 recipient_id=recipient_id,
                 sender_id=current_user.id,

@@ -55,7 +55,7 @@ def follow_user(
     )
 
     try:
-        NotificationService.notify(
+        NotificationService.enqueue(
             db,
             recipient_id=user_id,
             sender_id=current_user.id,
