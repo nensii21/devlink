@@ -10,6 +10,8 @@ from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.follower import FollowerResponse
 from app.services.follower_service import FollowerService
+from app.models.notification import NotificationType
+from app.services.notification_service import NotificationService
 
 router = APIRouter(
     prefix="/followers",
@@ -46,11 +48,26 @@ def follow_user(
             detail="Already following this user",
         )
 
-    return FollowerService.follow_user(
+    follow = FollowerService.follow_user(
         db,
         current_user.id,
         user_id,
     )
+
+    try:
+        NotificationService.enqueue(
+            db,
+            recipient_id=user_id,
+            sender_id=current_user.id,
+            type=NotificationType.FOLLOW,
+            title="New follower",
+            message=f"{current_user.username} started following you.",
+            action_url=f"/users/{current_user.id}",
+        )
+    except Exception:
+        db.rollback()
+
+    return follow
 
 
 @router.delete(

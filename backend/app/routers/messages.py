@@ -14,6 +14,11 @@ from app.schemas.message import (
     MessageUpdate,
 )
 from app.services.message_service import MessageService
+from sqlalchemy import select
+
+from app.models.conversation_member import ConversationMember
+from app.models.notification import NotificationType
+from app.services.notification_service import NotificationService
 
 router = APIRouter(
     prefix="/messages",
@@ -32,12 +37,37 @@ def send_message(
     current_user: User = Depends(get_current_user),
 ):
 
-    return MessageService.send_message(
+    sent = MessageService.send_message(
         db=db,
         conversation_id=message.conversation_id,
         sender_id=current_user.id,
         message=message,
     )
+
+    try:
+        recipient_ids = db.scalars(
+            select(ConversationMember.user_id).where(
+                ConversationMember.conversation_id == message.conversation_id,
+                ConversationMember.user_id != current_user.id,
+            )
+        ).all()
+
+        for recipient_id in recipient_ids:
+            NotificationService.enqueue(
+                db,
+                recipient_id=recipient_id,
+                sender_id=current_user.id,
+                type=NotificationType.MESSAGE,
+                title="New message",
+                message=f"{current_user.username} sent you a message.",
+                conversation_id=message.conversation_id,
+                message_id=sent.id,
+                action_url=f"/conversations/{message.conversation_id}",
+            )
+    except Exception:
+        db.rollback()
+
+    return sent
 
 
 @router.get(
