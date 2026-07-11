@@ -3,7 +3,9 @@ import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { builders, projects, flares } from "@/mocks/seed";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { searchService } from "@/services";
 
 const tabs = ["Developers", "Projects", "Skills", "Flares"] as const;
 type Tab = (typeof tabs)[number];
@@ -22,10 +24,42 @@ function SearchPage() {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<Tab>("Developers");
 
-  const devs = builders.filter((b) => (b.name + b.skills.join(" ")).toLowerCase().includes(q.toLowerCase()));
-  const projs = projects.filter((p) => (p.name + p.stack.join(" ")).toLowerCase().includes(q.toLowerCase()));
-  const skillSet = Array.from(new Set(builders.flatMap((b) => b.skills))).filter((s) => s.toLowerCase().includes(q.toLowerCase()));
-  const fls = flares.filter((f) => f.content.toLowerCase().includes(q.toLowerCase()));
+  const { data, isLoading } = useQuery({
+    queryKey: ["search", q],
+    queryFn: () => searchService.globalSearch(q),
+    enabled: q.trim().length > 0,
+  });
+
+  const devs = q.trim().length > 0
+    ? (data?.users || []).map((u: any) => ({
+        id: u.id,
+        name: `${u.first_name} ${u.last_name}`,
+        role: u.role || "Developer",
+        avatar: u.profile_image,
+      }))
+    : builders.filter((b) => (b.name + b.skills.join(" ")).toLowerCase().includes(q.toLowerCase()));
+
+  const projs = q.trim().length > 0
+    ? (data?.projects || []).map((p: any) => ({
+        id: p.id,
+        name: p.title,
+        icon: "🚀",
+        stack: p.tech_stack ? p.tech_stack.split(",").map((s: string) => s.trim()) : [],
+      }))
+    : projects.filter((p) => (p.name + p.stack.join(" ")).toLowerCase().includes(q.toLowerCase()));
+
+  const skillSet = q.trim().length > 0
+    ? (data?.skills || []).map((s: any) => s.name)
+    : Array.from(new Set(builders.flatMap((b) => b.skills))).filter((s) => s.toLowerCase().includes(q.toLowerCase()));
+
+  const fls = q.trim().length > 0
+    ? (data?.flares || []).map((f: any) => ({
+        id: f.id,
+        author: { name: f.role || "Hiring" },
+        content: `${f.title}: ${f.description}`,
+      }))
+    : flares.filter((f) => f.content.toLowerCase().includes(q.toLowerCase()));
+
 
   return (
     <div className="space-y-4">
