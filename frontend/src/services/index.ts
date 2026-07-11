@@ -46,4 +46,27 @@ export const userService = {
   me: () => mock(seed.currentUser),
 };
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+export interface SearchResult {
+  users: any[];
+  projects: any[];
+  skills: any[];
+  flares: any[];
+}
+
+export const searchService = {
+  globalSearch: async (query: string): Promise<SearchResult> => {
+    if (!query || query.trim() === "") {
+      return { users: [], projects: [], skills: [], flares: [] };
+    }
+    const response = await fetch(`${API_URL}/search/?q=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      throw new Error("Search request failed");
+    }
+    return response.json();
+  },
+};
+
 export type { Builder, Project, Activity, Flare, Conversation, Notification, Hackathon, Deadline } from "@/mocks/seed";
+
