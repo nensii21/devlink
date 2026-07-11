@@ -64,7 +64,11 @@ function SearchPage() {
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        {isLoading ? (
+          <Loader2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin" />
+        ) : (
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        )}
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -89,53 +93,81 @@ function SearchPage() {
       </div>
 
       {tab === "Developers" && (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {devs.map((b) => (
-            <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-              <Card interactive className="flex items-center gap-3 p-3">
-                <Avatar src={b.avatar} alt={b.name} size={40} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-foreground">{b.name}</p>
-                  <p className="truncate text-[12px] text-muted-foreground">{b.role}</p>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        devs.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {devs.map((b) => (
+              <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
+                <Card interactive className="flex items-center gap-3 p-3">
+                  <Avatar src={b.avatar} alt={b.name} size={40} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-foreground">{b.name}</p>
+                    <p className="truncate text-[12px] text-muted-foreground">{b.role}</p>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <Card className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-[14px] font-medium text-foreground">No developers found</p>
+            <p className="text-[12px] text-muted-foreground mt-1">Try searching for a different name, skill, or role.</p>
+          </Card>
+        )
       )}
       {tab === "Projects" && (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {projs.map((p) => (
-            <Link key={p.id} to="/projects/$projectId" params={{ projectId: p.id }}>
-              <Card interactive className="p-4">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-10 w-10 place-items-center rounded-md bg-muted text-xl">{p.icon}</span>
-                  <div className="min-w-0">
-                    <p className="truncate text-[13px] font-semibold text-foreground">{p.name}</p>
-                    <p className="truncate text-[12px] text-muted-foreground">{p.stack.join(" · ")}</p>
+        projs.length > 0 ? (
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {projs.map((p) => (
+              <Link key={p.id} to="/projects/$projectId" params={{ projectId: p.id }}>
+                <Card interactive className="p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-10 w-10 place-items-center rounded-md bg-muted text-xl">{p.icon}</span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-semibold text-foreground">{p.name}</p>
+                      <p className="truncate text-[12px] text-muted-foreground">{p.stack.join(" · ")}</p>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <Card className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-[14px] font-medium text-foreground">No projects found</p>
+            <p className="text-[12px] text-muted-foreground mt-1">Try searching for other project titles or technologies.</p>
+          </Card>
+        )
       )}
       {tab === "Skills" && (
-        <Card className="p-4">
-          <div className="flex flex-wrap gap-2">
-            {skillSet.map((s) => <TagChip key={s} className="text-[12px]">{s}</TagChip>)}
-          </div>
-        </Card>
+        skillSet.length > 0 ? (
+          <Card className="p-4">
+            <div className="flex flex-wrap gap-2">
+              {skillSet.map((s) => <TagChip key={s} className="text-[12px]">{s}</TagChip>)}
+            </div>
+          </Card>
+        ) : (
+          <Card className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-[14px] font-medium text-foreground">No skills found</p>
+            <p className="text-[12px] text-muted-foreground mt-1">Try another search keyword.</p>
+          </Card>
+        )
       )}
       {tab === "Flares" && (
-        <div className="space-y-3">
-          {fls.map((f) => (
-            <Card key={f.id} className="p-4">
-              <p className="text-[13px] font-semibold text-foreground">{f.author.name}</p>
-              <p className="mt-1 text-[13px] text-foreground">{f.content}</p>
-            </Card>
-          ))}
-        </div>
+        fls.length > 0 ? (
+          <div className="space-y-3">
+            {fls.map((f) => (
+              <Card key={f.id} className="p-4">
+                <p className="text-[13px] font-semibold text-foreground">{f.author.name}</p>
+                <p className="mt-1 text-[13px] text-foreground">{f.content}</p>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-[14px] font-medium text-foreground">No flares found</p>
+            <p className="text-[12px] text-muted-foreground mt-1">Try searching for different roles or project requirements.</p>
+          </Card>
+        )
       )}
     </div>
   );
