@@ -56,11 +56,8 @@ function ForgotPassword() {
             </button>
           </form>
         )}
-        <BackButton
-  to="/auth"
-  label="Back to sign in"
-/>
-      </div>  
+        <BackButton to="/auth" label="Back to sign in" />
+      </div>
     </div>
   );
 }

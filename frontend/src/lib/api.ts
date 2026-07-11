@@ -3,12 +3,7 @@ import { toast } from "sonner";
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
-export type ApplicationStatus =
-  | "pending"
-  | "reviewing"
-  | "accepted"
-  | "rejected"
-  | "withdrawn";
+export type ApplicationStatus = "pending" | "reviewing" | "accepted" | "rejected" | "withdrawn";
 
 export type UUID = string;
 
@@ -63,13 +58,11 @@ function assertJson<T>(data: unknown): T {
   return data as T;
 }
 
-async function requestJson<TResponse, TBody extends JsonValue | undefined = undefined>(
-  input: {
-    url: string;
-    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
-    body?: TBody;
-  },
-): Promise<TResponse> {
+async function requestJson<TResponse, TBody extends JsonValue | undefined = undefined>(input: {
+  url: string;
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  body?: TBody;
+}): Promise<TResponse> {
   const { baseUrl } = getApiConfig();
 
   const res = await fetch(`${baseUrl}${input.url}`, {
@@ -167,4 +160,3 @@ export function toastError(err: unknown, fallback = "Something went wrong") {
   const message = err instanceof Error ? err.message : fallback;
   toast.error(message);
 }
-

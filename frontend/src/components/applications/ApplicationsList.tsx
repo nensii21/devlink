@@ -33,9 +33,7 @@ export function ApplicationsList({ projectId, className }: Props) {
     queryFn: () => getProjectApplications(projectId),
   });
 
-  const [optimistic, setOptimistic] = useState<Record<UUID, ApplicationResponse["status"]>>(
-    {},
-  );
+  const [optimistic, setOptimistic] = useState<Record<UUID, ApplicationResponse["status"]>>({});
 
   const apps = useMemo(() => {
     if (!data) return [];
@@ -120,7 +118,9 @@ export function ApplicationsList({ projectId, className }: Props) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[13px] font-semibold text-foreground">Applications</p>
-          <p className="mt-1 text-[12px] text-muted-foreground">Review applicants and update status.</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            Review applicants and update status.
+          </p>
         </div>
         <div className="min-w-0">
           <Input
@@ -267,4 +267,3 @@ export function ApplicationsList({ projectId, className }: Props) {
     </Card>
   );
 }
-
