@@ -1,7 +1,12 @@
-from __future__ import annotations
 
+from __future__ import annotations
+# pyrefly: ignore [missing-import]
+from uuid import UUID
+# pyrefly: ignore [missing-import]
 from fastapi import Depends, HTTPException, status
+# pyrefly: ignore [missing-import]
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_token
@@ -21,11 +26,7 @@ security = HTTPBearer(auto_error=True)
 # ---------------------------------------------------------------------
 
 
-def get_database() -> Session:
-    """
-    Alias for get_db().
-    """
-
+def get_database():
     yield from get_db()
 
 
@@ -52,16 +53,18 @@ def get_current_user(
 
         if not user_id:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication token.",
-            )
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token.",
+        )
 
-    except Exception:
+        user_id = UUID(user_id)
+
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials.",
         )
-
+    
     auth_service = AuthService(db)
 
     user = auth_service.get_current_user(user_id)

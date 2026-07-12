@@ -1,8 +1,9 @@
 from __future__ import annotations
-
+from app.schemas.user import CurrentUser
 from datetime import datetime
 from typing import Optional
 
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 # ==========================================================
@@ -67,10 +68,12 @@ class AuthResponse(BaseModel):
 
     success: bool = True
     message: str
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
 
+    user: CurrentUser
 
 # ==========================================================
 # Refresh Token

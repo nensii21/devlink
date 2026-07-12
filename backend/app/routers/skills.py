@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.skill import (
@@ -28,7 +30,7 @@ router = APIRouter(
 )
 def create_skill(
     skill: SkillCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -50,7 +52,7 @@ def create_skill(
 )
 def get_skill(
     skill_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     skill = SkillService.get_skill(
@@ -73,7 +75,7 @@ def get_skill(
 )
 def get_skill_by_slug(
     slug: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     skill = SkillService.get_by_slug(
@@ -97,7 +99,7 @@ def get_skill_by_slug(
 def list_skills(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return SkillService.list_skills(
@@ -113,7 +115,7 @@ def list_skills(
 )
 def search_skills(
     keyword: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return SkillService.search_skills(
@@ -129,7 +131,7 @@ def search_skills(
 def update_skill(
     skill_id: uuid.UUID,
     skill: SkillUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_skill = SkillService.get_skill(
@@ -156,7 +158,7 @@ def update_skill(
 )
 def delete_skill(
     skill_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_skill = SkillService.get_skill(

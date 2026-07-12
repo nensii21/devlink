@@ -1,15 +1,22 @@
 from contextlib import asynccontextmanager
-
+# pyrefly: ignore [missing-import]
+from fastapi.routing import APIRoute
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
+# pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.rate_limit import limiter
+# pyrefly: ignore [missing-import]
 from slowapi.errors import RateLimitExceeded
+# pyrefly: ignore [missing-import]
 from slowapi.middleware import SlowAPIMiddleware
+# pyrefly: ignore [missing-import]
 from slowapi import _rate_limit_exceeded_handler
 
 from app.routers import (
@@ -150,9 +157,9 @@ app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
 app.include_router(builder_flares.router, prefix="/api/flare", tags=["Builder's Flare"])
 app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
 app.include_router(
-    notifications.router, prefix="/api/notifications", tags=["Notifications"]
+   notifications.router, prefix="/api/notifications", tags=["Notifications"]
 )
-# app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
+
 app.include_router(followers.router)
 app.include_router(bookmarks.router)
 app.include_router(activities.router)

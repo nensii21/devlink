@@ -1,8 +1,10 @@
 from __future__ import annotations
-
+# pyrefly: ignore [missing-import]
 import uuid
+# pyrefly: ignore [missing-import]
 from datetime import datetime
 from typing import Optional
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict
 from app.models.application import ApplicationStatus
 

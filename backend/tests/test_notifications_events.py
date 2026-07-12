@@ -1,15 +1,24 @@
 from __future__ import annotations
 
+# pyrefly: ignore [missing-import]
 import pytest
+# pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
+# pyrefly: ignore [missing-import]
 from sqlalchemy import create_engine
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import sessionmaker
+# pyrefly: ignore [missing-import]
 from sqlalchemy.pool import StaticPool
 
 from app.database.base import Base
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.main import app
 
+# Register models
+from app.models.user import User
+from app.models.notification import Notification
+from app.models.follower import Follower
 
 engine = create_engine(
     "sqlite://",
@@ -27,14 +36,15 @@ def override_get_db():
         db.close()
 
 
-app.dependency_overrides[get_db] = override_get_db
-
-
 @pytest.fixture(autouse=True)
 def setup_db():
+    app.dependency_overrides[get_database] = override_get_db
     Base.metadata.create_all(bind=engine)
+
     yield
+
     Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.clear()
 
 
 def _register_and_login(client: TestClient, email: str, username: str) -> tuple[str, str]:

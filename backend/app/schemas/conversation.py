@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from typing import Optional
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict
 from app.models.conversation import ConversationType
 

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from sqlalchemy import and_, select
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.models.follower import Follower

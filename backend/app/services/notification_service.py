@@ -3,15 +3,18 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.models.notification import Notification, NotificationType
+from app.models.notification import Notification
 from app.schemas.notification import (
     NotificationCreate,
     NotificationUpdate,
 )
 
+from app.schemas.notification import NotificationCreate
 
 class NotificationService:
     """
@@ -73,25 +76,23 @@ class NotificationService:
     @staticmethod
     def notify(
         db: Session,
-        *,
-        recipient_id: uuid.UUID,
-        sender_id: uuid.UUID | None,
-        type: NotificationType,
-        title: str,
-        message: str,
-        action_url: str | None = None,
-        image_url: str | None = None,
-        project_id: uuid.UUID | None = None,
-        conversation_id: uuid.UUID | None = None,
-        message_id: uuid.UUID | None = None,
-        application_id: uuid.UUID | None = None,
-    ) -> Notification | None:
+        recipient_id,
+        sender_id,
+        type,
+        title,
+        message,
+        action_url=None,
+        image_url=None,
+        project_id=None,
+        conversation_id=None,
+        message_id=None,
+        application_id=None,
+    ):
         if sender_id is not None and recipient_id == sender_id:
             return None
 
-        db_notification = Notification(
+        notification = NotificationCreate(
             recipient_id=recipient_id,
-            sender_id=sender_id,
             type=type,
             title=title,
             message=message,
@@ -103,67 +104,12 @@ class NotificationService:
             application_id=application_id,
         )
 
-        db.add(db_notification)
-        db.commit()
-        db.refresh(db_notification)
-
-        return db_notification
-
-    @staticmethod
-    def enqueue(
-        db: Session,
-        *,
-        recipient_id: uuid.UUID,
-        sender_id: uuid.UUID | None,
-        type: NotificationType,
-        title: str,
-        message: str,
-        action_url: str | None = None,
-        image_url: str | None = None,
-        project_id: uuid.UUID | None = None,
-        conversation_id: uuid.UUID | None = None,
-        message_id: uuid.UUID | None = None,
-        application_id: uuid.UUID | None = None,
-    ) -> None:
-        if sender_id is not None and recipient_id == sender_id:
-            return
-
-        def _s(v: uuid.UUID | None) -> str | None:
-            return str(v) if v is not None else None
-
-        payload = {
-            "recipient_id": _s(recipient_id),
-            "sender_id": _s(sender_id),
-            "type": type.value,
-            "title": title,
-            "message": message,
-            "action_url": action_url,
-            "image_url": image_url,
-            "project_id": _s(project_id),
-            "conversation_id": _s(conversation_id),
-            "message_id": _s(message_id),
-            "application_id": _s(application_id),
-        }
-
-        from app.tasks.notification_tasks import send_notification_task
-
-        try:
-            send_notification_task.delay(payload)
-        except Exception:
-            NotificationService.notify(
-                db,
-                recipient_id=recipient_id,
-                sender_id=sender_id,
-                type=type,
-                title=title,
-                message=message,
-                action_url=action_url,
-                image_url=image_url,
-                project_id=project_id,
-                conversation_id=conversation_id,
-                message_id=message_id,
-                application_id=application_id,
-            )
+        return NotificationService.create_notification(
+            db=db,
+            recipient_id=recipient_id,
+            sender_id=sender_id,
+            notification=notification,
+        )
 
     @staticmethod
     def get_notification(

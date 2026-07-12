@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select
+# pyrefly: ignore [missing-import]
 from sqlalchemy.exc import IntegrityError
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.models.application import (

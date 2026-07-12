@@ -1,11 +1,17 @@
+# pyrefly: ignore [missing-import]
 import pytest
 import uuid
+# pyrefly: ignore [missing-import]
+from sqlalchemy import and_, select
+# pyrefly: ignore [missing-import]
 from sqlalchemy import create_engine
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import sessionmaker
+# pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
 
 from app.database.base import Base
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.main import app
 
@@ -28,6 +34,7 @@ from app.services.notification_service import NotificationService
 from app.schemas.message import MessageCreate
 from app.schemas.application import ApplicationCreate
 
+# pyrefly: ignore [missing-import]
 from sqlalchemy.pool import StaticPool
 
 # Setup in-memory SQLite database
@@ -38,7 +45,7 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base.metadata.create_all(bind=engine)
+
 
 @pytest.fixture(scope="function")
 def db():
@@ -58,7 +65,7 @@ def client(db):
             yield db
         finally:
             pass
-    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_database] = override_get_db
     yield TestClient(app)
     app.dependency_overrides.clear()
 
@@ -195,29 +202,37 @@ def test_project_invite_endpoint_and_notification(db, client):
     invitee = create_test_user(db, "invitee@example.com", "invitee")
     project = create_test_project(db, owner.id)
 
-    # Authenticate as owner
-    app.dependency_overrides[get_current_user] = lambda: owner
+    try:
+        app.dependency_overrides[get_current_user] = lambda: owner
 
-    # Post project invite
-    response = client.post(f"/api/projects/projects/{project.id}/invite/{invitee.id}")
+        response = client.post(
+            f"/api/projects/{project.id}/invite/{invitee.id}"
+        )
+
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
     assert response.status_code == 201
     assert response.json()["message"] == "User invited successfully"
 
-    # Check project member is created with is_active = False
-    from sqlalchemy import and_, select
     stmt = select(ProjectMember).where(
         and_(
             ProjectMember.project_id == project.id,
-            ProjectMember.user_id == invitee.id
+            ProjectMember.user_id == invitee.id,
         )
     )
+
     member = db.scalar(stmt)
+
     assert member is not None
     assert member.is_active is False
     assert member.role == MemberRole.MEMBER
 
-    # Check notification was created for invitee
-    notifs = NotificationService.list_notifications(db, recipient_id=invitee.id)
+    notifs = NotificationService.list_notifications(
+        db,
+        recipient_id=invitee.id,
+    )
+
     assert len(notifs) == 1
     assert notifs[0].type == NotificationType.PROJECT_INVITE
     assert notifs[0].sender_id == owner.id

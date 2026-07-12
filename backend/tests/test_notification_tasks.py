@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import uuid
@@ -13,8 +14,11 @@ celery_app.conf.task_eager_propagates = True
 
 
 def test_task_creates_notification():
+    # pyrefly: ignore [missing-import]
     from sqlalchemy import create_engine
+    # pyrefly: ignore [missing-import]
     from sqlalchemy.orm import sessionmaker
+    # pyrefly: ignore [missing-import]
     from sqlalchemy.pool import StaticPool
 
     import app.tasks.notification_tasks as nt
@@ -63,8 +67,11 @@ def test_task_creates_notification():
 
 
 def test_task_skips_self_notification():
+    # pyrefly: ignore [missing-import]
     from sqlalchemy import create_engine
+    # pyrefly: ignore [missing-import]
     from sqlalchemy.orm import sessionmaker
+    # pyrefly: ignore [missing-import]
     from sqlalchemy.pool import StaticPool
 
     import app.tasks.notification_tasks as nt
@@ -104,16 +111,19 @@ def test_task_skips_self_notification():
 
 
 def test_router_enqueue_integration():
+    # pyrefly: ignore [missing-import]
     from fastapi.testclient import TestClient
+    # pyrefly: ignore [missing-import]
     from sqlalchemy import create_engine
+    # pyrefly: ignore [missing-import]
     from sqlalchemy.orm import sessionmaker
+    # pyrefly: ignore [missing-import]
     from sqlalchemy.pool import StaticPool
 
     import app.tasks.notification_tasks as nt
-    from app.database.session import SessionLocal as RealSessionLocal
-    from app.database.session import get_db
+    from app.dependencies import get_database
     from app.main import app
-
+    from app.database.session import SessionLocal as RealSessionLocal
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
@@ -125,13 +135,16 @@ def test_router_enqueue_integration():
     nt.SessionLocal = TestingSessionLocal
 
     def override_get_db():
+        print("USING SQLITE TEST DATABASE")
+
         db = TestingSessionLocal()
+        
         try:
             yield db
         finally:
             db.close()
 
-    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_database] = override_get_db
 
     client = TestClient(app)
 
@@ -142,19 +155,50 @@ def test_router_enqueue_integration():
         "username": "alice2",
         "password": "Passw0rd!",
     })
-    r = client.post("/api/auth/login", json={"email": "alice2@x.com", "password": "Passw0rd!"})
+
+
+    r = client.post(
+    "/api/auth/login",
+    json={
+        "email": "alice2@x.com",
+        "password": "Passw0rd!",
+    },
+    )
+
     a_tok = r.json()["access_token"]
-    a_me = client.get("/api/users/me", headers={"Authorization": f"Bearer {a_tok}"})
+
+    a_me = client.get(
+    "/api/users/me",
+    headers={
+        "Authorization": f"Bearer {a_tok}"
+    },
+    )
+
+    print("STATUS:", a_me.status_code)
+    print("BODY:", a_me.json())
+
     a_id = a_me.json()["id"]
 
-    client.post("/api/auth/register", json={
+    client.post(
+    "/api/auth/register",
+    json={
         "first_name": "Bob",
         "last_name": "User",
         "email": "bob2@x.com",
         "username": "bob2",
         "password": "Passw0rd!",
-    })
-    r = client.post("/api/auth/login", json={"email": "bob2@x.com", "password": "Passw0rd!"})
+    },
+    )
+
+
+    r = client.post(
+    "/api/auth/login",
+    json={
+        "email": "bob2@x.com",
+        "password": "Passw0rd!",
+    },
+    )
+
     b_tok = r.json()["access_token"]
 
     r = client.post(f"/followers/{a_id}", headers={"Authorization": f"Bearer {b_tok}"})

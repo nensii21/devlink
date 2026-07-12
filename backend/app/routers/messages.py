@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.message import (
@@ -14,6 +16,7 @@ from app.schemas.message import (
     MessageUpdate,
 )
 from app.services.message_service import MessageService
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select
 
 from app.models.conversation_member import ConversationMember
@@ -21,7 +24,6 @@ from app.models.notification import NotificationType
 from app.services.notification_service import NotificationService
 
 router = APIRouter(
-    prefix="/messages",
     tags=["Messages"],
 )
 
@@ -33,7 +35,7 @@ router = APIRouter(
 )
 def send_message(
     message: MessageCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -76,7 +78,7 @@ def send_message(
 )
 def get_message(
     message_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     message = MessageService.get_message(
@@ -100,7 +102,7 @@ def get_message(
 def list_conversation_messages(
     conversation_id: uuid.UUID,
     limit: int = Query(100, ge=1, le=500),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return MessageService.list_conversation_messages(
@@ -116,7 +118,7 @@ def list_conversation_messages(
 )
 def my_messages(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return MessageService.list_user_messages(
@@ -132,7 +134,7 @@ def my_messages(
 def search_messages(
     conversation_id: uuid.UUID,
     keyword: str = Query(...),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return MessageService.search_messages(
@@ -149,7 +151,8 @@ def search_messages(
 def update_message(
     message_id: uuid.UUID,
     message: MessageUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
+
 ):
 
     db_message = MessageService.get_message(
@@ -176,7 +179,7 @@ def update_message(
 )
 def restore_message(
     message_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_message = MessageService.get_message(
@@ -202,7 +205,7 @@ def restore_message(
 )
 def delete_message(
     message_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_message = MessageService.get_message(
@@ -227,7 +230,7 @@ def delete_message(
 )
 def count_messages(
     conversation_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return {

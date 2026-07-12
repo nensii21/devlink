@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+# pyrefly: ignore [missing-import]
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
     status,
 )
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.schemas.auth import (
     AuthResponse,
     LoginRequest,
@@ -18,10 +20,8 @@ from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
 
 router = APIRouter(
-    prefix="/api/auth",
     tags=["Authentication"],
 )
-
 
 # ==========================================================
 # Register
@@ -36,7 +36,7 @@ router = APIRouter(
 )
 def register(
     payload: RegisterRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     Create a new DevLink account.
@@ -61,7 +61,7 @@ def register(
 )
 def login(
     payload: LoginRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     Authenticate a user.
@@ -72,6 +72,7 @@ def login(
     return auth_service.login(payload)
 
 
+# pyrefly: ignore [missing-import]
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.security import (
@@ -123,7 +124,7 @@ def get_current_user_id(
 )
 def me(
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -143,7 +144,7 @@ def me(
 )
 def refresh(
     payload: RefreshTokenRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     try:
@@ -178,7 +179,7 @@ def refresh(
 )
 def logout(
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -210,7 +211,7 @@ from app.schemas.auth import (
 def change_password(
     payload: ChangePasswordRequest,
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -234,7 +235,7 @@ def change_password(
 )
 def forgot_password(
     payload: ForgotPasswordRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -256,7 +257,7 @@ def forgot_password(
 )
 def reset_password(
     payload: ResetPasswordRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     NOTE
@@ -297,7 +298,7 @@ def reset_password(
 )
 def verify_email(
     payload: VerifyEmailRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     try:
@@ -328,7 +329,7 @@ def verify_email(
 )
 def resend_verification(
     payload: ResendVerificationEmailRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     Placeholder.
