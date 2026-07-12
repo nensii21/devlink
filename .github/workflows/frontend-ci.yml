@@ -13,10 +13,6 @@ jobs:
       run:
         working-directory: frontend
 
-    defaults:
-      run:
-        working-directory: frontend
-
     steps:
       - uses: actions/checkout@v4
 

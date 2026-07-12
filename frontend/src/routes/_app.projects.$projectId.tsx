@@ -1,16 +1,22 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { projectsService } from "@/services";
-import { Card, TagChip, SectionHeader, Avatar } from "@/components/shared/primitives";
-import { ArrowLeft, Star, GitFork, Users2, Github, Copy, Check } from "lucide-react";
 import { useState } from "react";
+
+import {
+  ArrowLeft,
+  Star,
+  GitFork,
+  Users2,
+  Github,
+  Copy,
+  Check,
+} from "lucide-react";
+
+import { projectsService } from "@/services";
+import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { cn } from "@/lib/utils";
 import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
-import { ArrowLeft, Star, GitFork, Users2, Github } from "lucide-react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { builders, activity } from "@/mocks/seed";
 import { BackButton } from "@/components/shared/BackButton";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
@@ -49,12 +55,6 @@ function ProjectDetail() {
 
   return (
     <div className="space-y-4">
-      <Link
-        to="/projects"
-        className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft size={14} /> Back to projects
-      </Link>
       <BackButton
   to="/projects"
   label="Back to projects"
@@ -76,41 +76,28 @@ function ProjectDetail() {
           <div className="flex shrink-0 items-center gap-3">
             {isOwner && (
               <button
-                type="button"
-                onClick={handleCopyInviteLink}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-muted"
-                aria-label="Copy project invitation link"
-              >
+              type="button"
+              onClick={handleCopyInviteLink}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-muted"
+              aria-label="Copy project invitation link">
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? "Copied!" : "Copy invite link"}
-              </button>
-            )}
-
-            <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
-              <span className="inline-flex items-center gap-1">
-                <Star size={12} /> {p.stars}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <GitFork size={12} /> {p.forks}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <Users2 size={12} /> {p.members}
-              </span>
-            </div>
-          <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
-            <span className="inline-flex items-center gap-1">
-              <Star size={12} /> {p.stars}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <GitFork size={12} /> {p.forks}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Users2 size={12} /> {p.members}
-            </span>
-          </div>
-        </div>
-      </Card>
-
+                </button>
+               )}
+               <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
+                <span className="inline-flex items-center gap-1">
+                  <Star size={12} /> {p.stars}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <GitFork size={12} /> {p.forks}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Users2 size={12} /> {p.members}
+                      </span>
+                      </div>
+                      </div>
+                      </div>
+                      </Card>
       <div className="flex items-center gap-1 border-b border-border">
         {tabs.map((t) => (
           <button
