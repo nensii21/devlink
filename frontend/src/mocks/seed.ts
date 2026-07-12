@@ -219,14 +219,6 @@ export const builders: Builder[] = [
 ];
 
 export const projects: Project[] = [
-<<<<<<< HEAD
-  { id: "p1", name: "AI Chatbot", description: "Multi-agent customer support bot for SaaS.", stack: ["React", "Node.js", "MongoDB"], owner: "Nancy Patel", members: 4, stars: 24, forks: 12, progress: 75, status: "in-progress", icon: "🤖", language: "JavaScript", difficulty: "intermediate", remote: true, paid: true, openSource: false, ai: true, web: true, frontend: true, backend: true },
-  { id: "p2", name: "AI SaaS Platform", description: "Full-stack platform with billing and dashboards.", stack: ["Next.js", "Python", "PostgreSQL"], owner: "Nancy Patel", members: 6, stars: 18, forks: 8, progress: 40, status: "in-progress", icon: "✨", language: "Python", difficulty: "advanced", remote: true, paid: true, openSource: false, ai: true, web: true, frontend: true, backend: true },
-  { id: "p3", name: "DevOps Dashboard", description: "K8s deploy monitoring with drift detection.", stack: ["Docker", "Kubernetes", "AWS"], owner: "Nancy Patel", members: 3, stars: 16, forks: 6, progress: 60, status: "in-progress", icon: "🚀", language: "Go", difficulty: "advanced", remote: true, paid: false, openSource: false, ai: false, web: true, backend: true },
-  { id: "p4", name: "Blockchain Wallet", description: "Non-custodial multi-chain wallet.", stack: ["Solidity", "Web3", "React"], owner: "Nancy Patel", members: 5, stars: 14, forks: 7, progress: 25, status: "recruiting", icon: "🪙", language: "TypeScript", difficulty: "advanced", remote: true, paid: false, openSource: true, ai: false, web: true, mobile: true, frontend: true },
-  { id: "p5", name: "React Component Library", description: "Accessible component library with docs.", stack: ["TypeScript", "Tailwind", "Storybook"], owner: "Nancy Patel", members: 2, stars: 12, forks: 5, progress: 90, status: "in-progress", icon: "🧩", language: "TypeScript", difficulty: "beginner", remote: true, paid: false, openSource: true, ai: false, web: true, frontend: true },
-  { id: "p6", name: "Open Source CRM", description: "Lightweight CRM with pipelines and reports.", stack: ["React", "Node.js", "MongoDB"], owner: "Community", members: 8, stars: 240, forks: 96, progress: 100, status: "completed", icon: "📇", language: "JavaScript", difficulty: "intermediate", remote: false, paid: false, openSource: true, ai: false, web: true, frontend: true, backend: true },
-=======
   {
     id: "p1",
     name: "AI Chatbot",
@@ -237,7 +229,7 @@ export const projects: Project[] = [
     stars: 24,
     forks: 12,
     progress: 75,
-    status: "active",
+    status: "in-progress",
     icon: "🤖",
     language: "JavaScript",
     difficulty: "intermediate",
@@ -259,7 +251,7 @@ export const projects: Project[] = [
     stars: 18,
     forks: 8,
     progress: 40,
-    status: "active",
+    status: "in-progress",
     icon: "✨",
     language: "Python",
     difficulty: "advanced",
@@ -281,7 +273,7 @@ export const projects: Project[] = [
     stars: 16,
     forks: 6,
     progress: 60,
-    status: "active",
+    status: "in-progress",
     icon: "🚀",
     language: "Go",
     difficulty: "advanced",
@@ -302,7 +294,7 @@ export const projects: Project[] = [
     stars: 14,
     forks: 7,
     progress: 25,
-    status: "planning",
+    status: "recruiting",
     icon: "🪙",
     language: "TypeScript",
     difficulty: "advanced",
@@ -324,7 +316,7 @@ export const projects: Project[] = [
     stars: 12,
     forks: 5,
     progress: 90,
-    status: "active",
+    status: "in-progress",
     icon: "🧩",
     language: "TypeScript",
     difficulty: "beginner",
@@ -345,7 +337,7 @@ export const projects: Project[] = [
     stars: 240,
     forks: 96,
     progress: 100,
-    status: "shipped",
+    status: "completed",
     icon: "📇",
     language: "JavaScript",
     difficulty: "intermediate",
@@ -357,7 +349,6 @@ export const projects: Project[] = [
     frontend: true,
     backend: true,
   },
->>>>>>> upstream/main
 ];
 
 export const activity: Activity[] = [

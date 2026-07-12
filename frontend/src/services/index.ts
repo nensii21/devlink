@@ -43,7 +43,9 @@ export const notificationsService = {
           const local = JSON.parse(stored);
           return mock([...local, ...seed.notifications]);
         }
-      } catch (e) {}
+      } catch (error) {
+        console.debug("Failed to load notifications :", error);
+      }
     }
     return mock(seed.notifications);
   },

@@ -42,7 +42,8 @@ function ProfilePage() {
                 <span className="text-lg">🚀</span> Your Shareable Public Portfolio
               </h3>
               <p className="text-xs text-muted-foreground">
-                Showcase your projects, skills, and flares with beautiful custom themes, custom layouts, and a direct contact form.
+                Showcase your projects, skills, and flares with beautiful custom themes, custom
+                layouts, and a direct contact form.
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">

@@ -9,7 +9,6 @@ import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
 import { BackButton } from "@/components/shared/BackButton";
 
-
 export const Route = createFileRoute("/_app/projects/$projectId")({
   head: ({ params }) => ({
     meta: [
