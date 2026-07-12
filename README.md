@@ -391,6 +391,48 @@ VITE_APP_NAME=DevLink
 
 ---
 
+## Managing Secrets (local development)
+
+IMPORTANT: Do not commit real secrets to the repository. Use `backend/.env.example` as a template and create a local `backend/.env` that is ignored by git.
+
+1. Copy the example file locally:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+2. Generate a strong `SECRET_KEY` (example using Python):
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(48))" > /dev/null
+# then paste the printed value into backend/.env for SECRET_KEY
+```
+
+Or using OpenSSL:
+
+```bash
+openssl rand -base64 48
+```
+
+3. Store database credentials locally only (do not commit). For development with `docker-compose`, you can set the DB password in your shell or a local `.env` copied from the example:
+
+```bash
+export POSTGRES_PASSWORD="your_local_db_password"
+docker compose up
+```
+
+4. Rotating secrets:
+
+- Revoke or rotate any API keys (OpenAI, Cloudinary, AWS) from their provider consoles.
+- Change your database password and update any environment variables or secret stores.
+- Generate a new `SECRET_KEY` and deploy it to your environment.
+- Invalidate existing user sessions/tokens if possible (rotate DB token version or flush token blacklist store).
+
+5. After rotating, ensure CI/CD uses secure secret storage (GitHub Actions secrets, Vault, AWS Secrets Manager) rather than reading secrets from repo files.
+
+If any secret was previously committed, remove it from git history (force push required). See the Security section for suggested steps.
+
+
 # Development Workflow
 
 ```
