@@ -61,9 +61,9 @@ class ApplicationService:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="You have already applied to this project.",
-       )
+            )
         db.refresh(db_application)
-        return db_application    
+        return db_application
 
     @staticmethod
     def get_application(

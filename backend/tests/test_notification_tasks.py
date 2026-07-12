@@ -135,32 +135,44 @@ def test_router_enqueue_integration():
 
     client = TestClient(app)
 
-    client.post("/api/auth/register", json={
-        "first_name": "Alice",
-        "last_name": "User",
-        "email": "alice2@x.com",
-        "username": "alice2",
-        "password": "Passw0rd!",
-    })
-    r = client.post("/api/auth/login", json={"email": "alice2@x.com", "password": "Passw0rd!"})
+    client.post(
+        "/api/auth/register",
+        json={
+            "first_name": "Alice",
+            "last_name": "User",
+            "email": "alice2@x.com",
+            "username": "alice2",
+            "password": "Passw0rd!",
+        },
+    )
+    r = client.post(
+        "/api/auth/login", json={"email": "alice2@x.com", "password": "Passw0rd!"}
+    )
     a_tok = r.json()["access_token"]
     a_me = client.get("/api/users/me", headers={"Authorization": f"Bearer {a_tok}"})
     a_id = a_me.json()["id"]
 
-    client.post("/api/auth/register", json={
-        "first_name": "Bob",
-        "last_name": "User",
-        "email": "bob2@x.com",
-        "username": "bob2",
-        "password": "Passw0rd!",
-    })
-    r = client.post("/api/auth/login", json={"email": "bob2@x.com", "password": "Passw0rd!"})
+    client.post(
+        "/api/auth/register",
+        json={
+            "first_name": "Bob",
+            "last_name": "User",
+            "email": "bob2@x.com",
+            "username": "bob2",
+            "password": "Passw0rd!",
+        },
+    )
+    r = client.post(
+        "/api/auth/login", json={"email": "bob2@x.com", "password": "Passw0rd!"}
+    )
     b_tok = r.json()["access_token"]
 
     r = client.post(f"/followers/{a_id}", headers={"Authorization": f"Bearer {b_tok}"})
     assert r.status_code == 201
 
-    notifs = client.get("/api/notifications/", headers={"Authorization": f"Bearer {a_tok}"}).json()
+    notifs = client.get(
+        "/api/notifications/", headers={"Authorization": f"Bearer {a_tok}"}
+    ).json()
     assert any(n["type"] == "follow" for n in notifs)
 
     app.dependency_overrides.clear()
