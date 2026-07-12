@@ -14,6 +14,7 @@ from app.schemas.project import (
     ProjectUpdate,
 )
 from app.services.project_service import ProjectService
+from app.core.cache import multi_level_cache
 
 router = APIRouter(
     prefix="/projects",
@@ -49,6 +50,7 @@ def create_project(
     "/{project_id}",
     response_model=ProjectResponse,
 )
+@multi_level_cache(expire=300, prefix="project:get")
 def get_project(
     project_id: uuid.UUID,
     db: Session = Depends(get_db),
@@ -77,6 +79,7 @@ def get_project(
     "/slug/{slug}",
     response_model=ProjectResponse,
 )
+@multi_level_cache(expire=300, prefix="project:slug")
 def get_project_by_slug(
     slug: str,
     db: Session = Depends(get_db),
@@ -100,6 +103,7 @@ def get_project_by_slug(
     "/",
     response_model=list[ProjectResponse],
 )
+@multi_level_cache(expire=60, prefix="project:list")
 def list_projects(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
@@ -117,6 +121,7 @@ def list_projects(
     "/me/list",
     response_model=list[ProjectResponse],
 )
+@multi_level_cache(expire=60, prefix="project:my_list")
 def my_projects(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
