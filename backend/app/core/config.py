@@ -127,6 +127,8 @@ class Settings(BaseSettings):
     ENABLE_CSP: bool = True
     ENABLE_X_FRAME_OPTIONS: bool = True
     ENABLE_X_CONTENT_TYPE_OPTIONS: bool = True
+    ENABLE_DNS_PREFETCH_CONTROL: bool = True
+    ENABLE_CROSS_DOMAIN_POLICIES: bool = True
 
     # ==========================================================
     # Celery
