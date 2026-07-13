@@ -77,6 +77,7 @@ class Application(Base):
         SqlEnum(ApplicationStatus),
         default=ApplicationStatus.PENDING,
         nullable=False,
+        index=True,
     )
 
     message: Mapped[str | None] = mapped_column(
@@ -136,6 +137,7 @@ class Application(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+        index=True,
     )
 
     updated_at: Mapped[datetime] = mapped_column(
