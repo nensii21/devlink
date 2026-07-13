@@ -166,7 +166,6 @@ def test_router_enqueue_integration():
         },
     )
 
-
     r = client.post(
         "/api/auth/login",
         json={
@@ -175,9 +174,8 @@ def test_router_enqueue_integration():
         },
     )
 
-
     r = client.post(
-    "/api/auth/login", json={"email": "alice2@x.com", "password": "Passw0rd!"}
+        "/api/auth/login", json={"email": "alice2@x.com", "password": "Passw0rd!"}
     )
 
     a_tok = r.json()["access_token"]
@@ -203,7 +201,6 @@ def test_router_enqueue_integration():
         },
     )
 
-
     r = client.post(
         "/api/auth/login",
         json={
@@ -212,9 +209,8 @@ def test_router_enqueue_integration():
         },
     )
 
-
     r = client.post(
-    "/api/auth/login", json={"email": "bob2@x.com", "password": "Passw0rd!"}
+        "/api/auth/login", json={"email": "bob2@x.com", "password": "Passw0rd!"}
     )
 
     b_tok = r.json()["access_token"]
