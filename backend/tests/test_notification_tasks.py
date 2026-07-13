@@ -1,6 +1,7 @@
 from app import main
 from __future__ import annotations
 
+
 import uuid
 
 from app.core.celery_app import celery_app
