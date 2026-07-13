@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.message import Message
 from app.schemas.message import (
@@ -61,6 +61,7 @@ class MessageService:
 
         stmt = (
             select(Message)
+            .options(selectinload(Message.sender))
             .where(Message.conversation_id == conversation_id)
             .order_by(Message.created_at.asc())
             .limit(limit)
@@ -76,6 +77,7 @@ class MessageService:
 
         stmt = (
             select(Message)
+            .options(selectinload(Message.sender))
             .where(Message.sender_id == sender_id)
             .order_by(Message.created_at.desc())
         )
@@ -140,6 +142,7 @@ class MessageService:
 
         stmt = (
             select(Message)
+            .options(selectinload(Message.sender))
             .where(
                 Message.conversation_id == conversation_id,
                 Message.content.ilike(f"%{keyword}%"),
