@@ -23,7 +23,8 @@ jobs:
 
           while true; do
             USERS=$(curl -s "https://api.github.com/repos/$OWNER/$REPO/stargazers?per_page=100&page=$PAGE" \
-              -H "Accept: application/vnd.github+json")
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}")
 
             COUNT=$(echo "$USERS" | jq length)
 
