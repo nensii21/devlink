@@ -72,7 +72,7 @@ function toggle<T>(set: T[], val: T): T[] {
 
 function ProjectsPage() {
   const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "planning" | "shipped">(
+  const [statusFilter, setStatusFilter] = useState<"all" | "recruiting" | "in-progress" | "completed" | "archived">(
     "all",
   );
   const [showFilters, setShowFilters] = useState(false);
@@ -142,7 +142,7 @@ function ProjectsPage() {
             />
           </div>
           <div className="flex items-center gap-1 rounded-md border border-border bg-surface p-0.5">
-            {(["all", "active", "planning", "shipped"] as const).map((f) => (
+            {(["all", "recruiting", "in-progress", "completed", "archived"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setStatusFilter(f)}
@@ -317,9 +317,9 @@ function ProjectsPage() {
                   </span>
                   <span
                     className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
-                      p.status === "active"
+                      p.status === "recruiting" || p.status === "completed"
                         ? "bg-success/10 text-success"
-                        : p.status === "planning"
+                        : p.status === "in-progress"
                           ? "bg-warning/10 text-warning"
                           : "bg-muted text-muted-foreground"
                     }`}
