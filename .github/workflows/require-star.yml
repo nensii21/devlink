@@ -26,7 +26,13 @@ jobs:
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}")
 
-            COUNT=$(echo "$USERS" | jq length)
+            COUNT=$(echo "$USERS" | jq length 2>/dev/null || echo "error")
+
+            if [ "$COUNT" = "error" ]; then
+              echo "Error: GitHub API returned an error response instead of an array. Response details:"
+              echo "$USERS" | jq . 2>/dev/null || echo "$USERS"
+              exit 1
+            fi
 
             if echo "$USERS" | jq -e --arg USER "$USER" '.[] | select(.login==$USER)' > /dev/null; then
               FOUND=true
