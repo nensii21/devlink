@@ -3,8 +3,13 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional
 
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.core.logging import log_security_event
@@ -146,14 +151,15 @@ class AuthService:
         )
 
         return {
+            "success": True,
+            "message": "Login successful.",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
             "user": user,
         }
 
-        # =====================================================
-
+    # =====================================================
     # Get User by ID
     # =====================================================
 
