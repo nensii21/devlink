@@ -1,16 +1,8 @@
 {
-  "include": [
-    "src",
-    "vite.config.ts",
-    "eslint.config.js"
-  ],
+  "include": ["src", "vite.config.ts", "eslint.config.js"],
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
 
     "module": "ESNext",
     "moduleResolution": "Bundler",
@@ -25,15 +17,11 @@
     "baseUrl": ".",
 
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "ignoreDeprecations": "5.0",
 
-    "types": [
-      "vite/client"
-    ],
+    "types": ["vite/client"],
 
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": false,

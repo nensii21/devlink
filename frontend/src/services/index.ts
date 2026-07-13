@@ -20,8 +20,7 @@ import {
 } from "@/api";
 
 const delay = 120;
-const mock = <T>(v: T): Promise<T> =>
-  new Promise((r) => setTimeout(() => r(v), delay));
+const mock = <T>(v: T): Promise<T> => new Promise((r) => setTimeout(() => r(v), delay));
 
 // Wrap a real API call so a network/backend failure silently degrades to the
 // provided fallback. Keeps every page usable if the backend is unreachable.
@@ -75,15 +74,15 @@ export const dashboardService = {
   builderRequests: () =>
     withFallback<typeof seed.builderRequests>(
       async () =>
-        ((await analyticsApi.dashboard()).builder_requests as unknown as typeof seed.builderRequests) ??
-        seed.builderRequests,
+        ((await analyticsApi.dashboard())
+          .builder_requests as unknown as typeof seed.builderRequests) ?? seed.builderRequests,
       seed.builderRequests,
     ),
   inviteRequests: () =>
     withFallback<typeof seed.inviteRequests>(
       async () =>
-        ((await analyticsApi.dashboard()).invite_requests as unknown as typeof seed.inviteRequests) ??
-        seed.inviteRequests,
+        ((await analyticsApi.dashboard())
+          .invite_requests as unknown as typeof seed.inviteRequests) ?? seed.inviteRequests,
       seed.inviteRequests,
     ),
   deadlines: () =>
@@ -128,19 +127,16 @@ export const hackathonsService = {
 
 export const userService = {
   me: () =>
-    withFallback(
-      async () => {
-        const u = await authApi.me();
-        return {
-          id: u.id,
-          name: u.full_name ?? u.username,
-          handle: u.username,
-          avatar: u.avatar ?? seed.currentUser.avatar,
-          premium: (u as unknown as { premium?: boolean }).premium ?? false,
-        };
-      },
-      seed.currentUser,
-    ),
+    withFallback(async () => {
+      const u = await authApi.me();
+      return {
+        id: u.id,
+        name: u.full_name ?? u.username,
+        handle: u.username,
+        avatar: u.avatar ?? seed.currentUser.avatar,
+        premium: (u as unknown as { premium?: boolean }).premium ?? false,
+      };
+    }, seed.currentUser),
 };
 
 export type {

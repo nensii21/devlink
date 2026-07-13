@@ -169,7 +169,10 @@ export type FollowStatusResponse = {
 
 export async function getFollowStatus(userId: UUID): Promise<FollowStatusResponse> {
   const [isFollowingRes, followerCountRes, followingCountRes] = await Promise.all([
-    requestJson<{ following: boolean }>({ url: `/followers/${userId}/is-following`, method: "GET" }),
+    requestJson<{ following: boolean }>({
+      url: `/followers/${userId}/is-following`,
+      method: "GET",
+    }),
     requestJson<{ count: number }>({ url: `/followers/${userId}/count`, method: "GET" }),
     requestJson<{ count: number }>({ url: `/followers/${userId}/following-count`, method: "GET" }),
   ]);

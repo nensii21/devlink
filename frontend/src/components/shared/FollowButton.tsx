@@ -5,13 +5,7 @@ import { Loader2, UserPlus, UserCheck, UserMinus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UUID } from "@/lib/api";
 
-export function FollowButton({
-  userId,
-  className,
-}: {
-  userId: UUID;
-  className?: string;
-}) {
+export function FollowButton({ userId, className }: { userId: UUID; className?: string }) {
   const { data: status, isLoading: statusLoading } = useFollowStatus(userId);
   const followMutation = useFollow(userId);
   const unfollowMutation = useUnfollow(userId);
