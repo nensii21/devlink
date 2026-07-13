@@ -288,7 +288,9 @@ function Landing() {
           <div className="flex items-center gap-2">
             <img src={APP_LOGO} alt="Devlink Logo" className="h-8 w-8 rounded" />
             <span className="text-[13px] font-bold text-foreground ">DevLink</span>
-            <span className="text-[11px] text-muted-foreground opacity-70">© {new Date().getFullYear()}</span>
+            <span className="text-[11px] text-muted-foreground opacity-70">
+              © {new Date().getFullYear()}
+            </span>
           </div>
           <div className="flex items-center gap-5 text-[12px] text-muted-foreground">
             {[
