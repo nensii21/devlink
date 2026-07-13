@@ -32,7 +32,9 @@ export interface RequestOptions extends Omit<RequestInit, "body"> {
 }
 
 function buildUrl(path: string, query?: RequestOptions["query"]): string {
-  const url = path.startsWith("http") ? path : `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  const url = path.startsWith("http")
+    ? path
+    : `${API_BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
   if (!query) return url;
   const usp = new URLSearchParams();
   Object.entries(query).forEach(([k, v]) => {
@@ -95,12 +97,7 @@ async function coreFetch(path: string, opts: RequestOptions, attempt = 0): Promi
   const init: RequestInit = {
     ...rest,
     headers: finalHeaders,
-    body:
-      body === undefined
-        ? undefined
-        : body instanceof FormData
-          ? body
-          : JSON.stringify(body),
+    body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
   };
 
   let res: Response;
@@ -112,11 +109,7 @@ async function coreFetch(path: string, opts: RequestOptions, attempt = 0): Promi
       await new Promise((r) => setTimeout(r, 200 * 2 ** attempt));
       return coreFetch(path, opts, attempt + 1);
     }
-    throw new ApiError(
-      err instanceof Error ? err.message : "Network error",
-      0,
-      null,
-    );
+    throw new ApiError(err instanceof Error ? err.message : "Network error", 0, null);
   }
 
   if (res.status === 401 && auth && !path.includes("/auth/")) {
