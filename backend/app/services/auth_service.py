@@ -132,6 +132,7 @@ class AuthService:
             )
 
         user.last_login = datetime.now(timezone.utc)
+        user.last_seen = datetime.now(timezone.utc)
 
         self.db.commit()
 
@@ -185,6 +186,15 @@ class AuthService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account is disabled.",
             )
+
+        now = datetime.now(timezone.utc)
+        last_seen = user.last_seen
+        if last_seen and last_seen.tzinfo is None:
+            last_seen = last_seen.replace(tzinfo=timezone.utc)
+
+        if not last_seen or (now - last_seen).total_seconds() > 60:
+            user.last_seen = now
+            self.db.commit()
 
         return user
 

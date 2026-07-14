@@ -179,6 +179,11 @@ class User(Base):
         nullable=True,
     )
 
+    last_seen: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     # ------------------------------------------------------------------
     # OAuth
     # ------------------------------------------------------------------
@@ -211,6 +216,30 @@ class User(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+    # ------------------------------------------------------------------
+    # Properties
+    # ------------------------------------------------------------------
+
+    @property
+    def is_online(self) -> bool:
+        """
+        Check if the user is currently online.
+
+        Returns True if the user was active within the online threshold
+        (defaults to 300 seconds, customizable via _online_threshold).
+        """
+        if not self.last_seen:
+            return False
+        threshold = getattr(self, "_online_threshold", 300)
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        
+        last_seen = self.last_seen
+        if last_seen.tzinfo is None:
+            last_seen = last_seen.replace(tzinfo=timezone.utc)
+            
+        return (now - last_seen).total_seconds() < threshold
 
     # ------------------------------------------------------------------
     # Representation
