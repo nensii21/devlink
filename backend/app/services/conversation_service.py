@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import uuid
 
+from fastapi import HTTPException, status
 from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
-from app.models.conversation import Conversation
-from app.models.conversation_member import ConversationMember
+from app.models.conversation import Conversation, ConversationType
+from app.models.conversation_member import ConversationMember, ConversationRole
 from app.schemas.conversation import (
     ConversationCreate,
     ConversationUpdate,
@@ -28,12 +29,20 @@ class ConversationService:
         db_conversation = Conversation(
             title=conversation.title,
             type=conversation.type,
-            description=conversation.description,
             project_id=conversation.project_id,
             created_by=owner_id,
         )
 
         db.add(db_conversation)
+        db.flush()
+
+        # Automatically add the owner/creator as a member of the conversation
+        owner_member = ConversationMember(
+            conversation_id=db_conversation.id,
+            user_id=owner_id,
+            role=ConversationRole.OWNER,
+        )
+        db.add(owner_member)
         db.commit()
         db.refresh(db_conversation)
 
@@ -95,6 +104,50 @@ class ConversationService:
         conversation_id: uuid.UUID,
         user_id: uuid.UUID,
     ) -> ConversationMember:
+
+        # Fetch conversation
+        conversation = db.get(Conversation, conversation_id)
+        if not conversation:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Conversation not found",
+            )
+
+        # Prevent self-messaging in direct conversations
+        if conversation.type == ConversationType.DIRECT:
+            if user_id == conversation.created_by:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="You cannot add yourself to a direct conversation",
+                )
+
+            # Direct conversations cannot have more than 2 members
+            from sqlalchemy import func
+            member_count = db.scalar(
+                select(func.count(ConversationMember.id)).where(
+                    ConversationMember.conversation_id == conversation_id
+                )
+            )
+            if member_count >= 2:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Direct conversations cannot have more than 2 members",
+                )
+
+        # Check if user is already a member
+        existing_member = db.scalar(
+            select(ConversationMember).where(
+                and_(
+                    ConversationMember.conversation_id == conversation_id,
+                    ConversationMember.user_id == user_id,
+                )
+            )
+        )
+        if existing_member:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User is already a member of this conversation",
+            )
 
         member = ConversationMember(
             conversation_id=conversation_id,
