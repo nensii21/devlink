@@ -15,9 +15,12 @@ from app.schemas.application import (
 )
 from app.services.application_service import ApplicationService
 
+from app.middleware.idempotency import IdempotentRoute
+
 router = APIRouter(
     prefix="/applications",
     tags=["Applications"],
+    route_class=IdempotentRoute,
 )
 
 
