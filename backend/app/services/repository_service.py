@@ -48,7 +48,7 @@ class RepositoryService:
         )
 
         db.add(db_repository)
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
 
         return db_repository
@@ -103,7 +103,7 @@ class RepositoryService:
         for key, value in data.items():
             setattr(db_repository, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
 
         return db_repository
@@ -131,7 +131,7 @@ class RepositoryService:
         db_repository.default_branch = default_branch
         db_repository.synced = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
 
         return db_repository
@@ -144,7 +144,7 @@ class RepositoryService:
 
         db_repository.synced = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
 
         return db_repository
@@ -156,4 +156,4 @@ class RepositoryService:
     ) -> None:
 
         db.delete(db_repository)
-        db.commit()
+        db.flush()

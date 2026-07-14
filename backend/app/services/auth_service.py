@@ -90,7 +90,7 @@ class AuthService:
         )
 
         self.db.add(user)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(user)
 
         event_bus.publish(
@@ -134,7 +134,7 @@ class AuthService:
 
         user.last_login = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
         access_token = create_access_token(
             str(user.id),
@@ -244,7 +244,7 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
+        self.db.flush()
 
         event_bus.publish(
             "PASSWORD_CHANGED",
@@ -273,7 +273,7 @@ class AuthService:
         user.is_verified = True
         user.email_verified_at = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
         event_bus.publish(
             "EMAIL_VERIFIED",
@@ -347,7 +347,7 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
+        self.db.flush()
 
         event_bus.publish(
             "PASSWORD_RESET_COMPLETED",

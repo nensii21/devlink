@@ -55,7 +55,7 @@ class NotificationService:
             existing.message = notification.message
             existing.title = notification.title
             existing.created_at = datetime.utcnow()
-            db.commit()
+            db.flush()
             db.refresh(existing)
             return existing
 
@@ -74,7 +74,7 @@ class NotificationService:
         )
 
         db.add(db_notification)
-        db.commit()
+        db.flush()
         db.refresh(db_notification)
 
         return db_notification
@@ -178,7 +178,7 @@ class NotificationService:
         db_notification.is_read = True
         db_notification.read_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
         db.refresh(db_notification)
 
         return db_notification
@@ -200,7 +200,7 @@ class NotificationService:
             notification.is_read = True
             notification.read_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
 
     @staticmethod
     def update_notification(
@@ -214,7 +214,7 @@ class NotificationService:
         for key, value in data.items():
             setattr(db_notification, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_notification)
 
         return db_notification
@@ -226,4 +226,4 @@ class NotificationService:
     ) -> None:
 
         db.delete(db_notification)
-        db.commit()
+        db.flush()

@@ -39,7 +39,7 @@ class ProjectService:
         )
 
         db.add(db_project)
-        db.commit()
+        db.flush()
         db.refresh(db_project)
 
         return db_project
@@ -94,7 +94,7 @@ class ProjectService:
         for key, value in data.items():
             setattr(db_project, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
 
         return db_project
@@ -107,7 +107,7 @@ class ProjectService:
 
         db_project.is_archived = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
 
         return db_project
@@ -120,7 +120,7 @@ class ProjectService:
 
         db_project.is_archived = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
 
         return db_project
@@ -133,7 +133,7 @@ class ProjectService:
 
         db_project.is_featured = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
 
         return db_project
@@ -145,7 +145,7 @@ class ProjectService:
     ) -> None:
 
         db_project.views += 1
-        db.commit()
+        db.flush()
 
     @staticmethod
     def increment_stars(
@@ -154,7 +154,7 @@ class ProjectService:
     ) -> None:
 
         db_project.stars += 1
-        db.commit()
+        db.flush()
 
     @staticmethod
     def decrement_stars(
@@ -165,7 +165,7 @@ class ProjectService:
         if db_project.stars > 0:
             db_project.stars -= 1
 
-        db.commit()
+        db.flush()
 
     @staticmethod
     def delete_project(
@@ -174,4 +174,4 @@ class ProjectService:
     ) -> None:
 
         db.delete(db_project)
-        db.commit()
+        db.flush()

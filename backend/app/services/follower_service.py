@@ -33,7 +33,7 @@ class FollowerService:
         )
 
         db.add(relationship)
-        db.commit()
+        db.flush()
         db.refresh(relationship)
 
         # Trigger notification
@@ -168,4 +168,4 @@ class FollowerService:
     ) -> None:
 
         db.delete(relationship)
-        db.commit()
+        db.flush()

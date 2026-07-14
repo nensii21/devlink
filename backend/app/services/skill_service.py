@@ -29,7 +29,7 @@ class SkillService:
         )
 
         db.add(db_skill)
-        db.commit()
+        db.flush()
         db.refresh(db_skill)
 
         return db_skill
@@ -95,7 +95,7 @@ class SkillService:
         for key, value in data.items():
             setattr(db_skill, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_skill)
 
         return db_skill
@@ -107,4 +107,4 @@ class SkillService:
     ) -> None:
 
         db.delete(db_skill)
-        db.commit()
+        db.flush()

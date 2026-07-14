@@ -47,7 +47,7 @@ class MessageService:
         )
 
         db.add(db_message)
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         # Trigger notifications for conversation members
@@ -135,7 +135,7 @@ class MessageService:
         db_message.is_edited = True
         db_message.edited_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         return db_message
@@ -150,7 +150,7 @@ class MessageService:
         db_message.deleted_at = datetime.utcnow()
         db_message.content = "[Message deleted]"
 
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         return db_message
@@ -164,7 +164,7 @@ class MessageService:
         db_message.is_deleted = False
         db_message.deleted_at = None
 
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         return db_message

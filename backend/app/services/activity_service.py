@@ -42,7 +42,7 @@ class ActivityService:
         )
 
         db.add(db_activity)
-        db.commit()
+        db.flush()
         db.refresh(db_activity)
 
         return db_activity
@@ -149,7 +149,7 @@ class ActivityService:
         for key, value in data.items():
             setattr(db_activity, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_activity)
 
         return db_activity
@@ -161,4 +161,4 @@ class ActivityService:
     ) -> None:
 
         db.delete(db_activity)
-        db.commit()
+        db.flush()
