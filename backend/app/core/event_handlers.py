@@ -4,12 +4,14 @@ from app.core.logging import log_security_event
 
 logger = logging.getLogger(__name__)
 
+
 def on_user_registered(email: str, user_id: str, **kwargs: Any) -> None:
     """Handler for USER_REGISTERED event."""
     log_security_event(
         event="New user registration",
         user=email,
     )
+
 
 def on_user_login(email: str, **kwargs: Any) -> None:
     """Handler for USER_LOGIN event."""
@@ -18,12 +20,14 @@ def on_user_login(email: str, **kwargs: Any) -> None:
         user=email,
     )
 
+
 def on_user_logout(email: str, **kwargs: Any) -> None:
     """Handler for USER_LOGOUT event."""
     log_security_event(
         event="Logout",
         user=email,
     )
+
 
 def on_password_changed(email: str, **kwargs: Any) -> None:
     """Handler for PASSWORD_CHANGED event."""
@@ -32,12 +36,14 @@ def on_password_changed(email: str, **kwargs: Any) -> None:
         user=email,
     )
 
+
 def on_password_reset_requested(email: str, **kwargs: Any) -> None:
     """Handler for PASSWORD_RESET_REQUESTED event."""
     log_security_event(
         event="Password reset requested",
         user=email,
     )
+
 
 def on_password_reset_completed(email: str, **kwargs: Any) -> None:
     """Handler for PASSWORD_RESET_COMPLETED event."""
@@ -46,6 +52,7 @@ def on_password_reset_completed(email: str, **kwargs: Any) -> None:
         user=email,
     )
 
+
 def on_email_verified(email: str, **kwargs: Any) -> None:
     """Handler for EMAIL_VERIFIED event."""
     log_security_event(
@@ -53,12 +60,14 @@ def on_email_verified(email: str, **kwargs: Any) -> None:
         user=email,
     )
 
+
 def on_access_token_refreshed(email: str, **kwargs: Any) -> None:
     """Handler for ACCESS_TOKEN_REFRESHED event."""
     log_security_event(
         event="Access token refreshed",
         user=email,
     )
+
 
 def register_all_handlers(event_bus) -> None:
     """Register all event handlers to the provided event bus."""

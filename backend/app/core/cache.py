@@ -9,11 +9,13 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+
 class MultiLevelCache:
     """
-    A multi-level cache that utilizes an L1 in-memory cache (dict) 
+    A multi-level cache that utilizes an L1 in-memory cache (dict)
     and an L2 distributed cache (Redis).
     """
+
     def __init__(self):
         # L1 Cache: dict mapping key to (value, expiry_timestamp)
         self._l1_cache: Dict[str, Tuple[Any, float]] = {}
@@ -87,42 +89,58 @@ class MultiLevelCache:
             except Exception as e:
                 logger.error(f"Redis delete error for {key}: {e}")
 
+
 # Global singleton
 cache_manager = MultiLevelCache()
+
 
 def cached(ttl: int = 300, key_prefix: str = ""):
     """
     Decorator to easily cache the result of a synchronous function.
     """
+
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Generate a consistent cache key
             cache_key = f"{key_prefix}:{func.__name__}:{args}:{kwargs}"
-            
+
             # Try to get from cache
             cached_value = cache_manager.get(cache_key)
             if cached_value is not None:
                 return cached_value
-                
+
             # Execute function
             result = func(*args, **kwargs)
-            
+
             # Save to cache
             if result is not None:
                 # Handle SQLAlchemy models by converting to dict if possible
                 # Note: this is a basic implementation. Complex objects might need specific serialization.
                 store_value = result
                 if hasattr(result, "__dict__"):
-                    store_value = {k: v for k, v in result.__dict__.items() if not k.startswith('_')}
+                    store_value = {
+                        k: v
+                        for k, v in result.__dict__.items()
+                        if not k.startswith("_")
+                    }
                 elif isinstance(result, list):
                     store_value = [
-                        {k: v for k, v in item.__dict__.items() if not k.startswith('_')} 
-                        if hasattr(item, "__dict__") else item 
+                        (
+                            {
+                                k: v
+                                for k, v in item.__dict__.items()
+                                if not k.startswith("_")
+                            }
+                            if hasattr(item, "__dict__")
+                            else item
+                        )
                         for item in result
                     ]
                 cache_manager.set(cache_key, store_value, ttl)
-                
+
             return result
+
         return wrapper
+
     return decorator

@@ -61,7 +61,11 @@ class ProjectService:
         slug: str,
     ) -> Project | None:
 
-        stmt = select(Project).options(selectinload(Project.owner)).where(Project.slug == slug)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .where(Project.slug == slug)
+        )
         return db.scalar(stmt)
 
     @staticmethod
@@ -72,7 +76,12 @@ class ProjectService:
         limit: int = 20,
     ) -> list[Project]:
 
-        stmt = select(Project).options(selectinload(Project.owner)).offset(skip).limit(limit)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .offset(skip)
+            .limit(limit)
+        )
 
         return list(db.scalars(stmt))
 
@@ -83,7 +92,11 @@ class ProjectService:
         owner_id: uuid.UUID,
     ) -> list[Project]:
 
-        stmt = select(Project).options(selectinload(Project.owner)).where(Project.owner_id == owner_id)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .where(Project.owner_id == owner_id)
+        )
 
         return list(db.scalars(stmt))
 

@@ -62,7 +62,11 @@ class OrganizationService:
         slug: str,
     ) -> Organization | None:
 
-        stmt = select(Organization).options(selectinload(Organization.owner)).where(Organization.slug == slug)
+        stmt = (
+            select(Organization)
+            .options(selectinload(Organization.owner))
+            .where(Organization.slug == slug)
+        )
 
         return db.scalar(stmt)
 
@@ -73,7 +77,12 @@ class OrganizationService:
         limit: int = 20,
     ) -> list[Organization]:
 
-        stmt = select(Organization).options(selectinload(Organization.owner)).offset(skip).limit(limit)
+        stmt = (
+            select(Organization)
+            .options(selectinload(Organization.owner))
+            .offset(skip)
+            .limit(limit)
+        )
 
         return list(db.scalars(stmt))
 
@@ -83,7 +92,11 @@ class OrganizationService:
         owner_id: uuid.UUID,
     ) -> list[Organization]:
 
-        stmt = select(Organization).options(selectinload(Organization.owner)).where(Organization.owner_id == owner_id)
+        stmt = (
+            select(Organization)
+            .options(selectinload(Organization.owner))
+            .where(Organization.owner_id == owner_id)
+        )
 
         return list(db.scalars(stmt))
 
@@ -93,7 +106,11 @@ class OrganizationService:
         keyword: str,
     ) -> list[Organization]:
 
-        stmt = select(Organization).options(selectinload(Organization.owner)).where(Organization.name.ilike(f"%{keyword}%"))
+        stmt = (
+            select(Organization)
+            .options(selectinload(Organization.owner))
+            .where(Organization.name.ilike(f"%{keyword}%"))
+        )
 
         return list(db.scalars(stmt))
 
