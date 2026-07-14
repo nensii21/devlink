@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.organization import (
@@ -28,7 +31,7 @@ router = APIRouter(
 )
 def create_organization(
     organization: OrganizationCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -51,7 +54,7 @@ def create_organization(
 )
 def get_organization(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_organization(
@@ -74,7 +77,7 @@ def get_organization(
 )
 def get_organization_by_slug(
     slug: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_by_slug(
@@ -98,7 +101,7 @@ def get_organization_by_slug(
 def list_organizations(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return OrganizationService.list_organizations(
@@ -114,7 +117,7 @@ def list_organizations(
 )
 def my_organizations(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return OrganizationService.list_owner_organizations(
@@ -129,7 +132,7 @@ def my_organizations(
 )
 def search_organizations(
     keyword: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return OrganizationService.search_organizations(
@@ -145,7 +148,7 @@ def search_organizations(
 def update_organization(
     organization_id: uuid.UUID,
     organization: OrganizationUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_organization = OrganizationService.get_organization(
@@ -172,7 +175,7 @@ def update_organization(
 )
 def verify_organization(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_organization(
@@ -198,7 +201,7 @@ def verify_organization(
 )
 def activate_organization(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_organization(
@@ -224,7 +227,7 @@ def activate_organization(
 )
 def deactivate_organization(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_organization(
@@ -250,7 +253,7 @@ def deactivate_organization(
 )
 def enable_hiring(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_organization(
@@ -276,7 +279,7 @@ def enable_hiring(
 )
 def disable_hiring(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_organization(
@@ -302,7 +305,7 @@ def disable_hiring(
 )
 def delete_organization(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     organization = OrganizationService.get_organization(

@@ -18,16 +18,11 @@ export function SectionHeader({
       <h3 className="text-[14px] font-semibold text-foreground">{title}</h3>
       {action &&
         (actionTo ? (
-          <Link
-            to={actionTo}
-            className="text-[12px] font-medium text-primary hover:underline"
-          >
+          <Link to={actionTo} className="text-[12px] font-medium text-primary hover:underline">
             {action}
           </Link>
         ) : (
-          <button className="text-[12px] font-medium text-primary hover:underline">
-            {action}
-          </button>
+          <button className="text-[12px] font-medium text-primary hover:underline">{action}</button>
         ))}
     </div>
   );
