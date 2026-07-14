@@ -23,12 +23,9 @@ function NotFoundComponent() {
           <Lottie animationData={searchAnimation} loop autoplay />
         </div>
 
-        <h1 className="-mt-2 text-2xl font-bold text-foreground sm:text-3xl">
-          Page not found
-        </h1>
+        <h1 className="-mt-2 text-2xl font-bold text-foreground sm:text-3xl">Page not found</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved to a new
-          address.
+          The page you're looking for doesn't exist or has been moved to a new address.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link

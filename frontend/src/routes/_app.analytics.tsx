@@ -2,8 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/shared/primitives";
 import { stats } from "@/mocks/seed";
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  BarChart, Bar, CartesianGrid,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  CartesianGrid,
 } from "recharts";
 
 export const Route = createFileRoute("/_app/analytics")({
@@ -35,7 +42,9 @@ function AnalyticsPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.slice(0, 4).map((s) => (
           <Card key={s.key} className="p-4">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {s.label}
+            </p>
             <p className="mt-2 text-[24px] font-bold text-foreground">{s.value}</p>
           </Card>
         ))}
@@ -49,8 +58,21 @@ function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={11} />
                 <YAxis stroke="var(--color-muted-foreground)" fontSize={11} />
-                <Tooltip contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 6, fontSize: 12 }} />
-                <Line type="monotone" dataKey="commits" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: 6,
+                    fontSize: 12,
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="commits"
+                  stroke="var(--color-primary)"
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -63,7 +85,14 @@ function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={11} />
                 <YAxis stroke="var(--color-muted-foreground)" fontSize={11} />
-                <Tooltip contentStyle={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 6, fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: 6,
+                    fontSize: 12,
+                  }}
+                />
                 <Bar dataKey="views" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.user import (
@@ -17,7 +20,6 @@ from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 
 router = APIRouter(
-    prefix="/users",
     tags=["Users"],
 )
 
@@ -29,7 +31,7 @@ router = APIRouter(
 )
 def create_user(
     user: UserCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     if UserService.get_by_email(db, user.email):
@@ -72,7 +74,7 @@ def get_me(
 )
 def get_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(
@@ -96,7 +98,7 @@ def get_user(
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return UserService.list_users(
@@ -113,7 +115,7 @@ def list_users(
 def update_me(
     user: UserUpdate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return UserService.update_user(
@@ -129,7 +131,7 @@ def update_me(
 )
 def delete_me(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     UserService.delete_user(
@@ -144,7 +146,7 @@ def delete_me(
 )
 def activate_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(db, user_id)
@@ -167,7 +169,7 @@ def activate_user(
 )
 def deactivate_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(db, user_id)
@@ -190,7 +192,7 @@ def deactivate_user(
 )
 def verify_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(

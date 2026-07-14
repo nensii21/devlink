@@ -1,16 +1,47 @@
 from contextlib import asynccontextmanager
 
+# pyrefly: ignore [missing-import]
+from fastapi.routing import APIRoute
+
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI
+
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
+
+# pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.rate_limit import limiter
+
+# pyrefly: ignore [missing-import]
 from slowapi.errors import RateLimitExceeded
+
+# pyrefly: ignore [missing-import]
 from slowapi.middleware import SlowAPIMiddleware
+
+# pyrefly: ignore [missing-import]
 from slowapi import _rate_limit_exceeded_handler
+
+from app.routers import (
+    activities,
+    applications,
+    auth,
+    bookmarks,
+    builder_flares,
+    conversations,
+    followers,
+    messages,
+    notifications,
+    organizations,
+    projects,
+    repositories,
+    skills,
+    users,
+)
 
 
 @asynccontextmanager
@@ -76,7 +107,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=[
         "GET",
@@ -135,43 +166,22 @@ async def global_exception_handler(request, exc):
 # API Routers
 # ------------------------------------------------------------------
 
-# Uncomment as each router is created.
-
-from app.routers import auth
-from app.routers import users
-from app.routers import projects
-from app.routers import builders
-from app.routers import builder_flare
-from app.routers import messages
-from app.routers import notifications
-from app.routers import ai
-from app.routers import followers
-from app.routers import bookmarks
-from app.routers import activities
-from app.routers import notifications
-from app.routers import conversations
-from app.routers import repositories
-from app.routers import organizations
-from app.routers import applications
-from app.routers import skills
-from app.routers import users
+# Router inclusions
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
-app.include_router(builder_flare.router, prefix="/api/flare", tags=["Builder's Flare"])
+app.include_router(builder_flares.router, prefix="/api/flare", tags=["Builder's Flare"])
 app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
 app.include_router(
     notifications.router, prefix="/api/notifications", tags=["Notifications"]
 )
-app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
+
 app.include_router(followers.router)
 app.include_router(bookmarks.router)
 app.include_router(activities.router)
-app.include_router(notifications.router)
 app.include_router(conversations.router)
 app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
-app.include_router(users.router)
