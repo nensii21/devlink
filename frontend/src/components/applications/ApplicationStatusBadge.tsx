@@ -8,9 +8,9 @@ export function ApplicationStatusBadge({ status }: { status: ApplicationStatus }
     status === "reviewing" && "bg-warning/10 text-warning border border-warning/30",
     status === "accepted" && "bg-success/10 text-success border border-success/30",
     status === "rejected" && "bg-destructive/10 text-destructive border border-destructive/30",
-    status === "withdrawn" && "bg-destructive/10 text-destructive border border-destructive/30 opacity-70",
+    status === "withdrawn" &&
+      "bg-destructive/10 text-destructive border border-destructive/30 opacity-70",
   );
 
   return <span className={className}>{status}</span>;
 }
-

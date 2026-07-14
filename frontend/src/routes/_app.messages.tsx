@@ -15,7 +15,10 @@ export const Route = createFileRoute("/_app/messages")({
 });
 
 function MessagesIndex() {
-  const { data = [] } = useQuery({ queryKey: ["conversations"], queryFn: messagesService.conversations });
+  const { data = [] } = useQuery({
+    queryKey: ["conversations"],
+    queryFn: messagesService.conversations,
+  });
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
       <Card className="lg:h-[calc(100vh-8rem)] lg:overflow-y-auto">
@@ -32,7 +35,9 @@ function MessagesIndex() {
               >
                 <Avatar src={c.with.avatar} alt={c.with.name} size={40} online={c.with.online} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-foreground">{c.with.name}</p>
+                  <p className="truncate text-[13px] font-semibold text-foreground">
+                    {c.with.name}
+                  </p>
                   <p className="truncate text-[12px] text-muted-foreground">{c.preview}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
@@ -52,7 +57,9 @@ function MessagesIndex() {
         <div>
           <MessageSquare size={32} className="mx-auto text-muted-foreground" />
           <p className="mt-3 text-[14px] font-semibold text-foreground">Select a conversation</p>
-          <p className="mt-1 text-[12px] text-muted-foreground">Choose a chat on the left to start messaging.</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">
+            Choose a chat on the left to start messaging.
+          </p>
         </div>
       </Card>
     </div>

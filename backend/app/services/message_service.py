@@ -3,14 +3,20 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.message import Message
+from app.models.conversation_member import ConversationMember
+from app.models.user import User
+from app.models.notification import NotificationType
 from app.schemas.message import (
     MessageCreate,
     MessageUpdate,
 )
+from app.schemas.notification import NotificationCreate
+from app.services.notification_service import NotificationService
 
 
 class MessageService:
@@ -41,6 +47,36 @@ class MessageService:
         db.add(db_message)
         db.commit()
         db.refresh(db_message)
+
+        # Trigger notifications for conversation members
+        sender = db.get(User, sender_id)
+        sender_name = f"{sender.first_name} {sender.last_name}" if sender else "Someone"
+
+        member_stmt = select(ConversationMember).where(
+            ConversationMember.conversation_id == conversation_id
+        )
+        members = db.scalars(member_stmt).all()
+
+        content_hint = message.content[:50] if message.content else "sent an attachment"
+        notification_message = f"{sender_name}: {content_hint}"
+
+        for member in members:
+            if member.user_id != sender_id:
+                notification_data = NotificationCreate(
+                    recipient_id=member.user_id,
+                    type=NotificationType.MESSAGE,
+                    title="New Message",
+                    message=notification_message,
+                    action_url=f"/messages/{conversation_id}",
+                    conversation_id=conversation_id,
+                    message_id=db_message.id,
+                )
+                NotificationService.create_notification(
+                    db=db,
+                    recipient_id=member.user_id,
+                    sender_id=sender_id,
+                    notification=notification_data,
+                )
 
         return db_message
 

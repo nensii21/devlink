@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from sqlalchemy import and_, select
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.models.follower import Follower
+from app.models.user import User
+from app.models.notification import NotificationType
+from app.schemas.notification import NotificationCreate
+from app.services.notification_service import NotificationService
 
 
 class FollowerService:
@@ -28,6 +35,27 @@ class FollowerService:
         db.add(relationship)
         db.commit()
         db.refresh(relationship)
+
+        # Trigger notification
+        follower = db.get(User, follower_id)
+        follower_name = (
+            f"{follower.first_name} {follower.last_name}" if follower else "Someone"
+        )
+        follower_username = follower.username if follower else ""
+
+        notification_data = NotificationCreate(
+            recipient_id=following_id,
+            type=NotificationType.FOLLOW,
+            title="New Follower",
+            message=f"{follower_name} started following you.",
+            action_url=f"/profile/{follower_username}" if follower_username else None,
+        )
+        NotificationService.create_notification(
+            db=db,
+            recipient_id=following_id,
+            sender_id=follower_id,
+            notification=notification_data,
+        )
 
         return relationship
 

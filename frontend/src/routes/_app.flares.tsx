@@ -101,8 +101,12 @@ function FlaresPage() {
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-4 text-[12px] text-muted-foreground">
                   <div className="flex items-center gap-4">
-                    <button className="inline-flex items-center gap-1 hover:text-destructive"><Heart size={12} /> {f.likes}</button>
-                    <button className="inline-flex items-center gap-1 hover:text-primary"><MessageCircle size={12} /> {f.comments}</button>
+                    <button className="inline-flex items-center gap-1 hover:text-destructive">
+                      <Heart size={12} /> {f.likes}
+                    </button>
+                    <button className="inline-flex items-center gap-1 hover:text-primary">
+                      <MessageCircle size={12} /> {f.comments}
+                    </button>
                   </div>
                   {/* Placeholder: ApplyButton needs flareId+projectId; current flares feed is mock-only. */}
                 </div>

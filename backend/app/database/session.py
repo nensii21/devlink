@@ -1,13 +1,9 @@
 from typing import Generator
 
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+# pyrefly: ignore [missing-import]
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.database.database import engine
-
-# --------------------------------------------------------------------
-# Session Factory
-# --------------------------------------------------------------------
 
 SessionLocal = sessionmaker(
     bind=engine,
@@ -17,24 +13,8 @@ SessionLocal = sessionmaker(
 )
 
 
-# --------------------------------------------------------------------
-# Dependency
-# --------------------------------------------------------------------
-
-
 def get_db() -> Generator[Session, None, None]:
-    """
-    FastAPI dependency.
-
-    Example:
-
-        @router.get("/")
-        def endpoint(db: Session = Depends(get_db)):
-            ...
-    """
-
     db = SessionLocal()
-
     try:
         yield db
     finally:
