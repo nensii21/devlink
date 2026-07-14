@@ -14,6 +14,7 @@ from app.models.user import User
 from app.schemas.user import (
     UserCreate,
     UserResponse,
+    UserStats,
     UserUpdate,
 )
 from app.services.auth_service import AuthService
@@ -106,6 +107,23 @@ def list_users(
         skip,
         limit,
     )
+
+
+@router.get(
+    "/{user_id}/stats",
+    response_model=UserStats,
+)
+def get_user_stats(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+    if UserService.get_user(db, user_id) is None:
+        raise HTTPException(
+            status_code=404, 
+            detail="User not found"
+            )
+
+    return UserService.get_user_stats(db, user_id)
 
 
 @router.put(

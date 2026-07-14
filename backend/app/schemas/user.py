@@ -127,10 +127,10 @@ class CurrentUser(UserResponse):
 
 class UserStats(BaseModel):
     projects: int = 0
-    contributions: int = 0
     followers: int = 0
     following: int = 0
-    reputation: int = 0
+    applications: int = 0
+    accepted: int = 0
 
 
 # ==========================================================
