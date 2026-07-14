@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
 import { BackButton } from "@/components/shared/BackButton";
+import { ShareProjectButton } from "@/components/shared/ShareProjectButton";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   head: ({ params }) => ({
@@ -72,6 +73,13 @@ function ProjectDetail() {
                 {copied ? "Copied!" : "Copy invite link"}
               </button>
             )}
+
+            <ShareProjectButton
+              projectId={projectId}
+              projectName={p.name}
+              projectDescription={p.description}
+              projectIcon={p.icon}
+            />
 
             <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
               <span className="inline-flex items-center gap-1">
