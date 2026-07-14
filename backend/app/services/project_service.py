@@ -6,7 +6,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.project import Project
-from app.schemas.project import ProjectCreate, ProjectUpdate
+from app.schemas.project import (
+    ProjectCreate,
+    ProjectStatsResponse,
+    ProjectUpdate,
+)
 
 
 class ProjectService:
@@ -166,6 +170,47 @@ class ProjectService:
             db_project.stars -= 1
 
         db.commit()
+
+    @staticmethod
+    def get_project_stats(
+        db: Session,
+        project_id: uuid.UUID,
+    ) -> ProjectStatsResponse:
+        from sqlalchemy import func, select
+        from app.models.application import Application
+        from app.models.bookmark import Bookmark
+        from app.models.project_member import ProjectMember, MemberRole
+
+        project = db.get(Project, project_id)
+        assert project is not None
+
+        applicants = db.scalar(
+            select(func.count()).select_from(Application).where(
+                Application.project_id == project_id
+            )
+        ) or 0
+
+        accepted_members = db.scalar(
+            select(func.count()).select_from(ProjectMember).where(
+                ProjectMember.project_id == project_id,
+                ProjectMember.is_active.is_(True),
+                ProjectMember.role != MemberRole.OWNER,
+            )
+        ) or 0
+
+        bookmark_count = db.scalar(
+            select(func.count()).select_from(Bookmark).where(
+                Bookmark.project_id == project_id
+            )
+        ) or 0
+
+        return ProjectStatsResponse(
+            project_id=project_id,
+            views=project.views,
+            applicants=applicants,
+            accepted_members=accepted_members,
+            bookmark_count=bookmark_count,
+        )
 
     @staticmethod
     def delete_project(
