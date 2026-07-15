@@ -43,7 +43,9 @@ def setup_db():
     app.dependency_overrides.clear()
 
 
-def _register_and_login(client: TestClient, email: str, username: str) -> tuple[str, str]:
+def _register_and_login(
+    client: TestClient, email: str, username: str
+) -> tuple[str, str]:
     client.post(
         "/api/auth/register",
         json={
@@ -227,7 +229,13 @@ def test_non_owner_cannot_toggle_settings():
     org_id = org_resp.json()["id"]
 
     # Try all endpoints as other user
-    for action in ["verify", "enable-hiring", "disable-hiring", "activate", "deactivate"]:
+    for action in [
+        "verify",
+        "enable-hiring",
+        "disable-hiring",
+        "activate",
+        "deactivate",
+    ]:
         resp = client.patch(f"/organizations/{org_id}/{action}", headers=other_headers)
         assert resp.status_code == 403
         assert "permission denied" in resp.json()["detail"].lower()
