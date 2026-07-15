@@ -118,28 +118,53 @@ class UserService:
         db: Session,
         user_id: uuid.UUID,
     ) -> UserStats:
-        projects = db.scalar(
-            select(func.count()).select_from(Project).where(Project.owner_id == user_id)
-        ) or 0
-
-        followers = db.scalar(
-            select(func.count()).select_from(Follower).where(Follower.following_id == user_id)
-        ) or 0
-
-        following = db.scalar(
-            select(func.count()).select_from(Follower).where(Follower.follower_id == user_id)
-        ) or 0
-
-        applications = db.scalar(
-            select(func.count()).select_from(Application).where(Application.applicant_id == user_id)
-        ) or 0
-
-        accepted = db.scalar(
-            select(func.count()).select_from(Application).where(
-                Application.applicant_id == user_id,
-                Application.status == ApplicationStatus.ACCEPTED,
+        projects = (
+            db.scalar(
+                select(func.count())
+                .select_from(Project)
+                .where(Project.owner_id == user_id)
             )
-        ) or 0
+            or 0
+        )
+
+        followers = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.following_id == user_id)
+            )
+            or 0
+        )
+
+        following = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.follower_id == user_id)
+            )
+            or 0
+        )
+
+        applications = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(Application.applicant_id == user_id)
+            )
+            or 0
+        )
+
+        accepted = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(
+                    Application.applicant_id == user_id,
+                    Application.status == ApplicationStatus.ACCEPTED,
+                )
+            )
+            or 0
+        )
 
         return UserStats(
             projects=projects,
@@ -147,7 +172,7 @@ class UserService:
             following=following,
             applications=applications,
             accepted=accepted,
-        )   
+        )
 
     @staticmethod
     def verify_email(
