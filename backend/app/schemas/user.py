@@ -150,3 +150,13 @@ class DeveloperProfile(BaseModel):
 
 class UserMessage(BaseModel):
     message: str
+
+
+# ==========================================================
+# Username Availability
+# ==========================================================
+
+
+class UsernameAvailabilityResponse(BaseModel):
+    available: bool
+    message: str
