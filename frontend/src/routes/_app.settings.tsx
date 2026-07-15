@@ -26,7 +26,8 @@ function SettingsPage() {
   const [tab, setTab] = useState<Tab>("Account");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const inp = "w-full rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
+  const inp =
+    "w-full rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
   const lbl = "mb-1 block text-[13px] font-semibold text-foreground";
 
   return (
@@ -118,48 +119,48 @@ function SettingsPage() {
               </div>
             )}
             {tab === "Security" && (
-  <div className="space-y-4">
-    <div>
-      <label className={lbl}>Current password</label>
-      <div className="relative">
-        <input
-          type={showCurrentPassword ? "text" : "password"}
-          className={`${inp} pr-10`}
-        />
-        <button
-          type="button"
-          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-          aria-label={showCurrentPassword ? "Hide password" : "Show password"}
-        >
-          {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      </div>
-    </div>
+              <div className="space-y-4">
+                <div>
+                  <label className={lbl}>Current password</label>
+                  <div className="relative">
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      className={`${inp} pr-10`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                    >
+                      {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
 
-    <div>
-      <label className={lbl}>New password</label>
-      <div className="relative">
-        <input
-          type={showNewPassword ? "text" : "password"}
-          className={`${inp} pr-10`}
-        />
-        <button
-          type="button"
-          onClick={() => setShowNewPassword(!showNewPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-          aria-label={showNewPassword ? "Hide password" : "Show password"}
-        >
-          {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      </div>
-    </div>
+                <div>
+                  <label className={lbl}>New password</label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      className={`${inp} pr-10`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={showNewPassword ? "Hide password" : "Show password"}
+                    >
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
 
-    <button className="rounded-md bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
-      Update password
-    </button>
-  </div>
-)}
+                <button className="rounded-md bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+                  Update password
+                </button>
+              </div>
+            )}
             {tab === "Billing" && (
               <div className="rounded-md border border-primary/30 bg-primary-soft p-4 text-[13px] text-foreground">
                 You're on the <span className="font-semibold">Pro</span> plan. Next invoice on Nov

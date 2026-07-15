@@ -123,6 +123,7 @@ class ConversationService:
 
             # Direct conversations cannot have more than 2 members
             from sqlalchemy import func
+
             member_count = db.scalar(
                 select(func.count(ConversationMember.id)).where(
                     ConversationMember.conversation_id == conversation_id
