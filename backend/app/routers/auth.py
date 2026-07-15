@@ -79,6 +79,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.core.security import (
     decode_token,
     is_refresh_token,
+    create_verification_token,
+    is_verification_token,
 )
 from app.schemas.auth import (
     RefreshTokenRequest,
@@ -304,6 +306,8 @@ def verify_email(
 
     try:
         token_payload = decode_token(payload.token)
+        if token_payload.get("type") != "verification":
+            raise ValueError("Invalid verification token type.")
 
     except Exception:
         raise HTTPException(
@@ -353,8 +357,9 @@ def resend_verification(
             ),
         }
 
-    # TODO:
     # Generate verification token
+    token = create_verification_token(str(user.id))
+    # TODO:
     # Send email via SMTP
 
     return {

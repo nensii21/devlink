@@ -48,6 +48,7 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS: int = 24
 
     PASSWORD_HASH_SCHEME: str = "bcrypt"
 
