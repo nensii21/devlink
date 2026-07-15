@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import UUID
 
 # pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
@@ -163,7 +164,12 @@ class AuthService:
     # Get User by ID
     # =====================================================
 
-    def get_user_by_id(self, user_id: str) -> Optional[User]:
+    def get_user_by_id(self, user_id: str | UUID) -> Optional[User]:
+        if isinstance(user_id, str):
+            try:
+                user_id = UUID(user_id)
+            except ValueError:
+                pass
         return self.db.get(User, user_id)
 
     # =====================================================
