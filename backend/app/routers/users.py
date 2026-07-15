@@ -118,10 +118,7 @@ def get_user_stats(
     db: Session = Depends(get_database),
 ):
     if UserService.get_user(db, user_id) is None:
-        raise HTTPException(
-            status_code=404, 
-            detail="User not found"
-            )
+        raise HTTPException(status_code=404, detail="User not found")
 
     return UserService.get_user_stats(db, user_id)
 
