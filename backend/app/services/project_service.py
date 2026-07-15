@@ -184,25 +184,36 @@ class ProjectService:
         project = db.get(Project, project_id)
         assert project is not None
 
-        applicants = db.scalar(
-            select(func.count()).select_from(Application).where(
-                Application.project_id == project_id
+        applicants = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(Application.project_id == project_id)
             )
-        ) or 0
+            or 0
+        )
 
-        accepted_members = db.scalar(
-            select(func.count()).select_from(ProjectMember).where(
-                ProjectMember.project_id == project_id,
-                ProjectMember.is_active.is_(True),
-                ProjectMember.role != MemberRole.OWNER,
+        accepted_members = (
+            db.scalar(
+                select(func.count())
+                .select_from(ProjectMember)
+                .where(
+                    ProjectMember.project_id == project_id,
+                    ProjectMember.is_active.is_(True),
+                    ProjectMember.role != MemberRole.OWNER,
+                )
             )
-        ) or 0
+            or 0
+        )
 
-        bookmark_count = db.scalar(
-            select(func.count()).select_from(Bookmark).where(
-                Bookmark.project_id == project_id
+        bookmark_count = (
+            db.scalar(
+                select(func.count())
+                .select_from(Bookmark)
+                .where(Bookmark.project_id == project_id)
             )
-        ) or 0
+            or 0
+        )
 
         return ProjectStatsResponse(
             project_id=project_id,
