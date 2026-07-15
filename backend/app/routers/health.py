@@ -16,7 +16,10 @@ def _check_database() -> dict:
         start = time.monotonic()
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        return {"status": "healthy", "latency_ms": round((time.monotonic() - start) * 1000, 2)}
+        return {
+            "status": "healthy",
+            "latency_ms": round((time.monotonic() - start) * 1000, 2),
+        }
     except Exception:
         return {"status": "unhealthy", "error": "Database connection failed"}
 
@@ -27,7 +30,10 @@ def _check_redis() -> dict:
         try:
             start = time.monotonic()
             r.ping()
-            return {"status": "healthy", "latency_ms": round((time.monotonic() - start) * 1000, 2)}
+            return {
+                "status": "healthy",
+                "latency_ms": round((time.monotonic() - start) * 1000, 2),
+            }
         finally:
             r.close()
     except Exception:
@@ -57,7 +63,9 @@ async def health_ready():
     celery = _check_celery()
 
     all_healthy = db["status"] == "healthy" and redis["status"] == "healthy"
-    http_status = status.HTTP_200_OK if all_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
+    http_status = (
+        status.HTTP_200_OK if all_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
+    )
 
     return JSONResponse(
         status_code=http_status,
