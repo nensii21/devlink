@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
 import { Card, TagChip, SectionHeader } from "@/components/shared/primitives";
@@ -70,6 +70,7 @@ function toggle<T>(set: T[], val: T): T[] {
 }
 
 function ProjectsPage() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "recruiting" | "in-progress" | "completed" | "archived"
@@ -85,6 +86,10 @@ function ProjectsPage() {
   });
 
   const hasActiveFilters = langs.length > 0 || difficulties.length > 0 || boolFilters.length > 0;
+
+  if (pathname !== "/projects" && pathname !== "/projects/") {
+    return <Outlet />;
+  }
 
   function resetFilters() {
     setLangs([]);
@@ -266,12 +271,7 @@ function ProjectsPage() {
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <Link
-              key={p.id}
-              to="/projects/$projectId"
-              params={{ projectId: p.id }}
-              className="block"
-            >
+            <a key={p.id} href={`/projects/${p.id}`} className="block">
               <Card interactive className="p-4">
                 <div className="flex items-start gap-3">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
@@ -339,7 +339,7 @@ function ProjectsPage() {
                   </span>
                 </div>
               </Card>
-            </Link>
+            </a>
           ))}
         </div>
       )}
