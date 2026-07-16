@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 
 # ==========================================================
@@ -126,10 +127,10 @@ class CurrentUser(UserResponse):
 
 class UserStats(BaseModel):
     projects: int = 0
-    contributions: int = 0
     followers: int = 0
     following: int = 0
-    reputation: int = 0
+    applications: int = 0
+    accepted: int = 0
 
 
 # ==========================================================
@@ -148,4 +149,14 @@ class DeveloperProfile(BaseModel):
 
 
 class UserMessage(BaseModel):
+    message: str
+
+
+# ==========================================================
+# Username Availability
+# ==========================================================
+
+
+class UsernameAvailabilityResponse(BaseModel):
+    available: bool
     message: str

@@ -11,6 +11,7 @@ from sqlalchemy import (
     ForeignKey,
     String,
     Text,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -33,7 +34,13 @@ class Application(Base):
     """
 
     __tablename__ = "applications"
-
+    __table_args__ = (
+        UniqueConstraint(
+            "applicant_id",
+            "project_id",
+            name="uq_applicant_project",
+        ),
+    )
     # ==========================================================
     # Primary Key
     # ==========================================================

@@ -1,6 +1,9 @@
 from functools import lru_cache
 
+# pyrefly: ignore [missing-import]
 from pydantic import Field
+
+# pyrefly: ignore [missing-import]
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -45,6 +48,7 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS: int = 24
 
     PASSWORD_HASH_SCHEME: str = "bcrypt"
 
@@ -127,6 +131,8 @@ class Settings(BaseSettings):
     ENABLE_CSP: bool = True
     ENABLE_X_FRAME_OPTIONS: bool = True
     ENABLE_X_CONTENT_TYPE_OPTIONS: bool = True
+    ENABLE_DNS_PREFETCH_CONTROL: bool = True
+    ENABLE_CROSS_DOMAIN_POLICIES: bool = True
 
     # ==========================================================
     # Celery
@@ -134,6 +140,8 @@ class Settings(BaseSettings):
 
     CELERY_BROKER_URL: str = "redis://localhost:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
+
+    CELERY_TASK_ALWAYS_EAGER: bool = False
 
     # ==========================================================
     # WebSocket

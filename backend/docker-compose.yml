@@ -88,6 +88,36 @@ services:
       --port 8000
       --reload
 
+  # ==========================================================
+  # Celery Worker
+  # ==========================================================
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: devlink-worker
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    volumes:
+      - .:/app
+
+    command: >
+      celery -A app.core.celery_app.celery_app worker
+      --loglevel=info
+      --concurrency=2
+
 volumes:
 
   postgres_data:

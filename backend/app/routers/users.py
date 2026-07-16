@@ -2,24 +2,64 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.user import (
     UserCreate,
     UserResponse,
+    UserStats,
     UserUpdate,
+    UsernameAvailabilityResponse,
 )
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
+from app.utils.validators import validate_username
 
 router = APIRouter(
-    prefix="/users",
     tags=["Users"],
 )
+
+
+@router.get(
+    "/check-username",
+    response_model=UsernameAvailabilityResponse,
+    summary="Check Username Availability",
+)
+def check_username(
+    username: str = Query(..., description="The username to check availability for"),
+    db: Session = Depends(get_database),
+):
+    """
+    Check if a username is available for registration.
+    """
+    try:
+        username = validate_username(username)
+    except HTTPException as exc:
+        raise exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+
+    existing_user = UserService.get_by_username(db, username)
+    if existing_user:
+        return UsernameAvailabilityResponse(
+            available=False,
+            message="Username is already taken.",
+        )
+
+    return UsernameAvailabilityResponse(
+        available=True,
+        message="Username is available.",
+    )
 
 
 @router.post(
@@ -29,7 +69,7 @@ router = APIRouter(
 )
 def create_user(
     user: UserCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     if UserService.get_by_email(db, user.email):
@@ -72,7 +112,7 @@ def get_me(
 )
 def get_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(
@@ -96,7 +136,7 @@ def get_user(
 def list_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return UserService.list_users(
@@ -106,6 +146,20 @@ def list_users(
     )
 
 
+@router.get(
+    "/{user_id}/stats",
+    response_model=UserStats,
+)
+def get_user_stats(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+    if UserService.get_user(db, user_id) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return UserService.get_user_stats(db, user_id)
+
+
 @router.put(
     "/me",
     response_model=UserResponse,
@@ -113,7 +167,7 @@ def list_users(
 def update_me(
     user: UserUpdate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return UserService.update_user(
@@ -129,7 +183,7 @@ def update_me(
 )
 def delete_me(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     UserService.delete_user(
@@ -144,7 +198,7 @@ def delete_me(
 )
 def activate_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(db, user_id)
@@ -167,7 +221,7 @@ def activate_user(
 )
 def deactivate_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(db, user_id)
@@ -190,7 +244,7 @@ def deactivate_user(
 )
 def verify_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     user = UserService.get_user(

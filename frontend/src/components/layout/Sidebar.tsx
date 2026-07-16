@@ -64,9 +64,7 @@ const groups: Group[] = [
   },
   {
     label: "Account",
-    items: [
-      { label: "Settings", to: "/settings", icon: <Settings size={16} /> },
-    ],
+    items: [{ label: "Settings", to: "/settings", icon: <Settings size={16} /> }],
   },
 ];
 
@@ -98,7 +96,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           <span className="text-[18px] font-bold tracking-tight text-foreground">DevLink</span>
         </Link>
 
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 overflow-y-auto px-3 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {groups.map((group) => (
             <SidebarGroup key={group.label} group={group} onNav={onClose} />
           ))}
@@ -147,10 +145,7 @@ function SidebarGroup({ group, onNav }: { group: Group; onNav: () => void }) {
         className="flex w-full items-center justify-between px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
       >
         {group.label}
-        <ChevronRight
-          size={12}
-          className={cn("transition-transform", open && "rotate-90")}
-        />
+        <ChevronRight size={12} className={cn("transition-transform", open && "rotate-90")} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -161,17 +156,18 @@ function SidebarGroup({ group, onNav }: { group: Group; onNav: () => void }) {
             className="overflow-hidden"
           >
             {group.items.map((item) => {
-              const active = pathname === item.to || pathname.startsWith(item.to.split("?")[0] + "/");
+              const active =
+                pathname === item.to || pathname.startsWith(item.to.split("?")[0] + "/");
               return (
                 <li key={item.label}>
                   <Link
                     to={item.to.split("?")[0]}
                     onClick={onNav}
                     className={cn(
-                      "mt-0.5 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors",
+                      "mt-0.5 flex items-center gap-2.5 rounded-md px-2 py-2 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary",
                       active
-                        ? "bg-primary-soft text-primary"
-                        : "text-foreground/80 hover:bg-sidebar-accent hover:text-foreground",
+                        ? "bg-primary-soft font-semibold text-primary"
+                        : "text-foreground/80 hover:bg-sidebar-accent hover:text-foreground focus:bg-sidebar-accent",
                     )}
                   >
                     <span className={cn(active ? "text-primary" : "text-muted-foreground")}>

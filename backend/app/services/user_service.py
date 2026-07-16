@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.models.application import Application, ApplicationStatus
+from app.models.follower import Follower
+from app.models.project import Project
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate, UserStats, UserUpdate
 
 
 class UserService:
@@ -109,6 +112,67 @@ class UserService:
         db.refresh(db_user)
 
         return db_user
+
+    @staticmethod
+    def get_user_stats(
+        db: Session,
+        user_id: uuid.UUID,
+    ) -> UserStats:
+        projects = (
+            db.scalar(
+                select(func.count())
+                .select_from(Project)
+                .where(Project.owner_id == user_id)
+            )
+            or 0
+        )
+
+        followers = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.following_id == user_id)
+            )
+            or 0
+        )
+
+        following = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.follower_id == user_id)
+            )
+            or 0
+        )
+
+        applications = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(Application.applicant_id == user_id)
+            )
+            or 0
+        )
+
+        accepted = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(
+                    Application.applicant_id == user_id,
+                    Application.status == ApplicationStatus.ACCEPTED,
+                )
+            )
+            or 0
+        )
+
+        return UserStats(
+            projects=projects,
+            followers=followers,
+            following=following,
+            applications=applications,
+            accepted=accepted,
+        )
 
     @staticmethod
     def verify_email(
