@@ -49,6 +49,16 @@ class ProjectUpdate(BaseModel):
     banner_url: Optional[str] = None
 
 
+class ProjectStatsResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    project_id: uuid.UUID
+    views: int
+    applicants: int
+    accepted_members: int
+    bookmark_count: int
+
+
 class ProjectResponse(ProjectBase):
     model_config = ConfigDict(from_attributes=True)
 
