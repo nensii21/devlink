@@ -34,17 +34,10 @@ def create_skill(
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
-
-    if SkillService.get_by_name(db, skill.name):
-        raise HTTPException(
-            status_code=400,
-            detail="Skill already exists",
-        )
-
-    return SkillService.create_skill(
-        db=db,
-        skill=skill,
-    )
+    try:
+        return SkillService.create_skill(db=db, skill=skill)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get(
@@ -55,7 +48,6 @@ def get_skill(
     skill_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
-
     skill = SkillService.get_skill(
         db,
         skill_id,
@@ -78,7 +70,6 @@ def get_skill_by_slug(
     slug: str,
     db: Session = Depends(get_database),
 ):
-
     skill = SkillService.get_by_slug(
         db,
         slug,
@@ -102,7 +93,6 @@ def list_skills(
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_database),
 ):
-
     return SkillService.list_skills(
         db,
         skip,
@@ -118,7 +108,6 @@ def search_skills(
     keyword: str,
     db: Session = Depends(get_database),
 ):
-
     return SkillService.search_skills(
         db,
         keyword,
@@ -134,7 +123,6 @@ def update_skill(
     skill: SkillUpdate,
     db: Session = Depends(get_database),
 ):
-
     db_skill = SkillService.get_skill(
         db,
         skill_id,
@@ -146,11 +134,10 @@ def update_skill(
             detail="Skill not found",
         )
 
-    return SkillService.update_skill(
-        db,
-        db_skill,
-        skill,
-    )
+    try:
+        return SkillService.update_skill(db, db_skill, skill)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.delete(
@@ -161,7 +148,6 @@ def delete_skill(
     skill_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
-
     db_skill = SkillService.get_skill(
         db,
         skill_id,
