@@ -75,46 +75,6 @@ def send_message(
 
 
 @router.get(
-    "/{message_id}",
-    response_model=MessageResponse,
-)
-def get_message(
-    message_id: uuid.UUID,
-    db: Session = Depends(get_database),
-):
-
-    message = MessageService.get_message(
-        db,
-        message_id,
-    )
-
-    if message is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Message not found",
-        )
-
-    return message
-
-
-@router.get(
-    "/conversation/{conversation_id}",
-    response_model=list[MessageResponse],
-)
-def list_conversation_messages(
-    conversation_id: uuid.UUID,
-    limit: int = Query(100, ge=1, le=500),
-    db: Session = Depends(get_database),
-):
-
-    return MessageService.list_conversation_messages(
-        db,
-        conversation_id,
-        limit,
-    )
-
-
-@router.get(
     "/me",
     response_model=list[MessageResponse],
 )
@@ -144,6 +104,62 @@ def search_messages(
         conversation_id,
         keyword,
     )
+
+
+@router.get(
+    "/conversation/{conversation_id}/count",
+)
+def count_messages(
+    conversation_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+
+    return {
+        "count": MessageService.count_messages(
+            db,
+            conversation_id,
+        )
+    }
+
+
+@router.get(
+    "/conversation/{conversation_id}",
+    response_model=list[MessageResponse],
+)
+def list_conversation_messages(
+    conversation_id: uuid.UUID,
+    limit: int = Query(100, ge=1, le=500),
+    db: Session = Depends(get_database),
+):
+
+    return MessageService.list_conversation_messages(
+        db,
+        conversation_id,
+        limit,
+    )
+
+
+@router.get(
+    "/{message_id}",
+    response_model=MessageResponse,
+)
+def get_message(
+    message_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+
+    message = MessageService.get_message(
+        db,
+        message_id,
+    )
+
+    if message is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Message not found",
+        )
+
+    return message
 
 
 @router.put(
@@ -224,19 +240,3 @@ def delete_message(
         db,
         db_message,
     )
-
-
-@router.get(
-    "/conversation/{conversation_id}/count",
-)
-def count_messages(
-    conversation_id: uuid.UUID,
-    db: Session = Depends(get_database),
-):
-
-    return {
-        "count": MessageService.count_messages(
-            db,
-            conversation_id,
-        )
-    }

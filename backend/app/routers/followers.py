@@ -17,7 +17,6 @@ from app.models.notification import NotificationType
 from app.services.notification_service import NotificationService
 
 router = APIRouter(
-    prefix="/followers",
     tags=["Followers"],
 )
 

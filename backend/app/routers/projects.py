@@ -19,8 +19,11 @@ from app.schemas.project import (
 )
 from app.services.project_service import ProjectService
 
+from app.middleware.idempotency import IdempotentRoute
+
 router = APIRouter(
     tags=["Projects"],
+    route_class=IdempotentRoute,
 )
 
 

@@ -75,7 +75,9 @@ def test_follow_creates_notification():
     a_id, a_tok = _register_and_login(client, "a@x.com", "alice")
     b_id, b_tok = _register_and_login(client, "b@x.com", "bob")
 
-    r = client.post(f"/followers/{a_id}", headers={"Authorization": f"Bearer {b_tok}"})
+    r = client.post(
+        f"/api/followers/{a_id}", headers={"Authorization": f"Bearer {b_tok}"}
+    )
     assert r.status_code == 201
 
     notifs = client.get(
@@ -93,7 +95,9 @@ def test_no_self_notification():
     client = TestClient(app)
     a_id, a_tok = _register_and_login(client, "c@x.com", "charlie")
 
-    r = client.post(f"/followers/{a_id}", headers={"Authorization": f"Bearer {a_tok}"})
+    r = client.post(
+        f"/api/followers/{a_id}", headers={"Authorization": f"Bearer {a_tok}"}
+    )
     assert r.status_code == 400
 
 

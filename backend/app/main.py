@@ -168,7 +168,7 @@ app.include_router(
     notifications.router, prefix="/api/notifications", tags=["Notifications"]
 )
 
-app.include_router(followers.router)
+app.include_router(followers.router, prefix="/api/followers", tags=["Followers"])
 app.include_router(bookmarks.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)

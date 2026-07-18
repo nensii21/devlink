@@ -18,6 +18,7 @@ from app.schemas.user import (
     UserUpdate,
     UsernameAvailabilityResponse,
 )
+from app.core.security import hash_password
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.utils.validators import validate_username
@@ -84,7 +85,7 @@ def create_user(
             detail="Username already exists",
         )
 
-    password_hash = AuthService.hash_password(
+    password_hash = hash_password(
         user.password,
     )
 
