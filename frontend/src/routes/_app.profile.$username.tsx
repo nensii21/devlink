@@ -1,7 +1,7 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { builders, currentUser, projects } from "@/mocks/seed";
-import { MapPin, Calendar, Link as LinkIcon } from "lucide-react";
+import { MapPin, Calendar, Link as LinkIcon, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/profile/$username")({
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_app/profile/$username")({
 
 function ProfilePage() {
   const { username } = Route.useParams();
+  const navigate = useNavigate();
   const me = username === currentUser.handle;
   const b = me
     ? {
@@ -106,8 +107,18 @@ function ProfilePage() {
             </div>
           </div>
           {!me && (
-            <button className="rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
-              Follow
+            <button
+              type="button"
+              onClick={() =>
+                navigate({
+                  to: "/messages/$conversationId",
+                  params: { conversationId: b.id },
+                })
+              }
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <MessageCircle size={16} />
+              Contact Developer
             </button>
           )}
         </div>

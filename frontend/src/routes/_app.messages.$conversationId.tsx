@@ -4,7 +4,7 @@ import { messagesService } from "@/services";
 import { Card, Avatar } from "@/components/shared/primitives";
 import { ArrowLeft, Send } from "lucide-react";
 import { useState } from "react";
-import { conversations } from "@/mocks/seed";
+import { builders, conversations } from "@/mocks/seed";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/messages/$conversationId")({
@@ -14,7 +14,9 @@ export const Route = createFileRoute("/_app/messages/$conversationId")({
 
 function Thread() {
   const { conversationId } = Route.useParams();
-  const conv = conversations.find((c) => c.id === conversationId) ?? conversations[0];
+  const existingConversation = conversations.find((c) => c.id === conversationId);
+  const contact = existingConversation?.with ?? builders.find((builder) => builder.id === conversationId);
+  const conv = existingConversation ?? (contact ? { id: conversationId, with: contact } : conversations[0]);
   const { data = [] } = useQuery({
     queryKey: ["thread", conversationId],
     queryFn: () => messagesService.thread(conversationId),
