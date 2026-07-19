@@ -99,6 +99,11 @@ def get_project_by_slug(
             detail="Project not found",
         )
 
+    ProjectService.increment_views(
+        db,
+        project,
+    )
+
     return project
 
 

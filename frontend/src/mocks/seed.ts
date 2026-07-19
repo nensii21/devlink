@@ -27,6 +27,7 @@ export interface Project {
   owner: string;
   members: number;
   stars: number;
+  views: number;
   forks: number;
   progress: number;
   status: "recruiting" | "in-progress" | "completed" | "archived";
@@ -227,6 +228,7 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 4,
     stars: 24,
+    views: 1042,
     forks: 12,
     progress: 75,
     status: "in-progress",
@@ -249,6 +251,7 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 6,
     stars: 18,
+    views: 890,
     forks: 8,
     progress: 40,
     status: "in-progress",
@@ -271,6 +274,7 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 3,
     stars: 16,
+    views: 521,
     forks: 6,
     progress: 60,
     status: "in-progress",
@@ -292,6 +296,7 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 5,
     stars: 14,
+    views: 310,
     forks: 7,
     progress: 25,
     status: "recruiting",
@@ -314,6 +319,7 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 2,
     stars: 12,
+    views: 180,
     forks: 5,
     progress: 90,
     status: "in-progress",
@@ -335,6 +341,7 @@ export const projects: Project[] = [
     owner: "Community",
     members: 8,
     stars: 240,
+    views: 5040,
     forks: 96,
     progress: 100,
     status: "completed",
