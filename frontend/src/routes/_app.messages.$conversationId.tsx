@@ -15,8 +15,10 @@ export const Route = createFileRoute("/_app/messages/$conversationId")({
 function Thread() {
   const { conversationId } = Route.useParams();
   const existingConversation = conversations.find((c) => c.id === conversationId);
-  const contact = existingConversation?.with ?? builders.find((builder) => builder.id === conversationId);
-  const conv = existingConversation ?? (contact ? { id: conversationId, with: contact } : conversations[0]);
+  const contact =
+    existingConversation?.with ?? builders.find((builder) => builder.id === conversationId);
+  const conv =
+    existingConversation ?? (contact ? { id: conversationId, with: contact } : conversations[0]);
   const { data = [] } = useQuery({
     queryKey: ["thread", conversationId],
     queryFn: () => messagesService.thread(conversationId),
