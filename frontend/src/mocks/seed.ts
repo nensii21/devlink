@@ -16,6 +16,7 @@ export interface Builder {
   yearsExp: number;
   matchScore: number;
   skills: string[];
+  badges: string[];
   online: boolean;
   bio: string;
 }
@@ -123,6 +124,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 92,
     skills: ["React", "Next.js", "TypeScript"],
+    badges: ["Top Contributor", "Social Butterfly"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
   },
@@ -136,6 +138,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 89,
     skills: ["Node.js", "MongoDB", "Express"],
+    badges: ["Active Developer"],
     online: true,
     bio: "Builds end-to-end features fast.",
   },
@@ -149,6 +152,7 @@ export const builders: Builder[] = [
     yearsExp: 2,
     matchScore: 87,
     skills: ["Python", "FastAPI", "PostgreSQL"],
+    badges: ["Project Owner", "Active Developer"],
     online: false,
     bio: "APIs, queues and Postgres tuning.",
   },
@@ -162,6 +166,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 94,
     skills: ["Figma", "Adobe XD"],
+    badges: ["Social Butterfly"],
     online: true,
     bio: "Product design for early-stage teams.",
   },
@@ -175,6 +180,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 93,
     skills: ["MERN", "Next.js"],
+    badges: ["Top Contributor", "Project Owner"],
     online: false,
     bio: "Ships side-projects on weekends.",
   },
@@ -188,6 +194,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 91,
     skills: ["Flutter", "Firebase"],
+    badges: ["Active Developer"],
     online: true,
     bio: "Cross-platform mobile since 2021.",
   },
@@ -201,6 +208,7 @@ export const builders: Builder[] = [
     yearsExp: 5,
     matchScore: 88,
     skills: ["Python", "PyTorch", "AWS"],
+    badges: ["Top Contributor", "Social Butterfly"],
     online: true,
     bio: "Recsys, embeddings, evals.",
   },
@@ -214,6 +222,7 @@ export const builders: Builder[] = [
     yearsExp: 6,
     matchScore: 86,
     skills: ["Kubernetes", "Terraform"],
+    badges: ["Project Owner"],
     online: false,
     bio: "Infra as code, cost optimization.",
   },

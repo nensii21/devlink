@@ -101,6 +101,7 @@ class UserResponse(UserBase):
 
     profile_image: Optional[str] = None
     cover_image: Optional[str] = None
+    badges: list[str] = Field(default_factory=list)
 
     is_active: bool
     is_verified: bool
