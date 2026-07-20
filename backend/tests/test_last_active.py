@@ -24,7 +24,6 @@ from app.models.user import User  # noqa: E402
 from app.schemas.user import UserResponse, CurrentUser  # noqa: E402
 from app.schemas.auth import CurrentUserResponse  # noqa: E402
 
-
 engine = create_engine(
     "sqlite:///:memory:",
     connect_args={"check_same_thread": False},
@@ -124,7 +123,14 @@ def test_user_last_active_at_stores_timezone(db):
     db.refresh(user)
     assert user.last_active_at is not None
     # Verify the timestamp is within 1 second of what we set
-    assert abs((user.last_active_at.replace(tzinfo=None) - now.replace(tzinfo=None)).total_seconds()) < 1
+    assert (
+        abs(
+            (
+                user.last_active_at.replace(tzinfo=None) - now.replace(tzinfo=None)
+            ).total_seconds()
+        )
+        < 1
+    )
 
 
 def test_user_last_active_at_updateable(db):

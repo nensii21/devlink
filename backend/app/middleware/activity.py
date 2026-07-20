@@ -58,7 +58,8 @@ class ActivityTrackingMiddleware(BaseHTTPMiddleware):
                     # Throttle: only write if last_active_at is older than 5 min
                     if (
                         user.last_active_at is None
-                        or (now - user.last_active_at).total_seconds() > THROTTLE_SECONDS
+                        or (now - user.last_active_at).total_seconds()
+                        > THROTTLE_SECONDS
                     ):
                         user.last_active_at = now
                         db.commit()
