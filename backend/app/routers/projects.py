@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import get_database
 from app.dependencies import get_current_user
+from app.middleware.rate_limit import limiter, PROJECT_LIMIT
 from app.models.user import User
 from app.schemas.project import (
     ProjectCreate,
@@ -32,7 +34,9 @@ router = APIRouter(
     response_model=ProjectResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit(PROJECT_LIMIT)
 def create_project(
+    request: Request,
     project: ProjectCreate,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
@@ -143,7 +147,9 @@ def my_projects(
     "/{project_id}",
     response_model=ProjectResponse,
 )
+@limiter.limit("30/minute")
 def update_project(
+    request: Request,
     project_id: uuid.UUID,
     project: ProjectUpdate,
     db: Session = Depends(get_database),
@@ -178,7 +184,9 @@ def update_project(
     "/{project_id}/archive",
     response_model=ProjectResponse,
 )
+@limiter.limit("20/minute")
 def archive_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
@@ -211,7 +219,9 @@ def archive_project(
     "/{project_id}/restore",
     response_model=ProjectResponse,
 )
+@limiter.limit("20/minute")
 def restore_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
@@ -244,7 +254,9 @@ def restore_project(
     "/{project_id}/feature",
     response_model=ProjectResponse,
 )
+@limiter.limit("20/minute")
 def feature_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
@@ -269,7 +281,9 @@ def feature_project(
 @router.post(
     "/{project_id}/star",
 )
+@limiter.limit("30/minute")
 def star_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
@@ -318,7 +332,9 @@ def get_project_stats(
 @router.delete(
     "/{project_id}/star",
 )
+@limiter.limit("30/minute")
 def unstar_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
@@ -348,7 +364,9 @@ def unstar_project(
     "/{project_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
+@limiter.limit("20/minute")
 def delete_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),

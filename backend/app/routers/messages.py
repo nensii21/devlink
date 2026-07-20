@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import get_database
 from app.dependencies import get_current_user
+from app.middleware.rate_limit import limiter, MESSAGE_LIMIT, SEARCH_LIMIT
 from app.models.user import User
 from app.schemas.message import (
     MessageCreate,
@@ -35,7 +37,9 @@ router = APIRouter(
     response_model=MessageResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit(MESSAGE_LIMIT)
 def send_message(
+    request: Request,
     message: MessageCreate,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
@@ -126,6 +130,9 @@ def count_messages(
     "/conversation/{conversation_id}",
     response_model=list[MessageResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
+def search_messages(
+    request: Request,
 def list_conversation_messages(
     conversation_id: uuid.UUID,
     limit: int = Query(100, ge=1, le=500),
@@ -166,7 +173,9 @@ def get_message(
     "/{message_id}",
     response_model=MessageResponse,
 )
+@limiter.limit("20/minute")
 def update_message(
+    request: Request,
     message_id: uuid.UUID,
     message: MessageUpdate,
     db: Session = Depends(get_database),
@@ -194,7 +203,9 @@ def update_message(
     "/{message_id}/restore",
     response_model=MessageResponse,
 )
+@limiter.limit("10/minute")
 def restore_message(
+    request: Request,
     message_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
@@ -220,7 +231,9 @@ def restore_message(
     "/{message_id}",
     response_model=MessageResponse,
 )
+@limiter.limit("10/minute")
 def delete_message(
+    request: Request,
     message_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):

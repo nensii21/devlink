@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -10,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import get_database
 from app.dependencies import get_current_user
+from app.middleware.rate_limit import limiter, SEARCH_LIMIT
 from app.models.user import User
 from app.schemas.organization import (
     OrganizationCreate,
@@ -98,7 +100,9 @@ def get_organization_by_slug(
     "/",
     response_model=list[OrganizationResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
 def list_organizations(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_database),
@@ -115,7 +119,9 @@ def list_organizations(
     "/me",
     response_model=list[OrganizationResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
 def my_organizations(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),
 ):
@@ -130,7 +136,9 @@ def my_organizations(
     "/search/{keyword}",
     response_model=list[OrganizationResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
 def search_organizations(
+    request: Request,
     keyword: str,
     db: Session = Depends(get_database),
 ):
