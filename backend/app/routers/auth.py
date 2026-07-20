@@ -21,7 +21,6 @@ from app.middleware.rate_limit import (
 )
 from app.dependencies import get_database
 from app.schemas.auth import (
-
     AuthResponse,
     ForgotPasswordRequest,
     LoginRequest,
