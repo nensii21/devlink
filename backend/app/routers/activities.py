@@ -73,11 +73,15 @@ def get_activity(
 )
 def get_feed(
     limit: int = Query(50, ge=1, le=100),
-    cursor: datetime | None = Query(None, description="Cursor for pagination (created_at timestamp)"),
+    cursor: datetime | None = Query(
+        None, description="Cursor for pagination (created_at timestamp)"
+    ),
     actor_id: uuid.UUID | None = Query(None, description="Filter by actor"),
     target_id: uuid.UUID | None = Query(None, description="Filter by target"),
     target_type: str | None = Query(None, description="Filter by target type"),
-    activity_types: list[ActivityType] | None = Query(None, description="Filter by activity types"),
+    activity_types: list[ActivityType] | None = Query(
+        None, description="Filter by activity types"
+    ),
     db: Session = Depends(get_database),
 ):
 

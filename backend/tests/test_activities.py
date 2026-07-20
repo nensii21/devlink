@@ -17,13 +17,11 @@ def test_create_activity(client: TestClient, db: Session, register_and_login):
         "description": "Created a cool new project",
         "target_id": str(target_id),
         "target_type": "project",
-        "metadata": {"foo": "bar"}
+        "metadata": {"foo": "bar"},
     }
-    
+
     response = client.post(
-        "/activities/",
-        json=activity_data,
-        headers={"Authorization": f"Bearer {token}"}
+        "/activities/", json=activity_data, headers={"Authorization": f"Bearer {token}"}
     )
 
     if response.status_code != 201:
@@ -37,7 +35,9 @@ def test_create_activity(client: TestClient, db: Session, register_and_login):
     assert data["actor_id"] == str(user_id)
 
 
-def test_list_activities_cursor_pagination(client: TestClient, db: Session, register_and_login):
+def test_list_activities_cursor_pagination(
+    client: TestClient, db: Session, register_and_login
+):
     # Seed activities
     user_id_str, token = register_and_login("test2@example.com", "test2")
     actor_id = uuid.UUID(user_id_str)

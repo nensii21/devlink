@@ -191,4 +191,3 @@ class ActivityService:
 
         db.delete(db_activity)
         db.flush()
-
