@@ -112,6 +112,11 @@ class User(Base):
         nullable=True,
     )
 
+    public_email: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
     github_url: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,

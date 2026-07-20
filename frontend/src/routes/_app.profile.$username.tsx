@@ -2,8 +2,9 @@ import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-ro
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { LastActive } from "@/components/shared/LastActive";
 import { builders, currentUser, projects } from "@/mocks/seed";
-import { MapPin, Calendar, Link as LinkIcon, MessageCircle } from "lucide-react";
+import { MapPin, Calendar, Link as LinkIcon, MessageCircle, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { copyText } from "@/lib/clipboard";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -108,21 +109,40 @@ function ProfilePage() {
               <LastActive lastActiveAt={b.lastActiveAt} />
             </div>
           </div>
-          {!me && (
-            <button
-              type="button"
-              onClick={() =>
-                navigate({
-                  to: "/messages/$conversationId",
-                  params: { conversationId: b.id },
-                })
-              }
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              <MessageCircle size={16} />
-              Contact Developer
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {b.publicEmail && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await copyText(b.publicEmail!);
+                    toast.success("Email copied to clipboard!");
+                  } catch {
+                    toast.error("Failed to copy email");
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                <Mail size={16} />
+                Copy Email
+              </button>
+            )}
+            {!me && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate({
+                    to: "/messages/$conversationId",
+                    params: { conversationId: b.id },
+                  })
+                }
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                <MessageCircle size={16} />
+                Contact Developer
+              </button>
+            )}
+          </div>
         </div>
       </Card>
 
