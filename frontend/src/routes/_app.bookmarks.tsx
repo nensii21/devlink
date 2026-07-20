@@ -54,7 +54,7 @@ function BookmarksPage() {
         <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
           Flares
         </p>
-        <div className="space-y-2">
+        <div className="space-y-4">
           {flares.slice(0, 2).map((f) => (
             <Card key={f.id} className="p-4">
               <p className="text-[13px] font-semibold text-foreground">{f.author.name}</p>

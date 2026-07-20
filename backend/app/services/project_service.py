@@ -3,9 +3,11 @@ from __future__ import annotations
 import uuid
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.project import Project
+from app.schemas.project import ProjectCreate, ProjectUpdate
+from app.core.cache import cached
 from app.schemas.project import (
     ProjectCreate,
     ProjectStatsResponse,
@@ -49,6 +51,7 @@ class ProjectService:
         return db_project
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def get_project(
         db: Session,
         project_id: uuid.UUID,
@@ -57,32 +60,48 @@ class ProjectService:
         return db.get(Project, project_id)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def get_by_slug(
         db: Session,
         slug: str,
     ) -> Project | None:
 
-        stmt = select(Project).where(Project.slug == slug)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .where(Project.slug == slug)
+        )
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def list_projects(
         db: Session,
         skip: int = 0,
         limit: int = 20,
     ) -> list[Project]:
 
-        stmt = select(Project).offset(skip).limit(limit)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .offset(skip)
+            .limit(limit)
+        )
 
         return list(db.scalars(stmt))
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def list_owner_projects(
         db: Session,
         owner_id: uuid.UUID,
     ) -> list[Project]:
 
-        stmt = select(Project).where(Project.owner_id == owner_id)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .where(Project.owner_id == owner_id)
+        )
 
         return list(db.scalars(stmt))
 
