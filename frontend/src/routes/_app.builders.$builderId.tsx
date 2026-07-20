@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
-import { Card, TagChip, Avatar, EmptyState } from "@/components/shared/primitives";
+import { Card, TagChip, Avatar, EmptyState, Skeleton } from "@/components/shared/primitives";
 import { LastActive } from "@/components/shared/LastActive";
 import { FollowButton } from "@/components/shared/FollowButton";
 import {
@@ -52,7 +52,40 @@ function BuilderProfile() {
     window.history.replaceState({}, "", url.toString());
   };
 
-  if (isLoading) return <Card className="h-96 animate-pulse" />;
+  if (isLoading)
+    return (
+      <div className="space-y-4" role="status" aria-busy="true">
+        <Skeleton className="h-5 w-32" />
+        <Card className="p-4">
+          <div className="flex flex-wrap items-start gap-5">
+            <Skeleton className="h-24 w-24 shrink-0 rounded-full" />
+            <div className="min-w-0 flex-1">
+              <Skeleton className="h-7 w-40" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="mt-2 h-4 w-64" />
+              <Skeleton className="mt-2 h-3 w-28" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-8 w-28" />
+            </div>
+          </div>
+        </Card>
+        <div className="grid gap-3 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="p-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="mt-2 h-9 w-16" />
+            </Card>
+          ))}
+        </div>
+        <div className="inline-flex h-9 items-center gap-1 rounded-lg bg-muted p-1">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-7 w-24" />
+          ))}
+        </div>
+      </div>
+    );
   if (!b) throw notFound();
 
   const builderProjects = allProjects.filter((p) => p.owner === b.name);
