@@ -57,7 +57,7 @@ function SettingsPage() {
           </nav>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4">
           <p className="text-[15px] font-semibold text-foreground">{tab}</p>
           <div className="mt-4 space-y-4">
             {tab === "Account" && (

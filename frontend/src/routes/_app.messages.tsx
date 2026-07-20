@@ -53,7 +53,7 @@ function MessagesIndex() {
           ))}
         </ul>
       </Card>
-      <Card className="grid place-items-center p-10 text-center">
+      <Card className="grid place-items-center p-4 text-center">
         <div>
           <MessageSquare size={32} className="mx-auto text-muted-foreground" />
           <p className="mt-3 text-[14px] font-semibold text-foreground">Select a conversation</p>

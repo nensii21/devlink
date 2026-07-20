@@ -47,7 +47,7 @@ function ProjectDetail() {
   return (
     <div className="space-y-4">
       <BackButton to="/projects" label="Back to projects" />
-      <Card className="p-5">
+      <Card className="p-4">
         <div className="flex items-start gap-4">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-md bg-muted text-3xl">
             {p.icon}
@@ -112,7 +112,7 @@ function ProjectDetail() {
       </div>
 
       {tab === "overview" && (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-3">
           <Card className="p-4 lg:col-span-2">
             <p className="text-[13px] font-semibold text-foreground">About</p>
             <Markdown content={p.description} className="mt-2 text-muted-foreground" />

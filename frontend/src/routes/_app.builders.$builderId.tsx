@@ -60,7 +60,7 @@ function BuilderProfile() {
   return (
     <div className="space-y-4">
       <BackButton to="/builders" label="Back to builders" />
-      <Card className="p-6">
+      <Card className="p-4">
         <div className="flex flex-wrap items-start gap-5">
           <Avatar src={b.avatar} alt={b.name} size={96} online={b.online} />
           <div className="min-w-0 flex-1">
@@ -81,6 +81,22 @@ function BuilderProfile() {
           </div>
         </div>
       </Card>
+      <div className="grid gap-3 lg:grid-cols-3">
+        <Card className="p-4">
+          <p className="text-[13px] font-semibold text-foreground">Match Score</p>
+          <p className="mt-2 text-[36px] font-bold text-success">{b.matchScore}%</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-[13px] font-semibold text-foreground">Experience</p>
+          <p className="mt-2 text-[36px] font-bold text-foreground">
+            {b.yearsExp} <span className="text-[14px] font-medium text-muted-foreground">yrs</span>
+          </p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-[13px] font-semibold text-foreground">Location</p>
+          <p className="mt-2 text-[20px] font-bold text-foreground">{b.country}</p>
+        </Card>
+      </div>
 
       <Tabs value={tab} onValueChange={handleTabChange}>
         <TabsList className="overflow-x-auto">

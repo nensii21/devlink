@@ -85,7 +85,7 @@ function SearchPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {devs.map((b) => (
             <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-              <Card interactive className="flex items-center gap-3 p-3">
+              <Card interactive className="flex items-center gap-3 p-4">
                 <Avatar src={b.avatar} alt={b.name} size={40} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] font-semibold text-foreground">
@@ -144,7 +144,7 @@ function SearchPage() {
         </Card>
       )}
       {tab === "Flares" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {fls.map((f) => (
             <Card key={f.id} className="p-4">
               <p className="text-[13px] font-semibold text-foreground">
