@@ -126,6 +126,7 @@ class Settings(BaseSettings):
     SEARCH_RATE_LIMIT: str = "60/minute"
     PROJECT_RATE_LIMIT: str = "100/minute"
     PASSWORD_RESET_RATE_LIMIT: str = "3/15minutes"
+    RECOMMENDATION_RATE_LIMIT: str = "20/minute"
 
     # ==========================================================
     # Security Headers

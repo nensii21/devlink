@@ -29,3 +29,7 @@ SEARCH_LIMIT = settings.SEARCH_RATE_LIMIT
 PROJECT_LIMIT = settings.PROJECT_RATE_LIMIT
 
 PASSWORD_RESET_LIMIT = settings.PASSWORD_RESET_RATE_LIMIT
+
+# Recommendations are expensive (multiple joins + scoring).
+# Keep a tighter limit than the default search limit.
+RECOMMENDATION_LIMIT = settings.RECOMMENDATION_RATE_LIMIT

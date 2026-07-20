@@ -31,6 +31,7 @@ from app.routers import (
     activities,
     applications,
     auth,
+    bookmark_collections,
     bookmarks,
     builder_flares,
     conversations,
@@ -40,6 +41,7 @@ from app.routers import (
     notifications,
     organizations,
     projects,
+    recommendations,
     repositories,
     skills,
     users,
@@ -185,10 +187,12 @@ app.include_router(
 
 app.include_router(followers.router, prefix="/api/followers", tags=["Followers"])
 app.include_router(bookmarks.router)
+app.include_router(bookmark_collections.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)
 app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
+app.include_router(recommendations.router)
 app.include_router(health.router)

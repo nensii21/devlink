@@ -29,7 +29,8 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { containerVariants, cardEntrance, cardHover } from "@/lib/animations";
 
 const kindIcon = {
   join: UserPlus,
@@ -161,19 +162,27 @@ export function InviteRequests() {
     </Card>
   );
 }
-
 export function SuggestedBuilders() {
   const { data = [] } = useQuery({ queryKey: ["suggested"], queryFn: buildersService.suggested });
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <Card>
       <SectionHeader title="Suggested Builders" action="View All" actionTo="/builders" />
-      <div className="grid grid-cols-1 gap-3.5 p-4 pt-0 sm:grid-cols-3">
-        {data.map((b) => (
+      <motion.div
+        className="grid grid-cols-1 gap-3.5 p-4 pt-0 sm:grid-cols-3"
+        variants={containerVariants}
+        initial={prefersReducedMotion ? undefined : "hidden"}
+        animate={prefersReducedMotion ? undefined : "visible"}
+      >
+        {data.map((b, i) => (
           <motion.div
             key={b.id}
-            whileHover={{ y: -3, scale: 1.01 }}
+            variants={prefersReducedMotion ? undefined : cardEntrance}
+            custom={i}
+            whileHover={prefersReducedMotion ? undefined : cardHover}
             transition={{ duration: 0.2 }}
-            className="flex flex-col items-center rounded-2xl border border-border/70 bg-card p-4 text-center shadow-xs transition-all hover:border-primary/40 hover:shadow-card"
+            className="will-change-transform flex flex-col items-center rounded-2xl border border-border/70 bg-card p-4 text-center shadow-xs transition-all hover:border-primary/40 hover:shadow-card"
           >
             <Avatar src={b.avatar} alt={b.name} size={60} online={b.online} />
             <p className="mt-3 text-[14px] font-bold text-foreground leading-tight">{b.name}</p>
@@ -200,10 +209,11 @@ export function SuggestedBuilders() {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </Card>
   );
 }
+
 
 export function TrendingProjects() {
   const { data = [] } = useQuery({ queryKey: ["trending"], queryFn: projectsService.trending });
