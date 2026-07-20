@@ -106,6 +106,8 @@ class UserResponse(UserBase):
     is_verified: bool
     is_superuser: bool
 
+    last_active_at: Optional[datetime] = None
+
     created_at: datetime
     updated_at: datetime
 

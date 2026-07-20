@@ -1,5 +1,6 @@
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { LastActive } from "@/components/shared/LastActive";
 import { builders, currentUser, projects } from "@/mocks/seed";
 import { MapPin, Calendar, Link as LinkIcon, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -104,6 +105,7 @@ function ProfilePage() {
               <span className="inline-flex items-center gap-1">
                 <LinkIcon size={12} /> devlink.io/{b.handle}
               </span>
+              <LastActive lastActiveAt={b.lastActiveAt} />
             </div>
           </div>
           {!me && (
