@@ -10,6 +10,8 @@ import { Markdown } from "@/components/shared/Markdown";
 import { BackButton } from "@/components/shared/BackButton";
 import { ShareProjectButton } from "@/components/shared/ShareProjectButton";
 
+import { usePermissions } from "@/hooks/usePermissions";
+
 export const Route = createFileRoute("/_app/projects/$projectId")({
   head: ({ params }) => ({
     meta: [
@@ -28,7 +30,12 @@ function ProjectDetail() {
   });
   const [tab, setTab] = useState<"overview" | "members" | "activity" | "repos">("overview");
   const [copied, setCopied] = useState(false);
-  const isOwner = p?.owner === currentUser.name;
+
+  // Integrate RBAC hook
+  const { can } = usePermissions(currentUser.id || "current-user-uuid");
+  const hasInvitePermission = can("project:invite", {
+    owner_id: p?.owner_id,
+  });
 
   const handleCopyInviteLink = async () => {
     const inviteLink = `${window.location.origin}/projects/${projectId}?invite=true`;
@@ -62,7 +69,7 @@ function ProjectDetail() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            {isOwner && (
+            {hasInvitePermission && (
               <button
                 type="button"
                 onClick={handleCopyInviteLink}

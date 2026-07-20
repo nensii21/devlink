@@ -13,6 +13,7 @@ from .follower import Follower
 from .message import Message
 from .notification import Notification
 from .organization import Organization
+from .organization_member import OrganizationMember, OrgMemberRole
 from .project import Project
 from .project_member import ProjectMember
 from .project_skill import ProjectSkill
