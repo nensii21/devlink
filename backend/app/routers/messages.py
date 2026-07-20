@@ -131,9 +131,8 @@ def count_messages(
     response_model=list[MessageResponse],
 )
 @limiter.limit(SEARCH_LIMIT)
-def search_messages(
-    request: Request,
 def list_conversation_messages(
+    request: Request,
     conversation_id: uuid.UUID,
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_database),
