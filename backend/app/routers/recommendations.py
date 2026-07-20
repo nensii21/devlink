@@ -1,6 +1,7 @@
 """
 API router for the AI-Powered Builder Recommendation System.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -78,9 +79,7 @@ def get_recommended_builders(
         limit=limit,
     )
 
-    context_label = (
-        f"project:{project_id}" if project_id else f"user:{current_user.id}"
-    )
+    context_label = f"project:{project_id}" if project_id else f"user:{current_user.id}"
     return RecommendationResponse(
         query_context=context_label,
         total=len(results),
