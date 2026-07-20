@@ -19,7 +19,7 @@ function ForgotPassword() {
   const [sent, setSent] = useState(false);
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-background px-4">
-      <Link to="/" className="mb-6 flex items-center gap-2.5">
+      <Link to="/" className="mb-3 flex items-center gap-2">
         <img src={APP_LOGO} alt="DevLink" className="h-12 w-12 rounded-full" />
         <span className="text-[36px] font-bold tracking-tight text-foreground">DevLink</span>
       </Link>

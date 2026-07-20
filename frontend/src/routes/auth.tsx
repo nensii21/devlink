@@ -61,8 +61,8 @@ function AuthScreen() {
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center overflow-y-auto bg-background px-4 py-8">
-      <Link to="/" className="mb-6 flex items-center gap-2.5">
-        <img src={APP_LOGO} alt="DevLink" className="h-12 w-12 rounded-full" />
+      <Link to="/" className="mb-2 flex items-center gap-2.5">
+        <img src={APP_LOGO} alt="DevLink" className="h-12 w-12 rounded-full text-center" />
         <span className="text-[36px] font-bold tracking-tight text-foreground">DevLink</span>
       </Link>
 
@@ -143,7 +143,7 @@ function AuthScreen() {
             </button>
           </form>
         ) : (
-          <form onSubmit={signUpForm.handleSubmit(onSubmit)} noValidate>
+          <form className="max-h-96 overflow-y-auto" onSubmit={signUpForm.handleSubmit(onSubmit)} noValidate>
             <div className="mb-4 grid grid-cols-2 gap-3">
               <div>
                 <label className={lbl}>First name</label>
@@ -223,7 +223,7 @@ function AuthScreen() {
           </form>
         )}
 
-        <p className="mt-4 text-center text-[13px] text-muted-foreground">
+        <p className="mt-2 text-center text-[13px] text-muted-foreground">
           {mode === "signin" ? (
             <>
               Don't have an account?{" "}
@@ -248,7 +248,7 @@ function AuthScreen() {
         </p>
       </div>
 
-      <div className="mt-6 flex items-center gap-5">
+      <div className="mt-3 flex items-center gap-5">
         {["Privacy", "Security", "Terms", "Status"].map((item) => (
           <a
             key={item}
