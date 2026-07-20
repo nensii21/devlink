@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { LastActive } from "@/components/shared/LastActive";
 import { FollowButton } from "@/components/shared/FollowButton";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import { BackButton } from "@/components/shared/BackButton";
@@ -36,6 +37,9 @@ function BuilderProfile() {
               @{b.handle} · {b.role}
             </p>
             <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>
+            <div className="mt-2">
+              <LastActive lastActiveAt={b.lastActiveAt} />
+            </div>
             <div className="mt-3 flex flex-wrap gap-1">
               {b.skills.map((s) => (
                 <TagChip key={s}>{s}</TagChip>

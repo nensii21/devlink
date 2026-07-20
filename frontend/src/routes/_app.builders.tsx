@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
@@ -89,6 +90,7 @@ function BuildersPage() {
               <p className="text-[11px] text-muted-foreground">
                 {b.country} · {b.yearsExp} yrs
               </p>
+              <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
               <div className="mt-2 flex flex-wrap justify-center gap-1">
                 {b.skills.slice(0, 3).map((s) => (
                   <TagChip key={s}>{s}</TagChip>
