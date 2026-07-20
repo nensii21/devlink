@@ -1,15 +1,14 @@
 """
 Pydantic schemas for the AI-Powered Builder Recommendation System.
 """
+
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
 from typing import Optional
 
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict, Field
-
 
 # ==========================================================
 # Score Breakdown
@@ -37,9 +36,7 @@ class ScoreBreakdown(BaseModel):
     contributions: float = Field(
         ..., description="Previous-contribution track-record signal."
     )
-    network: float = Field(
-        ..., description="Social-graph boost (mutual followers)."
-    )
+    network: float = Field(..., description="Social-graph boost (mutual followers).")
 
 
 # ==========================================================
