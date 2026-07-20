@@ -121,7 +121,11 @@ class Settings(BaseSettings):
 
     DEFAULT_RATE_LIMIT: str = "100/minute"
     LOGIN_RATE_LIMIT: str = "5/minute"
-    REGISTER_RATE_LIMIT: str = "3/minute"
+    REGISTER_RATE_LIMIT: str = "3/hour"
+    MESSAGE_RATE_LIMIT: str = "30/minute"
+    SEARCH_RATE_LIMIT: str = "60/minute"
+    PROJECT_RATE_LIMIT: str = "100/minute"
+    PASSWORD_RESET_RATE_LIMIT: str = "3/15minutes"
 
     # ==========================================================
     # Security Headers
