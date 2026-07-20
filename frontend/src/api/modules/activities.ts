@@ -28,7 +28,7 @@ export interface Activity {
   description?: string;
   target_id?: string;
   target_type?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   icon?: string;
   color?: string;
   created_at: string;
@@ -52,7 +52,7 @@ export const activitiesApi = {
     if (query?.activity_types) {
       query.activity_types.forEach((type) => params.append("activity_types", type));
     }
-    
+
     const queryString = params.toString();
     const url = `/api/activities${queryString ? `?${queryString}` : ""}`;
     return api.get<Activity[]>(url);
