@@ -186,6 +186,8 @@ class CurrentUserResponse(BaseModel):
 
     is_active: bool
 
+    last_active_at: Optional[datetime] = None
+
     created_at: datetime
 
 

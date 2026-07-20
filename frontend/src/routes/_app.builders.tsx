@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { HighlightText } from "@/components/shared/HighlightText";
+import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
@@ -84,14 +86,21 @@ function BuildersPage() {
               <div className="mx-auto w-fit">
                 <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
               </div>
-              <p className="mt-2 text-[14px] font-semibold text-foreground">{b.name}</p>
-              <p className="text-[12px] text-muted-foreground">{b.role}</p>
+              <p className="mt-2 text-[14px] font-semibold text-foreground">
+                <HighlightText text={b.name} query={q} />
+              </p>
+              <p className="text-[12px] text-muted-foreground">
+                <HighlightText text={b.role} query={q} />
+              </p>
               <p className="text-[11px] text-muted-foreground">
                 {b.country} · {b.yearsExp} yrs
               </p>
+              <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
               <div className="mt-2 flex flex-wrap justify-center gap-1">
                 {b.skills.slice(0, 3).map((s) => (
-                  <TagChip key={s}>{s}</TagChip>
+                  <TagChip key={s}>
+                    <HighlightText text={s} query={q} />
+                  </TagChip>
                 ))}
               </div>
               <p className="mt-2 text-[12px] font-semibold text-success">{b.matchScore}% Match</p>

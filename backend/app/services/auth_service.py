@@ -134,6 +134,7 @@ class AuthService:
             )
 
         user.last_login = datetime.now(timezone.utc)
+        user.last_active_at = datetime.now(timezone.utc)
 
         self.db.flush()
 

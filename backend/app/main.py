@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
+from app.middleware.activity import ActivityTrackingMiddleware
 from app.middleware.rate_limit import limiter
 
 # pyrefly: ignore [missing-import]
@@ -58,6 +59,10 @@ async def lifespan(app: FastAPI):
 
     register_all_handlers(event_bus)
 
+    from app.core.cache import cache_manager
+
+    cache_manager.connect()
+
     # Future startup tasks
     # - Connect database
     # - Connect Redis
@@ -67,6 +72,10 @@ async def lifespan(app: FastAPI):
     yield
 
     print("🛑 DevLink Backend Stopping...")
+
+    from app.core.cache import cache_manager
+
+    cache_manager.disconnect()
 
 
 app = FastAPI(
@@ -96,6 +105,7 @@ app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(ActivityTrackingMiddleware)
 
 # ------------------------------------------------------------------
 # CORS
