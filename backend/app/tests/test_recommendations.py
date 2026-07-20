@@ -4,6 +4,7 @@ Unit tests for the recommendation scoring engine.
 These tests intentionally avoid the database — they exercise the pure
 scoring helpers directly, which is where the "matching logic" lives.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -23,8 +24,8 @@ from app.services.recommendation_service import (
     _tokenize,
 )
 
-
 # ---------- pure helpers ----------
+
 
 def test_tokenize_strips_stopwords_and_punctuation():
     tokens = _tokenize("Building a React, Node and Postgres app for developers!")
@@ -39,7 +40,7 @@ def test_tokenize_strips_stopwords_and_punctuation():
 def test_skills_score_weighted_by_level():
     req = {uuid.uuid4(), uuid.uuid4()}
     levels = {
-        next(iter(req)): SkillLevel.EXPERT,        # matches with weight 1.0
+        next(iter(req)): SkillLevel.EXPERT,  # matches with weight 1.0
     }
     score, matched = _skills_score(req, levels, req)
     assert 0.0 < score <= 1.0
@@ -99,9 +100,9 @@ def test_contributions_score_log_scale():
 
 # ---------- full strategy ----------
 
+
 def test_weighted_strategy_returns_score_in_unit_interval():
     sid = uuid.uuid4()
-    from app.models.user import User
 
     class _FakeUser:
         open_to_work = True
