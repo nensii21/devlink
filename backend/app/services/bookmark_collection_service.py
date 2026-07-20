@@ -22,9 +22,7 @@ class BookmarkCollectionService:
         user_id: uuid.UUID,
         name: str,
     ) -> BookmarkCollection:
-        existing = BookmarkCollectionService.get_collection_by_name(
-            db, user_id, name
-        )
+        existing = BookmarkCollectionService.get_collection_by_name(db, user_id, name)
         if existing:
             raise ValueError("A collection with this name already exists")
 
@@ -103,10 +101,7 @@ class BookmarkCollectionService:
         db: Session,
         collection_id: uuid.UUID,
     ) -> BookmarkCollection | None:
-        stmt = (
-            select(BookmarkCollection)
-            .where(BookmarkCollection.id == collection_id)
-        )
+        stmt = select(BookmarkCollection).where(BookmarkCollection.id == collection_id)
         collection = db.scalar(stmt)
         if collection is None:
             return None
@@ -190,9 +185,7 @@ class BookmarkCollectionService:
         user_id: uuid.UUID,
         bookmark_id: uuid.UUID,
     ) -> CollectionBookmark | None:
-        default = BookmarkCollectionService.ensure_default_collection(
-            db, user_id
-        )
+        default = BookmarkCollectionService.ensure_default_collection(db, user_id)
 
         stmt = select(CollectionBookmark).where(
             and_(

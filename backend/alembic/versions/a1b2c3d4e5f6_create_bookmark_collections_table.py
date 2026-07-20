@@ -25,7 +25,9 @@ def upgrade() -> None:
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("name", sa.String(100), nullable=False),
-        sa.Column("is_default", sa.Boolean(), nullable=False, server_default=sa.text("false")),
+        sa.Column(
+            "is_default", sa.Boolean(), nullable=False, server_default=sa.text("false")
+        ),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -60,14 +62,14 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["bookmark_id"], ["bookmarks.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["bookmark_id"], ["bookmarks.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
             ["collection_id"], ["bookmark_collections.id"], ondelete="CASCADE"
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("collection_id", "bookmark_id", name="uq_collection_bookmark"),
+        sa.UniqueConstraint(
+            "collection_id", "bookmark_id", name="uq_collection_bookmark"
+        ),
     )
     op.create_index(
         op.f("ix_collection_bookmarks_collection_id"),

@@ -39,14 +39,13 @@ def list_collections(
     db.flush()
 
     collections = BookmarkCollectionService.list_user_collections(
-        db, current_user.id,
+        db,
+        current_user.id,
     )
 
     result = []
     for col in collections:
-        count = BookmarkCollectionService.collection_bookmark_count(
-            db, col.id
-        )
+        count = BookmarkCollectionService.collection_bookmark_count(db, col.id)
         result.append(
             BookmarkCollectionResponse(
                 id=col.id,
@@ -82,9 +81,7 @@ def create_collection(
             detail=str(e),
         )
 
-    count = BookmarkCollectionService.collection_bookmark_count(
-        db, collection.id
-    )
+    count = BookmarkCollectionService.collection_bookmark_count(db, collection.id)
 
     return BookmarkCollectionResponse(
         id=collection.id,
@@ -107,7 +104,8 @@ def get_collection(
     db: Session = Depends(get_database),
 ):
     collection = BookmarkCollectionService.get_collection_with_bookmarks(
-        db, collection_id,
+        db,
+        collection_id,
     )
 
     if collection is None or collection.user_id != current_user.id:
@@ -155,9 +153,7 @@ def rename_collection(
             detail=str(e),
         )
 
-    count = BookmarkCollectionService.collection_bookmark_count(
-        db, collection.id
-    )
+    count = BookmarkCollectionService.collection_bookmark_count(db, collection.id)
 
     return BookmarkCollectionResponse(
         id=collection.id,
@@ -222,13 +218,9 @@ def add_bookmark_to_collection(
             detail="Bookmark not found",
         )
 
-    BookmarkCollectionService.add_bookmark_to_collection(
-        db, collection_id, bookmark_id
-    )
+    BookmarkCollectionService.add_bookmark_to_collection(db, collection_id, bookmark_id)
 
-    count = BookmarkCollectionService.collection_bookmark_count(
-        db, collection_id
-    )
+    count = BookmarkCollectionService.collection_bookmark_count(db, collection_id)
 
     return {"success": True, "bookmark_count": count}
 
@@ -271,17 +263,13 @@ def get_bookmark_collections(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),
 ):
-    collection_ids = BookmarkCollectionService.bookmark_collection_ids(
-        db, bookmark_id
-    )
+    collection_ids = BookmarkCollectionService.bookmark_collection_ids(db, bookmark_id)
 
     collections = []
     for cid in collection_ids:
         col = BookmarkCollectionService.get_collection(db, cid)
         if col and col.user_id == current_user.id:
-            count = BookmarkCollectionService.collection_bookmark_count(
-                db, col.id
-            )
+            count = BookmarkCollectionService.collection_bookmark_count(db, col.id)
             collections.append(
                 BookmarkCollectionResponse(
                     id=col.id,
