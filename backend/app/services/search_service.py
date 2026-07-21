@@ -10,7 +10,6 @@ from app.models.project import Project, ProjectVisibility
 from app.models.skill import Skill
 from app.models.user import User
 
-
 # Maps the public ``types`` query-param values to internal entity keys.
 # Kept module-level so the router can validate without importing models.
 SEARCHABLE_TYPES: dict[str, str] = {
