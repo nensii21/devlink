@@ -126,7 +126,11 @@ function SearchPage() {
               {results.users.map((b) => (
                 <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
                   <Card interactive className="flex items-center gap-3 p-4">
-                    <Avatar src={b.profile_image ?? ""} alt={`${b.first_name} ${b.last_name}`} size={40} />
+                    <Avatar
+                      src={b.profile_image ?? ""}
+                      alt={`${b.first_name} ${b.last_name}`}
+                      size={40}
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-semibold text-foreground">
                         <HighlightText text={`${b.first_name} ${b.last_name}`} query={debouncedQ} />
@@ -166,11 +170,14 @@ function SearchPage() {
                         )}
                         {p.tech_stack && (
                           <div className="mt-1 flex flex-wrap gap-1">
-                            {p.tech_stack.split(",").slice(0, 4).map((s) => (
-                              <TagChip key={s} className="text-[10px]">
-                                <HighlightText text={s.trim()} query={debouncedQ} />
-                              </TagChip>
-                            ))}
+                            {p.tech_stack
+                              .split(",")
+                              .slice(0, 4)
+                              .map((s) => (
+                                <TagChip key={s} className="text-[10px]">
+                                  <HighlightText text={s.trim()} query={debouncedQ} />
+                                </TagChip>
+                              ))}
                           </div>
                         )}
                       </div>

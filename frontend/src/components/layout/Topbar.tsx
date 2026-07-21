@@ -3,13 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { currentUser } from "@/mocks/seed";
 import { useTheme } from "@/hooks/useTheme";
 
-export function Topbar({
-  onMenu,
-  onOpenSearch,
-}: {
-  onMenu: () => void;
-  onOpenSearch: () => void;
-}) {
+export function Topbar({ onMenu, onOpenSearch }: { onMenu: () => void; onOpenSearch: () => void }) {
   const { isDark, toggleTheme } = useTheme();
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur">

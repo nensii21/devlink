@@ -20,10 +20,7 @@ import {
   collectionsApi,
   searchApi,
 } from "@/api";
-import type {
-  SearchResponse,
-  SearchResultGroups,
-} from "@/api/modules/search";
+import type { SearchResponse, SearchResultGroups } from "@/api/modules/search";
 import type { BookmarkCollection, BookmarkCollectionWithBookmarks } from "@/api";
 
 const delay = 120;
@@ -228,10 +225,7 @@ function buildMockSearchResponse(q: string): SearchResponse {
 
 export const searchService = {
   all: (q: string, types?: string[], limit?: number) =>
-    withFallback(
-      () => searchApi.all(q, types, limit),
-      buildMockSearchResponse(q),
-    ),
+    withFallback(() => searchApi.all(q, types, limit), buildMockSearchResponse(q)),
 };
 
 export const messagesService = {

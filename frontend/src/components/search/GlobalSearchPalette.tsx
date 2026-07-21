@@ -102,9 +102,7 @@ export function GlobalSearchPalette({ open, onOpenChange }: GlobalSearchPaletteP
 
         {/* ----- Empty state ----- */}
         {!isFetching && !isError && isEmpty && debouncedQuery.trim().length >= 1 && (
-          <CommandEmpty>
-            No results for “{debouncedQuery}”. Try a different keyword.
-          </CommandEmpty>
+          <CommandEmpty>No results for “{debouncedQuery}”. Try a different keyword.</CommandEmpty>
         )}
 
         {/* ----- Initial hint (no query yet) ----- */}
@@ -137,9 +135,7 @@ export function GlobalSearchPalette({ open, onOpenChange }: GlobalSearchPaletteP
             )}
             {groups.organizations.length > 0 && (
               <>
-                {(groups.users.length > 0 || groups.projects.length > 0) && (
-                  <CommandSeparator />
-                )}
+                {(groups.users.length > 0 || groups.projects.length > 0) && <CommandSeparator />}
                 <CommandGroup heading="Organizations">
                   {groups.organizations.slice(0, 6).map((o) => (
                     <OrgItem key={o.id} org={o} onSelect={goTo} />
@@ -244,9 +240,7 @@ function ProjectItem({
     >
       <Icon size={16} className="text-muted-foreground" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-medium text-foreground">
-          {project.title}
-        </p>
+        <p className="truncate text-[13px] font-medium text-foreground">{project.title}</p>
         <p className="truncate text-[11px] text-muted-foreground">
           {project.tagline ?? project.description.slice(0, 60)}
         </p>
@@ -260,19 +254,10 @@ function ProjectItem({
   );
 }
 
-function OrgItem({
-  org,
-  onSelect,
-}: {
-  org: SearchOrganization;
-  onSelect: (path: string) => void;
-}) {
+function OrgItem({ org, onSelect }: { org: SearchOrganization; onSelect: (path: string) => void }) {
   const Icon = CATEGORY_ICONS.organization;
   return (
-    <CommandItem
-      value={`org-${org.id}-${org.name}`}
-      onSelect={() => onSelect(`/builders`)}
-    >
+    <CommandItem value={`org-${org.id}-${org.name}`} onSelect={() => onSelect(`/builders`)}>
       <Icon size={16} className="text-muted-foreground" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-medium text-foreground">{org.name}</p>
@@ -281,20 +266,12 @@ function OrgItem({
           {org.location ? ` · ${org.location}` : ""}
         </p>
       </div>
-      {org.verified && (
-        <span className="text-[10px] font-semibold text-info">✓</span>
-      )}
+      {org.verified && <span className="text-[10px] font-semibold text-info">✓</span>}
     </CommandItem>
   );
 }
 
-function SkillItem({
-  skill,
-  onSelect,
-}: {
-  skill: SearchSkill;
-  onSelect: (path: string) => void;
-}) {
+function SkillItem({ skill, onSelect }: { skill: SearchSkill; onSelect: (path: string) => void }) {
   const Icon = CATEGORY_ICONS.skill;
   return (
     <CommandItem
@@ -310,19 +287,10 @@ function SkillItem({
   );
 }
 
-function FlareItem({
-  flare,
-  onSelect,
-}: {
-  flare: SearchFlare;
-  onSelect: (path: string) => void;
-}) {
+function FlareItem({ flare, onSelect }: { flare: SearchFlare; onSelect: (path: string) => void }) {
   const Icon = CATEGORY_ICONS.flare;
   return (
-    <CommandItem
-      value={`flare-${flare.id}-${flare.title}`}
-      onSelect={() => onSelect(`/flares`)}
-    >
+    <CommandItem value={`flare-${flare.id}-${flare.title}`} onSelect={() => onSelect(`/flares`)}>
       <Icon size={16} className="text-muted-foreground" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-medium text-foreground">{flare.title}</p>
