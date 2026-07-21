@@ -1,6 +1,8 @@
+import { ActivityFeed } from "@/components/activity/ActivityFeed";
 import { Card, SectionHeader, TagChip, Avatar } from "@/components/shared/primitives";
 import { useQuery } from "@tanstack/react-query";
 import {
+  activitiesService,
   dashboardService,
   buildersService,
   projectsService,
@@ -9,14 +11,6 @@ import {
   notificationsService,
 } from "@/services";
 import {
-  Activity as ActivityIcon,
-  GitMerge,
-  GitPullRequest,
-  UserPlus,
-  UserCheck,
-  BookMarked,
-  Trophy,
-  Sparkles,
   Check,
   X,
   Star,
@@ -32,39 +26,10 @@ import { cn } from "@/lib/utils";
 import { motion, useReducedMotion } from "framer-motion";
 import { containerVariants, cardEntrance, cardHover } from "@/lib/animations";
 
-const kindIcon = {
-  join: UserPlus,
-  accept: UserCheck,
-  commit: GitPullRequest,
-  merge: GitMerge,
-  follow: UserPlus,
-  repo: BookMarked,
-  hackathon: Trophy,
-  ai: Sparkles,
-} as const;
-
 export function RecentActivity() {
-  const { data = [] } = useQuery({ queryKey: ["activity"], queryFn: dashboardService.activity });
   return (
     <Card>
-      <SectionHeader title="Recent Activity" action="View All" />
-      <ul className="divide-y divide-border">
-        {data.map((a) => {
-          const Icon = kindIcon[a.kind] ?? ActivityIcon;
-          return (
-            <li key={a.id} className="flex items-start gap-3 px-4 py-2.5">
-              <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary-soft text-primary">
-                <Icon size={12} />
-              </span>
-              <p className="min-w-0 flex-1 text-[13px] text-foreground">
-                {a.text}{" "}
-                {a.highlight && <span className="font-semibold text-primary">{a.highlight}</span>}
-              </p>
-              <span className="whitespace-nowrap text-[11px] text-muted-foreground">{a.ago}</span>
-            </li>
-          );
-        })}
-      </ul>
+      <ActivityFeed queryKey={["activities", "recent"]} queryFn={() => activitiesService.list(20)} />
     </Card>
   );
 }

@@ -8,7 +8,9 @@ from sqlalchemy import and_, select
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
+from app.models.activity import ActivityType
 from app.models.follower import Follower
+from app.services.activity_service import ActivityService
 from app.models.user import User
 from app.models.notification import NotificationType
 from app.schemas.notification import NotificationCreate
@@ -36,6 +38,14 @@ class FollowerService:
         db.flush()
         db.refresh(relationship)
 
+        ActivityService.record_activity(
+            db=db,
+            actor_id=follower_id,
+            activity_type=ActivityType.FOLLOWED_USER,
+            title="Followed a builder",
+            description=str(following_id),
+            icon="user-plus",
+            color="success",
         # Trigger notification
         follower = db.get(User, follower_id)
         follower_name = (
