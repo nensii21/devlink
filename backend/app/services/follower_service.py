@@ -49,9 +49,7 @@ class FollowerService:
         # Trigger notification
         follower = db.get(User, follower_id)
         follower_name = (
-            f"{follower.first_name} {follower.last_name}"
-            if follower
-            else "Someone"
+            f"{follower.first_name} {follower.last_name}" if follower else "Someone"
         )
         follower_username = follower.username if follower else ""
 
@@ -60,9 +58,7 @@ class FollowerService:
             type=NotificationType.FOLLOW,
             title="New Follower",
             message=f"{follower_name} started following you.",
-            action_url=(
-                f"/profile/{follower_username}" if follower_username else None
-            ),
+            action_url=(f"/profile/{follower_username}" if follower_username else None),
         )
         NotificationService.create_notification(
             db=db,
