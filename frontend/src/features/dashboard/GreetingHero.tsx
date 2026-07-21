@@ -75,10 +75,10 @@ function MiniStat({
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+        <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
         </p>
-        <p className="text-[16px] font-extrabold tracking-tight text-foreground leading-tight">
+        <p className="text-[16px] font-extrabold leading-tight tracking-tight text-foreground">
           <span className={valueTint}>{value}</span>
           {suffix && (
             <span className="text-[11px] font-medium text-muted-foreground">{suffix}</span>
@@ -96,3 +96,4 @@ function MiniStat({
     </div>
   );
 }
+
