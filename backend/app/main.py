@@ -43,6 +43,7 @@ from app.routers import (
     projects,
     recommendations,
     repositories,
+    search,
     skills,
     users,
 )
@@ -195,4 +196,5 @@ app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
 app.include_router(recommendations.router)
+app.include_router(search.router, prefix="/api/search", tags=["Search"])
 app.include_router(health.router)
