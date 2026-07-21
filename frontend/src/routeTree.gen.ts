@@ -17,6 +17,7 @@ import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$usern
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
+import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppMessagesRouteImport } from './routes/_app.messages'
 import { Route as AppHackathonsRouteImport } from './routes/_app.hackathons'
@@ -26,8 +27,10 @@ import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBuildersRouteImport } from './routes/_app.builders'
 import { Route as AppBookmarksRouteImport } from './routes/_app.bookmarks'
 import { Route as AppAnalyticsRouteImport } from './routes/_app.analytics'
+import { Route as AppOrganizationsIndexRouteImport } from './routes/_app.organizations.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProfileUsernameRouteImport } from './routes/_app.profile.$username'
+import { Route as AppOrganizationsOrgIdRouteImport } from './routes/_app.organizations.$orgId'
 import { Route as AppMessagesConversationIdRouteImport } from './routes/_app.messages.$conversationId'
 import { Route as AppBuildersBuilderIdRouteImport } from './routes/_app.builders.$builderId'
 
@@ -68,6 +71,11 @@ const AppSearchRoute = AppSearchRouteImport.update({
 const AppProjectsRoute = AppProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrganizationsRoute = AppOrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
   getParentRoute: () => AppRoute,
 } as any)
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
@@ -115,6 +123,11 @@ const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppOrganizationsRoute,
+} as any)
 const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
   id: '/$projectId',
   path: '/$projectId',
@@ -124,6 +137,11 @@ const AppProfileUsernameRoute = AppProfileUsernameRouteImport.update({
   id: '/profile/$username',
   path: '/profile/$username',
   getParentRoute: () => AppRoute,
+} as any)
+const AppOrganizationsOrgIdRoute = AppOrganizationsOrgIdRouteImport.update({
+  id: '/$orgId',
+  path: '/$orgId',
+  getParentRoute: () => AppOrganizationsRoute,
 } as any)
 const AppMessagesConversationIdRoute =
   AppMessagesConversationIdRouteImport.update({
@@ -150,14 +168,17 @@ export interface FileRoutesByFullPath {
   '/hackathons': typeof AppHackathonsRoute
   '/messages': typeof AppMessagesRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
+  '/organizations': typeof AppOrganizationsRouteWithChildren
   '/projects': typeof AppProjectsRouteWithChildren
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/messages/$conversationId': typeof AppMessagesConversationIdRoute
+  '/organizations/$orgId': typeof AppOrganizationsOrgIdRoute
   '/profile/$username': typeof AppProfileUsernameRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/organizations/': typeof AppOrganizationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -178,8 +199,10 @@ export interface FileRoutesByTo {
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/messages/$conversationId': typeof AppMessagesConversationIdRoute
+  '/organizations/$orgId': typeof AppOrganizationsOrgIdRoute
   '/profile/$username': typeof AppProfileUsernameRoute
   '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/organizations': typeof AppOrganizationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -196,14 +219,17 @@ export interface FileRoutesById {
   '/_app/hackathons': typeof AppHackathonsRoute
   '/_app/messages': typeof AppMessagesRouteWithChildren
   '/_app/notifications': typeof AppNotificationsRoute
+  '/_app/organizations': typeof AppOrganizationsRouteWithChildren
   '/_app/projects': typeof AppProjectsRouteWithChildren
   '/_app/search': typeof AppSearchRoute
   '/_app/settings': typeof AppSettingsRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/_app/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/_app/messages/$conversationId': typeof AppMessagesConversationIdRoute
+  '/_app/organizations/$orgId': typeof AppOrganizationsOrgIdRoute
   '/_app/profile/$username': typeof AppProfileUsernameRoute
   '/_app/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/_app/organizations/': typeof AppOrganizationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -220,14 +246,17 @@ export interface FileRouteTypes {
     | '/hackathons'
     | '/messages'
     | '/notifications'
+    | '/organizations'
     | '/projects'
     | '/search'
     | '/settings'
     | '/portfolio/$username'
     | '/builders/$builderId'
     | '/messages/$conversationId'
+    | '/organizations/$orgId'
     | '/profile/$username'
     | '/projects/$projectId'
+    | '/organizations/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -248,8 +277,10 @@ export interface FileRouteTypes {
     | '/portfolio/$username'
     | '/builders/$builderId'
     | '/messages/$conversationId'
+    | '/organizations/$orgId'
     | '/profile/$username'
     | '/projects/$projectId'
+    | '/organizations'
   id:
     | '__root__'
     | '/'
@@ -265,14 +296,17 @@ export interface FileRouteTypes {
     | '/_app/hackathons'
     | '/_app/messages'
     | '/_app/notifications'
+    | '/_app/organizations'
     | '/_app/projects'
     | '/_app/search'
     | '/_app/settings'
     | '/portfolio/$username'
     | '/_app/builders/$builderId'
     | '/_app/messages/$conversationId'
+    | '/_app/organizations/$orgId'
     | '/_app/profile/$username'
     | '/_app/projects/$projectId'
+    | '/_app/organizations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -341,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/organizations': {
+      id: '/_app/organizations'
+      path: '/organizations'
+      fullPath: '/organizations'
+      preLoaderRoute: typeof AppOrganizationsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/notifications': {
       id: '/_app/notifications'
       path: '/notifications'
@@ -404,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/organizations/': {
+      id: '/_app/organizations/'
+      path: '/'
+      fullPath: '/organizations/'
+      preLoaderRoute: typeof AppOrganizationsIndexRouteImport
+      parentRoute: typeof AppOrganizationsRoute
+    }
     '/_app/projects/$projectId': {
       id: '/_app/projects/$projectId'
       path: '/$projectId'
@@ -417,6 +465,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/profile/$username'
       preLoaderRoute: typeof AppProfileUsernameRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/organizations/$orgId': {
+      id: '/_app/organizations/$orgId'
+      path: '/$orgId'
+      fullPath: '/organizations/$orgId'
+      preLoaderRoute: typeof AppOrganizationsOrgIdRouteImport
+      parentRoute: typeof AppOrganizationsRoute
     }
     '/_app/messages/$conversationId': {
       id: '/_app/messages/$conversationId'
@@ -459,6 +514,19 @@ const AppMessagesRouteWithChildren = AppMessagesRoute._addFileChildren(
   AppMessagesRouteChildren,
 )
 
+interface AppOrganizationsRouteChildren {
+  AppOrganizationsOrgIdRoute: typeof AppOrganizationsOrgIdRoute
+  AppOrganizationsIndexRoute: typeof AppOrganizationsIndexRoute
+}
+
+const AppOrganizationsRouteChildren: AppOrganizationsRouteChildren = {
+  AppOrganizationsOrgIdRoute: AppOrganizationsOrgIdRoute,
+  AppOrganizationsIndexRoute: AppOrganizationsIndexRoute,
+}
+
+const AppOrganizationsRouteWithChildren =
+  AppOrganizationsRoute._addFileChildren(AppOrganizationsRouteChildren)
+
 interface AppProjectsRouteChildren {
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
 }
@@ -481,6 +549,7 @@ interface AppRouteChildren {
   AppHackathonsRoute: typeof AppHackathonsRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppNotificationsRoute: typeof AppNotificationsRoute
+  AppOrganizationsRoute: typeof AppOrganizationsRouteWithChildren
   AppProjectsRoute: typeof AppProjectsRouteWithChildren
   AppSearchRoute: typeof AppSearchRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -497,6 +566,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHackathonsRoute: AppHackathonsRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppNotificationsRoute: AppNotificationsRoute,
+  AppOrganizationsRoute: AppOrganizationsRouteWithChildren,
   AppProjectsRoute: AppProjectsRouteWithChildren,
   AppSearchRoute: AppSearchRoute,
   AppSettingsRoute: AppSettingsRoute,
