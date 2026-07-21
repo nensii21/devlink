@@ -1,4 +1,3 @@
-
 import { ActivityFeed } from "@/components/activity/ActivityFeed";
 import { Card, SectionHeader, TagChip, Avatar } from "@/components/shared/primitives";
 import { useQuery } from "@tanstack/react-query";
