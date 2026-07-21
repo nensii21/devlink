@@ -64,8 +64,13 @@ const getActivityIcon = (type: Activity["activity_type"]) => {
 
 export function ActivityItem({ activity }: ActivityItemProps) {
   // Use metadata for extra rendering details if available
-  const actorName = activity.metadata?.actor_name || "Someone";
-  const actorAvatar = activity.metadata?.actor_avatar;
+  const metadata = (activity.metadata ?? {}) as {
+    actor_name?: string;
+    actor_avatar?: string;
+  };
+
+  const actorName = metadata.actor_name ?? "Someone";
+  const actorAvatar = metadata.actor_avatar;
 
   return (
     <div className="flex gap-4 p-4 rounded-lg bg-white shadow-sm border border-gray-100 hover:shadow-md transition-shadow">

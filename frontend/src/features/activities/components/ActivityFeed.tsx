@@ -51,7 +51,7 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
         target_type: targetType,
         activity_types: activityTypes,
       });
-      return response.data;
+      return response;
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => {
