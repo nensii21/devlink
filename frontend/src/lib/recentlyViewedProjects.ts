@@ -17,10 +17,10 @@ export function addRecentlyViewedProject(projectId: string): void {
 
   const current = getRecentlyViewedProjectIds();
 
-  const updated = [
-    projectId,
-    ...current.filter((id) => id !== projectId),
-  ].slice(0, MAX_RECENT_PROJECTS);
+  const updated = [projectId, ...current.filter((id) => id !== projectId)].slice(
+    0,
+    MAX_RECENT_PROJECTS,
+  );
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 }

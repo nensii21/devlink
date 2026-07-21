@@ -82,16 +82,16 @@ function ProjectsPage() {
   const [boolFilters, setBoolFilters] = useState<BoolFilter[]>([]);
   const [recentProjectIds, setRecentProjectIds] = useState<string[]>([]);
 
-useEffect(() => {
-  setRecentProjectIds(getRecentlyViewedProjectIds());
-}, []);
+  useEffect(() => {
+    setRecentProjectIds(getRecentlyViewedProjectIds());
+  }, []);
   const { data = [], isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: projectsService.list,
   });
   const recentlyViewed = recentProjectIds
-  .map((id) => data.find((project) => project.id === id))
-  .filter((project): project is NonNullable<typeof project> => Boolean(project));
+    .map((id) => data.find((project) => project.id === id))
+    .filter((project): project is NonNullable<typeof project> => Boolean(project));
 
   const chipFilterCount = langs.length + difficulties.length + boolFilters.length;
   const hasActiveFilters = q !== "" || statusFilter !== "all" || chipFilterCount > 0;
@@ -133,51 +133,43 @@ useEffect(() => {
           <Plus size={14} /> New project
         </button>
       </div>
-       {recentlyViewed.length > 0 && (
-  <section className="space-y-2">
-    <div className="flex items-center justify-between">
-      <h2 className="text-[15px] font-semibold text-foreground">
-        Recently Viewed Projects
-      </h2>
-      <span className="text-[11px] text-muted-foreground">
-        Your latest project visits
-      </span>
-    </div>
+      {recentlyViewed.length > 0 && (
+        <section className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[15px] font-semibold text-foreground">Recently Viewed Projects</h2>
+            <span className="text-[11px] text-muted-foreground">Your latest project visits</span>
+          </div>
 
-    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-      {recentlyViewed.map((project) => (
-        <a
-          key={project.id}
-          href={`/projects/${project.id}`}
-          className="block"
-        >
-          <Card interactive className="p-4">
-            <div className="flex items-start gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
-                {project.icon}
-              </span>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {recentlyViewed.map((project) => (
+              <a key={project.id} href={`/projects/${project.id}`} className="block">
+                <Card interactive className="p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
+                      {project.icon}
+                    </span>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px] font-semibold text-foreground">
-                  {project.name}
-                </p>
-                <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
-                  {project.description}
-                </p>
-              </div>
-            </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-semibold text-foreground">
+                        {project.name}
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
+                        {project.description}
+                      </p>
+                    </div>
+                  </div>
 
-            <div className="mt-3 flex flex-wrap gap-1">
-              {project.stack.slice(0, 3).map((tech) => (
-                <TagChip key={tech}>{tech}</TagChip>
-              ))}
-            </div>
-          </Card>
-        </a>
-      ))}
-    </div>
-  </section>
-)}
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {project.stack.slice(0, 3).map((tech) => (
+                      <TagChip key={tech}>{tech}</TagChip>
+                    ))}
+                  </div>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
       <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1">

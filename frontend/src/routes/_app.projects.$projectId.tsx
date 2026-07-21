@@ -31,10 +31,10 @@ function ProjectDetail() {
   const [copied, setCopied] = useState(false);
   const isOwner = p?.owner === currentUser.name;
   useEffect(() => {
-  if (p) {
-    addRecentlyViewedProject(p.id);
-  }
-}, [p]);
+    if (p) {
+      addRecentlyViewedProject(p.id);
+    }
+  }, [p]);
   const handleCopyInviteLink = async () => {
     const inviteLink = `${window.location.origin}/projects/${projectId}?invite=true`;
 
