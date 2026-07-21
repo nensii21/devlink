@@ -41,6 +41,10 @@ class LoginRequest(BaseModel):
     )
 
 
+class GitHubLoginRequest(BaseModel):
+    code: str
+
+
 # ==========================================================
 # JWT Tokens
 # ==========================================================
