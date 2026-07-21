@@ -91,8 +91,8 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-4">
-          <img src={APP_LOGO} alt="" className="h-8 w-8 rounded-md" />
+        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-3">
+          <img src={APP_LOGO} alt="" className="h-10 w-10 rounded-md" />
           <span className="text-[18px] font-bold tracking-tight text-foreground">DevLink</span>
         </Link>
 

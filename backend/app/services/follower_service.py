@@ -46,6 +46,7 @@ class FollowerService:
         )
 
         # Notify the person being followed.
+        # Trigger notification
         follower = db.get(User, follower_id)
         follower_name = (
             f"{follower.first_name} {follower.last_name}"
