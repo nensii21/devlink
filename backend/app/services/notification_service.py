@@ -9,13 +9,10 @@ from sqlalchemy import func, select
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.models.notification import Notification
 from app.schemas.notification import (
     NotificationCreate,
     NotificationUpdate,
 )
-
-from app.schemas.notification import NotificationCreate
 
 
 class NotificationService:
