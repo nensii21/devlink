@@ -70,7 +70,7 @@ function AuthScreen() {
         <button className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
           <Github size={16} /> Continue with GitHub
         </button>
-        <button className="mb-5 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
+        <button className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
             <path
               fill="#4285F4"
@@ -143,7 +143,11 @@ function AuthScreen() {
             </button>
           </form>
         ) : (
-          <form className="max-h-96 overflow-y-auto" onSubmit={signUpForm.handleSubmit(onSubmit)} noValidate>
+          <form
+            className="max-h-96 overflow-y-auto"
+            onSubmit={signUpForm.handleSubmit(onSubmit)}
+            noValidate
+          >
             <div className="mb-4 grid grid-cols-2 gap-3">
               <div>
                 <label className={lbl}>First name</label>
