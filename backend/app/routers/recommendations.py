@@ -15,7 +15,12 @@ from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.middleware.rate_limit import limiter, RECOMMENDATION_LIMIT
 from app.models.user import User
-from app.schemas.recommendation import RecommendationResponse, RecommendedBuilder
+from app.schemas.recommendation import (
+    RecommendationResponse, 
+    RecommendedBuilder,
+    ProjectRecommendationResponse,
+    RecommendedProject,
+)
 from app.services.recommendation_service import RecommendationService
 
 router = APIRouter(
@@ -82,6 +87,41 @@ def get_recommended_builders(
     context_label = f"project:{project_id}" if project_id else f"user:{current_user.id}"
     return RecommendationResponse(
         query_context=context_label,
+        total=len(results),
+        limit=limit,
+        results=results,
+    )
+
+
+@router.get(
+    "/projects",
+    response_model=ProjectRecommendationResponse,
+    summary="Get recommended projects",
+)
+@limiter.limit(RECOMMENDATION_LIMIT)
+def get_recommended_projects(
+    request: Request,
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+) -> ProjectRecommendationResponse:
+    """
+    Returns a ranked list of recommended projects for the authenticated developer.
+
+    **Scoring factors**:
+    - **Skills**: Project requirements vs Developer's skills
+    - **Technologies**: Project tech stack vs Developer's skills
+    - **Experience**: Project minimum experience vs Developer's experience
+    - **Interests**: Project title/description vs Developer's bio/headline
+    """
+    results: list[RecommendedProject] = RecommendationService.recommend_projects(
+        db=db,
+        requester=current_user,
+        limit=limit,
+    )
+
+    return ProjectRecommendationResponse(
+        query_context=f"projects_for_user:{current_user.id}",
         total=len(results),
         limit=limit,
         results=results,
