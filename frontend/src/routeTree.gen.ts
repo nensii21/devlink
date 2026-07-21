@@ -21,6 +21,7 @@ import { Route as AppNotificationsRouteImport } from './routes/_app.notification
 import { Route as AppMessagesRouteImport } from './routes/_app.messages'
 import { Route as AppHackathonsRouteImport } from './routes/_app.hackathons'
 import { Route as AppFlaresRouteImport } from './routes/_app.flares'
+import { Route as AppFeedRouteImport } from './routes/_app.feed'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBuildersRouteImport } from './routes/_app.builders'
 import { Route as AppBookmarksRouteImport } from './routes/_app.bookmarks'
@@ -89,6 +90,11 @@ const AppFlaresRoute = AppFlaresRouteImport.update({
   path: '/flares',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/bookmarks': typeof AppBookmarksRoute
   '/builders': typeof AppBuildersRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/feed': typeof AppFeedRoute
   '/flares': typeof AppFlaresRoute
   '/hackathons': typeof AppHackathonsRoute
   '/messages': typeof AppMessagesRouteWithChildren
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof AppBookmarksRoute
   '/builders': typeof AppBuildersRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/feed': typeof AppFeedRoute
   '/flares': typeof AppFlaresRoute
   '/hackathons': typeof AppHackathonsRoute
   '/messages': typeof AppMessagesRouteWithChildren
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/_app/bookmarks': typeof AppBookmarksRoute
   '/_app/builders': typeof AppBuildersRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/feed': typeof AppFeedRoute
   '/_app/flares': typeof AppFlaresRoute
   '/_app/hackathons': typeof AppHackathonsRoute
   '/_app/messages': typeof AppMessagesRouteWithChildren
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/builders'
     | '/dashboard'
+    | '/feed'
     | '/flares'
     | '/hackathons'
     | '/messages'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/builders'
     | '/dashboard'
+    | '/feed'
     | '/flares'
     | '/hackathons'
     | '/messages'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/_app/bookmarks'
     | '/_app/builders'
     | '/_app/dashboard'
+    | '/_app/feed'
     | '/_app/flares'
     | '/_app/hackathons'
     | '/_app/messages'
@@ -357,6 +369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFlaresRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/feed': {
+      id: '/_app/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -457,6 +476,7 @@ interface AppRouteChildren {
   AppBookmarksRoute: typeof AppBookmarksRoute
   AppBuildersRoute: typeof AppBuildersRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
+  AppFeedRoute: typeof AppFeedRoute
   AppFlaresRoute: typeof AppFlaresRoute
   AppHackathonsRoute: typeof AppHackathonsRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
@@ -472,6 +492,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBookmarksRoute: AppBookmarksRoute,
   AppBuildersRoute: AppBuildersRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
+  AppFeedRoute: AppFeedRoute,
   AppFlaresRoute: AppFlaresRoute,
   AppHackathonsRoute: AppHackathonsRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,

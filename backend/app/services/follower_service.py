@@ -46,6 +46,8 @@ class FollowerService:
             description=str(following_id),
             icon="user-plus",
             color="success",
+        )
+
         # Trigger notification
         follower = db.get(User, follower_id)
         follower_name = (

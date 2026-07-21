@@ -20,6 +20,7 @@ import {
   Users2,
   FileText,
   BarChart3,
+  Trophy,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,10 @@ import { containerVariants, cardEntrance, cardHover } from "@/lib/animations";
 export function RecentActivity() {
   return (
     <Card>
-      <ActivityFeed queryKey={["activities", "recent"]} queryFn={() => activitiesService.list(20)} />
+      <ActivityFeed
+        queryKey={["activities", "recent"]}
+        queryFn={() => activitiesService.list(20)}
+      />
     </Card>
   );
 }
