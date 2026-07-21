@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
-import { AnimatedCard, TagChip, Avatar } from "@/components/shared/primitives";
+import { Card, AnimatedCard, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
 import { HighlightText } from "@/components/shared/HighlightText";
 import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_app/builders")({
 function BuildersPage() {
   const [tab, setTab] = useState<"discover" | "matches" | "connections">("discover");
   const [q, setQ] = useState("");
-  const { data = [] } = useQuery({
+  const { data = [], isLoading } = useQuery({
     queryKey: ["builders", tab],
     queryFn: tab === "matches" ? buildersService.matches : buildersService.list,
   });
@@ -86,42 +86,68 @@ function BuildersPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
+        role="status"
+        aria-busy={isLoading || undefined}
       >
-        {filtered.map((b, i) => (
-          <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-            <AnimatedCard interactive index={i} className="p-4 text-center">
-              <div className="mx-auto w-fit">
-                <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
-              </div>
-              <p className="mt-2 text-[14px] font-semibold text-foreground">
-                <HighlightText text={b.name} query={q} />
-              </p>
-              <p className="text-[12px] text-muted-foreground">
-                <HighlightText text={b.role} query={q} />
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                {b.country} · {b.yearsExp} yrs
-              </p>
-              <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
-              <div className="mt-2 flex flex-wrap justify-center gap-1">
-                {b.skills.slice(0, 3).map((s) => (
-                  <TagChip key={s}>
-                    <HighlightText text={s} query={q} />
-                  </TagChip>
-                ))}
-              </div>
-              <p className="mt-2 text-[12px] font-semibold text-success">{b.matchScore}% Match</p>
-              <div className="mt-2 flex gap-1.5">
-                <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
-                  Connect
-                </button>
-                <button className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted">
-                  Message
-                </button>
-              </div>
-            </AnimatedCard>
-          </Link>
-        ))}
+        {isLoading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="p-4 text-center">
+                <div className="mx-auto w-fit">
+                  <Skeleton className="h-16 w-16 shrink-0 rounded-full" />
+                </div>
+                <Skeleton className="mx-auto mt-2 h-4 w-28" />
+                <Skeleton className="mx-auto h-3 w-20" />
+                <Skeleton className="mx-auto h-3 w-36" />
+                <Skeleton className="mx-auto mt-1 h-3 w-24" />
+                <div className="mt-2 flex flex-wrap justify-center gap-1">
+                  <Skeleton className="h-5 w-14" />
+                  <Skeleton className="h-5 w-12" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="mx-auto mt-2 h-3 w-20" />
+                <div className="mt-2 flex gap-1.5">
+                  <Skeleton className="h-7 flex-1" />
+                  <Skeleton className="h-7 flex-1" />
+                </div>
+              </Card>
+            ))
+          : filtered.map((b, i) => (
+              <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
+                <AnimatedCard interactive index={i} className="p-4 text-center">
+                  <div className="mx-auto w-fit">
+                    <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
+                  </div>
+                  <p className="mt-2 text-[14px] font-semibold text-foreground">
+                    <HighlightText text={b.name} query={q} />
+                  </p>
+                  <p className="text-[12px] text-muted-foreground">
+                    <HighlightText text={b.role} query={q} />
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {b.country} · {b.yearsExp} yrs
+                  </p>
+                  <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
+                  <div className="mt-2 flex flex-wrap justify-center gap-1">
+                    {b.skills.slice(0, 3).map((s) => (
+                      <TagChip key={s}>
+                        <HighlightText text={s} query={q} />
+                      </TagChip>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[12px] font-semibold text-success">
+                    {b.matchScore}% Match
+                  </p>
+                  <div className="mt-2 flex gap-1.5">
+                    <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
+                      Connect
+                    </button>
+                    <button className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted">
+                      Message
+                    </button>
+                  </div>
+                </AnimatedCard>
+              </Link>
+            ))}
       </motion.div>
     </div>
   );
