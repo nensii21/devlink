@@ -5,8 +5,10 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.models.activity import ActivityType
 from app.models.project import Project
 from app.schemas.project import ProjectCreate, ProjectUpdate
+from app.services.activity_service import ActivityService
 from app.core.cache import cached
 from app.schemas.project import (
     ProjectCreate,
@@ -47,6 +49,17 @@ class ProjectService:
         db.add(db_project)
         db.flush()
         db.refresh(db_project)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=owner_id,
+            activity_type=ActivityType.PROJECT_CREATED,
+            title="Created project",
+            description=db_project.title,
+            project_id=db_project.id,
+            icon="folder-plus",
+            color="primary",
+        )
 
         return db_project
 
@@ -120,6 +133,17 @@ class ProjectService:
         db.flush()
         db.refresh(db_project)
 
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_project.owner_id,
+            activity_type=ActivityType.PROJECT_UPDATED,
+            title="Updated project",
+            description=db_project.title,
+            project_id=db_project.id,
+            icon="pencil",
+            color="info",
+        )
+
         return db_project
 
     @staticmethod
@@ -132,6 +156,17 @@ class ProjectService:
 
         db.flush()
         db.refresh(db_project)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_project.owner_id,
+            activity_type=ActivityType.PROJECT_ARCHIVED,
+            title="Archived project",
+            description=db_project.title,
+            project_id=db_project.id,
+            icon="archive",
+            color="warning",
+        )
 
         return db_project
 

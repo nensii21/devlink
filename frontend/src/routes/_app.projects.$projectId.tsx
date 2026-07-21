@@ -3,12 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { ArrowLeft, Star, GitFork, Users2, Github, Copy, Check, Eye } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
 import { BackButton } from "@/components/shared/BackButton";
 import { ShareProjectButton } from "@/components/shared/ShareProjectButton";
+import { addRecentlyViewedProject } from "@/lib/recentlyViewedProjects";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   head: ({ params }) => ({
@@ -29,7 +30,11 @@ function ProjectDetail() {
   const [tab, setTab] = useState<"overview" | "members" | "activity" | "repos">("overview");
   const [copied, setCopied] = useState(false);
   const isOwner = p?.owner === currentUser.name;
-
+  useEffect(() => {
+    if (p) {
+      addRecentlyViewedProject(p.id);
+    }
+  }, [p]);
   const handleCopyInviteLink = async () => {
     const inviteLink = `${window.location.origin}/projects/${projectId}?invite=true`;
 

@@ -22,10 +22,11 @@ from app.middleware.rate_limit import (
 from app.dependencies import get_database
 from app.schemas.auth import (
     AuthResponse,
+    ForgotPasswordRequest,
     LoginRequest,
     RegisterRequest,
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, CurrentUser
 from app.services.auth_service import AuthService
 
 router = APIRouter(
@@ -39,7 +40,7 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    response_model=UserResponse,
+    response_model=CurrentUser,
     status_code=status.HTTP_201_CREATED,
     summary="Register a new user",
 )

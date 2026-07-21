@@ -17,6 +17,7 @@ from app.models.user import User
 from app.schemas.user import (
     UserCreate,
     UserResponse,
+    CurrentUser,
     UserStats,
     UserUpdate,
     UsernameAvailabilityResponse,
@@ -101,7 +102,7 @@ def create_user(
 
 @router.get(
     "/me",
-    response_model=UserResponse,
+    response_model=CurrentUser,
 )
 def get_me(
     current_user: User = Depends(get_current_user),
@@ -168,7 +169,7 @@ def get_user_stats(
 
 @router.put(
     "/me",
-    response_model=UserResponse,
+    response_model=CurrentUser,
 )
 def update_me(
     user: UserUpdate,

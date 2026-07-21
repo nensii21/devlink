@@ -5,11 +5,13 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.models.activity import ActivityType
 from app.models.organization import Organization
 from app.schemas.organization import (
     OrganizationCreate,
     OrganizationUpdate,
 )
+from app.services.activity_service import ActivityService
 from app.core.cache import cached
 
 
@@ -46,6 +48,17 @@ class OrganizationService:
         db.add(db_organization)
         db.flush()
         db.refresh(db_organization)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=owner_id,
+            activity_type=ActivityType.ORGANIZATION_CREATED,
+            title="Created organization",
+            description=db_organization.name,
+            organization_id=db_organization.id,
+            icon="building-2",
+            color="primary",
+        )
 
         return db_organization
 
