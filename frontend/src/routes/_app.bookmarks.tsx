@@ -14,6 +14,7 @@ import {
   useAddBookmarkToCollection,
 } from "@/hooks/useBookmarkCollections";
 import type { BookmarkCollection } from "@/api";
+import { ProjectDifficultyBadge } from "@/components/project/ProjectDifficultyBadge";
 
 export const Route = createFileRoute("/_app/bookmarks")({
   head: () => ({
@@ -140,14 +141,19 @@ function BookmarksPage() {
                           {p.icon}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[14px] font-semibold text-foreground">
-                            {p.name}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-[14px] font-semibold text-foreground">
+                              {p.name}
+                            </p>
+                            {p.difficulty && (
+                              <ProjectDifficultyBadge difficulty={p.difficulty} />
+                            )}
+                          </div>
                           <p className="mt-0.5 text-[12px] text-muted-foreground line-clamp-2">
                             {p.description}
                           </p>
                         </div>
-                        <Bookmark size={14} className="text-primary" />
+                        <Bookmark size={14} className="text-primary fill-primary shrink-0" />
                       </div>
                       <div className="mt-3 flex flex-wrap gap-1">
                         {p.stack.map((s) => (

@@ -35,7 +35,7 @@ export interface Project {
   status: "recruiting" | "in-progress" | "completed" | "archived";
   icon: string;
   language?: string;
-  difficulty?: "beginner" | "intermediate" | "advanced";
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
   remote?: boolean;
   paid?: boolean;
   openSource?: boolean;
@@ -247,7 +247,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "🤖",
     language: "JavaScript",
-    difficulty: "intermediate",
+    difficulty: "Intermediate",
     remote: true,
     paid: true,
     openSource: false,
@@ -270,7 +270,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "✨",
     language: "Python",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: true,
     openSource: false,
@@ -293,7 +293,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "🚀",
     language: "Go",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: false,
     openSource: false,
@@ -315,7 +315,7 @@ export const projects: Project[] = [
     status: "recruiting",
     icon: "🪙",
     language: "TypeScript",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: false,
     openSource: true,
@@ -338,7 +338,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "🧩",
     language: "TypeScript",
-    difficulty: "beginner",
+    difficulty: "Beginner",
     remote: true,
     paid: false,
     openSource: true,
@@ -360,7 +360,7 @@ export const projects: Project[] = [
     status: "completed",
     icon: "📇",
     language: "JavaScript",
-    difficulty: "intermediate",
+    difficulty: "Intermediate",
     remote: false,
     paid: false,
     openSource: true,
