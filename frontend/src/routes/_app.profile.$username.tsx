@@ -172,15 +172,6 @@ function ProfilePage() {
             </Card>
           )}
         </div>
-      <div className="grid gap-3 lg:grid-cols-3">
-        <Card className="p-4">
-          <p className="text-[13px] font-semibold text-foreground">Skills</p>
-          <div className="mt-3 flex flex-wrap gap-1">
-            {b.skills.map((s) => (
-              <TagChip key={s}>{s}</TagChip>
-            ))}
-          </div>
-        </Card>
         <Card className="p-4 lg:col-span-2">
           <p className="text-[13px] font-semibold text-foreground">Projects</p>
           <ul className="mt-3 divide-y divide-border">
