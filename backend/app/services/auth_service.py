@@ -158,7 +158,12 @@ class AuthService:
     # =====================================================
 
     def get_user_by_id(self, user_id: str) -> Optional[User]:
-        return self.db.get(User, user_id)
+        from uuid import UUID
+        try:
+            uid = UUID(user_id) if isinstance(user_id, str) else user_id
+        except ValueError:
+            return None
+        return self.db.get(User, uid)
 
     # =====================================================
     # Current User

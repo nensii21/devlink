@@ -18,7 +18,6 @@ from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
 
 router = APIRouter(
-    prefix="/api/auth",
     tags=["Authentication"],
 )
 

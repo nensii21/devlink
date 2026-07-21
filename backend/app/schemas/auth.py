@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Optional
+import uuid
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -62,14 +63,17 @@ class TokenPayload(BaseModel):
 # ==========================================================
 
 
+from app.schemas.user import UserResponse
+
 class AuthResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     success: bool = True
-    message: str
+    message: Optional[str] = None
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+    user: Optional[UserResponse] = None
 
 
 # ==========================================================
@@ -164,7 +168,8 @@ class ResendVerificationEmailRequest(BaseModel):
 
 
 class CurrentUserResponse(BaseModel):
-    id: str
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
 
     first_name: str
     last_name: str
