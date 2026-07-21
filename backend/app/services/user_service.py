@@ -5,6 +5,10 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.models.activity import ActivityType
+from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
+from app.services.activity_service import ActivityService
 from app.models.application import Application, ApplicationStatus
 from app.models.follower import Follower
 from app.models.project import Project
@@ -63,6 +67,16 @@ class UserService:
         db.flush()
         db.refresh(db_user)
 
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_user.id,
+            activity_type=ActivityType.USER_REGISTERED,
+            title="Joined DevLink",
+            description=f"{db_user.first_name} {db_user.last_name} joined DevLink.",
+            icon="user-plus",
+            color="success",
+        )
+
         return db_user
 
     @staticmethod
@@ -79,6 +93,16 @@ class UserService:
 
         db.flush()
         db.refresh(db_user)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_user.id,
+            activity_type=ActivityType.PROFILE_UPDATED,
+            title="Updated profile",
+            description=f"{db_user.first_name} {db_user.last_name} updated their profile.",
+            icon="user-round-pen",
+            color="info",
+        )
 
         return db_user
 

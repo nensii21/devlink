@@ -7,6 +7,7 @@ import {
   Compass,
   Bookmark,
   Users2,
+  Building2,
   Sparkles,
   Share2,
   Flame,
@@ -41,6 +42,7 @@ const groups: Group[] = [
     label: "Community",
     items: [
       { label: "Builders", to: "/builders", icon: <Users2 size={16} /> },
+      { label: "Organizations", to: "/organizations", icon: <Building2 size={16} /> },
       { label: "AI Matches", to: "/builders?tab=matches", icon: <Sparkles size={16} /> },
       { label: "Connections", to: "/builders?tab=connections", icon: <Share2 size={16} /> },
     ],
@@ -91,8 +93,8 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-4">
-          <img src={APP_LOGO} alt="" className="h-8 w-8 rounded-md" />
+        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-3">
+          <img src={APP_LOGO} alt="" className="h-10 w-10 rounded-md" />
           <span className="text-[18px] font-bold tracking-tight text-foreground">DevLink</span>
         </Link>
 

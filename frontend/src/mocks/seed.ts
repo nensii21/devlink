@@ -19,6 +19,7 @@ export interface Builder {
   online: boolean;
   bio: string;
   lastActiveAt: string | null;
+  publicEmail?: string;
 }
 export interface Project {
   id: ID;
@@ -129,6 +130,7 @@ export const builders: Builder[] = [
     online: true,
     bio: "Loves accessible UIs and design systems.",
     lastActiveAt: ago(1),
+    publicEmail: "priya@example.com",
   },
   {
     id: "b2",
