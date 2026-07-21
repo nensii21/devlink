@@ -5,6 +5,7 @@ export interface SearchResults {
   projects?: unknown[];
   posts?: unknown[];
   hackathons?: unknown[];
+  organizations?: unknown[];
 }
 
 export const searchApi = {
