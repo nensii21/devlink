@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Eye, EyeOff, Github } from "lucide-react";
 import { APP_LOGO } from "@/lib/logo";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -45,6 +46,7 @@ function AuthScreen() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const signInForm = useForm<SignIn>({ resolver: zodResolver(signInSchema) });
   const signUpForm = useForm<SignUp>({ resolver: zodResolver(signUpSchema) });
@@ -54,10 +56,17 @@ function AuthScreen() {
   const err = "mt-1 text-[12px] text-destructive";
   const lbl = "block text-[13px] font-semibold text-foreground mb-1";
 
-  const onSubmit = () => {
-    toast.success(mode === "signin" ? "Signed in" : "Account created");
-    navigate({ to: "/dashboard" });
-  };
+  const onSubmit = useCallback(async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await new Promise((r) => setTimeout(r, 800));
+      toast.success(mode === "signin" ? "Signed in" : "Account created");
+      navigate({ to: "/dashboard" });
+    } finally {
+      setSubmitting(false);
+    }
+  }, [submitting, mode, navigate]);
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center overflow-y-auto bg-background px-4 py-8">
@@ -135,12 +144,14 @@ function AuthScreen() {
                 Forgot password?
               </Link>
             </div>
-            <button
+            <LoadingButton
               type="submit"
-              className="mt-2 w-full rounded-md bg-primary py-[9px] text-[14px] font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+              loading={submitting}
+              loadingText="Signing In..."
+              className="mt-2 w-full py-[9px] text-[14px]"
             >
               Sign In
-            </button>
+            </LoadingButton>
           </form>
         ) : (
           <form onSubmit={signUpForm.handleSubmit(onSubmit)} noValidate>
@@ -214,12 +225,14 @@ function AuthScreen() {
                 <p className={err}>{signUpForm.formState.errors.confirmPassword.message}</p>
               )}
             </div>
-            <button
+            <LoadingButton
               type="submit"
-              className="mt-2 w-full rounded-md bg-primary py-[9px] text-[14px] font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+              loading={submitting}
+              loadingText="Creating Account..."
+              className="mt-2 w-full py-[9px] text-[14px]"
             >
               Create account
-            </button>
+            </LoadingButton>
           </form>
         )}
 

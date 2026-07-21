@@ -1,6 +1,11 @@
 from typing import Any
 import logging
+import uuid
+
 from app.core.logging import log_security_event
+from app.database.session import SessionLocal
+from app.models.audit_log import AuditAction
+from app.services.audit_log_service import AuditLogService
 
 logger = logging.getLogger(__name__)
 
@@ -13,28 +18,79 @@ def on_user_registered(email: str, user_id: str, **kwargs: Any) -> None:
     )
 
 
-def on_user_login(email: str, **kwargs: Any) -> None:
+def on_user_login(email: str, user_id: str, **kwargs: Any) -> None:
     """Handler for USER_LOGIN event."""
     log_security_event(
         event="Successful login",
         user=email,
     )
 
+    db = SessionLocal()
+    try:
+        AuditLogService.create_log(
+            db=db,
+            user_id=uuid.UUID(user_id),
+            action=AuditAction.LOGIN,
+            resource_type="user",
+            resource_id=user_id,
+            description="User logged in",
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Failed to create login audit log")
+    finally:
+        db.close()
 
-def on_user_logout(email: str, **kwargs: Any) -> None:
+
+def on_user_logout(email: str, user_id: str, **kwargs: Any) -> None:
     """Handler for USER_LOGOUT event."""
     log_security_event(
         event="Logout",
         user=email,
     )
 
+    db = SessionLocal()
+    try:
+        AuditLogService.create_log(
+            db=db,
+            user_id=uuid.UUID(user_id),
+            action=AuditAction.LOGOUT,
+            resource_type="user",
+            resource_id=user_id,
+            description="User logged out",
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Failed to create logout audit log")
+    finally:
+        db.close()
 
-def on_password_changed(email: str, **kwargs: Any) -> None:
+
+def on_password_changed(email: str, user_id: str, **kwargs: Any) -> None:
     """Handler for PASSWORD_CHANGED event."""
     log_security_event(
         event="Password changed",
         user=email,
     )
+
+    db = SessionLocal()
+    try:
+        AuditLogService.create_log(
+            db=db,
+            user_id=uuid.UUID(user_id),
+            action=AuditAction.PASSWORD_CHANGED,
+            resource_type="user",
+            resource_id=user_id,
+            description="Password changed",
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Failed to create password change audit log")
+    finally:
+        db.close()
 
 
 def on_password_reset_requested(email: str, **kwargs: Any) -> None:

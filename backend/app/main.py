@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
+from app.middleware.activity import ActivityTrackingMiddleware
 from app.middleware.rate_limit import limiter
 
 # pyrefly: ignore [missing-import]
@@ -30,6 +31,7 @@ from app.routers import (
     activities,
     applications,
     auth,
+    bookmark_collections,
     bookmarks,
     builder_flares,
     conversations,
@@ -39,6 +41,7 @@ from app.routers import (
     notifications,
     organizations,
     projects,
+    recommendations,
     repositories,
     skills,
     users,
@@ -58,6 +61,10 @@ async def lifespan(app: FastAPI):
 
     register_all_handlers(event_bus)
 
+    from app.core.cache import cache_manager
+
+    cache_manager.connect()
+
     # Future startup tasks
     # - Connect database
     # - Connect Redis
@@ -67,6 +74,10 @@ async def lifespan(app: FastAPI):
     yield
 
     print("🛑 DevLink Backend Stopping...")
+
+    from app.core.cache import cache_manager
+
+    cache_manager.disconnect()
 
 
 app = FastAPI(
@@ -96,6 +107,7 @@ app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(RequestIDMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(ActivityTrackingMiddleware)
 
 # ------------------------------------------------------------------
 # CORS
@@ -175,10 +187,12 @@ app.include_router(
 
 app.include_router(followers.router, prefix="/api/followers", tags=["Followers"])
 app.include_router(bookmarks.router)
+app.include_router(bookmark_collections.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)
 app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
+app.include_router(recommendations.router)
 app.include_router(health.router)

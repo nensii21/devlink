@@ -8,7 +8,7 @@ export function GreetingHero() {
   const first = currentUser.name.split(" ")[0];
 
   return (
-    <Card className="p-5">
+    <Card className="p-4">
       <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
         <div className="min-w-0">
           <h1 className="text-[22px] font-bold tracking-tight text-foreground">

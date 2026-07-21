@@ -9,6 +9,8 @@ from app.models.application import Application, ApplicationStatus
 from app.models.follower import Follower
 from app.models.project import Project
 from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
+from app.core.cache import cached
 from app.schemas.user import UserCreate, UserStats, UserUpdate
 
 
@@ -27,11 +29,13 @@ class UserService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def get_by_username(db: Session, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def list_users(
         db: Session,
         skip: int = 0,

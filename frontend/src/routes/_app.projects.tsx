@@ -10,6 +10,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Card, TagChip } from "@/components/shared/primitives";
 import { Star, GitFork, Users2, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -96,13 +97,16 @@ function ProjectsPage() {
     queryFn: projectsService.list,
   });
 
-  const hasActiveFilters = langs.length > 0 || difficulties.length > 0 || boolFilters.length > 0;
+  const chipFilterCount = langs.length + difficulties.length + boolFilters.length;
+  const hasActiveFilters = q !== "" || statusFilter !== "all" || chipFilterCount > 0;
 
   if (pathname !== "/projects" && pathname !== "/projects/") {
     return <Outlet />;
   }
 
-  function resetFilters() {
+  function clearFilters() {
+    setQ("");
+    setStatusFilter("all");
     setLangs([]);
     setDifficulties([]);
     setBoolFilters([]);
@@ -137,7 +141,7 @@ function ProjectsPage() {
         </button>
       </div>
 
-      <Card className="p-3">
+      <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1">
             <Search
@@ -180,12 +184,22 @@ function ProjectsPage() {
           >
             <SlidersHorizontal size={13} />
             Filters
-            {hasActiveFilters && (
+            {chipFilterCount > 0 && (
               <span className="grid h-4 w-4 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                {langs.length + difficulties.length + boolFilters.length}
+                {chipFilterCount}
               </span>
             )}
           </button>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-[7px] text-[12px] font-medium text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive focus:outline-none focus:ring-2 focus:ring-destructive/20"
+              aria-label="Clear all active filters"
+            >
+              <X size={13} />
+              Clear filters
+            </button>
+          )}
         </div>
 
         {showFilters && (
@@ -246,10 +260,10 @@ function ProjectsPage() {
 
             {hasActiveFilters && (
               <button
-                onClick={resetFilters}
+                onClick={clearFilters}
                 className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
               >
-                <X size={12} /> Reset filters
+                <X size={12} /> Clear filters
               </button>
             )}
           </div>
@@ -275,10 +289,10 @@ function ProjectsPage() {
           </p>
           {hasActiveFilters && (
             <button
-              onClick={resetFilters}
+              onClick={clearFilters}
               className="mt-3 text-[13px] font-medium text-primary hover:underline"
             >
-              Reset filters
+              Clear filters
             </button>
           )}
         </div>

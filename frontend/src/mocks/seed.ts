@@ -18,6 +18,8 @@ export interface Builder {
   skills: string[];
   online: boolean;
   bio: string;
+  lastActiveAt: string | null;
+  publicEmail?: string;
 }
 export interface Project {
   id: ID;
@@ -112,6 +114,8 @@ export interface Deadline {
 const AV = (seed: string) =>
   `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
+const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+
 export const builders: Builder[] = [
   {
     id: "b1",
@@ -125,6 +129,8 @@ export const builders: Builder[] = [
     skills: ["React", "Next.js", "TypeScript"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
+    lastActiveAt: ago(1),
+    publicEmail: "priya@example.com",
   },
   {
     id: "b2",
@@ -138,6 +144,7 @@ export const builders: Builder[] = [
     skills: ["Node.js", "MongoDB", "Express"],
     online: true,
     bio: "Builds end-to-end features fast.",
+    lastActiveAt: ago(3),
   },
   {
     id: "b3",
@@ -151,6 +158,7 @@ export const builders: Builder[] = [
     skills: ["Python", "FastAPI", "PostgreSQL"],
     online: false,
     bio: "APIs, queues and Postgres tuning.",
+    lastActiveAt: ago(120),
   },
   {
     id: "b4",
@@ -164,6 +172,7 @@ export const builders: Builder[] = [
     skills: ["Figma", "Adobe XD"],
     online: true,
     bio: "Product design for early-stage teams.",
+    lastActiveAt: ago(5),
   },
   {
     id: "b5",
@@ -177,6 +186,7 @@ export const builders: Builder[] = [
     skills: ["MERN", "Next.js"],
     online: false,
     bio: "Ships side-projects on weekends.",
+    lastActiveAt: ago(1440),
   },
   {
     id: "b6",
@@ -190,6 +200,7 @@ export const builders: Builder[] = [
     skills: ["Flutter", "Firebase"],
     online: true,
     bio: "Cross-platform mobile since 2021.",
+    lastActiveAt: ago(10),
   },
   {
     id: "b7",
@@ -203,6 +214,7 @@ export const builders: Builder[] = [
     skills: ["Python", "PyTorch", "AWS"],
     online: true,
     bio: "Recsys, embeddings, evals.",
+    lastActiveAt: ago(30),
   },
   {
     id: "b8",
@@ -216,6 +228,7 @@ export const builders: Builder[] = [
     skills: ["Kubernetes", "Terraform"],
     online: false,
     bio: "Infra as code, cost optimization.",
+    lastActiveAt: null,
   },
 ];
 

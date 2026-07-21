@@ -49,7 +49,7 @@ function AnalyticsPage() {
           </Card>
         ))}
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2">
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Commits (14 days)</p>
           <div className="mt-3 h-56">

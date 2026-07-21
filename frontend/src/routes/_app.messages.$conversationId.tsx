@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { messagesService } from "@/services";
 import { Card, Avatar } from "@/components/shared/primitives";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { ArrowLeft, Send } from "lucide-react";
-import { useState } from "react";
-import { conversations } from "@/mocks/seed";
+import { useState, useCallback } from "react";
+import { builders, conversations } from "@/mocks/seed";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/messages/$conversationId")({
@@ -14,12 +15,32 @@ export const Route = createFileRoute("/_app/messages/$conversationId")({
 
 function Thread() {
   const { conversationId } = Route.useParams();
-  const conv = conversations.find((c) => c.id === conversationId) ?? conversations[0];
+  const existingConversation = conversations.find((c) => c.id === conversationId);
+  const contact =
+    existingConversation?.with ?? builders.find((builder) => builder.id === conversationId);
+  const conv =
+    existingConversation ?? (contact ? { id: conversationId, with: contact } : conversations[0]);
   const { data = [] } = useQuery({
     queryKey: ["thread", conversationId],
     queryFn: () => messagesService.thread(conversationId),
   });
   const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSend = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!text.trim() || submitting) return;
+      setSubmitting(true);
+      try {
+        await new Promise((r) => setTimeout(r, 400));
+        setText("");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [text, submitting],
+  );
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
@@ -98,22 +119,22 @@ function Thread() {
           ))}
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setText("");
-          }}
-          className="flex items-center gap-2 border-t border-border p-3"
-        >
+        <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-border p-3">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Type a message…"
             className="min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2 text-[13px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
-          <button className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+          <LoadingButton
+            type="submit"
+            loading={submitting}
+            loadingText=""
+            disabled={!text.trim()}
+            className="inline-flex items-center gap-1"
+          >
             <Send size={14} /> Send
-          </button>
+          </LoadingButton>
         </form>
       </Card>
     </div>

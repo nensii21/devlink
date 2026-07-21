@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { HighlightText } from "@/components/shared/HighlightText";
 import { builders, projects, flares } from "@/mocks/seed";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -84,11 +85,20 @@ function SearchPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {devs.map((b) => (
             <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-              <Card interactive className="flex items-center gap-3 p-3">
+              <Card interactive className="flex items-center gap-3 p-4">
                 <Avatar src={b.avatar} alt={b.name} size={40} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-foreground">{b.name}</p>
+                  <p className="truncate text-[13px] font-semibold text-foreground">
+                    <HighlightText text={b.name} query={q} />
+                  </p>
                   <p className="truncate text-[12px] text-muted-foreground">{b.role}</p>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {b.skills.slice(0, 3).map((s) => (
+                      <TagChip key={s} className="text-[10px]">
+                        <HighlightText text={s} query={q} />
+                      </TagChip>
+                    ))}
+                  </div>
                 </div>
               </Card>
             </Link>
@@ -105,10 +115,16 @@ function SearchPage() {
                     {p.icon}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-semibold text-foreground">{p.name}</p>
-                    <p className="truncate text-[12px] text-muted-foreground">
-                      {p.stack.join(" · ")}
+                    <p className="truncate text-[13px] font-semibold text-foreground">
+                      <HighlightText text={p.name} query={q} />
                     </p>
+                    <div className="mt-0.5 flex flex-wrap gap-1">
+                      {p.stack.map((s) => (
+                        <TagChip key={s} className="text-[10px]">
+                          <HighlightText text={s} query={q} />
+                        </TagChip>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -121,18 +137,22 @@ function SearchPage() {
           <div className="flex flex-wrap gap-2">
             {skillSet.map((s) => (
               <TagChip key={s} className="text-[12px]">
-                {s}
+                <HighlightText text={s} query={q} />
               </TagChip>
             ))}
           </div>
         </Card>
       )}
       {tab === "Flares" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {fls.map((f) => (
             <Card key={f.id} className="p-4">
-              <p className="text-[13px] font-semibold text-foreground">{f.author.name}</p>
-              <p className="mt-1 text-[13px] text-foreground">{f.content}</p>
+              <p className="text-[13px] font-semibold text-foreground">
+                <HighlightText text={f.author.name} query={q} />
+              </p>
+              <p className="mt-1 text-[13px] text-foreground">
+                <HighlightText text={f.content} query={q} />
+              </p>
             </Card>
           ))}
         </div>
