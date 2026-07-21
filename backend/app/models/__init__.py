@@ -6,6 +6,7 @@ from .activity import Activity
 from .application import Application
 from .audit_log import AuditLog
 from .bookmark import Bookmark
+from .bookmark_collection import BookmarkCollection, CollectionBookmark
 from .builder_flare import BuilderFlare
 from .conversation import Conversation
 from .conversation_member import ConversationMember

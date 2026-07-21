@@ -135,7 +135,7 @@ export function ApplicationsList({ projectId, className }: Props) {
       {isLoading ? (
         <div className="mt-4 grid gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i} className="p-3">
+            <Card key={i} className="p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-48" />

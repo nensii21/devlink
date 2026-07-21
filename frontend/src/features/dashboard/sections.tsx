@@ -29,7 +29,8 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { containerVariants, cardEntrance, cardHover } from "@/lib/animations";
 
 const kindIcon = {
   join: UserPlus,
@@ -156,15 +157,25 @@ export function InviteRequests() {
 
 export function SuggestedBuilders() {
   const { data = [] } = useQuery({ queryKey: ["suggested"], queryFn: buildersService.suggested });
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <Card>
       <SectionHeader title="Suggested Builders" action="View All" actionTo="/builders" />
-      <div className="grid grid-cols-1 gap-3 p-4 pt-0 sm:grid-cols-3">
-        {data.map((b) => (
+      <motion.div
+        className="grid grid-cols-1 gap-3 p-4 pt-0 sm:grid-cols-3"
+        variants={containerVariants}
+        initial={prefersReducedMotion ? undefined : "hidden"}
+        animate={prefersReducedMotion ? undefined : "visible"}
+      >
+        {data.map((b, i) => (
           <motion.div
             key={b.id}
-            whileHover={{ y: -2 }}
-            className="rounded-md border border-border p-3 text-center"
+            variants={prefersReducedMotion ? undefined : cardEntrance}
+            custom={i}
+            whileHover={prefersReducedMotion ? undefined : cardHover}
+            transition={{ duration: 0.2 }}
+            className="will-change-transform rounded-md border border-border p-3 text-center"
           >
             <Avatar src={b.avatar} alt={b.name} size={56} online={b.online} />
             <p className="mt-2 text-[13px] font-semibold text-foreground">{b.name}</p>
@@ -187,7 +198,7 @@ export function SuggestedBuilders() {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </Card>
   );
 }

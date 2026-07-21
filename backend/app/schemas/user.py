@@ -22,7 +22,7 @@ class UserBase(BaseModel):
         max_length=50,
     )
 
-    email: EmailStr
+    public_email: Optional[EmailStr] = None
 
     headline: Optional[str] = Field(
         default=None,
@@ -55,6 +55,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    email: EmailStr
     password: str = Field(
         ...,
         min_length=8,
@@ -76,6 +77,7 @@ class UserUpdate(BaseModel):
 
     location: Optional[str] = None
     timezone: Optional[str] = None
+    public_email: Optional[EmailStr] = None
 
     website: Optional[HttpUrl] = None
     portfolio_url: Optional[HttpUrl] = None
@@ -107,6 +109,8 @@ class UserResponse(UserBase):
     is_verified: bool
     is_superuser: bool
 
+    last_active_at: Optional[datetime] = None
+
     created_at: datetime
     updated_at: datetime
 
@@ -117,6 +121,7 @@ class UserResponse(UserBase):
 
 
 class CurrentUser(UserResponse):
+    email: EmailStr
     email_verified_at: Optional[datetime] = None
     last_login: Optional[datetime] = None
 

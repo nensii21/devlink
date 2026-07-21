@@ -119,6 +119,11 @@ class User(Base):
         nullable=True,
     )
 
+    public_email: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
     github_url: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
@@ -162,12 +167,14 @@ class User(Base):
         Boolean,
         default=True,
         nullable=False,
+        index=True,
     )
 
     is_verified: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
+        index=True,
     )
 
     is_superuser: Mapped[bool] = mapped_column(
@@ -182,6 +189,11 @@ class User(Base):
     )
 
     last_login: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    last_active_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )

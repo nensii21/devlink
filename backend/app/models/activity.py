@@ -96,26 +96,31 @@ class Activity(Base):
     project_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("projects.id", ondelete="SET NULL"),
+        index=True,
     )
 
     organization_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("organizations.id", ondelete="SET NULL"),
+        index=True,
     )
 
     repository_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("repositories.id", ondelete="SET NULL"),
+        index=True,
     )
 
     application_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("applications.id", ondelete="SET NULL"),
+        index=True,
     )
 
     builder_flare_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("builder_flares.id", ondelete="SET NULL"),
+        index=True,
     )
 
     # ==========================================================
@@ -172,6 +177,7 @@ class Activity(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+        index=True,
     )
 
     def __repr__(self):

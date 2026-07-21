@@ -134,6 +134,7 @@ class AuthService:
             )
 
         user.last_login = datetime.now(timezone.utc)
+        user.last_active_at = datetime.now(timezone.utc)
 
         self.db.flush()
 
@@ -150,8 +151,8 @@ class AuthService:
         event_bus.publish(
             "USER_LOGIN",
             email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Login successful.",
@@ -254,12 +255,11 @@ class AuthService:
         user.password_hash = hash_password(new_password)
 
         self.db.flush()
-
         event_bus.publish(
             "PASSWORD_CHANGED",
             email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Password updated successfully.",
@@ -301,12 +301,11 @@ class AuthService:
     def logout(self, user_id: str):
 
         user = self.get_current_user(user_id)
-
         event_bus.publish(
             "USER_LOGOUT",
             email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Logged out successfully.",

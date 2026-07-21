@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { motion } from "framer-motion";
+import { useCardAnimation } from "@/lib/animations";
 
 export function SectionHeader({
   title,
@@ -49,6 +51,34 @@ export function Card({
     >
       {children}
     </As>
+  );
+}
+
+export function AnimatedCard({
+  children,
+  className,
+  interactive = false,
+  index = 0,
+}: {
+  children?: ReactNode;
+  className?: string;
+  interactive?: boolean;
+  index?: number;
+}) {
+  const animation = useCardAnimation(index);
+
+  return (
+    <motion.div
+      variants={animation.variants}
+      initial={animation.initial}
+      animate={animation.animate}
+      custom={animation.custom}
+      whileHover={animation.whileHover}
+    >
+      <Card interactive={interactive} className={cn("will-change-transform", className)}>
+        {children}
+      </Card>
+    </motion.div>
   );
 }
 
