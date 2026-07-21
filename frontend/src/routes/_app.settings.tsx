@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/shared/primitives";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { currentUser } from "@/mocks/seed";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 
 const tabs = ["Account", "Appearance", "Notifications", "Security", "Billing"] as const;
 type Tab = (typeof tabs)[number];
@@ -23,6 +25,10 @@ export const Route = createFileRoute("/_app/settings")({
 
 function SettingsPage() {
   const [tab, setTab] = useState<Tab>("Account");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
   const inp =
     "w-full rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20";
   const lbl = "mb-1 block text-[13px] font-semibold text-foreground";
@@ -51,14 +57,21 @@ function SettingsPage() {
           </nav>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4">
           <p className="text-[15px] font-semibold text-foreground">{tab}</p>
           <div className="mt-4 space-y-4">
             {tab === "Account" && (
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault();
-                  toast.success("Saved");
+                  if (savingAccount) return;
+                  setSavingAccount(true);
+                  try {
+                    await new Promise((r) => setTimeout(r, 800));
+                    toast.success("Saved");
+                  } finally {
+                    setSavingAccount(false);
+                  }
                 }}
                 className="space-y-4"
               >
@@ -84,9 +97,9 @@ function SettingsPage() {
                     defaultValue="Product engineer. React / Postgres / Rust."
                   />
                 </div>
-                <button className="rounded-md bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+                <LoadingButton type="submit" loading={savingAccount} loadingText="Saving...">
                   Save changes
-                </button>
+                </LoadingButton>
               </form>
             )}
             {tab === "Appearance" && (
@@ -116,19 +129,60 @@ function SettingsPage() {
               </div>
             )}
             {tab === "Security" && (
-              <div className="space-y-4">
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (savingPassword) return;
+                  setSavingPassword(true);
+                  try {
+                    await new Promise((r) => setTimeout(r, 800));
+                    toast.success("Password updated");
+                  } finally {
+                    setSavingPassword(false);
+                  }
+                }}
+                className="space-y-4"
+              >
                 <div>
                   <label className={lbl}>Current password</label>
-                  <input type="password" className={inp} />
+                  <div className="relative">
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      className={`${inp} pr-10`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                    >
+                      {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
+
                 <div>
                   <label className={lbl}>New password</label>
-                  <input type="password" className={inp} />
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      className={`${inp} pr-10`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={showNewPassword ? "Hide password" : "Show password"}
+                    >
+                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
-                <button className="rounded-md bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+
+                <LoadingButton type="submit" loading={savingPassword} loadingText="Updating...">
                   Update password
-                </button>
-              </div>
+                </LoadingButton>
+              </form>
             )}
             {tab === "Billing" && (
               <div className="rounded-md border border-primary/30 bg-primary-soft p-4 text-[13px] text-foreground">

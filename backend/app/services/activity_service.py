@@ -42,10 +42,46 @@ class ActivityService:
         )
 
         db.add(db_activity)
-        db.commit()
+        db.flush()
         db.refresh(db_activity)
 
         return db_activity
+
+    @staticmethod
+    def record_activity(
+        db: Session,
+        *,
+        actor_id: uuid.UUID,
+        activity_type: ActivityType,
+        title: str,
+        description: str | None = None,
+        project_id: uuid.UUID | None = None,
+        organization_id: uuid.UUID | None = None,
+        repository_id: uuid.UUID | None = None,
+        application_id: uuid.UUID | None = None,
+        builder_flare_id: uuid.UUID | None = None,
+        icon: str | None = None,
+        color: str | None = None,
+    ) -> Activity:
+
+        activity = ActivityCreate(
+            activity_type=activity_type,
+            title=title,
+            description=description,
+            project_id=project_id,
+            organization_id=organization_id,
+            repository_id=repository_id,
+            application_id=application_id,
+            builder_flare_id=builder_flare_id,
+            icon=icon,
+            color=color,
+        )
+
+        return ActivityService.create_activity(
+            db=db,
+            actor_id=actor_id,
+            activity=activity,
+        )
 
     @staticmethod
     def get_activity(
@@ -149,7 +185,7 @@ class ActivityService:
         for key, value in data.items():
             setattr(db_activity, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_activity)
 
         return db_activity
@@ -161,4 +197,4 @@ class ActivityService:
     ) -> None:
 
         db.delete(db_activity)
-        db.commit()
+        db.flush()

@@ -13,3 +13,9 @@ export { notificationsApi } from "./modules/notifications";
 export { analyticsApi } from "./modules/analytics";
 export { hackathonsApi } from "./modules/hackathons";
 export { searchApi } from "./modules/search";
+export { collectionsApi } from "./modules/collections";
+export type {
+  BookmarkCollection,
+  BookmarkCollectionWithBookmarks,
+  Bookmark,
+} from "./modules/collections";

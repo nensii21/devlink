@@ -41,6 +41,23 @@ jobs:
 
             if echo "$RESPONSE" | jq -e '.message' >/dev/null 2>&1; then
               echo "$RESPONSE"
+            USERS=$(curl -s "https://api.github.com/repos/$OWNER/$REPO/stargazers?per_page=100&page=$PAGE" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}")
+
+            TYPE=$(echo "$USERS" | jq -r type 2>/dev/null || echo "error")
+
+            if [ "$TYPE" != "array" ]; then
+              STATUS=$(echo "$USERS" | jq -r .status 2>/dev/null)
+              MESSAGE=$(echo "$USERS" | jq -r .message 2>/dev/null)
+              if [ "$STATUS" = "403" ] || echo "$MESSAGE" | grep -iq "permission"; then
+                echo "Warning: GitHub API returned a permission/unauthorized error (403). This usually means the repository is private or the workflow token does not have access to stargazers. Bypassing check..."
+                echo "Response details: $MESSAGE"
+                exit 0
+              fi
+
+              echo "Error: GitHub API returned an error response instead of an array. Response details:"
+              echo "$USERS" | jq . 2>/dev/null || echo "$USERS"
               exit 1
             fi
 

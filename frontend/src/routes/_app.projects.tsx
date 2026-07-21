@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
-import { Card, TagChip, SectionHeader } from "@/components/shared/primitives";
+import { Card, TagChip } from "@/components/shared/primitives";
 import { Star, GitFork, Users2, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -70,6 +70,7 @@ function toggle<T>(set: T[], val: T): T[] {
 }
 
 function ProjectsPage() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "recruiting" | "in-progress" | "completed" | "archived"
@@ -84,9 +85,16 @@ function ProjectsPage() {
     queryFn: projectsService.list,
   });
 
-  const hasActiveFilters = langs.length > 0 || difficulties.length > 0 || boolFilters.length > 0;
+  const chipFilterCount = langs.length + difficulties.length + boolFilters.length;
+  const hasActiveFilters = q !== "" || statusFilter !== "all" || chipFilterCount > 0;
 
-  function resetFilters() {
+  if (pathname !== "/projects" && pathname !== "/projects/") {
+    return <Outlet />;
+  }
+
+  function clearFilters() {
+    setQ("");
+    setStatusFilter("all");
     setLangs([]);
     setDifficulties([]);
     setBoolFilters([]);
@@ -118,7 +126,7 @@ function ProjectsPage() {
         </button>
       </div>
 
-      <Card className="p-3">
+      <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1">
             <Search
@@ -161,12 +169,22 @@ function ProjectsPage() {
           >
             <SlidersHorizontal size={13} />
             Filters
-            {hasActiveFilters && (
+            {chipFilterCount > 0 && (
               <span className="grid h-4 w-4 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                {langs.length + difficulties.length + boolFilters.length}
+                {chipFilterCount}
               </span>
             )}
           </button>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-[7px] text-[12px] font-medium text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive focus:outline-none focus:ring-2 focus:ring-destructive/20"
+              aria-label="Clear all active filters"
+            >
+              <X size={13} />
+              Clear filters
+            </button>
+          )}
         </div>
 
         {showFilters && (
@@ -227,10 +245,10 @@ function ProjectsPage() {
 
             {hasActiveFilters && (
               <button
-                onClick={resetFilters}
+                onClick={clearFilters}
                 className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
               >
-                <X size={12} /> Reset filters
+                <X size={12} /> Clear filters
               </button>
             )}
           </div>
@@ -256,22 +274,17 @@ function ProjectsPage() {
           </p>
           {hasActiveFilters && (
             <button
-              onClick={resetFilters}
+              onClick={clearFilters}
               className="mt-3 text-[13px] font-medium text-primary hover:underline"
             >
-              Reset filters
+              Clear filters
             </button>
           )}
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <Link
-              key={p.id}
-              to="/projects/$projectId"
-              params={{ projectId: p.id }}
-              className="block"
-            >
+            <a key={p.id} href={`/projects/${p.id}`} className="block">
               <Card interactive className="p-4">
                 <div className="flex items-start gap-3">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
@@ -339,7 +352,7 @@ function ProjectsPage() {
                   </span>
                 </div>
               </Card>
-            </Link>
+            </a>
           ))}
         </div>
       )}
