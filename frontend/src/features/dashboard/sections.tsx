@@ -1,3 +1,4 @@
+
 import { ActivityFeed } from "@/components/activity/ActivityFeed";
 import { Card, SectionHeader, TagChip, Avatar } from "@/components/shared/primitives";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ import {
   Users2,
   FileText,
   BarChart3,
+  Trophy,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
