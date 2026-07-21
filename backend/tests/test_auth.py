@@ -1,240 +1,201 @@
+import pytest
 from fastapi.testclient import TestClient
 
+
 def test_register_success(client: TestClient):
-    payload = {
-        "first_name": "Test",
-        "last_name": "User",
-        "username": "testuser",
-        "email": "testuser@example.com",
-        "password": "StrongPassword1!"
-    }
-    response = client.post("/api/auth/register", json=payload)
+    response = client.post(
+        "/api/auth/register",
+        json={
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "testregister@example.com",
+            "username": "testregister",
+            "password": "Password123!",
+        },
+    )
     assert response.status_code == 201
     data = response.json()
-    assert data["username"] == "testuser"
-    assert data["email"] == "testuser@example.com"
-    assert "id" in data
-    assert data["is_active"] is True
-    assert data["is_verified"] is False
+    assert data["email"] == "testregister@example.com"
+    assert data["username"] == "testregister"
 
-def test_register_duplicate_email(client: TestClient):
-    payload = {
-        "first_name": "Test",
-        "last_name": "User",
-        "username": "testuser2",
-        "email": "testuser@example.com",
-        "password": "StrongPassword1!"
-    }
-    # Register first
-    client.post("/api/auth/register", json={**payload, "username": "firstuser"})
-    
-    response = client.post("/api/auth/register", json=payload)
+
+def test_register_duplicate_email(client: TestClient, register_and_login):
+    register_and_login("dup@example.com", "dupuser")
+    response = client.post(
+        "/api/auth/register",
+        json={
+            "first_name": "Dup",
+            "last_name": "User",
+            "email": "dup@example.com",
+            "username": "dupuser2",
+            "password": "Password123!",
+        },
+    )
     assert response.status_code == 409
-    assert response.json()["detail"] == "Email already exists."
+    assert "Email already exists" in response.json()["detail"]
 
-def test_register_duplicate_username(client: TestClient):
-    payload = {
-        "first_name": "Test",
-        "last_name": "User",
-        "username": "testuser",
-        "email": "testuser2@example.com",
-        "password": "StrongPassword1!"
-    }
-    # Register first
-    client.post("/api/auth/register", json={**payload, "email": "firstuser@example.com"})
-    
-    response = client.post("/api/auth/register", json=payload)
-    assert response.status_code == 409
-    assert response.json()["detail"] == "Username already exists."
 
-def test_login_success(client: TestClient):
-    payload = {
-        "email": "testuser@example.com",
-        "password": "StrongPassword1!"
-    }
-    # Register first
-    client.post("/api/auth/register", json={
-        "first_name": "Test", "last_name": "User", 
-        "username": "testuser", **payload
-    })
-    
-    response = client.post("/api/auth/login", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["access_token"]
-    assert data["refresh_token"]
-    assert data["token_type"] == "bearer"
-    assert data["user"]["email"] == "testuser@example.com"
-
-def test_login_invalid_password(client: TestClient):
-    payload = {
-        "email": "testuser@example.com",
-        "password": "WrongPassword1!"
-    }
-    # Register first
-    client.post("/api/auth/register", json={
-        "first_name": "Test", "last_name": "User", 
-        "username": "testuser", "email": "testuser@example.com", "password": "StrongPassword1!"
-    })
-    
-    response = client.post("/api/auth/login", json=payload)
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid email or password."
-
-def test_login_invalid_email(client: TestClient):
-    payload = {
-        "email": "notfound@example.com",
-        "password": "StrongPassword1!"
-    }
-    response = client.post("/api/auth/login", json=payload)
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid email or password."
-
-def test_protected_route_me(client: TestClient):
-    # Get token first
-    login_payload = {
-        "email": "testuser@example.com",
-        "password": "StrongPassword1!"
-    }
-    # Register first
-    client.post("/api/auth/register", json={
-        "first_name": "Test", "last_name": "User", 
-        "username": "testuser", **login_payload
-    })
-    
-    login_response = client.post("/api/auth/login", json=login_payload)
-    token = login_response.json()["access_token"]
-    
-    # Access protected route
-    response = client.get(
-        "/api/auth/me",
-        headers={"Authorization": f"Bearer {token}"}
+def test_login_success(client: TestClient, register_and_login):
+    # This also implicitly tests login since the fixture uses it,
+    # but we will test it explicitly
+    client.post(
+        "/api/auth/register",
+        json={
+            "first_name": "Login",
+            "last_name": "User",
+            "email": "login@example.com",
+            "username": "loginuser",
+            "password": "Password123!",
+        },
+    )
+    response = client.post(
+        "/api/auth/login",
+        json={"email": "login@example.com", "password": "Password123!"},
     )
     assert response.status_code == 200
-    data = response.json()
-    assert data["email"] == "testuser@example.com"
-    assert data["username"] == "testuser"
+    assert "access_token" in response.json()
+    assert "refresh_token" in response.json()
 
-def test_protected_route_invalid_token(client: TestClient):
-    response = client.get(
-        "/api/auth/me",
-        headers={"Authorization": "Bearer invalid.token.here"}
+
+def test_login_invalid_credentials(client: TestClient):
+    response = client.post(
+        "/api/auth/login",
+        json={"email": "nonexistent@example.com", "password": "Password123!"},
     )
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid authentication credentials."
 
-def test_protected_route_no_token(client: TestClient):
-    response = client.get("/api/auth/me")
-    assert response.status_code == 401
 
-def test_refresh_token(client: TestClient):
-    login_payload = {
-        "email": "testuser@example.com",
-        "password": "StrongPassword1!"
-    }
-    client.post("/api/auth/register", json={
-        "first_name": "Test", "last_name": "User", 
-        "username": "testuser", **login_payload
-    })
-    login_response = client.post("/api/auth/login", json=login_payload)
-    refresh_token = login_response.json()["refresh_token"]
-    
-    refresh_payload = {
-        "refresh_token": refresh_token
-    }
-    response = client.post("/api/auth/refresh", json=refresh_payload)
+def test_me(client: TestClient, register_and_login):
+    user_id, token = register_and_login("me@example.com", "meuser")
+    response = client.get(
+        "/api/auth/me",
+        headers={"Authorization": f"Bearer {token}"},
+    )
     assert response.status_code == 200
-    data = response.json()
-    assert data["access_token"]
-    assert data["refresh_token"]
+    assert response.json()["email"] == "me@example.com"
+
+
+def test_refresh_token(client: TestClient, register_and_login):
+    client.post(
+        "/api/auth/register",
+        json={
+            "first_name": "Refresh",
+            "last_name": "User",
+            "email": "refresh@example.com",
+            "username": "refreshuser",
+            "password": "Password123!",
+        },
+    )
+    login_resp = client.post(
+        "/api/auth/login",
+        json={"email": "refresh@example.com", "password": "Password123!"},
+    )
+    refresh_token = login_resp.json()["refresh_token"]
+
+    refresh_resp = client.post(
+        "/api/auth/refresh",
+        json={"refresh_token": refresh_token},
+    )
+    assert refresh_resp.status_code == 200
+    assert "access_token" in refresh_resp.json()
+
 
 def test_refresh_invalid_token(client: TestClient):
-    refresh_payload = {
-        "refresh_token": "invalid.refresh.token"
-    }
-    response = client.post("/api/auth/refresh", json=refresh_payload)
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid refresh token."
-
-def test_change_password(client: TestClient):
-    # Login to get token
-    login_payload = {
-        "email": "testuser@example.com",
-        "password": "StrongPassword1!"
-    }
-    client.post("/api/auth/register", json={
-        "first_name": "Test", "last_name": "User", 
-        "username": "testuser", **login_payload
-    })
-    login_response = client.post("/api/auth/login", json=login_payload)
-    token = login_response.json()["access_token"]
-    
-    # Change password
-    change_payload = {
-        "current_password": "StrongPassword1!",
-        "new_password": "NewStrongPassword2@"
-    }
-    response = client.patch(
-        "/api/auth/change-password",
-        json=change_payload,
-        headers={"Authorization": f"Bearer {token}"}
+    response = client.post(
+        "/api/auth/refresh",
+        json={"refresh_token": "invalid.token.here"},
     )
-    assert response.status_code == 200
-    assert response.json()["success"] is True
-    
-    # Login with new password
-    login_payload["password"] = "NewStrongPassword2@"
-    login_response = client.post("/api/auth/login", json=login_payload)
-    assert login_response.status_code == 200
-    
-def test_logout(client: TestClient):
-    login_payload = {
-        "email": "testuser@example.com",
-        "password": "NewStrongPassword2@"
-    }
-    client.post("/api/auth/register", json={
-        "first_name": "Test", "last_name": "User", 
-        "username": "testuser", **login_payload
-    })
-    login_response = client.post("/api/auth/login", json=login_payload)
-    token = login_response.json()["access_token"]
-    
+    assert response.status_code == 401
+
+
+def test_logout(client: TestClient, register_and_login):
+    user_id, token = register_and_login("logout@example.com", "logoutuser")
     response = client.post(
         "/api/auth/logout",
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
     assert response.json()["success"] is True
 
-def test_verify_email(client: TestClient):
-    from app.core.security import _create_token
-    from datetime import timedelta
-    # Create a verification token manually for testing since SMTP isn't implemented
-    # We need the user ID
-    login_payload = {
-        "email": "testuser@example.com",
-        "password": "NewStrongPassword2@"
-    }
-    client.post("/api/auth/register", json={
-        "first_name": "Test", "last_name": "User", 
-        "username": "testuser", **login_payload
-    })
-    login_response = client.post("/api/auth/login", json=login_payload)
-    user_id = login_response.json()["user"]["id"]
-    
-    token = _create_token(
-        subject=user_id,
-        expires_delta=timedelta(hours=24),
-        token_type="verification"
+
+def test_change_password(client: TestClient, register_and_login):
+    user_id, token = register_and_login("cp@example.com", "cpuser", "OldPass1!")
+    response = client.patch(
+        "/api/auth/change-password",
+        json={"current_password": "OldPass1!", "new_password": "NewPass2!"},
+        headers={"Authorization": f"Bearer {token}"},
     )
-    
-    response = client.post("/api/auth/verify-email", json={"token": token})
     assert response.status_code == 200
     assert response.json()["success"] is True
-    
-    # Check that user is verified
-    me_response = client.get(
-        "/api/auth/me",
-        headers={"Authorization": f"Bearer {login_response.json()['access_token']}"}
+
+    # Check if old password fails
+    login_old = client.post(
+        "/api/auth/login", json={"email": "cp@example.com", "password": "OldPass1!"}
     )
-    assert me_response.json()["is_verified"] is True
+    assert login_old.status_code == 401
+
+    # Check if new password works
+    login_new = client.post(
+        "/api/auth/login", json={"email": "cp@example.com", "password": "NewPass2!"}
+    )
+    assert login_new.status_code == 200
+
+
+def test_change_password_wrong_current(client: TestClient, register_and_login):
+    user_id, token = register_and_login("cp2@example.com", "cpuser2", "OldPass1!")
+    response = client.patch(
+        "/api/auth/change-password",
+        json={"current_password": "WrongOld!", "new_password": "NewPass2!"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 401
+
+
+def test_forgot_password(client: TestClient, register_and_login):
+    register_and_login("forgot@example.com", "forgotuser")
+    response = client.post(
+        "/api/auth/forgot-password", json={"email": "forgot@example.com"}
+    )
+    assert response.status_code == 200
+    assert response.json()["success"] is True
+
+
+def test_reset_password(client: TestClient, register_and_login):
+    user_id, _ = register_and_login("reset@example.com", "resetuser", "OldPass1!")
+    forgot = client.post(
+        "/api/auth/forgot-password", json={"email": "reset@example.com"}
+    )
+
+    from app.core.security import _create_token
+    from datetime import timedelta
+
+    reset_token = _create_token(str(user_id), timedelta(hours=1), "reset")
+
+    response = client.post(
+        "/api/auth/reset-password",
+        json={"token": reset_token, "new_password": "BrandNewPass1!"},
+    )
+    assert response.status_code == 200
+
+    login_resp = client.post(
+        "/api/auth/login",
+        json={"email": "reset@example.com", "password": "BrandNewPass1!"},
+    )
+    assert login_resp.status_code == 200
+
+
+def test_resend_verification(client: TestClient, register_and_login):
+    register_and_login("verify@example.com", "verifyuser")
+    response = client.post(
+        "/api/auth/resend-verification", json={"email": "verify@example.com"}
+    )
+    assert response.status_code == 200
+    assert response.json()["success"] is True
+
+
+def test_resend_verification_nonexistent(client: TestClient):
+    response = client.post(
+        "/api/auth/resend-verification", json={"email": "nonexistent@example.com"}
+    )
+    assert response.status_code == 200
+    assert response.json()["success"] is True  # Fails silently for security

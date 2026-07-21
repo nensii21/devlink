@@ -21,7 +21,7 @@ class RefreshTokenService:
     ) -> RefreshToken:
 
         db.add(token)
-        db.commit()
+        db.flush()
         db.refresh(token)
 
         return token
@@ -59,7 +59,7 @@ class RefreshTokenService:
         db_token.is_revoked = True
         db_token.revoked_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
         db.refresh(db_token)
 
         return db_token
@@ -78,7 +78,7 @@ class RefreshTokenService:
             token.is_revoked = True
             token.revoked_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
 
     @staticmethod
     def delete_expired_token(
@@ -87,4 +87,4 @@ class RefreshTokenService:
     ) -> None:
 
         db.delete(db_token)
-        db.commit()
+        db.flush()

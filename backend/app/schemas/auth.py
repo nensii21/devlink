@@ -1,9 +1,10 @@
 from __future__ import annotations
-
+from app.schemas.user import CurrentUser
 from datetime import datetime
 from typing import Optional
-import uuid
+from uuid import UUID
 
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 # ==========================================================
@@ -45,6 +46,9 @@ class GitHubLoginRequest(BaseModel):
     code: str
 
 
+class GitHubLoginRequest(BaseModel):
+    code: str
+
 # ==========================================================
 # JWT Tokens
 # ==========================================================
@@ -73,11 +77,14 @@ class AuthResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     success: bool = True
-    message: Optional[str] = None
+    message: str
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
     user: Optional[UserResponse] = None
+
+    user: CurrentUser
 
 
 # ==========================================================
@@ -173,7 +180,8 @@ class ResendVerificationEmailRequest(BaseModel):
 
 class CurrentUserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: uuid.UUID
+
+    id: UUID
 
     first_name: str
     last_name: str
@@ -187,6 +195,8 @@ class CurrentUserResponse(BaseModel):
     is_verified: bool
 
     is_active: bool
+
+    last_active_at: Optional[datetime] = None
 
     created_at: datetime
 

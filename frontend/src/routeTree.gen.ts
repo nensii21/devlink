@@ -13,6 +13,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
@@ -46,6 +47,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioUsernameRoute = PortfolioUsernameRouteImport.update({
+  id: '/portfolio/$username',
+  path: '/portfolio/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/projects': typeof AppProjectsRouteWithChildren
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRoute
+  '/portfolio/$username': typeof PortfolioUsernameRoute
   '/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/messages/$conversationId': typeof AppMessagesConversationIdRoute
   '/profile/$username': typeof AppProfileUsernameRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByTo {
   '/projects': typeof AppProjectsRouteWithChildren
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRoute
+  '/portfolio/$username': typeof PortfolioUsernameRoute
   '/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/messages/$conversationId': typeof AppMessagesConversationIdRoute
   '/profile/$username': typeof AppProfileUsernameRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/_app/projects': typeof AppProjectsRouteWithChildren
   '/_app/search': typeof AppSearchRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/portfolio/$username': typeof PortfolioUsernameRoute
   '/_app/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/_app/messages/$conversationId': typeof AppMessagesConversationIdRoute
   '/_app/profile/$username': typeof AppProfileUsernameRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/search'
     | '/settings'
+    | '/portfolio/$username'
     | '/builders/$builderId'
     | '/messages/$conversationId'
     | '/profile/$username'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/search'
     | '/settings'
+    | '/portfolio/$username'
     | '/builders/$builderId'
     | '/messages/$conversationId'
     | '/profile/$username'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/_app/projects'
     | '/_app/search'
     | '/_app/settings'
+    | '/portfolio/$username'
     | '/_app/builders/$builderId'
     | '/_app/messages/$conversationId'
     | '/_app/profile/$username'
@@ -256,6 +268,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  PortfolioUsernameRoute: typeof PortfolioUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -286,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio/$username': {
+      id: '/portfolio/$username'
+      path: '/portfolio/$username'
+      fullPath: '/portfolio/$username'
+      preLoaderRoute: typeof PortfolioUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/settings': {
@@ -469,6 +489,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  PortfolioUsernameRoute: PortfolioUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

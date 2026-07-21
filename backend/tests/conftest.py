@@ -1,52 +1,104 @@
 import pytest
+from typing import Generator
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from fastapi.testclient import TestClient
-
-from app.main import app
-from app.database.base import Base
-from app.database.session import get_db
-
-# Use in-memory SQLite for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-# Import models so Base.metadata knows about them
-from app.models.user import User
-
 from sqlalchemy.pool import StaticPool
 
+import app.core.security
+
+
+class MockPwdContext:
+    def hash(self, secret: str, **kwargs) -> str:
+        print("MOCK HASH CALLED!")
+        return secret + "_hashed"
+
+    def verify(self, secret: str, hash: str, **kwargs) -> bool:
+        print("MOCK VERIFY CALLED!")
+        return hash == secret + "_hashed"
+
+
+app.core.security.pwd_context = MockPwdContext()
+from app.database.base import Base
+from app.dependencies import get_database
+from app.main import app
+
+app.state.limiter.enabled = False
+
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    "sqlite:///:memory:",
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+
+def override_get_db() -> Generator:
+    db = TestingSessionLocal()
+    try:
+        yield db
+        print("EXECUTING COMMIT IN OVERRIDE_GET_DB!")
+        db.commit()
+    except Exception as e:
+        print(f"EXCEPTION IN OVERRIDE_GET_DB: {e}")
+        db.rollback()
+        raise
+    finally:
+        print("CLOSING DB IN OVERRIDE_GET_DB!")
+        db.close()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def setup_db():
+    app.dependency_overrides[get_database] = override_get_db
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.clear()
+
 
 @pytest.fixture(scope="function")
-def db_session():
-    """
-    Creates a fresh in-memory database for each test.
-    """
-    Base.metadata.create_all(bind=engine)
+def db():
+    # Return the db session for tests that need it directly
     db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
-        Base.metadata.drop_all(bind=engine)
+
 
 @pytest.fixture(scope="function")
-def client(db_session):
-    """
-    Test client that overrides the get_db dependency to use the test database.
-    """
-    def override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
+def client() -> TestClient:
+    return TestClient(app)
 
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as test_client:
-        yield test_client
-    app.dependency_overrides.clear()
+
+@pytest.fixture(scope="function")
+def register_and_login(client: TestClient):
+    """
+    Returns a factory function that registers and logs in a user.
+    """
+
+    def _register_and_login_func(
+        email: str, username: str, password: str = "Passw0rd!"
+    ) -> tuple[str, str]:
+        # Register
+        client.post(
+            "/api/auth/register",
+            json={
+                "first_name": "Test",
+                "last_name": "User",
+                "email": email,
+                "username": username,
+                "password": password,
+            },
+        )
+        # Login
+        r = client.post("/api/auth/login", json={"email": email, "password": password})
+        token = r.json().get("access_token")
+        if not token:
+            raise RuntimeError(f"Login failed: {r.json()}")
+
+        me = client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
+        return me.json()["id"], token
+
+    return _register_and_login_func

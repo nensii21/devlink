@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.application import (
@@ -14,6 +17,9 @@ from app.schemas.application import (
     ApplicationUpdate,
 )
 from app.services.application_service import ApplicationService
+from app.models.notification import NotificationType
+from app.models.project import Project
+from app.services.notification_service import NotificationService
 
 from app.middleware.idempotency import IdempotentRoute
 
@@ -31,17 +37,36 @@ router = APIRouter(
 )
 def create_application(
     application: ApplicationCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
-    return ApplicationService.create_application(
+    created = ApplicationService.create_application(
         db=db,
         applicant_id=current_user.id,
         project_id=application.project_id,
         flare_id=application.flare_id,
         application=application,
     )
+
+    try:
+        project = db.get(Project, created.project_id)
+        if project is not None:
+            NotificationService.enqueue(
+                db,
+                recipient_id=project.owner_id,
+                sender_id=current_user.id,
+                type=NotificationType.APPLICATION,
+                title="New application",
+                message=f"{current_user.username} applied to your project.",
+                project_id=created.project_id,
+                application_id=created.id,
+                action_url=f"/applications/{created.id}",
+            )
+    except Exception:
+        db.rollback()
+
+    return created
 
 
 @router.get(
@@ -50,7 +75,7 @@ def create_application(
 )
 def get_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(
@@ -73,7 +98,7 @@ def get_application(
 )
 def my_applications(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ApplicationService.list_user_applications(
@@ -88,7 +113,7 @@ def my_applications(
 )
 def project_applications(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ApplicationService.list_project_applications(
@@ -104,7 +129,7 @@ def project_applications(
 def update_application(
     application_id: uuid.UUID,
     application: ApplicationUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(
@@ -131,7 +156,8 @@ def update_application(
 )
 def accept_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
 
     db_application = ApplicationService.get_application(
@@ -145,10 +171,27 @@ def accept_application(
             detail="Application not found",
         )
 
-    return ApplicationService.accept_application(
+    accepted = ApplicationService.accept_application(
         db,
         db_application,
     )
+
+    try:
+        NotificationService.enqueue(
+            db,
+            recipient_id=db_application.applicant_id,
+            sender_id=current_user.id,
+            type=NotificationType.APPLICATION_ACCEPTED,
+            title="Application accepted",
+            message="Your application was accepted. 🎉",
+            project_id=db_application.project_id,
+            application_id=db_application.id,
+            action_url=f"/applications/{db_application.id}",
+        )
+    except Exception:
+        db.rollback()
+
+    return accepted
 
 
 @router.patch(
@@ -157,7 +200,8 @@ def accept_application(
 )
 def reject_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
 
     db_application = ApplicationService.get_application(
@@ -171,10 +215,27 @@ def reject_application(
             detail="Application not found",
         )
 
-    return ApplicationService.reject_application(
+    rejected = ApplicationService.reject_application(
         db,
         db_application,
     )
+
+    try:
+        NotificationService.enqueue(
+            db,
+            recipient_id=db_application.applicant_id,
+            sender_id=current_user.id,
+            type=NotificationType.APPLICATION_REJECTED,
+            title="Application rejected",
+            message="Your application was not accepted this time.",
+            project_id=db_application.project_id,
+            application_id=db_application.id,
+            action_url=f"/applications/{db_application.id}",
+        )
+    except Exception:
+        db.rollback()
+
+    return rejected
 
 
 @router.patch(
@@ -183,7 +244,7 @@ def reject_application(
 )
 def withdraw_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(
@@ -209,7 +270,7 @@ def withdraw_application(
 )
 def delete_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(

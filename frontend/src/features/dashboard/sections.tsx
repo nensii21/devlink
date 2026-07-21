@@ -1,6 +1,8 @@
+import { ActivityFeed } from "@/components/activity/ActivityFeed";
 import { Card, SectionHeader, TagChip, Avatar } from "@/components/shared/primitives";
 import { useQuery } from "@tanstack/react-query";
 import {
+  activitiesService,
   dashboardService,
   buildersService,
   projectsService,
@@ -9,14 +11,6 @@ import {
   notificationsService,
 } from "@/services";
 import {
-  Activity as ActivityIcon,
-  GitMerge,
-  GitPullRequest,
-  UserPlus,
-  UserCheck,
-  BookMarked,
-  Trophy,
-  Sparkles,
   Check,
   X,
   Star,
@@ -29,41 +23,13 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-
-const kindIcon = {
-  join: UserPlus,
-  accept: UserCheck,
-  commit: GitPullRequest,
-  merge: GitMerge,
-  follow: UserPlus,
-  repo: BookMarked,
-  hackathon: Trophy,
-  ai: Sparkles,
-} as const;
+import { motion, useReducedMotion } from "framer-motion";
+import { containerVariants, cardEntrance, cardHover } from "@/lib/animations";
 
 export function RecentActivity() {
-  const { data = [] } = useQuery({ queryKey: ["activity"], queryFn: dashboardService.activity });
   return (
     <Card>
-      <SectionHeader title="Recent Activity" action="View All" />
-      <ul className="divide-y divide-border">
-        {data.map((a) => {
-          const Icon = kindIcon[a.kind] ?? ActivityIcon;
-          return (
-            <li key={a.id} className="flex items-start gap-3 px-4 py-2.5">
-              <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary-soft text-primary">
-                <Icon size={12} />
-              </span>
-              <p className="min-w-0 flex-1 text-[13px] text-foreground">
-                {a.text}{" "}
-                {a.highlight && <span className="font-semibold text-primary">{a.highlight}</span>}
-              </p>
-              <span className="whitespace-nowrap text-[11px] text-muted-foreground">{a.ago}</span>
-            </li>
-          );
-        })}
-      </ul>
+      <ActivityFeed queryKey={["activities", "recent"]} queryFn={() => activitiesService.list(20)} />
     </Card>
   );
 }
@@ -124,7 +90,12 @@ export function InviteRequests() {
       <ul className="divide-y divide-border">
         {data.map((r) => (
           <li key={r.id} className="flex items-center gap-3 px-4 py-3">
-            <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-md text-lg", r.color)}>
+            <span
+              className={cn(
+                "grid h-10 w-10 shrink-0 place-items-center rounded-md text-lg",
+                r.color,
+              )}
+            >
               {r.icon}
             </span>
             <div className="min-w-0 flex-1">
@@ -151,15 +122,25 @@ export function InviteRequests() {
 
 export function SuggestedBuilders() {
   const { data = [] } = useQuery({ queryKey: ["suggested"], queryFn: buildersService.suggested });
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <Card>
       <SectionHeader title="Suggested Builders" action="View All" actionTo="/builders" />
-      <div className="grid grid-cols-1 gap-3 p-4 pt-0 sm:grid-cols-3">
-        {data.map((b) => (
+      <motion.div
+        className="grid grid-cols-1 gap-3 p-4 pt-0 sm:grid-cols-3"
+        variants={containerVariants}
+        initial={prefersReducedMotion ? undefined : "hidden"}
+        animate={prefersReducedMotion ? undefined : "visible"}
+      >
+        {data.map((b, i) => (
           <motion.div
             key={b.id}
-            whileHover={{ y: -2 }}
-            className="rounded-md border border-border p-3 text-center"
+            variants={prefersReducedMotion ? undefined : cardEntrance}
+            custom={i}
+            whileHover={prefersReducedMotion ? undefined : cardHover}
+            transition={{ duration: 0.2 }}
+            className="will-change-transform rounded-md border border-border p-3 text-center"
           >
             <Avatar src={b.avatar} alt={b.name} size={56} online={b.online} />
             <p className="mt-2 text-[13px] font-semibold text-foreground">{b.name}</p>
@@ -170,9 +151,7 @@ export function SuggestedBuilders() {
                 <TagChip key={s}>{s}</TagChip>
               ))}
             </div>
-            <p className="mt-1.5 text-[11px] text-muted-foreground">
-              {b.yearsExp} yrs exp
-            </p>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">{b.yearsExp} yrs exp</p>
             <p className="text-[11px] font-semibold text-success">{b.matchScore}% Match</p>
             <div className="mt-2 flex gap-1.5">
               <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
@@ -184,7 +163,7 @@ export function SuggestedBuilders() {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </Card>
   );
 }
@@ -233,7 +212,11 @@ export function AIRecommendations() {
             Top Match
           </p>
           <div className="mt-2 flex items-center gap-3">
-            <Avatar src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Rahul" alt="Rahul" size={40} />
+            <Avatar
+              src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Rahul"
+              alt="Rahul"
+              size={40}
+            />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-semibold text-foreground">Rahul Verma</p>
               <p className="text-[11px] text-muted-foreground">Full Stack Developer</p>
@@ -298,12 +281,42 @@ export function MessagesPreview() {
 
 export function QuickActions() {
   const actions = [
-    { icon: FolderPlus, label: "New Project", tint: "bg-info/10 text-info", to: "/projects" as const },
-    { icon: Flame, label: "Create Flare", tint: "bg-warning/10 text-warning", to: "/flares" as const },
-    { icon: Users2, label: "Find Builder", tint: "bg-success/10 text-success", to: "/builders" as const },
-    { icon: Trophy, label: "Start Hackathon", tint: "bg-primary-soft text-primary", to: "/hackathons" as const },
-    { icon: FileText, label: "AI Description", tint: "bg-destructive/10 text-destructive", to: "/dashboard" as const },
-    { icon: BarChart3, label: "View Analytics", tint: "bg-info/10 text-info", to: "/analytics" as const },
+    {
+      icon: FolderPlus,
+      label: "New Project",
+      tint: "bg-info/10 text-info",
+      to: "/projects" as const,
+    },
+    {
+      icon: Flame,
+      label: "Create Flare",
+      tint: "bg-warning/10 text-warning",
+      to: "/flares" as const,
+    },
+    {
+      icon: Users2,
+      label: "Find Builder",
+      tint: "bg-success/10 text-success",
+      to: "/builders" as const,
+    },
+    {
+      icon: Trophy,
+      label: "Start Hackathon",
+      tint: "bg-primary-soft text-primary",
+      to: "/hackathons" as const,
+    },
+    {
+      icon: FileText,
+      label: "AI Description",
+      tint: "bg-destructive/10 text-destructive",
+      to: "/dashboard" as const,
+    },
+    {
+      icon: BarChart3,
+      label: "View Analytics",
+      tint: "bg-info/10 text-info",
+      to: "/analytics" as const,
+    },
   ];
   return (
     <Card>
@@ -343,7 +356,9 @@ export function UpcomingDeadlines() {
             <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">
               {d.project} — <span className="text-muted-foreground">{d.milestone}</span>
             </p>
-            <span className={cn("whitespace-nowrap text-[11px] font-semibold", sevTint[d.severity])}>
+            <span
+              className={cn("whitespace-nowrap text-[11px] font-semibold", sevTint[d.severity])}
+            >
               Due in {d.dueDays} days
             </span>
           </li>
@@ -354,14 +369,22 @@ export function UpcomingDeadlines() {
 }
 
 export function NotificationsFeed() {
-  const { data = [] } = useQuery({ queryKey: ["notifications"], queryFn: notificationsService.list });
+  const { data = [] } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: notificationsService.list,
+  });
   return (
     <Card>
       <SectionHeader title="Notifications Feed" action="View All" actionTo="/notifications" />
       <ul className="divide-y divide-border">
         {data.map((n) => (
           <li key={n.id} className="flex items-center gap-3 px-4 py-2.5">
-            <span className={cn("h-2 w-2 shrink-0 rounded-full", n.unread ? "bg-primary" : "bg-transparent")} />
+            <span
+              className={cn(
+                "h-2 w-2 shrink-0 rounded-full",
+                n.unread ? "bg-primary" : "bg-transparent",
+              )}
+            />
             <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">{n.text}</p>
             <span className="text-[11px] text-muted-foreground">{n.ago}</span>
           </li>

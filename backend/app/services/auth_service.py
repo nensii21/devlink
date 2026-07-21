@@ -2,12 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import UUID
 
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.core.logging import log_security_event
+from app.core.events import event_bus
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -85,12 +91,13 @@ class AuthService:
         )
 
         self.db.add(user)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(user)
 
-        log_security_event(
-            event="New user registration",
-            user=user.email,
+        event_bus.publish(
+            "USER_REGISTERED",
+            email=user.email,
+            user_id=str(user.id),
         )
 
         return user
@@ -106,6 +113,7 @@ class AuthService:
         user = self.get_user_by_email(payload.email)
 
         if not user:
+            print("USER NOT FOUND:", payload.email)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password.",
@@ -115,20 +123,23 @@ class AuthService:
             payload.password,
             user.password_hash,
         ):
+            print("PASSWORD MISMATCH:", payload.password, user.password_hash)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password.",
             )
 
         if not user.is_active:
+            print("USER INACTIVE")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account is disabled.",
             )
 
         user.last_login = datetime.now(timezone.utc)
+        user.last_active_at = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
         access_token = create_access_token(
             str(user.id),
@@ -140,20 +151,103 @@ class AuthService:
 
         refresh_token = create_refresh_token(str(user.id))
 
-        log_security_event(
-            event="Successful login",
-            user=user.email,
+        event_bus.publish(
+            "USER_LOGIN",
+            email=user.email,
+            user_id=str(user.id),
         )
-
         return {
+            "success": True,
+            "message": "Login successful.",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
             "user": user,
         }
 
-    # =====================================================
-    # GitHub OAuth Login
+    def github_login(self, github_user: dict, primary_email: str):
+        from app.models.user import User
+        from app.core.events import event_bus
+        from app.core.security import hash_password, create_access_token, create_refresh_token
+        from fastapi import HTTPException, status
+        import secrets
+        import string
+        from datetime import datetime, timezone
+
+        github_id = str(github_user.get("id"))
+        
+        user = self.db.query(User).filter(User.github_id == github_id).first()
+
+        if not user:
+            user = self.db.query(User).filter(User.email == primary_email).first()
+            if user:
+                user.github_id = github_id
+                if not user.github_url:
+                    user.github_url = github_user.get("html_url")
+                if not user.profile_image:
+                    user.profile_image = github_user.get("avatar_url")
+                self.db.commit()
+                self.db.refresh(user)
+            else:
+                alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+                random_password = ''.join(secrets.choice(alphabet) for i in range(16))
+                name_parts = (github_user.get("name") or "").split(" ")
+                first_name = name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
+                
+                base_username = (github_user.get("login") or "github_user").lower()[:50]
+                username = base_username
+                counter = 1
+                while self.get_user_by_username(username):
+                    suffix = str(counter)
+                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    counter += 1
+                
+                user = User(
+                    first_name=first_name,
+                    last_name=last_name,
+                    username=username,
+                    email=primary_email,
+                    password_hash=hash_password(random_password),
+                    github_id=github_id,
+                    github_url=github_user.get("html_url"),
+                    profile_image=github_user.get("avatar_url"),
+                    is_active=True,
+                    is_verified=True,
+                    created_at=datetime.now(timezone.utc),
+                    email_verified_at=datetime.now(timezone.utc),
+                )
+                self.db.add(user)
+                self.db.commit()
+                self.db.refresh(user)
+
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account is disabled.",
+            )
+
+        user.last_login = datetime.now(timezone.utc)
+        self.db.commit()
+
+        access_token = create_access_token(
+            str(user.id),
+            {
+                "username": user.username,
+                "email": user.email,
+            },
+        )
+        refresh_token = create_refresh_token(str(user.id))
+
+        return {
+            "success": True,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user": user,
+        }
+
+
     # =====================================================
 
     def github_login(self, github_user: dict, primary_email: str):
@@ -249,18 +343,100 @@ class AuthService:
             "user": user,
         }
 
-    # =====================================================
+    def github_login(self, github_user: dict, primary_email: str):
+        from app.models.user import User
+        from app.core.events import event_bus
+        from app.core.security import hash_password, create_access_token, create_refresh_token
+        from fastapi import HTTPException, status
+        import secrets
+        import string
+        from datetime import datetime, timezone
 
+        github_id = str(github_user.get("id"))
+        
+        user = self.db.query(User).filter(User.github_id == github_id).first()
+
+        if not user:
+            user = self.db.query(User).filter(User.email == primary_email).first()
+            if user:
+                user.github_id = github_id
+                if not user.github_url:
+                    user.github_url = github_user.get("html_url")
+                if not user.profile_image:
+                    user.profile_image = github_user.get("avatar_url")
+                self.db.commit()
+                self.db.refresh(user)
+            else:
+                alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+                random_password = ''.join(secrets.choice(alphabet) for i in range(16))
+                name_parts = (github_user.get("name") or "").split(" ")
+                first_name = name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
+                
+                base_username = (github_user.get("login") or "github_user").lower()[:50]
+                username = base_username
+                counter = 1
+                while self.get_user_by_username(username):
+                    suffix = str(counter)
+                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    counter += 1
+                
+                user = User(
+                    first_name=first_name,
+                    last_name=last_name,
+                    username=username,
+                    email=primary_email,
+                    password_hash=hash_password(random_password),
+                    github_id=github_id,
+                    github_url=github_user.get("html_url"),
+                    profile_image=github_user.get("avatar_url"),
+                    is_active=True,
+                    is_verified=True,
+                    created_at=datetime.now(timezone.utc),
+                    email_verified_at=datetime.now(timezone.utc),
+                )
+                self.db.add(user)
+                self.db.commit()
+                self.db.refresh(user)
+
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account is disabled.",
+            )
+
+        user.last_login = datetime.now(timezone.utc)
+        self.db.commit()
+
+        access_token = create_access_token(
+            str(user.id),
+            {
+                "username": user.username,
+                "email": user.email,
+            },
+        )
+        refresh_token = create_refresh_token(str(user.id))
+
+        return {
+            "success": True,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user": user,
+        }
+
+
+    # =====================================================
     # Get User by ID
     # =====================================================
 
-    def get_user_by_id(self, user_id: str) -> Optional[User]:
-        from uuid import UUID
-        try:
-            uid = UUID(user_id) if isinstance(user_id, str) else user_id
-        except ValueError:
-            return None
-        return self.db.get(User, uid)
+    def get_user_by_id(self, user_id: str | UUID) -> Optional[User]:
+        if isinstance(user_id, str):
+            try:
+                user_id = UUID(user_id)
+            except ValueError:
+                pass
+        return self.db.get(User, user_id)
 
     # =====================================================
     # Current User
@@ -302,16 +478,102 @@ class AuthService:
 
         refresh_token = create_refresh_token(str(user.id))
 
-        log_security_event(
-            event="Access token refreshed",
-            user=user.email,
+        event_bus.publish(
+            "ACCESS_TOKEN_REFRESHED",
+            email=user.email,
         )
 
         return {
+            "success": True,
+            "message": "Token refreshed successfully.",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
+            "user": user,
         }
+
+    def github_login(self, github_user: dict, primary_email: str):
+        from app.models.user import User
+        from app.core.events import event_bus
+        from app.core.security import hash_password, create_access_token, create_refresh_token
+        from fastapi import HTTPException, status
+        import secrets
+        import string
+        from datetime import datetime, timezone
+
+        github_id = str(github_user.get("id"))
+        
+        user = self.db.query(User).filter(User.github_id == github_id).first()
+
+        if not user:
+            user = self.db.query(User).filter(User.email == primary_email).first()
+            if user:
+                user.github_id = github_id
+                if not user.github_url:
+                    user.github_url = github_user.get("html_url")
+                if not user.profile_image:
+                    user.profile_image = github_user.get("avatar_url")
+                self.db.commit()
+                self.db.refresh(user)
+            else:
+                alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+                random_password = ''.join(secrets.choice(alphabet) for i in range(16))
+                name_parts = (github_user.get("name") or "").split(" ")
+                first_name = name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
+                
+                base_username = (github_user.get("login") or "github_user").lower()[:50]
+                username = base_username
+                counter = 1
+                while self.get_user_by_username(username):
+                    suffix = str(counter)
+                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    counter += 1
+                
+                user = User(
+                    first_name=first_name,
+                    last_name=last_name,
+                    username=username,
+                    email=primary_email,
+                    password_hash=hash_password(random_password),
+                    github_id=github_id,
+                    github_url=github_user.get("html_url"),
+                    profile_image=github_user.get("avatar_url"),
+                    is_active=True,
+                    is_verified=True,
+                    created_at=datetime.now(timezone.utc),
+                    email_verified_at=datetime.now(timezone.utc),
+                )
+                self.db.add(user)
+                self.db.commit()
+                self.db.refresh(user)
+
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account is disabled.",
+            )
+
+        user.last_login = datetime.now(timezone.utc)
+        self.db.commit()
+
+        access_token = create_access_token(
+            str(user.id),
+            {
+                "username": user.username,
+                "email": user.email,
+            },
+        )
+        refresh_token = create_refresh_token(str(user.id))
+
+        return {
+            "success": True,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+            "user": user,
+        }
+
 
     # =====================================================
     # Change Password
@@ -339,13 +601,12 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
-
-        log_security_event(
-            event="Password changed",
-            user=user.email,
+        self.db.flush()
+        event_bus.publish(
+            "PASSWORD_CHANGED",
+            email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Password updated successfully.",
@@ -368,11 +629,11 @@ class AuthService:
         user.is_verified = True
         user.email_verified_at = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
-        log_security_event(
-            event="Email verified",
-            user=user.email,
+        event_bus.publish(
+            "EMAIL_VERIFIED",
+            email=user.email,
         )
 
         return {
@@ -387,12 +648,11 @@ class AuthService:
     def logout(self, user_id: str):
 
         user = self.get_current_user(user_id)
-
-        log_security_event(
-            event="Logout",
-            user=user.email,
+        event_bus.publish(
+            "USER_LOGOUT",
+            email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Logged out successfully.",
@@ -416,9 +676,9 @@ class AuthService:
         # Generate reset token
         # Send email
 
-        log_security_event(
-            event="Password reset requested",
-            user=user.email,
+        event_bus.publish(
+            "PASSWORD_RESET_REQUESTED",
+            email=user.email,
         )
 
         return {
@@ -442,11 +702,11 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
+        self.db.flush()
 
-        log_security_event(
-            event="Password reset completed",
-            user=user.email,
+        event_bus.publish(
+            "PASSWORD_RESET_COMPLETED",
+            email=user.email,
         )
 
         return {

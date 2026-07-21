@@ -8,7 +8,7 @@ export function GreetingHero() {
   const first = currentUser.name.split(" ")[0];
 
   return (
-    <Card className="p-5">
+    <Card className="p-4">
       <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
         <div className="min-w-0">
           <h1 className="text-[22px] font-bold tracking-tight text-foreground">
@@ -73,7 +73,9 @@ function MiniStat({
         <p className="truncate text-[11px] font-medium text-muted-foreground">{label}</p>
         <p className="text-[15px] font-bold text-foreground">
           <span className={valueTint}>{value}</span>
-          {suffix && <span className="text-[12px] font-medium text-muted-foreground">{suffix}</span>}
+          {suffix && (
+            <span className="text-[12px] font-medium text-muted-foreground">{suffix}</span>
+          )}
         </p>
         {progress !== undefined && (
           <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted">

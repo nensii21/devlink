@@ -104,6 +104,30 @@ def create_refresh_token(
     )
 
 
+def create_verification_token(
+    user_id: str,
+) -> str:
+    """
+    Generate email verification token.
+    """
+
+    return _create_token(
+        subject=user_id,
+        expires_delta=timedelta(hours=settings.EMAIL_VERIFICATION_TOKEN_EXPIRE_HOURS),
+        token_type="verification",
+    )
+
+
+def is_verification_token(token: str) -> bool:
+    """
+    Check if token is an email verification token.
+    """
+
+    payload = decode_token(token)
+
+    return payload.get("type") == "verification"
+
+
 # ------------------------------------------------------------------
 # Decode Tokens
 # ------------------------------------------------------------------

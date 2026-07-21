@@ -49,7 +49,7 @@ export function StatsRow() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.03, duration: 0.25, ease: "easeOut" }}
           >
-            <Card interactive className="flex flex-col items-center gap-2 p-3 text-center">
+            <Card interactive className="flex flex-col items-center gap-2 p-4 text-center">
               <span
                 className={cn(
                   "grid h-9 w-9 place-items-center rounded-md",

@@ -95,7 +95,9 @@ export default function MyApplicationsPage() {
         </div>
       ) : error ? (
         <Card className="p-4">
-          <p className="text-[13px] font-semibold text-destructive">Failed to load your applications</p>
+          <p className="text-[13px] font-semibold text-destructive">
+            Failed to load your applications
+          </p>
           <p className="mt-1 text-[12px] text-muted-foreground">
             {error instanceof Error ? error.message : "Unknown error"}
           </p>
@@ -180,12 +182,7 @@ function ApplicationCard({
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={!canWithdraw || busy}
-            onClick={onWithdraw}
-          >
+          <Button size="sm" variant="outline" disabled={!canWithdraw || busy} onClick={onWithdraw}>
             {busy ? "Withdrawing…" : "Withdraw"}
           </Button>
         </div>
@@ -193,4 +190,3 @@ function ApplicationCard({
     </Card>
   );
 }
-
