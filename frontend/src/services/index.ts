@@ -18,7 +18,12 @@ import {
   analyticsApi,
   authApi,
   collectionsApi,
+  searchApi,
 } from "@/api";
+import type {
+  SearchResponse,
+  SearchResultGroups,
+} from "@/api/modules/search";
 import type { BookmarkCollection, BookmarkCollectionWithBookmarks } from "@/api";
 
 const delay = 120;
@@ -140,6 +145,93 @@ export const activitiesService = {
 
 export const flaresService = {
   list: () => withFallback(() => postsApi.list(), seed.flares),
+};
+
+// ---------------------------------------------------------------------------
+// Global Search
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a mock SearchResponse from the local seed data so the UI stays
+ * fully functional when the backend is not configured.  Mirrors the
+ * backend's ilike-based filtering across all five entity types.
+ */
+function buildMockSearchResponse(q: string): SearchResponse {
+  const needle = q.toLowerCase();
+  const match = (s: string) => s.toLowerCase().includes(needle);
+
+  const users: SearchResultGroups["users"] = seed.builders
+    .filter((b) => match(b.name) || match(b.handle) || match(b.role) || b.skills.some(match))
+    .slice(0, 20)
+    .map((b) => ({
+      id: b.id,
+      first_name: b.name.split(" ")[0] ?? b.name,
+      last_name: b.name.split(" ").slice(1).join(" ") ?? "",
+      username: b.handle,
+      headline: b.role,
+      bio: b.bio,
+      profile_image: b.avatar,
+      location: b.country,
+      role: b.role,
+      is_verified: false,
+    }));
+
+  const projects: SearchResultGroups["projects"] = seed.projects
+    .filter((p) => match(p.name) || match(p.description) || p.stack.some(match))
+    .slice(0, 20)
+    .map((p) => ({
+      id: p.id,
+      title: p.name,
+      slug: p.id,
+      tagline: p.description.slice(0, 100),
+      description: p.description,
+      tech_stack: p.stack.join(", "),
+      stars: p.stars,
+      is_featured: false,
+      logo_url: null,
+    }));
+
+  const organizations: SearchResultGroups["organizations"] = [];
+  const flares: SearchResultGroups["flares"] = seed.flares
+    .filter((f) => match(f.content) || match(f.author.name) || f.tags.some(match))
+    .slice(0, 20)
+    .map((f, i) => ({
+      id: f.id,
+      title: f.content.slice(0, 80),
+      description: f.content,
+      role: f.author.role,
+      status: "open",
+      project_id: String(i),
+      created_by: f.author.id,
+    }));
+
+  const allSkills = Array.from(new Set(seed.builders.flatMap((b) => b.skills)));
+  const skills: SearchResultGroups["skills"] = allSkills
+    .filter(match)
+    .slice(0, 20)
+    .map((s, i) => ({
+      id: `skill-${i}`,
+      name: s,
+      slug: s.toLowerCase().replace(/\s+/g, "-"),
+      category: null,
+      description: null,
+    }));
+
+  const results: SearchResultGroups = { users, projects, organizations, skills, flares };
+  return {
+    query: q,
+    types: ["developers", "projects", "organizations", "skills", "flares"],
+    total: users.length + projects.length + organizations.length + skills.length + flares.length,
+    results,
+  };
+}
+
+export const searchService = {
+  all: (q: string, types?: string[], limit?: number) =>
+    withFallback(
+      () => searchApi.all(q, types, limit),
+      buildMockSearchResponse(q),
+    ),
 };
 
 export const messagesService = {
