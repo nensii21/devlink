@@ -37,7 +37,9 @@ class TestLoginFormValidation:
 
     def test_login_api_endpoint_validation(self, client: TestClient):
         # Invalid email payload to endpoint returns HTTP 422
-        resp = client.post("/api/auth/login", json={"email": "bad-email", "password": "123"})
+        resp = client.post(
+            "/api/auth/login", json={"email": "bad-email", "password": "123"}
+        )
         assert resp.status_code == 422
 
 
@@ -199,7 +201,9 @@ class TestSettingsFormValidation:
     def test_change_password_invalid_inputs(self):
         # New password too short (< 8 chars)
         with pytest.raises(ValidationError) as exc_info:
-            ChangePasswordRequest(current_password="OldPassword123!", new_password="short")
+            ChangePasswordRequest(
+                current_password="OldPassword123!", new_password="short"
+            )
         field_names = [err["loc"][0] for err in exc_info.value.errors()]
         assert "new_password" in field_names
 
