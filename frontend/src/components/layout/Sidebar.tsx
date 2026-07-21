@@ -7,6 +7,7 @@ import {
   Compass,
   Bookmark,
   Users2,
+  Building2,
   Sparkles,
   Share2,
   Flame,
@@ -41,6 +42,7 @@ const groups: Group[] = [
     label: "Community",
     items: [
       { label: "Builders", to: "/builders", icon: <Users2 size={16} /> },
+      { label: "Organizations", to: "/organizations", icon: <Building2 size={16} /> },
       { label: "AI Matches", to: "/builders?tab=matches", icon: <Sparkles size={16} /> },
       { label: "Connections", to: "/builders?tab=connections", icon: <Share2 size={16} /> },
     ],
