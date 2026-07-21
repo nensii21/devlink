@@ -1,27 +1,37 @@
 from __future__ import annotations
 
+# pyrefly: ignore [missing-import]
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
+    Request,
     status,
 )
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
+from app.middleware.rate_limit import (
+    limiter,
+    LOGIN_LIMIT,
+    PASSWORD_RESET_LIMIT,
+    REGISTER_LIMIT,
+)
+from app.dependencies import get_database
 from app.schemas.auth import (
     AuthResponse,
+    ForgotPasswordRequest,
     LoginRequest,
     RegisterRequest,
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse, CurrentUser
 from app.services.auth_service import AuthService
 
 router = APIRouter(
-    prefix="/api/auth",
     tags=["Authentication"],
 )
-
 
 # ==========================================================
 # Register
@@ -30,13 +40,15 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    response_model=UserResponse,
+    response_model=CurrentUser,
     status_code=status.HTTP_201_CREATED,
     summary="Register a new user",
 )
+@limiter.limit(REGISTER_LIMIT)
 def register(
+    request: Request,
     payload: RegisterRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     Create a new DevLink account.
@@ -59,9 +71,11 @@ def register(
     response_model=AuthResponse,
     summary="Login",
 )
+@limiter.limit(LOGIN_LIMIT)
 def login(
+    request: Request,
     payload: LoginRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     Authenticate a user.
@@ -72,11 +86,14 @@ def login(
     return auth_service.login(payload)
 
 
+# pyrefly: ignore [missing-import]
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.security import (
     decode_token,
     is_refresh_token,
+    create_verification_token,
+    is_verification_token,
 )
 from app.schemas.auth import (
     RefreshTokenRequest,
@@ -121,9 +138,11 @@ def get_current_user_id(
     response_model=CurrentUserResponse,
     summary="Current authenticated user",
 )
+@limiter.limit("30/minute")
 def me(
+    request: Request,
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -141,9 +160,11 @@ def me(
     response_model=AuthResponse,
     summary="Refresh JWT",
 )
+@limiter.limit("10/minute")
 def refresh(
+    request: Request,
     payload: RefreshTokenRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     try:
@@ -176,9 +197,11 @@ def refresh(
     response_model=LogoutResponse,
     summary="Logout",
 )
+@limiter.limit("10/minute")
 def logout(
+    request: Request,
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -207,10 +230,12 @@ from app.schemas.auth import (
     response_model=SuccessResponse,
     summary="Change Password",
 )
+@limiter.limit("5/minute")
 def change_password(
+    request: Request,
     payload: ChangePasswordRequest,
     user_id: str = Depends(get_current_user_id),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -232,9 +257,11 @@ def change_password(
     response_model=ForgotPasswordResponse,
     summary="Forgot Password",
 )
+@limiter.limit(PASSWORD_RESET_LIMIT)
 def forgot_password(
+    request: Request,
     payload: ForgotPasswordRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
@@ -254,9 +281,11 @@ def forgot_password(
     response_model=SuccessResponse,
     summary="Reset Password",
 )
+@limiter.limit(PASSWORD_RESET_LIMIT)
 def reset_password(
+    request: Request,
     payload: ResetPasswordRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     NOTE
@@ -295,13 +324,17 @@ def reset_password(
     response_model=VerifyEmailResponse,
     summary="Verify Email",
 )
+@limiter.limit("5/minute")
 def verify_email(
+    request: Request,
     payload: VerifyEmailRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     try:
         token_payload = decode_token(payload.token)
+        if token_payload.get("type") != "verification":
+            raise ValueError("Invalid verification token type.")
 
     except Exception:
         raise HTTPException(
@@ -326,9 +359,11 @@ def verify_email(
     response_model=SuccessResponse,
     summary="Resend Verification Email",
 )
+@limiter.limit("3/hour")
 def resend_verification(
+    request: Request,
     payload: ResendVerificationEmailRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
     """
     Placeholder.
@@ -351,8 +386,9 @@ def resend_verification(
             ),
         }
 
-    # TODO:
     # Generate verification token
+    token = create_verification_token(str(user.id))
+    # TODO:
     # Send email via SMTP
 
     return {

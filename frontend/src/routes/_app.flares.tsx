@@ -4,8 +4,9 @@ import { flaresService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { Markdown } from "@/components/shared/Markdown";
 import { MarkdownEditor } from "@/components/shared/MarkdownEditor";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 import { Heart, MessageCircle, Send, Flame } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { currentUser, builders } from "@/mocks/seed";
 import type { Flare } from "@/mocks/seed";
 import { toast } from "sonner";
@@ -24,29 +25,36 @@ function FlaresPage() {
   const { data = [] } = useQuery({ queryKey: ["flares"], queryFn: flaresService.list });
   const [content, setContent] = useState("");
   const [localFlares, setLocalFlares] = useState<Flare[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const feed = [...localFlares, ...data];
 
-  const handlePost = () => {
-    if (!content.trim()) return;
-    const newFlare: Flare = {
-      id: `local-${Date.now()}`,
-      author: {
-        ...builders[0],
-        name: currentUser.name,
-        handle: currentUser.handle,
-        avatar: currentUser.avatar,
-      },
-      content,
-      tags: Array.from(new Set(content.match(/#(\w+)/g)?.map((t) => t.slice(1)) ?? [])),
-      likes: 0,
-      comments: 0,
-      ago: "just now",
-    };
-    setLocalFlares((prev) => [newFlare, ...prev]);
-    toast.success("Flare posted");
-    setContent("");
-  };
+  const handlePost = useCallback(async () => {
+    if (!content.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      await new Promise((r) => setTimeout(r, 600));
+      const newFlare: Flare = {
+        id: `local-${Date.now()}`,
+        author: {
+          ...builders[0],
+          name: currentUser.name,
+          handle: currentUser.handle,
+          avatar: currentUser.avatar,
+        },
+        content,
+        tags: Array.from(new Set(content.match(/#(\w+)/g)?.map((t) => t.slice(1)) ?? [])),
+        likes: 0,
+        comments: 0,
+        ago: "just now",
+      };
+      setLocalFlares((prev) => [newFlare, ...prev]);
+      toast.success("Flare posted");
+      setContent("");
+    } finally {
+      setSubmitting(false);
+    }
+  }, [content, submitting]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -63,13 +71,16 @@ function FlaresPage() {
               />
               <div className="mt-2 flex items-center justify-between">
                 <p className="text-[11px] text-muted-foreground">Markdown supported</p>
-                <button
+                <LoadingButton
                   disabled={!content.trim()}
+                  loading={submitting}
+                  loadingText="Posting..."
                   onClick={handlePost}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                  size="sm"
+                  className="inline-flex items-center gap-1.5"
                 >
                   <Send size={12} /> Post
-                </button>
+                </LoadingButton>
               </div>
             </div>
           </div>
@@ -101,8 +112,12 @@ function FlaresPage() {
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-4 text-[12px] text-muted-foreground">
                   <div className="flex items-center gap-4">
-                    <button className="inline-flex items-center gap-1 hover:text-destructive"><Heart size={12} /> {f.likes}</button>
-                    <button className="inline-flex items-center gap-1 hover:text-primary"><MessageCircle size={12} /> {f.comments}</button>
+                    <button className="inline-flex items-center gap-1 hover:text-destructive">
+                      <Heart size={12} /> {f.likes}
+                    </button>
+                    <button className="inline-flex items-center gap-1 hover:text-primary">
+                      <MessageCircle size={12} /> {f.comments}
+                    </button>
                   </div>
                   {/* Placeholder: ApplyButton needs flareId+projectId; current flares feed is mock-only. */}
                 </div>

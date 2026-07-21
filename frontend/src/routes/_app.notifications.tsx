@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { notificationsService } from "@/services";
-import { Card, EmptyState } from "@/components/shared/primitives";
+import { Card } from "@/components/shared/primitives";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/notifications")({
@@ -30,34 +30,25 @@ function NotificationsPage() {
           Mark all read
         </button>
       </div>
-      {data.length === 0 ? (
-        <EmptyState
-          variant="notifications"
-          title="No notifications yet"
-          desc="We'll notify you when you get project updates, mentions, or connection requests."
-        />
-      ) : (
-        <Card>
-          <ul className="divide-y divide-border">
-            {data.map((n) => (
-              <li
-                key={n.id}
-                className={cn("flex items-center gap-3 px-4 py-3", n.unread && "bg-primary-soft/30")}
-              >
-                <span
-                  className={cn(
-                    "h-2 w-2 shrink-0 rounded-full",
-                    n.unread ? "bg-primary" : "bg-transparent",
-                  )}
-                />
-                <p className="min-w-0 flex-1 text-[13px] text-foreground">{n.text}</p>
-                <span className="text-[11px] text-muted-foreground">{n.ago}</span>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-
+      <Card>
+        <ul className="divide-y divide-border">
+          {data.map((n) => (
+            <li
+              key={n.id}
+              className={cn("flex items-center gap-3 px-4 py-3", n.unread && "bg-primary-soft/30")}
+            >
+              <span
+                className={cn(
+                  "h-2 w-2 shrink-0 rounded-full",
+                  n.unread ? "bg-primary" : "bg-transparent",
+                )}
+              />
+              <p className="min-w-0 flex-1 text-[13px] text-foreground">{n.text}</p>
+              <span className="text-[11px] text-muted-foreground">{n.ago}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </div>
   );
 }

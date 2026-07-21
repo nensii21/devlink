@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Eye, EyeOff, Github } from "lucide-react";
 import { APP_LOGO } from "@/lib/logo";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { LoadingButton } from "@/components/shared/LoadingButton";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -19,12 +20,17 @@ export const Route = createFileRoute("/auth")({
 
 const signInSchema = z.object({
   email: z.string().email("Enter a valid email"),
-  password: z.string().min(6, "At least 6 characters"),
+  password: z.string().min(8, "At least 8 characters"),
 });
 const signUpSchema = signInSchema
   .extend({
-    firstName: z.string().min(1, "Required").max(50),
-    lastName: z.string().min(1, "Required").max(50),
+    first_name: z.string().min(2, "At least 2 characters").max(100, "At most 100 characters"),
+    last_name: z.string().min(2, "At least 2 characters").max(100, "At most 100 characters"),
+    username: z
+      .string()
+      .min(3, "At least 3 characters")
+      .max(50, "At most 50 characters")
+      .regex(/^[a-zA-Z0-9_]+$/, "Letters, numbers, and underscores only"),
     confirmPassword: z.string(),
   })
   .refine((d) => d.password === d.confirmPassword, {
@@ -40,6 +46,7 @@ function AuthScreen() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const signInForm = useForm<SignIn>({ resolver: zodResolver(signInSchema) });
   const signUpForm = useForm<SignUp>({ resolver: zodResolver(signUpSchema) });
@@ -49,15 +56,22 @@ function AuthScreen() {
   const err = "mt-1 text-[12px] text-destructive";
   const lbl = "block text-[13px] font-semibold text-foreground mb-1";
 
-  const onSubmit = () => {
-    toast.success(mode === "signin" ? "Signed in" : "Account created");
-    navigate({ to: "/dashboard" });
-  };
+  const onSubmit = useCallback(async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await new Promise((r) => setTimeout(r, 800));
+      toast.success(mode === "signin" ? "Signed in" : "Account created");
+      navigate({ to: "/dashboard" });
+    } finally {
+      setSubmitting(false);
+    }
+  }, [submitting, mode, navigate]);
 
   return (
     <div className="fixed inset-0 flex flex-col items-center justify-center overflow-y-auto bg-background px-4 py-8">
-      <Link to="/" className="mb-6 flex items-center gap-2.5">
-        <img src={APP_LOGO} alt="DevLink" className="h-12 w-12 rounded-full" />
+      <Link to="/" className="mb-2 flex items-center gap-2.5">
+        <img src={APP_LOGO} alt="DevLink" className="h-12 w-12 rounded-full text-center" />
         <span className="text-[36px] font-bold tracking-tight text-foreground">DevLink</span>
       </Link>
 
@@ -65,7 +79,7 @@ function AuthScreen() {
         <button className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
           <Github size={16} /> Continue with GitHub
         </button>
-        <button className="mb-5 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
+        <button className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
             <path
               fill="#4285F4"
@@ -130,30 +144,43 @@ function AuthScreen() {
                 Forgot password?
               </Link>
             </div>
-            <button
+            <LoadingButton
               type="submit"
-              className="mt-2 w-full rounded-md bg-primary py-[9px] text-[14px] font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+              loading={submitting}
+              loadingText="Signing In..."
+              className="mt-2 w-full py-[9px] text-[14px]"
             >
               Sign In
-            </button>
+            </LoadingButton>
           </form>
         ) : (
-          <form onSubmit={signUpForm.handleSubmit(onSubmit)} noValidate>
+          <form
+            className="max-h-96 overflow-y-auto"
+            onSubmit={signUpForm.handleSubmit(onSubmit)}
+            noValidate
+          >
             <div className="mb-4 grid grid-cols-2 gap-3">
               <div>
                 <label className={lbl}>First name</label>
-                <input className={inp} {...signUpForm.register("firstName")} />
-                {signUpForm.formState.errors.firstName && (
-                  <p className={err}>{signUpForm.formState.errors.firstName.message}</p>
+                <input className={inp} {...signUpForm.register("first_name")} />
+                {signUpForm.formState.errors.first_name && (
+                  <p className={err}>{signUpForm.formState.errors.first_name.message}</p>
                 )}
               </div>
               <div>
                 <label className={lbl}>Last name</label>
-                <input className={inp} {...signUpForm.register("lastName")} />
-                {signUpForm.formState.errors.lastName && (
-                  <p className={err}>{signUpForm.formState.errors.lastName.message}</p>
+                <input className={inp} {...signUpForm.register("last_name")} />
+                {signUpForm.formState.errors.last_name && (
+                  <p className={err}>{signUpForm.formState.errors.last_name.message}</p>
                 )}
               </div>
+            </div>
+            <div className="mb-4">
+              <label className={lbl}>Username</label>
+              <input className={inp} {...signUpForm.register("username")} />
+              {signUpForm.formState.errors.username && (
+                <p className={err}>{signUpForm.formState.errors.username.message}</p>
+              )}
             </div>
             <div className="mb-4">
               <label className={lbl}>Email</label>
@@ -202,16 +229,18 @@ function AuthScreen() {
                 <p className={err}>{signUpForm.formState.errors.confirmPassword.message}</p>
               )}
             </div>
-            <button
+            <LoadingButton
               type="submit"
-              className="mt-2 w-full rounded-md bg-primary py-[9px] text-[14px] font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-[0.98]"
+              loading={submitting}
+              loadingText="Creating Account..."
+              className="mt-2 w-full py-[9px] text-[14px]"
             >
               Create account
-            </button>
+            </LoadingButton>
           </form>
         )}
 
-        <p className="mt-4 text-center text-[13px] text-muted-foreground">
+        <p className="mt-2 text-center text-[13px] text-muted-foreground">
           {mode === "signin" ? (
             <>
               Don't have an account?{" "}
@@ -236,7 +265,7 @@ function AuthScreen() {
         </p>
       </div>
 
-      <div className="mt-6 flex items-center gap-5">
+      <div className="mt-3 flex items-center gap-5">
         {["Privacy", "Security", "Terms", "Status"].map((item) => (
           <a
             key={item}

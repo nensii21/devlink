@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate, useRouterState, Outlet } from "@tan
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import type { Builder } from "@/services";
-import { Card, TagChip, Avatar, EmptyState } from "@/components/shared/primitives";
+import { Card, AnimatedCard, TagChip, Avatar, Skeleton, EmptyState } from "@/components/shared/primitives";
+import { HighlightText } from "@/components/shared/HighlightText";
+import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -14,6 +16,7 @@ import {
   Bookmark,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { containerVariants } from "@/lib/animations";
 
 type BuildersSearch = {
   tab?: "discover" | "matches" | "connections";
@@ -60,7 +63,7 @@ function AIMatchCard({ builder }: { builder: Builder }) {
   const remainingCount = builder.skills.length - 3;
   const matchPercentage = `${builder.matchScore}%`;
   const experienceText = `${builder.yearsExp} Yrs`;
-  const availabilityText = builder.availability.split(" (")[0];
+  const availabilityText = builder.availability ? builder.availability.split(" (")[0] : "Full-time";
 
   return (
     <motion.div
@@ -204,7 +207,7 @@ function BuildersPage() {
   const { tab } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [q, setQ] = useState("");
-  const { data = [] } = useQuery({
+  const { data = [], isLoading } = useQuery({
     queryKey: ["builders", tab],
     queryFn: tab === "matches" ? buildersService.matches : buildersService.list,
   });
@@ -284,7 +287,31 @@ function BuildersPage() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="p-4 text-center">
+              <div className="mx-auto w-fit">
+                <Skeleton className="h-16 w-16 shrink-0 rounded-full" />
+              </div>
+              <Skeleton className="mx-auto mt-2 h-4 w-28" />
+              <Skeleton className="mx-auto h-3 w-20" />
+              <Skeleton className="mx-auto h-3 w-36" />
+              <Skeleton className="mx-auto mt-1 h-3 w-24" />
+              <div className="mt-2 flex flex-wrap justify-center gap-1">
+                <Skeleton className="h-5 w-14" />
+                <Skeleton className="h-5 w-12" />
+                <Skeleton className="h-5 w-16" />
+              </div>
+              <Skeleton className="mx-auto mt-2 h-3 w-20" />
+              <div className="mt-2 flex gap-1.5">
+                <Skeleton className="h-7 flex-1" />
+                <Skeleton className="h-7 flex-1" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
         q !== "" ? (
           <EmptyState
             variant="search"
@@ -319,24 +346,36 @@ function BuildersPage() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((b) => {
+        <motion.div
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {filtered.map((b, i) => {
             const isConnected = connections.includes(b.id);
             return (
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-                <Card interactive className="p-4 text-center h-full flex flex-col justify-between">
+                <AnimatedCard interactive index={i} className="p-4 text-center h-full flex flex-col justify-between">
                   <div>
                     <div className="mx-auto w-fit">
                       <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
                     </div>
-                    <p className="mt-2 text-[14px] font-semibold text-foreground">{b.name}</p>
-                    <p className="text-[12px] text-muted-foreground">{b.role}</p>
+                    <p className="mt-2 text-[14px] font-semibold text-foreground">
+                      <HighlightText text={b.name} query={q} />
+                    </p>
+                    <p className="text-[12px] text-muted-foreground">
+                      <HighlightText text={b.role} query={q} />
+                    </p>
                     <p className="text-[11px] text-muted-foreground">
                       {b.country} · {b.yearsExp} yrs
                     </p>
+                    <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
                     <div className="mt-2 flex flex-wrap justify-center gap-1">
                       {b.skills.slice(0, 3).map((s) => (
-                        <TagChip key={s}>{s}</TagChip>
+                        <TagChip key={s}>
+                          <HighlightText text={s} query={q} />
+                        </TagChip>
                       ))}
                     </div>
                     <p className="mt-2 text-[12px] font-semibold text-success">
@@ -369,11 +408,11 @@ function BuildersPage() {
                       Message
                     </button>
                   </div>
-                </Card>
+                </AnimatedCard>
               </Link>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );

@@ -82,19 +82,23 @@ export const Markdown = memo(function Markdown({ content, className }: MarkdownP
           hr: () => <hr className="my-4 border-border" />,
           table: ({ node, ...props }) => (
             <div className="my-2 w-full overflow-x-auto rounded-md border border-border">
-              <table {...props} className="w-full border-collapse text-left text-[12px]" />
+              <table
+                {...props}
+                className="w-full min-w-max border-collapse text-left text-[12px]"
+              />
             </div>
           ),
           thead: ({ node, ...props }) => <thead {...props} className="bg-muted" />,
-          th: ({ node, ...props }) => (
-            <th
+          tr: ({ node, ...props }) => (
+            <tr
               {...props}
-              className="border-b border-border px-3 py-1.5 font-semibold text-foreground"
+              className="border-b border-border transition-colors hover:bg-muted/50 last:border-0"
             />
           ),
-          td: ({ node, ...props }) => (
-            <td {...props} className="border-b border-border px-3 py-1.5 align-top" />
+          th: ({ node, ...props }) => (
+            <th {...props} className="whitespace-nowrap px-4 py-3 font-semibold text-foreground" />
           ),
+          td: ({ node, ...props }) => <td {...props} className="break-words px-4 py-3 align-top" />,
           code: ({ node, className: codeClassName, children, ...props }) => {
             const isBlock = /language-/.test(codeClassName ?? "");
             if (!isBlock) {
