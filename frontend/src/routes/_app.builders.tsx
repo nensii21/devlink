@@ -10,11 +10,8 @@ import {
   Sparkles,
   Calendar,
   Briefcase,
-  ChevronRight,
   Check,
   Bookmark,
-  Star,
-  Award,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -22,11 +19,15 @@ type BuildersSearch = {
   tab?: "discover" | "matches" | "connections";
 };
 
+const VALID_TABS = ["discover", "matches", "connections"] as const;
+
 export const Route = createFileRoute("/_app/builders")({
   validateSearch: (search: Record<string, unknown>): BuildersSearch => {
-    return {
-      tab: (search.tab as "discover" | "matches" | "connections") || "discover",
-    };
+    const rawTab = search.tab as string;
+    const tab = (VALID_TABS as readonly string[]).includes(rawTab)
+      ? (rawTab as "discover" | "matches" | "connections")
+      : "discover";
+    return { tab };
   },
   head: () => ({
     meta: [
@@ -59,7 +60,7 @@ function AIMatchCard({ builder }: { builder: Builder }) {
   const remainingCount = builder.skills.length - 3;
   const matchPercentage = `${builder.matchScore}%`;
   const experienceText = `${builder.yearsExp} Yrs`;
-  const availabilityText = builder.availability.split(" ")[0]; // e.g. "Full-time" or "Part-time"
+  const availabilityText = builder.availability.split(" (")[0];
 
   return (
     <motion.div
@@ -82,7 +83,12 @@ function AIMatchCard({ builder }: { builder: Builder }) {
                 alt={builder.name}
                 className="w-20 h-20 rounded-full border-4 border-card bg-muted object-cover shadow-sm hover:opacity-95 transition-opacity"
               />
-              <span className="absolute bottom-1 right-1 block h-3.5 w-3.5 rounded-full bg-success border-2 border-card" />
+              <span
+                className={cn(
+                  "absolute bottom-1 right-1 block h-3.5 w-3.5 rounded-full border-2 border-card",
+                  builder.online ? "bg-success" : "bg-muted-foreground/40",
+                )}
+              />
             </Link>
           </div>
         </div>
@@ -104,6 +110,9 @@ function AIMatchCard({ builder }: { builder: Builder }) {
             </p>
           </div>
           <button
+            type="button"
+            aria-label={bookmarked ? "Remove bookmark" : "Bookmark builder"}
+            aria-pressed={bookmarked}
             onClick={() => setBookmarked(!bookmarked)}
             className={cn(
               "w-10 h-10 rounded-full border border-border/80 flex items-center justify-center bg-card transition-all duration-200 cursor-pointer shrink-0 ml-2",
