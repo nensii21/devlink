@@ -2,6 +2,7 @@ from __future__ import annotations
 from app.schemas.user import CurrentUser
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -168,7 +169,9 @@ class ResendVerificationEmailRequest(BaseModel):
 
 
 class CurrentUserResponse(BaseModel):
-    id: str
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
 
     first_name: str
     last_name: str
@@ -182,6 +185,8 @@ class CurrentUserResponse(BaseModel):
     is_verified: bool
 
     is_active: bool
+
+    last_active_at: Optional[datetime] = None
 
     created_at: datetime
 

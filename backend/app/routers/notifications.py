@@ -43,29 +43,6 @@ def create_notification(
 
 
 @router.get(
-    "/{notification_id}",
-    response_model=NotificationResponse,
-)
-def get_notification(
-    notification_id: uuid.UUID,
-    db: Session = Depends(get_database),
-):
-
-    notification = NotificationService.get_notification(
-        db,
-        notification_id,
-    )
-
-    if notification is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Notification not found",
-        )
-
-    return notification
-
-
-@router.get(
     "/",
     response_model=list[NotificationResponse],
 )
@@ -112,6 +89,47 @@ def unread_count(
 
 
 @router.patch(
+    "/read-all",
+)
+def mark_all_as_read(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+
+    NotificationService.mark_all_as_read(
+        db,
+        current_user.id,
+    )
+
+    return {
+        "message": "All notifications marked as read",
+    }
+
+
+@router.get(
+    "/{notification_id}",
+    response_model=NotificationResponse,
+)
+def get_notification(
+    notification_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+
+    notification = NotificationService.get_notification(
+        db,
+        notification_id,
+    )
+
+    if notification is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Notification not found",
+        )
+
+    return notification
+
+
+@router.patch(
     "/{notification_id}/read",
     response_model=NotificationResponse,
 )
@@ -135,24 +153,6 @@ def mark_as_read(
         db,
         notification,
     )
-
-
-@router.patch(
-    "/read-all",
-)
-def mark_all_as_read(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_database),
-):
-
-    NotificationService.mark_all_as_read(
-        db,
-        current_user.id,
-    )
-
-    return {
-        "message": "All notifications marked as read",
-    }
 
 
 @router.put(

@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 
 export function useTheme() {
-  const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") === "dark");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(localStorage.getItem("theme") === "dark");
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
