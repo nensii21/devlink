@@ -1,10 +1,12 @@
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
-import { Card, TagChip, Avatar } from "@/components/shared/primitives";
-import { LastActive } from "@/components/shared/LastActive";
+import { Card, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
 import { builders, currentUser, projects } from "@/mocks/seed";
-import { MapPin, Calendar, Link as LinkIcon, MessageCircle, Mail } from "lucide-react";
+import { MapPin, Calendar, Link as LinkIcon, MessageCircle, Sparkles, Pencil, RotateCw } from "lucide-react";
 import { toast } from "sonner";
-import { copyText } from "@/lib/clipboard";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { profileSummaryApi, type ProfileSummaryResponse } from "@/api";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -31,14 +33,48 @@ function ProfilePage() {
         avatar: currentUser.avatar,
         bio: "Product engineer. Ships fast, sleeps sometimes.",
         role: "Full Stack Developer",
+        id: currentUser.id,
       }
     : builders.find((x) => x.handle === username);
   if (!b) throw notFound();
 
+  // Profile summary state
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedSummary, setEditedSummary] = useState("");
+
+  const summaryMutation = useMutation({
+    mutationFn: () => profileSummaryApi.generate(b.id),
+    onSuccess: (data: ProfileSummaryResponse) => {
+      setSummary(data.summary);
+      setEditedSummary(data.summary);
+      toast.success("Profile summary generated!");
+    },
+    onError: () => {
+      toast.error("Failed to generate summary. Please try again.");
+    },
+  });
+
+  const handleEdit = () => {
+    setEditedSummary(summary || "");
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setSummary(editedSummary);
+    setIsEditing(false);
+    toast.success("Summary updated!");
+  };
+
+  const handleCancel = () => {
+    setEditedSummary(summary || "");
+    setIsEditing(false);
+  };
+
   return (
     <div className="space-y-4">
       {me ? (
-        <Card className="p-4 bg-gradient-to-r from-primary-soft via-transparent to-transparent border-primary/20">
+        <Card className="p-6 bg-gradient-to-r from-primary-soft via-transparent to-transparent border-primary/20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -87,7 +123,7 @@ function ProfilePage() {
         </Card>
       )}
 
-      <Card className="p-4">
+      <Card className="p-6">
         <div className="flex flex-wrap items-start gap-5">
           <Avatar src={b.avatar} alt={b.name} size={96} online={b.online} />
           <div className="min-w-0 flex-1">
@@ -106,47 +142,122 @@ function ProfilePage() {
               <span className="inline-flex items-center gap-1">
                 <LinkIcon size={12} /> devlink.io/{b.handle}
               </span>
-              <LastActive lastActiveAt={b.lastActiveAt} />
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {b.publicEmail && (
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    await copyText(b.publicEmail!);
-                    toast.success("Email copied to clipboard!");
-                  } catch {
-                    toast.error("Failed to copy email");
-                  }
-                }}
-                className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-muted"
-              >
-                <Mail size={16} />
-                Copy Email
-              </button>
-            )}
-            {!me && (
-              <button
-                type="button"
-                onClick={() =>
-                  navigate({
-                    to: "/messages/$conversationId",
-                    params: { conversationId: b.id },
-                  })
-                }
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                <MessageCircle size={16} />
-                Contact Developer
-              </button>
-            )}
-          </div>
+          {!me && (
+            <button
+              type="button"
+              onClick={() =>
+                navigate({
+                  to: "/messages/$conversationId",
+                  params: { conversationId: b.id },
+                })
+              }
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <MessageCircle size={16} />
+              Contact Developer
+            </button>
+          )}
         </div>
       </Card>
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      {/* AI Profile Summary Section */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[13px] font-semibold text-foreground flex items-center gap-2">
+            <Sparkles size={14} className="text-primary" />
+            AI Profile Summary
+          </p>
+          {summary && !isEditing && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleEdit}
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+              >
+                <Pencil size={12} /> Edit
+              </button>
+              <button
+                onClick={() => summaryMutation.mutate()}
+                disabled={summaryMutation.isPending}
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground disabled:opacity-50"
+              >
+                <RotateCw size={12} className={summaryMutation.isPending ? "animate-spin" : ""} /> Regenerate
+              </button>
+            </div>
+          )}
+          {!summary && !summaryMutation.isPending && (
+            <button
+              onClick={() => summaryMutation.mutate()}
+              className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground hover:opacity-90"
+            >
+              <Sparkles size={12} /> Generate Summary
+            </button>
+          )}
+        </div>
+
+        {summaryMutation.isPending && (
+          <div className="mt-3 space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+        )}
+
+        {summary && !summaryMutation.isPending && (
+          <div className="mt-3">
+            {isEditing ? (
+              <div className="space-y-2">
+                <textarea
+                  value={editedSummary}
+                  onChange={(e) => setEditedSummary(e.target.value)}
+                  maxLength={500}
+                  rows={4}
+                  className="w-full rounded-md border border-border bg-surface px-3 py-2 text-[13px] text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none"
+                />
+                <div className="flex items-center justify-between">
+                  <p className={cn(
+                    "text-[11px]",
+                    editedSummary.length > 450 ? "text-orange-500" : "text-muted-foreground"
+                  )}>
+                    {editedSummary.length}/500 characters
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCancel}
+                      className="rounded-md px-3 py-1.5 text-[11px] text-muted-foreground hover:bg-muted/50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      className="rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground hover:opacity-90"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-[13px] text-foreground leading-relaxed">{summary}</p>
+            )}
+          </div>
+        )}
+
+        {!summary && !summaryMutation.isPending && !summaryMutation.isError && (
+          <p className="mt-2 text-[12px] text-muted-foreground">
+            Generate an AI-powered professional summary based on your profile, skills, and activity.
+          </p>
+        )}
+
+        {summaryMutation.isError && (
+          <p className="mt-2 text-[12px] text-destructive">
+            Failed to generate summary. Please try again.
+          </p>
+        )}
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Skills</p>
           <div className="mt-3 flex flex-wrap gap-1">
