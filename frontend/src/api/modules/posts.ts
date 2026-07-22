@@ -8,6 +8,7 @@ export const postsApi = {
   update: (id: string, body: Partial<Flare>) => api.put<Flare>(`/api/posts/${id}`, body),
   remove: (id: string) => api.delete<void>(`/api/posts/${id}`),
   like: (id: string) => api.post<{ likes: number }>(`/api/posts/${id}/like`),
+  unlike: (id: string) => api.delete<{ likes: number }>(`/api/posts/${id}/like`),
   comment: (id: string, comment: string) =>
     api.post<unknown>(`/api/posts/${id}/comment`, { comment }),
 };

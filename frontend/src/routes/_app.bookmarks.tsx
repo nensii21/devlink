@@ -2,11 +2,12 @@ import { useState, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, EmptyState, TagChip } from "@/components/shared/primitives";
 import { projects, flares } from "@/mocks/seed";
-import { Bookmark, BookmarkCheck, FolderOpen } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CollectionSidebar } from "@/components/bookmarks/CollectionSidebar";
 import { CollectionDialog } from "@/components/bookmarks/CollectionDialog";
 import { AddToCollectionMenu } from "@/components/bookmarks/AddToCollectionMenu";
+import { BookmarkToggleButton } from "@/components/shared/BookmarkToggleButton";
 import {
   useCreateCollection,
   useRenameCollection,
@@ -147,7 +148,6 @@ function BookmarksPage() {
                             {p.description}
                           </p>
                         </div>
-                        <Bookmark size={14} className="text-primary" />
                       </div>
                       <div className="mt-3 flex flex-wrap gap-1">
                         {p.stack.map((s) => (
@@ -156,7 +156,8 @@ function BookmarksPage() {
                       </div>
                     </Card>
                   </Link>
-                  <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <BookmarkToggleButton projectId={p.id} />
                     <AddToCollectionMenu
                       bookmarkId={p.id}
                       onAddToCollection={handleAddToCollection(p.id)}
