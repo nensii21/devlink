@@ -1,8 +1,10 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { builders, currentUser, projects } from "@/mocks/seed";
-import { MapPin, Calendar, Link as LinkIcon } from "lucide-react";
+import { MapPin, Calendar, Link as LinkIcon, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { ReportUserModal } from "@/components/shared/ReportUserModal";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/_app/profile/$username")({
 
 function ProfilePage() {
   const { username } = Route.useParams();
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const me = username === currentUser.handle;
   const b = me
     ? {
@@ -106,12 +109,29 @@ function ProfilePage() {
             </div>
           </div>
           {!me && (
-            <button className="rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
-              Follow
-            </button>
+            <div className="flex items-center gap-2">
+              <button className="rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+                Follow
+              </button>
+              <button 
+                onClick={() => setIsReportModalOpen(true)}
+                className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] font-semibold text-destructive hover:bg-destructive/20 transition-colors flex items-center gap-1"
+              >
+                <AlertTriangle size={14} /> Report
+              </button>
+            </div>
           )}
         </div>
       </Card>
+
+      {!me && (
+        <ReportUserModal 
+          isOpen={isReportModalOpen} 
+          onClose={() => setIsReportModalOpen(false)} 
+          userId={b.id || ""} 
+          username={b.handle} 
+        />
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-4">

@@ -16,6 +16,11 @@ from app.schemas.user import (
     UserResponse,
     UserUpdate,
 )
+from app.schemas.user_report import (
+    UserReportCreate,
+    UserReportResponse,
+)
+from app.models.user_report import UserReport
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 
@@ -210,3 +215,36 @@ def verify_user(
         db,
         user,
     )
+
+
+@router.post(
+    "/{user_id}/report",
+    response_model=UserReportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def report_user(
+    user_id: uuid.UUID,
+    report: UserReportCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    target_user = UserService.get_user(db, user_id)
+    if target_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if current_user.id == target_user.id:
+        raise HTTPException(status_code=400, detail="You cannot report yourself")
+
+    db_report = UserReport(
+        reporter_id=current_user.id,
+        reported_id=target_user.id,
+        reason=report.reason,
+        description=report.description,
+        status="pending"
+    )
+
+    db.add(db_report)
+    db.commit()
+    db.refresh(db_report)
+
+    return db_report
