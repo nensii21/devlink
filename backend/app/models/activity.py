@@ -6,14 +6,16 @@ from enum import Enum
 from typing import Any
 
 from sqlalchemy import (
+    JSON,
     DateTime,
-    Enum as SqlEnum,
     ForeignKey,
+    Index,
     String,
     Text,
     func,
-    Index,
-    JSON,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship

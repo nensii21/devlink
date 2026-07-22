@@ -10,10 +10,10 @@ from sqlalchemy.orm import Session
 
 from app.models.activity import ActivityType
 from app.models.follower import Follower
-from app.services.activity_service import ActivityService
-from app.models.user import User
 from app.models.notification import NotificationType
+from app.models.user import User
 from app.schemas.notification import NotificationCreate
+from app.services.activity_service import ActivityService
 from app.services.notification_service import NotificationService
 
 

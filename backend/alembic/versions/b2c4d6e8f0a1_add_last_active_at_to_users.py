@@ -6,8 +6,8 @@ middleware on authenticated requests, throttled to once per 5 minutes.
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision: str = "b2c4d6e8f0a1"
 down_revision: Union[str, Sequence[str], None] = "7a9e8f1d2c3b"

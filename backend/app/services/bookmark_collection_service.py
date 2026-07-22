@@ -46,7 +46,7 @@ class BookmarkCollectionService:
         stmt = select(BookmarkCollection).where(
             and_(
                 BookmarkCollection.user_id == user_id,
-                BookmarkCollection.is_default == True,
+                BookmarkCollection.is_default,
             )
         )
         default = db.scalar(stmt)

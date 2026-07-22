@@ -7,14 +7,12 @@ from fastapi import HTTPException, status
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.exc import IntegrityError
-
-# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session, selectinload
 
+# pyrefly: ignore [missing-import]
 from app.models.application import (
     Application,
     ApplicationStatus,

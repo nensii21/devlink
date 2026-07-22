@@ -6,9 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.cache import cached
 from app.models.skill import Skill
 from app.schemas.skill import SkillCreate, SkillUpdate
-from app.core.cache import cached
 from app.utils.skill_names import clean_skill_name, normalize_skill_name
 
 

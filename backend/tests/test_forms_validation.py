@@ -1,9 +1,9 @@
 import pytest
-from pydantic import ValidationError
-from app.schemas.auth import LoginRequest, RegisterRequest, ChangePasswordRequest
-from app.schemas.user import UserUpdate, UserBase
+from app.schemas.auth import ChangePasswordRequest, LoginRequest, RegisterRequest
 from app.schemas.project import ProjectCreate, ProjectStage, ProjectVisibility
+from app.schemas.user import UserBase, UserUpdate
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 
 # ==============================================================================

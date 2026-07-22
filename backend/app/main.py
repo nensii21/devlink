@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
 
 # pyrefly: ignore [missing-import]
-from fastapi.routing import APIRoute
-
 # pyrefly: ignore [missing-import]
 from fastapi import FastAPI
 
@@ -12,11 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 # pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
 
-from app.core.config import settings
-from app.middleware.request_id import RequestIDMiddleware
-from app.middleware.security_headers import SecurityHeadersMiddleware
-from app.middleware.activity import ActivityTrackingMiddleware
-from app.middleware.rate_limit import limiter
+# pyrefly: ignore [missing-import]
+from slowapi import _rate_limit_exceeded_handler
 
 # pyrefly: ignore [missing-import]
 from slowapi.errors import RateLimitExceeded
@@ -24,9 +19,11 @@ from slowapi.errors import RateLimitExceeded
 # pyrefly: ignore [missing-import]
 from slowapi.middleware import SlowAPIMiddleware
 
-# pyrefly: ignore [missing-import]
-from slowapi import _rate_limit_exceeded_handler
-
+from app.core.config import settings
+from app.middleware.activity import ActivityTrackingMiddleware
+from app.middleware.rate_limit import limiter
+from app.middleware.request_id import RequestIDMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.routers import (
     activities,
     applications,
@@ -56,8 +53,8 @@ async def lifespan(app: FastAPI):
 
     print("🚀 DevLink Backend Starting...")
 
-    from app.core.events import event_bus
     from app.core.event_handlers import register_all_handlers
+    from app.core.events import event_bus
 
     register_all_handlers(event_bus)
 

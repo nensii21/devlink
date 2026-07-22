@@ -1,9 +1,9 @@
 import time
 
+import redis as redis_lib
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
-import redis as redis_lib
 
 from app.core.config import settings
 from app.database.database import engine

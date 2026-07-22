@@ -5,14 +5,16 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import select
 
+# pyrefly: ignore [missing-import]
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
-from app.middleware.rate_limit import limiter, MESSAGE_LIMIT, SEARCH_LIMIT
+from app.dependencies import get_current_user, get_database
+from app.middleware.rate_limit import MESSAGE_LIMIT, SEARCH_LIMIT, limiter
+from app.models.conversation_member import ConversationMember
+from app.models.notification import NotificationType
 from app.models.user import User
 from app.schemas.message import (
     MessageCreate,
@@ -20,12 +22,6 @@ from app.schemas.message import (
     MessageUpdate,
 )
 from app.services.message_service import MessageService
-
-# pyrefly: ignore [missing-import]
-from sqlalchemy import select
-
-from app.models.conversation_member import ConversationMember
-from app.models.notification import NotificationType
 from app.services.notification_service import NotificationService
 
 router = APIRouter(

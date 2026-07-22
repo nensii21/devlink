@@ -2,9 +2,9 @@ import json
 import logging
 from typing import Callable
 
+import redis
 from fastapi import Request, Response
 from fastapi.routing import APIRoute
-import redis
 
 from app.core.config import settings
 

@@ -1,13 +1,11 @@
 from __future__ import annotations
-from app import main
-
 
 import uuid
 
 from app.core.celery_app import celery_app
-from app.tasks.notification_tasks import send_notification_task
-from app.models.notification import Notification, NotificationType
 from app.database.base import Base
+from app.models.notification import Notification, NotificationType
+from app.tasks.notification_tasks import send_notification_task
 
 celery_app.conf.task_always_eager = True
 celery_app.conf.task_eager_propagates = True
@@ -15,6 +13,8 @@ celery_app.conf.task_eager_propagates = True
 
 def test_task_creates_notification():
     # pyrefly: ignore [missing-import]
+    import app.tasks.notification_tasks as nt
+    from app.database.session import SessionLocal as RealSessionLocal
     from sqlalchemy import create_engine
 
     # pyrefly: ignore [missing-import]
@@ -22,9 +22,6 @@ def test_task_creates_notification():
 
     # pyrefly: ignore [missing-import]
     from sqlalchemy.pool import StaticPool
-
-    import app.tasks.notification_tasks as nt
-    from app.database.session import SessionLocal as RealSessionLocal
 
     engine = create_engine(
         "sqlite://",
@@ -70,6 +67,8 @@ def test_task_creates_notification():
 
 def test_task_skips_self_notification():
     # pyrefly: ignore [missing-import]
+    import app.tasks.notification_tasks as nt
+    from app.database.session import SessionLocal as RealSessionLocal
     from sqlalchemy import create_engine
 
     # pyrefly: ignore [missing-import]
@@ -77,9 +76,6 @@ def test_task_skips_self_notification():
 
     # pyrefly: ignore [missing-import]
     from sqlalchemy.pool import StaticPool
-
-    import app.tasks.notification_tasks as nt
-    from app.database.session import SessionLocal as RealSessionLocal
 
     engine = create_engine(
         "sqlite://",
@@ -116,6 +112,10 @@ def test_task_skips_self_notification():
 
 def test_router_enqueue_integration():
     # pyrefly: ignore [missing-import]
+    import app.tasks.notification_tasks as nt
+    from app.database.session import SessionLocal as RealSessionLocal
+    from app.dependencies import get_database
+    from app.main import app
     from fastapi.testclient import TestClient
 
     # pyrefly: ignore [missing-import]
@@ -126,11 +126,6 @@ def test_router_enqueue_integration():
 
     # pyrefly: ignore [missing-import]
     from sqlalchemy.pool import StaticPool
-
-    import app.tasks.notification_tasks as nt
-    from app.dependencies import get_database
-    from app.main import app
-    from app.database.session import SessionLocal as RealSessionLocal
 
     engine = create_engine(
         "sqlite://",

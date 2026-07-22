@@ -5,13 +5,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database, get_current_user, require_org_permission
-from app.middleware.rate_limit import limiter, SEARCH_LIMIT
+from app.dependencies import get_current_user, get_database, require_org_permission
+from app.middleware.rate_limit import SEARCH_LIMIT, limiter
 from app.models.user import User
 from app.schemas.organization import (
     OrganizationCreate,

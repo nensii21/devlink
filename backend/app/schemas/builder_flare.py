@@ -6,6 +6,7 @@ from typing import Optional
 
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict
+
 from app.models.builder_flare import FlareStatus
 
 

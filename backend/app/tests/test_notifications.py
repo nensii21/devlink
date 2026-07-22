@@ -1,45 +1,42 @@
 # pyrefly: ignore [missing-import]
-import pytest
 import uuid
 
-# pyrefly: ignore [missing-import]
-from sqlalchemy import and_, select
+import pytest
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy import create_engine
+from fastapi.testclient import TestClient
+
+# pyrefly: ignore [missing-import]
+# pyrefly: ignore [missing-import]
+from sqlalchemy import and_, create_engine, select
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import sessionmaker
 
 # pyrefly: ignore [missing-import]
-from fastapi.testclient import TestClient
+from sqlalchemy.pool import StaticPool
 
 from app.database.base import Base
-from app.dependencies import get_database
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_database
 from app.main import app
+from app.models.application import Application, ApplicationStatus  # noqa: F401
+from app.models.builder_flare import BuilderFlare, FlareStatus
+from app.models.conversation import Conversation, ConversationType
+from app.models.conversation_member import ConversationMember
+from app.models.follower import Follower  # noqa: F401
+from app.models.message import Message, MessageType  # noqa: F401
+from app.models.notification import Notification, NotificationType  # noqa: F401
+from app.models.project import Project, ProjectStage, ProjectVisibility
+from app.models.project_member import MemberRole, ProjectMember
 
 # Import all models to register on Base.metadata
 from app.models.user import User
-from app.models.project import Project, ProjectStage, ProjectVisibility
-from app.models.follower import Follower  # noqa: F401
-from app.models.conversation import Conversation, ConversationType
-from app.models.conversation_member import ConversationMember
-from app.models.message import Message, MessageType  # noqa: F401
-from app.models.notification import Notification, NotificationType  # noqa: F401
-from app.models.application import Application, ApplicationStatus  # noqa: F401
-from app.models.builder_flare import BuilderFlare, FlareStatus
-from app.models.project_member import ProjectMember, MemberRole
-
+from app.schemas.application import ApplicationCreate
+from app.schemas.message import MessageCreate
+from app.services.application_service import ApplicationService
 from app.services.follower_service import FollowerService
 from app.services.message_service import MessageService
-from app.services.application_service import ApplicationService
 from app.services.notification_service import NotificationService
-from app.schemas.message import MessageCreate
-from app.schemas.application import ApplicationCreate
-
-# pyrefly: ignore [missing-import]
-from sqlalchemy.pool import StaticPool
 
 # Setup in-memory SQLite database
 engine = create_engine(

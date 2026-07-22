@@ -35,7 +35,7 @@ import logging
 import math
 import uuid
 from dataclasses import dataclass, field
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy import func, select
@@ -650,8 +650,8 @@ class RecommendationService:
         """
         Return a ranked list of recommended projects for the requester.
         """
-        from app.schemas.recommendation import RecommendedProject
         from app.models.project import ProjectStatus
+        from app.schemas.recommendation import RecommendedProject
 
         limit = max(1, min(limit, 100))
 
@@ -689,8 +689,8 @@ class RecommendationService:
         # Find collaborators
         # Projects where the user is a member/collaborator
         # This requires checking ProjectMember or Applications
-        from app.models.project_member import ProjectMember
         from app.models.application import ApplicationStatus
+        from app.models.project_member import ProjectMember
 
         collaborator_project_ids = set()
         member_rows = db.scalars(

@@ -12,21 +12,20 @@ from fastapi import (
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.middleware.rate_limit import (
-    limiter,
     LOGIN_LIMIT,
     PASSWORD_RESET_LIMIT,
     REGISTER_LIMIT,
+    limiter,
 )
-from app.dependencies import get_database
 from app.schemas.auth import (
     AuthResponse,
     ForgotPasswordRequest,
     LoginRequest,
     RegisterRequest,
 )
-from app.schemas.user import UserResponse, CurrentUser
+from app.schemas.user import CurrentUser
 from app.services.auth_service import AuthService
 
 router = APIRouter(
@@ -87,18 +86,17 @@ def login(
 
 
 # pyrefly: ignore [missing-import]
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer  # noqa: E402
 
-from app.core.security import (
+from app.core.security import (  # noqa: E402
+    create_verification_token,
     decode_token,
     is_refresh_token,
-    create_verification_token,
-    is_verification_token,
 )
-from app.schemas.auth import (
-    RefreshTokenRequest,
-    LogoutResponse,
+from app.schemas.auth import (  # noqa: E402
     CurrentUserResponse,
+    LogoutResponse,
+    RefreshTokenRequest,
 )
 
 security = HTTPBearer()
@@ -209,15 +207,14 @@ def logout(
     return auth_service.logout(user_id)
 
 
-from app.schemas.auth import (
+from app.schemas.auth import (  # noqa: E402
     ChangePasswordRequest,
-    ForgotPasswordRequest,
     ForgotPasswordResponse,
+    ResendVerificationEmailRequest,
     ResetPasswordRequest,
     SuccessResponse,
     VerifyEmailRequest,
     VerifyEmailResponse,
-    ResendVerificationEmailRequest,
 )
 
 # ==========================================================
@@ -385,7 +382,7 @@ def resend_verification(
         }
 
     # Generate verification token
-    token = create_verification_token(str(user.id))
+    create_verification_token(str(user.id))
     # TODO:
     # Send email via SMTP
 

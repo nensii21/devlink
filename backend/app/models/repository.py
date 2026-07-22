@@ -7,12 +7,14 @@ from enum import Enum
 from sqlalchemy import (
     Boolean,
     DateTime,
-    Enum as SqlEnum,
     ForeignKey,
     Integer,
     String,
     Text,
     func,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship

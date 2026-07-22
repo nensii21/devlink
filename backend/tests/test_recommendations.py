@@ -1,12 +1,12 @@
 import uuid
-import pytest
-from app.services.recommendation_service import (
-    WeightedProjectScoringStrategy,
-    ProjectCandidate,
-    ProjectScoringContext,
-)
+
 from app.models.project import Project
 from app.schemas.recommendation import RecommendationWeights
+from app.services.recommendation_service import (
+    ProjectCandidate,
+    ProjectScoringContext,
+    WeightedProjectScoringStrategy,
+)
 
 
 def test_project_scoring_strategy():

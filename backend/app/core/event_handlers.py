@@ -1,6 +1,6 @@
-from typing import Any
 import logging
 import uuid
+from typing import Any
 
 from app.core.logging import log_security_event
 from app.database.session import SessionLocal

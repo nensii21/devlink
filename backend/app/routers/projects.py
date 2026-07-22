@@ -5,13 +5,12 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database, get_current_user, require_project_permission
-from app.middleware.rate_limit import limiter, PROJECT_LIMIT
+from app.dependencies import get_current_user, get_database, require_project_permission
+from app.middleware.idempotency import IdempotentRoute
+from app.middleware.rate_limit import PROJECT_LIMIT, limiter
 from app.models.user import User
 from app.schemas.project import (
     ProjectCreate,
@@ -20,8 +19,6 @@ from app.schemas.project import (
     ProjectUpdate,
 )
 from app.services.project_service import ProjectService
-
-from app.middleware.idempotency import IdempotentRoute
 
 router = APIRouter(
     tags=["Projects"],
@@ -395,10 +392,10 @@ def invite_user(
             detail="Only the project owner can invite members",
         )
 
-    from app.models.project_member import ProjectMember, MemberRole
-
     # pyrefly: ignore [missing-import]
     from sqlalchemy import and_, select
+
+    from app.models.project_member import MemberRole, ProjectMember
 
     existing_member = db.scalar(
         select(ProjectMember).where(
