@@ -1,9 +1,10 @@
-import pytest
 import uuid
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+
+import pytest
 from app.models.conversation import Conversation, ConversationType
 from app.models.conversation_member import ConversationMember
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 
 @pytest.fixture

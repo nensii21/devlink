@@ -9,10 +9,10 @@ from sqlalchemy import select
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session, selectinload
 
-from app.models.message import Message
 from app.models.conversation_member import ConversationMember
-from app.models.user import User
+from app.models.message import Message
 from app.models.notification import NotificationType
+from app.models.user import User
 from app.schemas.message import (
     MessageCreate,
     MessageUpdate,

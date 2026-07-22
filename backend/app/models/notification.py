@@ -7,11 +7,13 @@ from enum import Enum
 from sqlalchemy import (
     Boolean,
     DateTime,
-    Enum as SqlEnum,
     ForeignKey,
     String,
     Text,
     func,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -189,8 +191,5 @@ class Notification(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<Notification("
-            f"type='{self.type.value}', "
-            f"recipient={self.recipient_id}"
-            f")>"
+            f"<Notification(type='{self.type.value}', recipient={self.recipient_id})>"
         )

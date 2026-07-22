@@ -1,13 +1,12 @@
+# ------------------------------------------------------------------
+# Global Rate Limiter
+# ------------------------------------------------------------------
+import sys
+
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from app.core.config import settings
-
-# ------------------------------------------------------------------
-# Global Rate Limiter
-# ------------------------------------------------------------------
-
-import sys
 
 is_testing = "pytest" in sys.modules
 

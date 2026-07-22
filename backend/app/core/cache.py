@@ -5,6 +5,7 @@ from functools import wraps
 from typing import Any, Callable, Dict, Optional, Tuple
 
 import redis
+
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)

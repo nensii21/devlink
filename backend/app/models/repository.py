@@ -7,12 +7,14 @@ from enum import Enum
 from sqlalchemy import (
     Boolean,
     DateTime,
-    Enum as SqlEnum,
     ForeignKey,
     Integer,
     String,
     Text,
     func,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -201,8 +203,5 @@ class Repository(Base):
 
     def __repr__(self):
         return (
-            f"<Repository("
-            f"provider='{self.provider.value}', "
-            f"repo='{self.full_name}'"
-            f")>"
+            f"<Repository(provider='{self.provider.value}', repo='{self.full_name}')>"
         )

@@ -5,6 +5,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.core.cache import cached
 from app.models.activity import ActivityType
 from app.models.organization import Organization
 from app.schemas.organization import (
@@ -12,7 +13,6 @@ from app.schemas.organization import (
     OrganizationUpdate,
 )
 from app.services.activity_service import ActivityService
-from app.core.cache import cached
 
 
 class OrganizationService:

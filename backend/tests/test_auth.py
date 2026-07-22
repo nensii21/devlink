@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 
 
@@ -162,12 +161,11 @@ def test_forgot_password(client: TestClient, register_and_login):
 
 def test_reset_password(client: TestClient, register_and_login):
     user_id, _ = register_and_login("reset@example.com", "resetuser", "OldPass1!")
-    forgot = client.post(
-        "/api/auth/forgot-password", json={"email": "reset@example.com"}
-    )
+    client.post("/api/auth/forgot-password", json={"email": "reset@example.com"})
+
+    from datetime import timedelta
 
     from app.core.security import _create_token
-    from datetime import timedelta
 
     reset_token = _create_token(str(user_id), timedelta(hours=1), "reset")
 

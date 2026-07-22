@@ -8,8 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_database
 from app.models.user import User
 from app.schemas.bookmark_collection import (
     BookmarkCollectionCreate,
@@ -17,7 +16,6 @@ from app.schemas.bookmark_collection import (
     BookmarkCollectionUpdate,
     BookmarkCollectionWithBookmarks,
 )
-from app.schemas.bookmark import BookmarkResponse
 from app.services.bookmark_collection_service import BookmarkCollectionService
 from app.services.bookmark_service import BookmarkService
 

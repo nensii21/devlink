@@ -1,20 +1,13 @@
 from __future__ import annotations
 
 import pytest
-import uuid
+from app.database.base import Base
+from app.dependencies import get_database
+from app.main import app
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from fastapi import HTTPException
-
-from app.database.base import Base
-from app.dependencies import get_database
-from app.main import app
-from app.models.user import User
-from app.models.organization import Organization, OrganizationType
-from app.schemas.organization import OrganizationCreate, OrganizationUpdate
-from app.services.organization_service import OrganizationService
 
 engine = create_engine(
     "sqlite://",

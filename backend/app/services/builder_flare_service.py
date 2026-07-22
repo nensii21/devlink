@@ -5,12 +5,12 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.core.cache import cached
 from app.models.builder_flare import BuilderFlare
 from app.schemas.builder_flare import (
     BuilderFlareCreate,
     BuilderFlareUpdate,
 )
-from app.core.cache import cached
 
 
 class BuilderFlareService:

@@ -1,11 +1,11 @@
-import pytest
 from typing import Generator
+
+import app.core.security
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-
-import app.core.security
 
 
 class MockPwdContext:
@@ -20,9 +20,9 @@ app.core.security.pwd_context = MockPwdContext()
 app.core.security.hash_password = lambda p: p + "_hashed"
 app.core.security.verify_password = lambda p, h: h == p + "_hashed"
 
-from app.database.base import Base
-from app.dependencies import get_database
-from app.main import app
+from app.database.base import Base  # noqa: E402
+from app.dependencies import get_database  # noqa: E402
+from app.main import app  # noqa: E402
 
 engine = create_engine(
     "sqlite:///:memory:",

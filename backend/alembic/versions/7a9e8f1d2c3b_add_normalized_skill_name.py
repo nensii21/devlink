@@ -6,9 +6,8 @@ User and project associations are repointed to the earliest skill record.
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 from app.utils.skill_names import clean_skill_name, normalize_skill_name
 
 revision: str = "7a9e8f1d2c3b"

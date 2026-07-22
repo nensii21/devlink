@@ -7,12 +7,14 @@ from enum import Enum
 from sqlalchemy import (
     Boolean,
     DateTime,
-    Enum as SqlEnum,
     ForeignKey,
     Integer,
     String,
     Text,
     func,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -199,8 +201,5 @@ class Organization(Base):
 
     def __repr__(self):
         return (
-            f"<Organization("
-            f"name='{self.name}', "
-            f"type='{self.organization_type.value}'"
-            f")>"
+            f"<Organization(name='{self.name}', type='{self.organization_type.value}')>"
         )

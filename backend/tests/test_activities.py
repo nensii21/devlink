@@ -1,10 +1,9 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
+from app.models.activity import Activity, ActivityType
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-
-from app.models.activity import Activity, ActivityType
 
 
 def test_create_activity(client: TestClient, db: Session, register_and_login):

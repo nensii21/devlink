@@ -8,12 +8,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_database
+from app.models.notification import NotificationType
 from app.models.user import User
 from app.schemas.follower import FollowerResponse
 from app.services.follower_service import FollowerService
-from app.models.notification import NotificationType
 from app.services.notification_service import NotificationService
 
 router = APIRouter(

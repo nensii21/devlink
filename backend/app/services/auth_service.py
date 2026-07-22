@@ -322,7 +322,7 @@ class AuthService:
         if not user:
             return {
                 "success": True,
-                "message": ("If the account exists, a reset email " "has been sent."),
+                "message": ("If the account exists, a reset email has been sent."),
             }
 
         # TODO:

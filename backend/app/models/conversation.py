@@ -7,10 +7,12 @@ from enum import Enum
 from sqlalchemy import (
     Boolean,
     DateTime,
-    Enum as SqlEnum,
     ForeignKey,
     String,
     func,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -122,4 +124,4 @@ class Conversation(Base):
     )
 
     def __repr__(self):
-        return f"<Conversation(" f"type='{self.type.value}', " f"id={self.id}" f")>"
+        return f"<Conversation(type='{self.type.value}', id={self.id})>"
