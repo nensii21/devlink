@@ -91,7 +91,7 @@ class ActivityUpdate(BaseModel):
 
 class ActivityResponse(ActivityBase):
     """Full activity record returned to API clients.
-    
+
     Includes the ``actor`` sub-object (when available) so the frontend
     can render the user who performed the action without a second
     round-trip to ``/api/users/{id}``.
