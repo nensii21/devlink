@@ -12,7 +12,6 @@ from fastapi import (
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
 from app.middleware.rate_limit import (
     limiter,
     LOGIN_LIMIT,
@@ -26,7 +25,7 @@ from app.schemas.auth import (
     LoginRequest,
     RegisterRequest,
 )
-from app.schemas.user import UserResponse, CurrentUser
+from app.schemas.user import CurrentUser
 from app.services.auth_service import AuthService
 
 router = APIRouter(
@@ -86,9 +85,9 @@ def login(
     return auth_service.login(payload)
 
 
-import httpx
-from app.schemas.auth import GitHubLoginRequest
-from app.core.config import settings
+import httpx  # noqa: E402
+from app.schemas.auth import GitHubLoginRequest  # noqa: E402
+from app.core.config import settings  # noqa: E402
 
 
 @router.post(
@@ -177,15 +176,14 @@ async def github_login(
 
 
 # pyrefly: ignore [missing-import]
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer  # noqa: E402
 
-from app.core.security import (
+from app.core.security import (  # noqa: E402
     decode_token,
     is_refresh_token,
     create_verification_token,
-    is_verification_token,
 )
-from app.schemas.auth import (
+from app.schemas.auth import (  # noqa: E402
     RefreshTokenRequest,
     LogoutResponse,
     CurrentUserResponse,
@@ -299,9 +297,8 @@ def logout(
     return auth_service.logout(user_id)
 
 
-from app.schemas.auth import (
+from app.schemas.auth import (  # noqa: E402
     ChangePasswordRequest,
-    ForgotPasswordRequest,
     ForgotPasswordResponse,
     ResetPasswordRequest,
     SuccessResponse,
@@ -475,7 +472,7 @@ def resend_verification(
         }
 
     # Generate verification token
-    token = create_verification_token(str(user.id))
+    token = create_verification_token(str(user.id))  # noqa: F841
     # TODO:
     # Send email via SMTP
 

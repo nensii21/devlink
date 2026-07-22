@@ -42,41 +42,6 @@ def create_conversation(
     )
 
 
-@router.post(
-    "/",
-    response_model=ConversationResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def create_conversation(
-    conversation: ConversationCreate,
-    db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
-):
-
-    return ConversationService.create_conversation(
-        db=db,
-        owner_id=current_user.id,
-        conversation=conversation,
-    )
-
-
-@router.post(
-    "/",
-    response_model=ConversationResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def create_conversation(
-    conversation: ConversationCreate,
-    db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
-):
-
-    return ConversationService.create_conversation(
-        db=db,
-        owner_id=current_user.id,
-        conversation=conversation,
-    )
-
 
 @router.get(
     "/{conversation_id}",

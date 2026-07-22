@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-import uuid
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -12,7 +11,7 @@ from app.database.base import Base
 from app.dependencies import get_database
 from app.main import app
 from app.models.user import User
-from app.models.conversation import Conversation, ConversationType
+from app.models.conversation import ConversationType
 from app.models.conversation_member import ConversationMember, ConversationRole
 from app.schemas.conversation import ConversationCreate
 from app.services.conversation_service import ConversationService

@@ -22,9 +22,9 @@ app.core.security.pwd_context = MockPwdContext()
 app.core.security.hash_password = lambda p: p + "_hashed"
 app.core.security.verify_password = lambda p, h: h == p + "_hashed"
 
-from app.database.base import Base
-from app.dependencies import get_database
-from app.main import app
+from app.database.base import Base  # noqa: E402
+from app.dependencies import get_database  # noqa: E402
+from app.main import app  # noqa: E402
 
 app.state.limiter.enabled = False
 

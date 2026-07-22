@@ -75,7 +75,7 @@ def has_org_permission(
         and_(
             OrganizationMember.organization_id == org_id,
             OrganizationMember.user_id == user_id,
-            OrganizationMember.is_active == True,
+            OrganizationMember.is_active == True,  # noqa: E712
         )
     )
     member = db.scalar(stmt)
@@ -122,7 +122,7 @@ def has_project_permission(
         and_(
             ProjectMember.project_id == project_id,
             ProjectMember.user_id == user_id,
-            ProjectMember.is_active == True,
+            ProjectMember.is_active == True,  # noqa: E712
         )
     )
     member = db.scalar(stmt)

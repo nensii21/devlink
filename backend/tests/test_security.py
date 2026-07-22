@@ -1,6 +1,4 @@
-from datetime import timedelta
 import pytest
-from jose import jwt
 
 from app.core.security import (
     hash_password,
@@ -13,7 +11,6 @@ from app.core.security import (
     is_refresh_token,
     validate_password_strength,
 )
-from app.core.config import settings
 
 
 def test_password_hashing():

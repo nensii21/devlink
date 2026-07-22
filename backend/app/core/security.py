@@ -14,9 +14,9 @@ def _patched_hashpw(password, salt):
 
 
 bcrypt.hashpw = _patched_hashpw
-from passlib.context import CryptContext
+from passlib.context import CryptContext  # noqa: E402
 
-from app.core.config import settings
+from app.core.config import settings  # noqa: E402
 
 # ------------------------------------------------------------------
 # Password Hashing

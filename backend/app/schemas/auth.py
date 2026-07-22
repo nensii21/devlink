@@ -46,7 +46,7 @@ class GitHubLoginRequest(BaseModel):
     code: str
 
 
-class GitHubLoginRequest(BaseModel):
+class GitHubLoginRequest(BaseModel):  # noqa: F811
     code: str
 
 
@@ -72,7 +72,7 @@ class TokenPayload(BaseModel):
 # ==========================================================
 
 
-from app.schemas.user import UserResponse
+from app.schemas.user import UserResponse  # noqa: E402
 
 
 class AuthResponse(BaseModel):

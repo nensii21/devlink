@@ -20,9 +20,6 @@ from app.dependencies import get_database
 from app.main import app
 
 # Register models
-from app.models.user import User
-from app.models.notification import Notification
-from app.models.follower import Follower
 
 engine = create_engine(
     "sqlite://",

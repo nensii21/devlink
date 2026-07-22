@@ -1,9 +1,7 @@
 import pytest
 from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi.testclient import TestClient
-from app.main import app
 from app.models.user import User
-from app.database.session import get_db
 
 
 @pytest.fixture
