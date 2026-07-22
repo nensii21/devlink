@@ -397,3 +397,4 @@ export function NotificationsFeed() {
     </Card>
   );
 }
+
