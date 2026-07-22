@@ -29,13 +29,6 @@ export function useBookmarkStatus(projectId: string) {
   };
 }
 
-export function useBookmarkCount(projectId: string) {
-  return useQuery({
-    queryKey: [...BOOKMARKS_KEY, "count", projectId],
-    queryFn: () => bookmarksApi.count(projectId),
-  });
-}
-
 export function useToggleBookmark(projectId: string) {
   const queryClient = useQueryClient();
 
