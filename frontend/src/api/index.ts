@@ -15,6 +15,8 @@ export { hackathonsApi } from "./modules/hackathons";
 export { searchApi } from "./modules/search";
 export { activitiesApi } from "./modules/activities";
 export { collectionsApi } from "./modules/collections";
+export { projectTagsApi } from "./modules/projectTags";
+export type { ProjectTagResponse } from "./modules/projectTags";
 export type {
   BookmarkCollection,
   BookmarkCollectionWithBookmarks,
