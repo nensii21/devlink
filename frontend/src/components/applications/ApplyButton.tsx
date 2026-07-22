@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
 import { applyToFlare, type UUID } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/shared/primitives";
@@ -11,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { cn } from "@/lib/utils";
 import { Loader2, Link as LinkIcon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function ApplyButton({
   flareId,
@@ -21,6 +22,7 @@ export function ApplyButton({
   projectId: UUID;
   className?: string;
 }) {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
@@ -39,6 +41,7 @@ export function ApplyButton({
       });
 
       toast.success("Applied successfully");
+      await queryClient.invalidateQueries({ queryKey: ["myApplications"] });
       setOpen(false);
       setMessage("");
       setPortfolioUrl("");
