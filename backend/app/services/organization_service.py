@@ -49,6 +49,17 @@ class OrganizationService:
         db.flush()
         db.refresh(db_organization)
 
+        # Create OrganizationMember record for owner
+        from app.models.organization_member import OrganizationMember, OrgMemberRole
+
+        member = OrganizationMember(
+            organization_id=db_organization.id,
+            user_id=owner_id,
+            role=OrgMemberRole.OWNER,
+            is_active=True,
+        )
+        db.add(member)
+        db.commit()
         ActivityService.record_activity(
             db=db,
             actor_id=owner_id,
@@ -217,6 +228,11 @@ class OrganizationService:
         db: Session,
         db_organization: Organization,
     ) -> None:
+        from app.models.organization_member import OrganizationMember
 
+        # Explicitly delete member rows first to avoid SQLAlchemy FK nullification
+        db.query(OrganizationMember).filter(
+            OrganizationMember.organization_id == db_organization.id
+        ).delete(synchronize_session=False)
         db.delete(db_organization)
         db.flush()
