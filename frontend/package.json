@@ -75,6 +75,8 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@emnapi/core": "^1.11.2",
+    "@emnapi/runtime": "^1.11.2",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "^2.6.4",
     "@types/node": "^22.16.5",
