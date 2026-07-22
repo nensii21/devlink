@@ -381,9 +381,7 @@ def resend_verification(
     if not user:
         return {
             "success": True,
-            "message": (
-                "If the account exists, " "a verification email has been sent."
-            ),
+            "message": ("If the account exists, a verification email has been sent."),
         }
 
     # Generate verification token

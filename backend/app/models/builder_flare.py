@@ -165,4 +165,4 @@ class BuilderFlare(Base):
     )
 
     def __repr__(self):
-        return f"<BuilderFlare(title='{self.title}', " f"role='{self.role}')>"
+        return f"<BuilderFlare(title='{self.title}', role='{self.role}')>"

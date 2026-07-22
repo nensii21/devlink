@@ -29,7 +29,10 @@ import { containerVariants, cardEntrance, cardHover } from "@/lib/animations";
 export function RecentActivity() {
   return (
     <Card>
-      <ActivityFeed queryKey={["activities", "recent"]} queryFn={() => activitiesService.list(20)} />
+      <ActivityFeed
+        queryKey={["activities", "recent"]}
+        queryFn={() => activitiesService.list(20)}
+      />
     </Card>
   );
 }

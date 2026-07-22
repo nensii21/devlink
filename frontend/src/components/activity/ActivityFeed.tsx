@@ -16,11 +16,11 @@ import {
 } from "lucide-react";
 
 const activityIcons: Record<string, LucideIcon> = {
-  "archive": Archive,
+  archive: Archive,
   "building-2": Building2,
   "folder-plus": FolderPlus,
   "git-branch": GitBranch,
-  "pencil": Pencil,
+  pencil: Pencil,
   "user-plus": UserPlus,
   "user-round-pen": UserRoundPen,
 };
@@ -51,7 +51,7 @@ function getActorName(activity: BackendActivity) {
 }
 
 export function ActivityItem({ activity }: { activity: BackendActivity }) {
-  const Icon = activity.icon ? activityIcons[activity.icon] ?? ActivityIcon : ActivityIcon;
+  const Icon = activity.icon ? (activityIcons[activity.icon] ?? ActivityIcon) : ActivityIcon;
   const actorName = getActorName(activity);
 
   return (
@@ -102,7 +102,12 @@ export function ActivityFeed({
   queryKey: readonly unknown[];
   queryFn: () => Promise<BackendActivity[]>;
 }) {
-  const { data = [], isError, isLoading, refetch } = useQuery({
+  const {
+    data = [],
+    isError,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey,
     queryFn,
   });
@@ -114,7 +119,9 @@ export function ActivityFeed({
       {isError && (
         <div className="px-4 pb-4">
           <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
-            <p className="text-[13px] font-semibold text-foreground">Activity could not be loaded.</p>
+            <p className="text-[13px] font-semibold text-foreground">
+              Activity could not be loaded.
+            </p>
             <button
               className="mt-1 text-[12px] font-medium text-primary hover:underline"
               onClick={() => void refetch()}

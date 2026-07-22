@@ -76,6 +76,8 @@ class ActivityUpdate(BaseModel):
         default=None,
         max_length=30,
     )
+
+
 from typing import Optional
 
 # pyrefly: ignore [missing-import]

@@ -24,16 +24,12 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "default": {
-            "format": ("[%(asctime)s] " "[%(levelname)s] " "[%(name)s] " "%(message)s"),
+            "format": ("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "access": {
             "format": (
-                "%(asctime)s | "
-                "%(levelname)s | "
-                "%(clientip)s | "
-                "%(request)s | "
-                "%(status)s"
+                "%(asctime)s | %(levelname)s | %(clientip)s | %(request)s | %(status)s"
             ),
         },
     },
@@ -153,10 +149,7 @@ def log_request(
     duration_ms: float,
 ) -> None:
     logger.info(
-        f"[{request_id}] "
-        f"{method} {path} "
-        f"status={status_code} "
-        f"time={duration_ms:.2f}ms"
+        f"[{request_id}] {method} {path} status={status_code} time={duration_ms:.2f}ms"
     )
 
 

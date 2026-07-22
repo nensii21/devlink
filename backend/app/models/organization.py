@@ -199,8 +199,5 @@ class Organization(Base):
 
     def __repr__(self):
         return (
-            f"<Organization("
-            f"name='{self.name}', "
-            f"type='{self.organization_type.value}'"
-            f")>"
+            f"<Organization(name='{self.name}', type='{self.organization_type.value}')>"
         )

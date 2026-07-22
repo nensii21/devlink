@@ -16,7 +16,7 @@ from app.dependencies import get_current_user
 from app.middleware.rate_limit import limiter, RECOMMENDATION_LIMIT
 from app.models.user import User
 from app.schemas.recommendation import (
-    RecommendationResponse, 
+    RecommendationResponse,
     RecommendedBuilder,
     ProjectRecommendationResponse,
     RecommendedProject,

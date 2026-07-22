@@ -181,9 +181,4 @@ class Activity(Base):
     )
 
     def __repr__(self):
-        return (
-            f"<Activity("
-            f"type='{self.activity_type.value}', "
-            f"actor={self.actor_id}"
-            f")>"
-        )
+        return f"<Activity(type='{self.activity_type.value}', actor={self.actor_id})>"
