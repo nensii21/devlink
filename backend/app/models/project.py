@@ -14,7 +14,7 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -107,6 +107,12 @@ class Project(Base):
 
     tech_stack: Mapped[str | None] = mapped_column(
         Text,
+    )
+
+    tags: Mapped[list | None] = mapped_column(
+        JSONB,
+        nullable=True,
+        default=list,
     )
 
     repository_url: Mapped[str | None] = mapped_column(
