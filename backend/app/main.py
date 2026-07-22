@@ -34,6 +34,7 @@ from app.routers import (
     bookmark_collections,
     bookmarks,
     builder_flares,
+    conversation_starters,
     conversations,
     followers,
     health,
@@ -190,6 +191,7 @@ app.include_router(bookmarks.router)
 app.include_router(bookmark_collections.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)
+app.include_router(conversation_starters.router, prefix="/api/conversation-starters", tags=["Conversation Starters"])
 app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)

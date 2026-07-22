@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { messagesService } from "@/services";
-import { Card, Avatar } from "@/components/shared/primitives";
+import { Card, Avatar, Skeleton } from "@/components/shared/primitives";
 import { LoadingButton } from "@/components/shared/LoadingButton";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Sparkles } from "lucide-react";
 import { useState, useCallback } from "react";
 import { builders, conversations } from "@/mocks/seed";
 import { cn } from "@/lib/utils";
+import { conversationStartersApi, type ConversationStarterResponse } from "@/api";
 
 export const Route = createFileRoute("/_app/messages/$conversationId")({
   head: () => ({ meta: [{ title: "Chat — DevLink" }] }),
@@ -26,6 +27,14 @@ function Thread() {
   });
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Conversation starters state
+  const [starters, setStarters] = useState<ConversationStarterResponse | null>(null);
+
+  const startersMutation = useMutation({
+    mutationFn: () => conversationStartersApi.generate(conversationId),
+    onSuccess: (data) => setStarters(data),
+  });
 
   const handleSend = useCallback(
     async (e: React.FormEvent) => {
@@ -88,9 +97,47 @@ function Thread() {
 
         <div className="flex-1 space-y-2 overflow-y-auto p-4">
           {data.length === 0 && (
-            <p className="text-center text-[12px] text-muted-foreground">
-              No messages yet — say hello 👋
-            </p>
+            <div className="space-y-4">
+              <p className="text-center text-[12px] text-muted-foreground">
+                No messages yet — say hello 👋
+              </p>
+
+              {/* Conversation Starters Section */}
+              {!starters && !startersMutation.isPending && (
+                <button
+                  onClick={() => startersMutation.mutate()}
+                  className="mx-auto flex items-center gap-2 rounded-md border border-border bg-surface px-4 py-2 text-[12px] text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                >
+                  <Sparkles size={14} />
+                  Get conversation starters
+                </button>
+              )}
+
+              {startersMutation.isPending && (
+                <div className="space-y-2">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-3/4" />
+                </div>
+              )}
+
+              {starters && (
+                <div className="space-y-2">
+                  <p className="text-center text-[11px] text-muted-foreground">
+                    Suggestions for {starters.target_user_name}
+                  </p>
+                  {starters.suggestions.map((suggestion, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setText(suggestion)}
+                      className="w-full rounded-md border border-border bg-surface px-3 py-2 text-left text-[13px] text-foreground hover:bg-muted/50"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
           {data.map((m) => (
             <div
