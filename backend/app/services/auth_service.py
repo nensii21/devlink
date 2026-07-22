@@ -21,6 +21,7 @@ from app.core.security import (
     verify_password,
 )
 from app.models.user import User
+from app.models.password_history import PasswordHistory
 from app.schemas.auth import (
     LoginRequest,
     RegisterRequest,
@@ -34,12 +35,64 @@ from app.utils.validators import (
 
 
 class AuthService:
+
+    PASSWORD_HISTORY_LIMIT = 5
+
     """
     Authentication service for DevLink.
     """
 
     def __init__(self, db: Session):
         self.db = db
+
+    def _save_password_history(self, user: User) -> None:
+        history = PasswordHistory(
+           user_id=user.id,
+           password_hash=user.password_hash,
+    )
+
+        self.db.add(history)
+        self.db.flush()
+
+        histories = (
+            self.db.execute(
+               select(PasswordHistory)
+               .where(PasswordHistory.user_id == user.id)
+               .order_by(PasswordHistory.created_at.desc())
+            )
+            .scalars()
+            .all()
+        )
+
+        for old_history in histories[self.PASSWORD_HISTORY_LIMIT:]:
+            self.db.delete(old_history)
+
+        def _is_password_reused(
+            self,
+            user: User,
+            new_password: str,
+        ) -> bool:
+
+           if verify_password(new_password, user.password_hash):
+               return True
+
+        histories = (
+            self.db.execute(
+                select(PasswordHistory)
+                .where(PasswordHistory.user_id == user.id)
+                .order_by(PasswordHistory.created_at.desc())
+                .limit(self.PASSWORD_HISTORY_LIMIT)
+            )
+            .scalars()
+            .all()
+        )
+
+        for history in histories:
+            if verify_password(new_password, history.password_hash):
+                return True
+
+        return False
+    
 
     # =====================================================
     # User Lookup Helpers
@@ -252,6 +305,14 @@ class AuthService:
 
         validate_password(new_password)
 
+        if self._is_password_reused(user, new_password):
+           raise HTTPException(
+              status_code=status.HTTP_400_BAD_REQUEST,
+              detail="You cannot reuse one of your last 5 passwords.",
+           )
+
+        self._save_password_history(user)
+
         user.password_hash = hash_password(new_password)
 
         self.db.flush()
@@ -352,6 +413,14 @@ class AuthService:
         validate_password(new_password)
 
         user = self.get_current_user(user_id)
+
+        if self._is_password_reused(user, new_password):
+           raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You cannot reuse one of your last 5 passwords.",
+            )
+
+        self._save_password_history(user)
 
         user.password_hash = hash_password(new_password)
 
