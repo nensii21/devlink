@@ -15,6 +15,8 @@ export { hackathonsApi } from "./modules/hackathons";
 export { searchApi } from "./modules/search";
 export { activitiesApi } from "./modules/activities";
 export { collectionsApi } from "./modules/collections";
+export { recommendationsApi } from "./modules/recommendations";
+export type { TechStackRecommendation, TechStackResponse } from "./modules/recommendations";
 export type {
   BookmarkCollection,
   BookmarkCollectionWithBookmarks,
