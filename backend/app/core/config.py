@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     # ==========================================================
 
     ALLOWED_ORIGINS: str = (
-        "http://localhost:5173," "http://localhost:5174," "http://localhost:3000"
+        "http://localhost:5173,http://localhost:5174,http://localhost:3000"
     )
 
     # ==========================================================
@@ -100,7 +100,7 @@ class Settings(BaseSettings):
 
     MAX_UPLOAD_SIZE_MB: int = 10
 
-    ALLOWED_IMAGE_TYPES: str = "image/png," "image/jpeg," "image/webp"
+    ALLOWED_IMAGE_TYPES: str = "image/png,image/jpeg,image/webp"
 
     # ==========================================================
     # AI

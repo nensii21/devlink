@@ -85,9 +85,11 @@ def login(
 
     return auth_service.login(payload)
 
+
 import httpx
 from app.schemas.auth import GitHubLoginRequest
 from app.core.config import settings
+
 
 @router.post(
     "/github",
@@ -123,7 +125,7 @@ async def github_login(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Failed to exchange code for GitHub token.",
             )
-        
+
         token_data = token_res.json()
         if "error" in token_data:
             raise HTTPException(
@@ -157,7 +159,7 @@ async def github_login(
                 if email_obj.get("primary") and email_obj.get("verified"):
                     primary_email = email_obj.get("email")
                     break
-            
+
             if not primary_email:
                 for email_obj in emails:
                     if email_obj.get("verified"):
@@ -172,7 +174,6 @@ async def github_login(
 
     auth_service = AuthService(db)
     return auth_service.github_login(github_user, primary_email)
-
 
 
 # pyrefly: ignore [missing-import]
@@ -470,9 +471,7 @@ def resend_verification(
     if not user:
         return {
             "success": True,
-            "message": (
-                "If the account exists, " "a verification email has been sent."
-            ),
+            "message": ("If the account exists, a verification email has been sent."),
         }
 
     # Generate verification token

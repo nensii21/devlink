@@ -168,14 +168,18 @@ class AuthService:
     def github_login(self, github_user: dict, primary_email: str):
         from app.models.user import User
         from app.core.events import event_bus
-        from app.core.security import hash_password, create_access_token, create_refresh_token
+        from app.core.security import (
+            hash_password,
+            create_access_token,
+            create_refresh_token,
+        )
         from fastapi import HTTPException, status
         import secrets
         import string
         from datetime import datetime, timezone
 
         github_id = str(github_user.get("id"))
-        
+
         user = self.db.query(User).filter(User.github_id == github_id).first()
 
         if not user:
@@ -190,19 +194,21 @@ class AuthService:
                 self.db.refresh(user)
             else:
                 alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
-                random_password = ''.join(secrets.choice(alphabet) for i in range(16))
+                random_password = "".join(secrets.choice(alphabet) for i in range(16))
                 name_parts = (github_user.get("name") or "").split(" ")
-                first_name = name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                first_name = (
+                    name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                )
                 last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
-                
+
                 base_username = (github_user.get("login") or "github_user").lower()[:50]
                 username = base_username
                 counter = 1
                 while self.get_user_by_username(username):
                     suffix = str(counter)
-                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    username = f"{base_username[: 50 - len(suffix)]}{suffix}"
                     counter += 1
-                
+
                 user = User(
                     first_name=first_name,
                     last_name=last_name,
@@ -247,15 +253,14 @@ class AuthService:
             "user": user,
         }
 
-
     # =====================================================
 
     def github_login(self, github_user: dict, primary_email: str):
         github_id = str(github_user["id"])
-        
+
         # 1. Check if user already exists by github_id
         user = self.db.scalar(select(User).where(User.github_id == github_id))
-        
+
         if not user:
             # 2. Check if user exists by email
             user = self.get_user_by_email(primary_email)
@@ -265,32 +270,34 @@ class AuthService:
                 user.github_url = github_user.get("html_url")
                 if not user.profile_image and github_user.get("avatar_url"):
                     user.profile_image = github_user.get("avatar_url")
-                
+
                 self.db.commit()
             else:
                 # 3. Create new user
                 import secrets
                 import string
-                
+
                 # Generate random password (local requirement)
                 alphabet = string.ascii_letters + string.digits + string.punctuation
-                random_password = ''.join(secrets.choice(alphabet) for i in range(32))
-                
+                random_password = "".join(secrets.choice(alphabet) for i in range(32))
+
                 # Parse name
-                name = github_user.get("name") or github_user.get("login") or "GitHub User"
+                name = (
+                    github_user.get("name") or github_user.get("login") or "GitHub User"
+                )
                 name_parts = name.split(" ", 1)
                 first_name = name_parts[0][:100]
                 last_name = name_parts[1][:100] if len(name_parts) > 1 else ""
-                
+
                 # Ensure unique username
                 base_username = (github_user.get("login") or "github_user").lower()[:50]
                 username = base_username
                 counter = 1
                 while self.get_user_by_username(username):
                     suffix = str(counter)
-                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    username = f"{base_username[: 50 - len(suffix)]}{suffix}"
                     counter += 1
-                
+
                 user = User(
                     first_name=first_name,
                     last_name=last_name,
@@ -346,14 +353,18 @@ class AuthService:
     def github_login(self, github_user: dict, primary_email: str):
         from app.models.user import User
         from app.core.events import event_bus
-        from app.core.security import hash_password, create_access_token, create_refresh_token
+        from app.core.security import (
+            hash_password,
+            create_access_token,
+            create_refresh_token,
+        )
         from fastapi import HTTPException, status
         import secrets
         import string
         from datetime import datetime, timezone
 
         github_id = str(github_user.get("id"))
-        
+
         user = self.db.query(User).filter(User.github_id == github_id).first()
 
         if not user:
@@ -368,19 +379,21 @@ class AuthService:
                 self.db.refresh(user)
             else:
                 alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
-                random_password = ''.join(secrets.choice(alphabet) for i in range(16))
+                random_password = "".join(secrets.choice(alphabet) for i in range(16))
                 name_parts = (github_user.get("name") or "").split(" ")
-                first_name = name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                first_name = (
+                    name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                )
                 last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
-                
+
                 base_username = (github_user.get("login") or "github_user").lower()[:50]
                 username = base_username
                 counter = 1
                 while self.get_user_by_username(username):
                     suffix = str(counter)
-                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    username = f"{base_username[: 50 - len(suffix)]}{suffix}"
                     counter += 1
-                
+
                 user = User(
                     first_name=first_name,
                     last_name=last_name,
@@ -424,7 +437,6 @@ class AuthService:
             "token_type": "bearer",
             "user": user,
         }
-
 
     # =====================================================
     # Get User by ID
@@ -495,14 +507,18 @@ class AuthService:
     def github_login(self, github_user: dict, primary_email: str):
         from app.models.user import User
         from app.core.events import event_bus
-        from app.core.security import hash_password, create_access_token, create_refresh_token
+        from app.core.security import (
+            hash_password,
+            create_access_token,
+            create_refresh_token,
+        )
         from fastapi import HTTPException, status
         import secrets
         import string
         from datetime import datetime, timezone
 
         github_id = str(github_user.get("id"))
-        
+
         user = self.db.query(User).filter(User.github_id == github_id).first()
 
         if not user:
@@ -517,19 +533,21 @@ class AuthService:
                 self.db.refresh(user)
             else:
                 alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
-                random_password = ''.join(secrets.choice(alphabet) for i in range(16))
+                random_password = "".join(secrets.choice(alphabet) for i in range(16))
                 name_parts = (github_user.get("name") or "").split(" ")
-                first_name = name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                first_name = (
+                    name_parts[0] if len(name_parts) > 0 and name_parts[0] else "GitHub"
+                )
                 last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
-                
+
                 base_username = (github_user.get("login") or "github_user").lower()[:50]
                 username = base_username
                 counter = 1
                 while self.get_user_by_username(username):
                     suffix = str(counter)
-                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    username = f"{base_username[: 50 - len(suffix)]}{suffix}"
                     counter += 1
-                
+
                 user = User(
                     first_name=first_name,
                     last_name=last_name,
@@ -573,7 +591,6 @@ class AuthService:
             "token_type": "bearer",
             "user": user,
         }
-
 
     # =====================================================
     # Change Password
@@ -669,7 +686,7 @@ class AuthService:
         if not user:
             return {
                 "success": True,
-                "message": ("If the account exists, a reset email " "has been sent."),
+                "message": ("If the account exists, a reset email has been sent."),
             }
 
         # TODO:

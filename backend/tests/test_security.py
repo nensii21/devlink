@@ -19,7 +19,7 @@ from app.core.config import settings
 def test_password_hashing():
     password = "SuperSecretPassword123!"
     hashed = hash_password(password)
-    
+
     assert hashed != password
     assert verify_password(password, hashed) is True
     assert verify_password("wrongpassword", hashed) is False
@@ -59,14 +59,14 @@ def test_password_strength_validation():
 def test_create_access_token():
     user_id = "test-user-id"
     extra_data = {"email": "test@example.com"}
-    
+
     token = create_access_token(user_id, extra=extra_data)
-    
+
     payload = decode_token(token)
     assert payload["sub"] == user_id
     assert payload["type"] == "access"
     assert payload["email"] == "test@example.com"
-    
+
     # Check helpers
     assert get_user_id(token) == user_id
     assert is_access_token(token) is True
@@ -75,13 +75,13 @@ def test_create_access_token():
 
 def test_create_refresh_token():
     user_id = "test-user-id"
-    
+
     token = create_refresh_token(user_id)
-    
+
     payload = decode_token(token)
     assert payload["sub"] == user_id
     assert payload["type"] == "refresh"
-    
+
     # Check helpers
     assert is_refresh_token(token) is True
     assert is_access_token(token) is False

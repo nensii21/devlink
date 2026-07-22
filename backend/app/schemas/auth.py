@@ -49,6 +49,7 @@ class GitHubLoginRequest(BaseModel):
 class GitHubLoginRequest(BaseModel):
     code: str
 
+
 # ==========================================================
 # JWT Tokens
 # ==========================================================
@@ -72,6 +73,7 @@ class TokenPayload(BaseModel):
 
 
 from app.schemas.user import UserResponse
+
 
 class AuthResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
