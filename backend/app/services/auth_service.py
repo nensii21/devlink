@@ -91,7 +91,7 @@ class AuthService:
         )
 
         self.db.add(user)
-        self.db.flush()
+        self.db.commit()
         self.db.refresh(user)
 
         event_bus.publish(

@@ -53,10 +53,10 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-surface/80 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src={APP_LOGO} alt="" className="h-7 w-7 rounded-md" />
-            <span className="text-[16px] font-bold tracking-tight text-foreground">DevLink</span>
+            <img src={APP_LOGO} alt="" className="h-9 w-9 rounded-md" />
+            <span className="text-[20px] font-bold tracking-tight text-foreground">DevLink</span>
           </Link>
           <nav className="ml-6 hidden items-center gap-5 text-[13px] font-medium text-muted-foreground md:flex">
             <a href="#features" className="hover:text-foreground">
@@ -283,16 +283,16 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t border-border bg-surface py-6">
+      <footer className="border-t border-border bg-surface py-3">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-2 sm:flex-row sm:text-left">
           <div className="flex items-center gap-2">
-            <img src={APP_LOGO} alt="Devlink Logo" className="h-8 w-8 rounded" />
-            <span className="text-[13px] font-bold text-foreground ">DevLink</span>
+            <img src={APP_LOGO} alt="Devlink Logo" className="h-12 w-12 rounded" />
+            <span className="text-[20px] font-bold text-foreground ">DevLink</span>
             <span className="text-[11px] text-muted-foreground opacity-70">
               © {new Date().getFullYear()}
             </span>
           </div>
-          <div className="flex items-center gap-5 text-[12px] text-muted-foreground">
+          <div className="flex items-center gap-5 text-[16px] text-muted-foreground">
             {[
               { label: "GitHub", href: "https://github.com/nensii21/devlink" },
               { label: "Privacy Policy", href: "#" },

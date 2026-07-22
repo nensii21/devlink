@@ -50,6 +50,17 @@ class ProjectService:
         db.flush()
         db.refresh(db_project)
 
+        # Create ProjectMember record for owner
+        from app.models.project_member import ProjectMember, MemberRole
+
+        member = ProjectMember(
+            project_id=db_project.id,
+            user_id=owner_id,
+            role=MemberRole.OWNER,
+            is_active=True,
+        )
+        db.add(member)
+        db.commit()
         ActivityService.record_activity(
             db=db,
             actor_id=owner_id,
@@ -203,7 +214,7 @@ class ProjectService:
     ) -> None:
 
         db_project.views += 1
-        db.flush()
+        db.commit()
 
     @staticmethod
     def increment_stars(
@@ -282,6 +293,11 @@ class ProjectService:
         db: Session,
         db_project: Project,
     ) -> None:
+        from app.models.project_member import ProjectMember
 
+        # Explicitly delete member rows first to avoid SQLAlchemy FK nullification
+        db.query(ProjectMember).filter(
+            ProjectMember.project_id == db_project.id
+        ).delete(synchronize_session=False)
         db.delete(db_project)
         db.flush()
