@@ -161,9 +161,7 @@ def test_forgot_password(client: TestClient, register_and_login):
 
 def test_reset_password(client: TestClient, register_and_login):
     user_id, _ = register_and_login("reset@example.com", "resetuser", "OldPass1!")
-    client.post(
-        "/api/auth/forgot-password", json={"email": "reset@example.com"}
-    )
+    client.post("/api/auth/forgot-password", json={"email": "reset@example.com"})
 
     from datetime import timedelta
 
