@@ -42,7 +42,6 @@ def create_conversation(
     )
 
 
-
 @router.get(
     "/{conversation_id}",
     response_model=ConversationResponse,

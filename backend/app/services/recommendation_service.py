@@ -693,9 +693,9 @@ class RecommendationService:
         if not user_ids:
             return {}
         rows = db.scalars(select(UserSkill).where(UserSkill.user_id.in_(user_ids)))
-        result: dict[
-            uuid.UUID, tuple[list[uuid.UUID], dict[uuid.UUID, SkillLevel]]
-        ] = {}
+        result: dict[uuid.UUID, tuple[list[uuid.UUID], dict[uuid.UUID, SkillLevel]]] = (
+            {}
+        )
         for r in rows:
             entry = result.setdefault(r.user_id, ([], {}))
             entry[0].append(r.skill_id)
