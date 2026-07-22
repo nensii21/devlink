@@ -15,8 +15,10 @@ export { hackathonsApi } from "./modules/hackathons";
 export { searchApi } from "./modules/search";
 export { activitiesApi } from "./modules/activities";
 export { collectionsApi } from "./modules/collections";
+export { teamMatchApi } from "./modules/teamMatch";
 export type {
   BookmarkCollection,
   BookmarkCollectionWithBookmarks,
   Bookmark,
 } from "./modules/collections";
+export type { TeamMatchRequest, TeamMatchResponse } from "./modules/teamMatch";
