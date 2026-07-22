@@ -11,6 +11,7 @@ from .builder_flare import BuilderFlare
 from .conversation import Conversation
 from .conversation_member import ConversationMember
 from .follower import Follower
+from .issue import Issue
 from .message import Message
 from .notification import Notification
 from .organization import Organization

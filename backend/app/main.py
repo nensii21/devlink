@@ -37,6 +37,7 @@ from app.routers import (
     conversations,
     followers,
     health,
+    issues,
     messages,
     notifications,
     organizations,
@@ -190,6 +191,7 @@ app.include_router(bookmarks.router)
 app.include_router(bookmark_collections.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)
+app.include_router(issues.router, prefix="/api/issues", tags=["Issues"])
 app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
