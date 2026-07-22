@@ -72,8 +72,8 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
-    headline: Optional[str] = None
-    bio: Optional[str] = None
+    headline: Optional[str] = Field(default=None, max_length=150)
+    bio: Optional[str] = Field(default=None, max_length=1000)
 
     location: Optional[str] = None
     timezone: Optional[str] = None
