@@ -241,12 +241,12 @@ class User(Base):
             return False
         threshold = getattr(self, "_online_threshold", 300)
         from datetime import datetime, timezone
+
         now = datetime.now(timezone.utc)
-        
+
         last_seen = self.last_seen
         if last_seen.tzinfo is None:
             last_seen = last_seen.replace(tzinfo=timezone.utc)
-            
         return (now - last_seen).total_seconds() < threshold
 
     # ------------------------------------------------------------------
