@@ -230,7 +230,6 @@ def test_restore_message_not_found(client: TestClient, test_conversation):
     assert response.status_code == 404
 
 
-
 # ------------------------------------------------------------------
 # Typing indicator  (issue #337)
 # ------------------------------------------------------------------
@@ -252,6 +251,7 @@ def test_get_typing_returns_other_user(client: TestClient, test_conversation):
     from app.services.message_service import MessageService
 
     # Clear any leftover state from previous tests so this is deterministic.
+
     MessageService._typing_store.clear()
 
     cid = test_conversation["id"]
@@ -260,12 +260,14 @@ def test_get_typing_returns_other_user(client: TestClient, test_conversation):
     uid1 = test_conversation["u1"]
 
     # User 1 says they're typing.
+
     client.post(
         f"/api/messages/conversation/{cid}/typing",
         headers={"Authorization": f"Bearer {token1}"},
     )
 
     # User 2 asks who's typing — should see user 1.
+
     response = client.get(
         f"/api/messages/conversation/{cid}/typing",
         headers={"Authorization": f"Bearer {token2}"},
@@ -315,6 +317,7 @@ def test_stop_typing_clears_state(client: TestClient, test_conversation):
     )
 
     # User 1 stops typing.
+
     stop = client.delete(
         f"/api/messages/conversation/{cid}/typing",
         headers={"Authorization": f"Bearer {token1}"},
@@ -322,6 +325,7 @@ def test_stop_typing_clears_state(client: TestClient, test_conversation):
     assert stop.status_code == 204
 
     # User 2 should now see an empty typing list.
+
     response = client.get(
         f"/api/messages/conversation/{cid}/typing",
         headers={"Authorization": f"Bearer {token2}"},
