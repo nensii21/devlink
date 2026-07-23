@@ -36,7 +36,7 @@ function ProjectDetail() {
   // Integrate RBAC hook
   const { can } = usePermissions(currentUser.id || "current-user-uuid");
   const hasInvitePermission = can("project:invite", {
-    owner_id: p?.owner_id,
+    ownerId: p?.ownerId,
   });
 
   const isOwner = p?.owner === currentUser.name;

@@ -28,6 +28,7 @@ export interface Project {
   stack: string[];
   owner: string;
   owner_id?: string;
+  ownerId?: string;
   members: number;
   stars: number;
   views: number;
