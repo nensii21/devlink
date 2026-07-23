@@ -9,6 +9,7 @@ import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
 import { BackButton } from "@/components/shared/BackButton";
 import { ShareProjectButton } from "@/components/shared/ShareProjectButton";
+import { BookmarkToggleButton } from "@/components/shared/BookmarkToggleButton";
 import { addRecentlyViewedProject } from "@/lib/recentlyViewedProjects";
 
 import { usePermissions } from "@/hooks/usePermissions";
@@ -35,7 +36,7 @@ function ProjectDetail() {
   // Integrate RBAC hook
   const { can } = usePermissions(currentUser.id || "current-user-uuid");
   const hasInvitePermission = can("project:invite", {
-    owner_id: p?.owner_id,
+    ownerId: p?.ownerId,
   });
 
   const isOwner = p?.owner === currentUser.name;
@@ -89,6 +90,8 @@ function ProjectDetail() {
             )}
 
             <ShareProjectButton projectTitle={p.name} projectDescription={p.description} />
+
+            <BookmarkToggleButton projectId={p.id} />
 
             <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
               <span className="inline-flex items-center gap-1">

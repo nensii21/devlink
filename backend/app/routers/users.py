@@ -22,6 +22,11 @@ from app.schemas.user import (
     UserUpdate,
     UsernameAvailabilityResponse,
 )
+from app.schemas.user_report import (
+    UserReportCreate,
+    UserReportResponse,
+)
+from app.models.user_report import UserReport
 from app.core.security import hash_password
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -105,8 +110,12 @@ def create_user(
     response_model=CurrentUser,
 )
 def get_me(
+    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
     current_user: User = Depends(get_current_user),
 ):
+
+    if online_threshold is not None:
+        current_user._online_threshold = online_threshold
 
     return current_user
 
@@ -117,6 +126,7 @@ def get_me(
 )
 def get_user(
     user_id: uuid.UUID,
+    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
     db: Session = Depends(get_database),
 ):
 
@@ -131,6 +141,9 @@ def get_user(
             detail="User not found",
         )
 
+    if online_threshold is not None:
+        user._online_threshold = online_threshold
+
     return user
 
 
@@ -143,14 +156,21 @@ def list_users(
     request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
+    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
     db: Session = Depends(get_database),
 ):
 
-    return UserService.list_users(
+    users = UserService.list_users(
         db,
         skip,
         limit,
     )
+
+    if online_threshold is not None:
+        for u in users:
+            u._online_threshold = online_threshold
+
+    return users
 
 
 @router.get(
@@ -269,3 +289,36 @@ def verify_user(
         db,
         user,
     )
+
+
+@router.post(
+    "/{user_id}/report",
+    response_model=UserReportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def report_user(
+    user_id: uuid.UUID,
+    report: UserReportCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    target_user = UserService.get_user(db, user_id)
+    if target_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if current_user.id == target_user.id:
+        raise HTTPException(status_code=400, detail="You cannot report yourself")
+
+    db_report = UserReport(
+        reporter_id=current_user.id,
+        reported_id=target_user.id,
+        reason=report.reason,
+        description=report.description,
+        status="pending",
+    )
+
+    db.add(db_report)
+    db.commit()
+    db.refresh(db_report)
+
+    return db_report
