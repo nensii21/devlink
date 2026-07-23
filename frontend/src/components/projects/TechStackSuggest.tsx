@@ -87,17 +87,11 @@ export function TechStackSuggest({ projectIdea, onSelect }: TechStackSuggestProp
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >
-        {isLoading ? (
-          <Loader2 size={13} className="animate-spin" />
-        ) : (
-          <Sparkles size={13} />
-        )}
+        {isLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
         {isOpen ? "Hide suggestions" : "Get AI suggestion"}
       </button>
 
-      {error && (
-        <p className="text-[12px] text-destructive">{error}</p>
-      )}
+      {error && <p className="text-[12px] text-destructive">{error}</p>}
 
       {isOpen && recommendations.length > 0 && (
         <div className="rounded-md border border-border bg-surface p-3 space-y-3">
@@ -155,7 +149,8 @@ export function TechStackSuggest({ projectIdea, onSelect }: TechStackSuggestProp
                       <span
                         className={cn(
                           "rounded border px-1.5 py-0.5 text-[10px] font-medium capitalize",
-                          CATEGORY_COLORS[rec.category] ?? "bg-muted text-muted-foreground border-border",
+                          CATEGORY_COLORS[rec.category] ??
+                            "bg-muted text-muted-foreground border-border",
                         )}
                       >
                         {rec.category}
@@ -168,9 +163,7 @@ export function TechStackSuggest({ projectIdea, onSelect }: TechStackSuggestProp
             ))}
           </div>
 
-          {summary && (
-            <p className="text-[12px] text-muted-foreground italic">{summary}</p>
-          )}
+          {summary && <p className="text-[12px] text-muted-foreground italic">{summary}</p>}
         </div>
       )}
     </div>
