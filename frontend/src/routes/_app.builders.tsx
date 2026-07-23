@@ -2,19 +2,19 @@ import { createFileRoute, Link, useNavigate, useRouterState, Outlet } from "@tan
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import type { Builder } from "@/services";
-import { Card, AnimatedCard, TagChip, Avatar, Skeleton, EmptyState } from "@/components/shared/primitives";
+import {
+  Card,
+  AnimatedCard,
+  TagChip,
+  Avatar,
+  Skeleton,
+  EmptyState,
+} from "@/components/shared/primitives";
 import { HighlightText } from "@/components/shared/HighlightText";
 import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  Search,
-  Sparkles,
-  Calendar,
-  Briefcase,
-  Check,
-  Bookmark,
-} from "lucide-react";
+import { Search, Sparkles, Calendar, Briefcase, Check, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { containerVariants } from "@/lib/animations";
 
@@ -63,7 +63,7 @@ function AIMatchCard({ builder }: { builder: Builder }) {
   const remainingCount = builder.skills.length - 3;
   const matchPercentage = `${builder.matchScore}%`;
   const experienceText = `${builder.yearsExp} Yrs`;
-  const availabilityText = builder.availability ? builder.availability.split(" (")[0] : "Full-time";
+  const availabilityText = "Full-time";
 
   return (
     <motion.div
@@ -314,13 +314,11 @@ function BuildersPage() {
       ) : filtered.length === 0 ? (
         q !== "" ? (
           <EmptyState
-            variant="search"
             title="No builders found"
             desc={`We couldn't find any developers or skills matching "${q}".`}
           />
         ) : tab === "connections" ? (
           <EmptyState
-            variant="connections"
             title="No connections yet"
             desc="Start connecting with other builders to collaborate, share flares, and message them."
             action={
@@ -334,7 +332,6 @@ function BuildersPage() {
           />
         ) : (
           <EmptyState
-            variant="default"
             title="No builders yet"
             desc="No builders are currently available in this section."
           />
@@ -356,7 +353,11 @@ function BuildersPage() {
             const isConnected = connections.includes(b.id);
             return (
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-                <AnimatedCard interactive index={i} className="p-4 text-center h-full flex flex-col justify-between">
+                <AnimatedCard
+                  interactive
+                  index={i}
+                  className="p-4 text-center h-full flex flex-col justify-between"
+                >
                   <div>
                     <div className="mx-auto w-fit">
                       <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
