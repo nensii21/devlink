@@ -2,6 +2,8 @@ import { Bell, MessageSquare, Plus, Search, Sparkles, Menu, Moon, Sun } from "lu
 import { Link } from "@tanstack/react-router";
 import { currentUser, builders, projects } from "@/mocks/seed";
 import { useTheme } from "@/hooks/useTheme";
+
+export function Topbar({ onMenu, onOpenSearch }: { onMenu: () => void; onOpenSearch: () => void }) {
 import { useState } from "react";
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   const { isDark, toggleTheme } = useTheme();
@@ -48,11 +50,21 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         <Menu size={16} />
       </button>
 
-      <div className="relative min-w-0 flex-1 max-w-xl">
+      <button
+        type="button"
+        onClick={onOpenSearch}
+        className="relative flex min-w-0 flex-1 max-w-xl items-center gap-2 rounded-md border border-border bg-surface py-[7px] pl-9 pr-3 text-[13px] text-muted-foreground transition-all hover:border-primary/40 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+        aria-label="Open global search"
+      >
         <Search
           size={14}
           className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
         />
+        <span className="truncate">Search developers, projects, skills…</span>
+        <kbd className="ml-auto hidden items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground sm:inline-flex">
+          ⌘K
+        </kbd>
+      </button>
         <input
           type="search"
           value={query}

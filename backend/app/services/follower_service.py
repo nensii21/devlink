@@ -2,18 +2,15 @@ from __future__ import annotations
 
 import uuid
 
-# pyrefly: ignore [missing-import]
 from sqlalchemy import and_, select
-
-# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.models.activity import ActivityType
 from app.models.follower import Follower
-from app.services.activity_service import ActivityService
-from app.models.user import User
 from app.models.notification import NotificationType
+from app.models.user import User
 from app.schemas.notification import NotificationCreate
+from app.services.activity_service import ActivityService
 from app.services.notification_service import NotificationService
 
 
@@ -28,7 +25,6 @@ class FollowerService:
         follower_id: uuid.UUID,
         following_id: uuid.UUID,
     ) -> Follower:
-
         relationship = Follower(
             follower_id=follower_id,
             following_id=following_id,
@@ -38,6 +34,7 @@ class FollowerService:
         db.flush()
         db.refresh(relationship)
 
+        # Record the follow activity for the follower's feed.
         ActivityService.record_activity(
             db=db,
             actor_id=follower_id,
@@ -48,6 +45,7 @@ class FollowerService:
             color="success",
         )
 
+        # Notify the person being followed.
         # Trigger notification
         follower = db.get(User, follower_id)
         follower_name = (
@@ -60,7 +58,7 @@ class FollowerService:
             type=NotificationType.FOLLOW,
             title="New Follower",
             message=f"{follower_name} started following you.",
-            action_url=f"/profile/{follower_username}" if follower_username else None,
+            action_url=(f"/profile/{follower_username}" if follower_username else None),
         )
         NotificationService.create_notification(
             db=db,
@@ -77,14 +75,12 @@ class FollowerService:
         follower_id: uuid.UUID,
         following_id: uuid.UUID,
     ) -> Follower | None:
-
         stmt = select(Follower).where(
             and_(
                 Follower.follower_id == follower_id,
                 Follower.following_id == following_id,
             )
         )
-
         return db.scalar(stmt)
 
     @staticmethod
@@ -93,14 +89,12 @@ class FollowerService:
         follower_id: uuid.UUID,
         following_id: uuid.UUID,
     ) -> bool:
-
         stmt = select(Follower).where(
             and_(
                 Follower.follower_id == follower_id,
                 Follower.following_id == following_id,
             )
         )
-
         return db.scalar(stmt) is not None
 
     @staticmethod
@@ -108,13 +102,11 @@ class FollowerService:
         db: Session,
         user_id: uuid.UUID,
     ) -> list[Follower]:
-
         stmt = (
             select(Follower)
             .where(Follower.following_id == user_id)
             .order_by(Follower.created_at.desc())
         )
-
         return list(db.scalars(stmt))
 
     @staticmethod
@@ -122,13 +114,11 @@ class FollowerService:
         db: Session,
         user_id: uuid.UUID,
     ) -> list[Follower]:
-
         stmt = (
             select(Follower)
             .where(Follower.follower_id == user_id)
             .order_by(Follower.created_at.desc())
         )
-
         return list(db.scalars(stmt))
 
     @staticmethod
@@ -136,9 +126,7 @@ class FollowerService:
         db: Session,
         user_id: uuid.UUID,
     ) -> int:
-
         stmt = select(Follower).where(Follower.following_id == user_id)
-
         return len(list(db.scalars(stmt)))
 
     @staticmethod
@@ -146,9 +134,7 @@ class FollowerService:
         db: Session,
         user_id: uuid.UUID,
     ) -> int:
-
         stmt = select(Follower).where(Follower.follower_id == user_id)
-
         return len(list(db.scalars(stmt)))
 
     @staticmethod
@@ -157,7 +143,6 @@ class FollowerService:
         user_a: uuid.UUID,
         user_b: uuid.UUID,
     ) -> list[Follower]:
-
         user_a_following = {
             relation.following_id
             for relation in db.scalars(
@@ -178,6 +163,5 @@ class FollowerService:
         db: Session,
         relationship: Follower,
     ) -> None:
-
         db.delete(relationship)
         db.flush()
