@@ -40,7 +40,7 @@ function ProfilePage() {
         handle: currentUser.handle,
         avatar: currentUser.avatar,
         bio: "Product engineer. Ships fast, sleeps sometimes.",
-        role: "Full Stack Developer",
+        role: "Developer",
       }
     : builders.find((x) => x.handle === username);
   if (!b) throw notFound();

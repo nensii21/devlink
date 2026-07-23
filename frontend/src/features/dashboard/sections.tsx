@@ -241,7 +241,7 @@ export function AIRecommendations() {
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-bold text-foreground">Rahul Verma</p>
-              <p className="text-[11px] font-medium text-muted-foreground">Full Stack Developer</p>
+              <p className="text-[11px] font-medium text-muted-foreground">Developer</p>
               <p className="text-[11px] font-bold text-emerald-500">93% Match</p>
             </div>
             <button className="rounded-xl bg-primary px-3 py-1.5 text-[12px] font-bold text-primary-foreground shadow-xs transition-opacity hover:opacity-90 active:scale-95">

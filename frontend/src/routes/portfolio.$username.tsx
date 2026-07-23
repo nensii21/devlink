@@ -113,7 +113,7 @@ function PortfolioPage() {
           id: "me",
           name: currentUser.name,
           handle: currentUser.handle,
-          role: "Full Stack Developer",
+          role: "Developer",
           avatar: currentUser.avatar,
           country: "India",
           yearsExp: 3,
