@@ -1,8 +1,10 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { LastActive } from "@/components/shared/LastActive";
 import { builders, currentUser, projects } from "@/mocks/seed";
-import { MapPin, Calendar, Link as LinkIcon } from "lucide-react";
+import { MapPin, Calendar, Link as LinkIcon, MessageCircle, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { copyText } from "@/lib/clipboard";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/_app/profile/$username")({
 
 function ProfilePage() {
   const { username } = Route.useParams();
+  const navigate = useNavigate();
   const me = username === currentUser.handle;
   const b = me
     ? {
@@ -35,7 +38,7 @@ function ProfilePage() {
   return (
     <div className="space-y-4">
       {me ? (
-        <Card className="p-6 bg-gradient-to-r from-primary-soft via-transparent to-transparent border-primary/20">
+        <Card className="p-4 bg-gradient-to-r from-primary-soft via-transparent to-transparent border-primary/20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -84,7 +87,7 @@ function ProfilePage() {
         </Card>
       )}
 
-      <Card className="p-6">
+      <Card className="p-4">
         <div className="flex flex-wrap items-start gap-5">
           <Avatar src={b.avatar} alt={b.name} size={96} online={b.online} />
           <div className="min-w-0 flex-1">
@@ -103,17 +106,47 @@ function ProfilePage() {
               <span className="inline-flex items-center gap-1">
                 <LinkIcon size={12} /> devlink.io/{b.handle}
               </span>
+              <LastActive lastActiveAt={b.lastActiveAt} />
             </div>
           </div>
-          {!me && (
-            <button className="rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
-              Follow
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {b.publicEmail && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await copyText(b.publicEmail!);
+                    toast.success("Email copied to clipboard!");
+                  } catch {
+                    toast.error("Failed to copy email");
+                  }
+                }}
+                className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                <Mail size={16} />
+                Copy Email
+              </button>
+            )}
+            {!me && (
+              <button
+                type="button"
+                onClick={() =>
+                  navigate({
+                    to: "/messages/$conversationId",
+                    params: { conversationId: b.id },
+                  })
+                }
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                <MessageCircle size={16} />
+                Contact Developer
+              </button>
+            )}
+          </div>
         </div>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-3 lg:grid-cols-3">
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Skills</p>
           <div className="mt-3 flex flex-wrap gap-1">

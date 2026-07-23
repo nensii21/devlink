@@ -158,7 +158,9 @@ def test_message_notification(db):
     db.commit()
 
     # User 1 sends message to conversation
-    msg_create = MessageCreate(content="Hello there!", type=MessageType.TEXT)
+    msg_create = MessageCreate(
+        content="Hello there!", type=MessageType.TEXT, conversation_id=conv.id
+    )
     MessageService.send_message(
         db, conversation_id=conv.id, sender_id=user1.id, message=msg_create
     )

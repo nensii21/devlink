@@ -36,5 +36,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true
-  }
+  },
+  "exclude": ["src/**/*.test.ts", "src/**/__tests__/*"]
 }

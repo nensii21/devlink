@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy import select
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.message import Message
 from app.models.conversation_member import ConversationMember
@@ -47,7 +47,7 @@ class MessageService:
         )
 
         db.add(db_message)
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         # Trigger notifications for conversation members
@@ -99,6 +99,7 @@ class MessageService:
 
         stmt = (
             select(Message)
+            .options(selectinload(Message.sender))
             .where(Message.conversation_id == conversation_id)
             .order_by(Message.created_at.asc())
             .limit(limit)
@@ -114,6 +115,7 @@ class MessageService:
 
         stmt = (
             select(Message)
+            .options(selectinload(Message.sender))
             .where(Message.sender_id == sender_id)
             .order_by(Message.created_at.desc())
         )
@@ -135,7 +137,7 @@ class MessageService:
         db_message.is_edited = True
         db_message.edited_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         return db_message
@@ -150,7 +152,7 @@ class MessageService:
         db_message.deleted_at = datetime.utcnow()
         db_message.content = "[Message deleted]"
 
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         return db_message
@@ -164,7 +166,7 @@ class MessageService:
         db_message.is_deleted = False
         db_message.deleted_at = None
 
-        db.commit()
+        db.flush()
         db.refresh(db_message)
 
         return db_message
@@ -178,6 +180,7 @@ class MessageService:
 
         stmt = (
             select(Message)
+            .options(selectinload(Message.sender))
             .where(
                 Message.conversation_id == conversation_id,
                 Message.content.ilike(f"%{keyword}%"),

@@ -2,7 +2,13 @@ name: Require Repository Star
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+permissions:
+  contents: read
 
 jobs:
   check-star:
@@ -11,17 +17,30 @@ jobs:
     steps:
       - name: Check if contributor starred the repository
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
           USER: ${{ github.event.pull_request.user.login }}
         run: |
-          sudo apt-get update
+          sudo apt-get update -qq
           sudo apt-get install -y jq
+
+          echo "Repository: $OWNER/$REPO"
+          echo "Contributor: $USER"
 
           PAGE=1
           FOUND=false
 
           while true; do
+            echo "Checking page $PAGE..."
+
+            RESPONSE=$(curl -s \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$OWNER/$REPO/stargazers?per_page=100&page=$PAGE")
+
+            if echo "$RESPONSE" | jq -e '.message' >/dev/null 2>&1; then
+              echo "$RESPONSE"
             USERS=$(curl -s "https://api.github.com/repos/$OWNER/$REPO/stargazers?per_page=100&page=$PAGE" \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}")
@@ -42,20 +61,31 @@ jobs:
               exit 1
             fi
 
-            COUNT=$(echo "$USERS" | jq length)
+            COUNT=$(echo "$RESPONSE" | jq 'length')
 
-            if echo "$USERS" | jq -e --arg USER "$USER" '.[] | select(.login==$USER)' > /dev/null; then
+            if echo "$RESPONSE" | jq -e --arg USER "$USER" '.[] | select(.login==$USER)' >/dev/null; then
               FOUND=true
               break
             fi
 
-            [ "$COUNT" -lt 100 ] && break
+            if [ "$COUNT" -lt 100 ]; then
+              break
+            fi
+
             PAGE=$((PAGE+1))
           done
 
-          if [ "$FOUND" = false ]; then
-            echo " Please star the repository before your pull request can be merged."
-            exit 1
+          if [ "$FOUND" = true ]; then
+            echo "Contributor has starred the repository."
+            exit 0
           fi
 
-          echo "Repository is starred."
+          echo ""
+          echo "========================================="
+          echo "This repository requires contributors to"
+          echo "star the repository before merging."
+          echo ""
+          echo "Please star:"
+          echo "https://github.com/$OWNER/$REPO"
+          echo "========================================="
+          exit 1

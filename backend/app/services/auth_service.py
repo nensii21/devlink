@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import UUID
 
 # pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
@@ -12,7 +13,7 @@ from sqlalchemy import select
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.core.logging import log_security_event
+from app.core.events import event_bus
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -93,9 +94,10 @@ class AuthService:
         self.db.commit()
         self.db.refresh(user)
 
-        log_security_event(
-            event="New user registration",
-            user=user.email,
+        event_bus.publish(
+            "USER_REGISTERED",
+            email=user.email,
+            user_id=str(user.id),
         )
 
         return user
@@ -133,8 +135,9 @@ class AuthService:
 
         user.last_login = datetime.now(timezone.utc)
         user.last_seen = datetime.now(timezone.utc)
+        user.last_active_at = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
         access_token = create_access_token(
             str(user.id),
@@ -146,11 +149,11 @@ class AuthService:
 
         refresh_token = create_refresh_token(str(user.id))
 
-        log_security_event(
-            event="Successful login",
-            user=user.email,
+        event_bus.publish(
+            "USER_LOGIN",
+            email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Login successful.",
@@ -164,7 +167,12 @@ class AuthService:
     # Get User by ID
     # =====================================================
 
-    def get_user_by_id(self, user_id: str) -> Optional[User]:
+    def get_user_by_id(self, user_id: str | UUID) -> Optional[User]:
+        if isinstance(user_id, str):
+            try:
+                user_id = UUID(user_id)
+            except ValueError:
+                pass
         return self.db.get(User, user_id)
 
     # =====================================================
@@ -216,15 +224,18 @@ class AuthService:
 
         refresh_token = create_refresh_token(str(user.id))
 
-        log_security_event(
-            event="Access token refreshed",
-            user=user.email,
+        event_bus.publish(
+            "ACCESS_TOKEN_REFRESHED",
+            email=user.email,
         )
 
         return {
+            "success": True,
+            "message": "Token refreshed successfully.",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
+            "user": user,
         }
 
     # =====================================================
@@ -253,13 +264,12 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
-
-        log_security_event(
-            event="Password changed",
-            user=user.email,
+        self.db.flush()
+        event_bus.publish(
+            "PASSWORD_CHANGED",
+            email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Password updated successfully.",
@@ -282,11 +292,11 @@ class AuthService:
         user.is_verified = True
         user.email_verified_at = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
-        log_security_event(
-            event="Email verified",
-            user=user.email,
+        event_bus.publish(
+            "EMAIL_VERIFIED",
+            email=user.email,
         )
 
         return {
@@ -301,12 +311,11 @@ class AuthService:
     def logout(self, user_id: str):
 
         user = self.get_current_user(user_id)
-
-        log_security_event(
-            event="Logout",
-            user=user.email,
+        event_bus.publish(
+            "USER_LOGOUT",
+            email=user.email,
+            user_id=str(user.id),
         )
-
         return {
             "success": True,
             "message": "Logged out successfully.",
@@ -330,9 +339,9 @@ class AuthService:
         # Generate reset token
         # Send email
 
-        log_security_event(
-            event="Password reset requested",
-            user=user.email,
+        event_bus.publish(
+            "PASSWORD_RESET_REQUESTED",
+            email=user.email,
         )
 
         return {
@@ -356,11 +365,11 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
+        self.db.flush()
 
-        log_security_event(
-            event="Password reset completed",
-            user=user.email,
+        event_bus.publish(
+            "PASSWORD_RESET_COMPLETED",
+            email=user.email,
         )
 
         return {

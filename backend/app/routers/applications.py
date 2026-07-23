@@ -21,9 +21,12 @@ from app.models.notification import NotificationType
 from app.models.project import Project
 from app.services.notification_service import NotificationService
 
+from app.middleware.idempotency import IdempotentRoute
+
 router = APIRouter(
     prefix="/applications",
     tags=["Applications"],
+    route_class=IdempotentRoute,
 )
 
 

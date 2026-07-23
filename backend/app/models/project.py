@@ -96,6 +96,7 @@ class Project(Base):
         SqlEnum(ProjectStage),
         default=ProjectStage.IDEA,
         nullable=False,
+        index=True,
     )
 
     visibility: Mapped[ProjectVisibility] = mapped_column(
@@ -177,11 +178,13 @@ class Project(Base):
     is_featured: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
+        index=True,
     )
 
     is_archived: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
+        index=True,
     )
 
     # ----------------------------------------------------------
@@ -191,6 +194,7 @@ class Project(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
+        index=True,
     )
 
     updated_at: Mapped[datetime] = mapped_column(

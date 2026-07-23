@@ -20,7 +20,7 @@ class MessageBase(BaseModel):
 
 
 class MessageCreate(MessageBase):
-    pass
+    conversation_id: uuid.UUID
 
 
 class MessageUpdate(BaseModel):
