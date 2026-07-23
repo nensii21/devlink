@@ -108,6 +108,14 @@ class UserResponse(UserBase):
     is_verified: bool
     is_superuser: bool
 
+    last_seen: Optional[datetime] = Field(
+        default=None,
+        description="The date and time when the user was last active.",
+    )
+    is_online: bool = Field(
+        default=False,
+        description="Whether the user is currently online based on the active threshold.",
+    )
     last_active_at: Optional[datetime] = None
 
     created_at: datetime

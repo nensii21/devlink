@@ -17,6 +17,12 @@ export { activitiesApi } from "./modules/activities";
 export { collectionsApi } from "./modules/collections";
 export { recommendationsApi } from "./modules/recommendations";
 export type { TechStackRecommendation, TechStackResponse } from "./modules/recommendations";
+export { bookmarksApi } from "./modules/bookmarks";
+export type {
+  BookmarkResponse as BookmarkItem,
+  BookmarkCheckResponse,
+  BookmarkCountResponse,
+} from "./modules/bookmarks";
 export type {
   BookmarkCollection,
   BookmarkCollectionWithBookmarks,
