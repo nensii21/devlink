@@ -1,43 +1,43 @@
-import { createFileRoute, Link, useNavigate, useRouterState, Outlet } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { buildersService } from "@/services";
-import type { Builder } from "@/services";
-import { Card, AnimatedCard, TagChip, Avatar, Skeleton, EmptyState } from "@/components/shared/primitives";
-import { HighlightText } from "@/components/shared/HighlightText";
-import { LastActive } from "@/components/shared/LastActive";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { createFileRoute, Link, useNavigate, useRouterState, Outlet } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { buildersService } from '@/services';
+import type { Builder } from '@/services';
 import {
-  Search,
-  Sparkles,
-  Calendar,
-  Briefcase,
-  Check,
-  Bookmark,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import { containerVariants } from "@/lib/animations";
+  Card,
+  AnimatedCard,
+  TagChip,
+  Avatar,
+  Skeleton,
+  EmptyState,
+} from '@/components/shared/primitives';
+import { HighlightText } from '@/components/shared/HighlightText';
+import { LastActive } from '@/components/shared/LastActive';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Search, Sparkles, Calendar, Briefcase, Check, Bookmark } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { containerVariants } from '@/lib/animations';
 
 type BuildersSearch = {
-  tab?: "discover" | "matches" | "connections";
+  tab?: 'discover' | 'matches' | 'connections';
 };
 
-const VALID_TABS = ["discover", "matches", "connections"] as const;
+const VALID_TABS = ['discover', 'matches', 'connections'] as const;
 
-export const Route = createFileRoute("/_app/builders")({
+export const Route = createFileRoute('/_app/builders')({
   validateSearch: (search: Record<string, unknown>): BuildersSearch => {
     const rawTab = search.tab as string;
     const tab = (VALID_TABS as readonly string[]).includes(rawTab)
-      ? (rawTab as "discover" | "matches" | "connections")
-      : "discover";
+      ? (rawTab as 'discover' | 'matches' | 'connections')
+      : 'discover';
     return { tab };
   },
   head: () => ({
     meta: [
-      { title: "Builders — DevLink" },
+      { title: 'Builders — DevLink' },
       {
-        name: "description",
-        content: "Discover developers by skills, match score and availability.",
+        name: 'description',
+        content: 'Discover developers by skills, match score and availability.',
       },
     ],
   }),
@@ -45,15 +45,15 @@ export const Route = createFileRoute("/_app/builders")({
 });
 
 const TARGET_SKILLS = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "Node.js",
-  "Python",
-  "Figma",
-  "Kubernetes",
-  "AWS",
-  "PostgreSQL",
+  'React',
+  'Next.js',
+  'TypeScript',
+  'Node.js',
+  'Python',
+  'Figma',
+  'Kubernetes',
+  'AWS',
+  'PostgreSQL',
 ];
 
 function AIMatchCard({ builder }: { builder: Builder }) {
@@ -63,12 +63,14 @@ function AIMatchCard({ builder }: { builder: Builder }) {
   const remainingCount = builder.skills.length - 3;
   const matchPercentage = `${builder.matchScore}%`;
   const experienceText = `${builder.yearsExp} Yrs`;
-  const availabilityText = builder.availability ? builder.availability.split(" (")[0] : "Full-time";
+  const availabilityText = builder.availability
+    ? builder.availability.split(' (')[0]
+    : 'Full-time';
 
   return (
     <motion.div
       whileHover={{ y: -6, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className="relative h-full flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card shadow-soft hover:shadow-card hover:border-primary/50 transition-all duration-300"
     >
       <div>
@@ -88,8 +90,8 @@ function AIMatchCard({ builder }: { builder: Builder }) {
               />
               <span
                 className={cn(
-                  "absolute bottom-1 right-1 block h-3.5 w-3.5 rounded-full border-2 border-card",
-                  builder.online ? "bg-success" : "bg-muted-foreground/40",
+                  'absolute bottom-1 right-1 block h-3.5 w-3.5 rounded-full border-2 border-card',
+                  builder.online ? 'bg-success' : 'bg-muted-foreground/40',
                 )}
               />
             </Link>
@@ -114,17 +116,17 @@ function AIMatchCard({ builder }: { builder: Builder }) {
           </div>
           <button
             type="button"
-            aria-label={bookmarked ? "Remove bookmark" : "Bookmark builder"}
+            aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark builder'}
             aria-pressed={bookmarked}
             onClick={() => setBookmarked(!bookmarked)}
             className={cn(
-              "w-10 h-10 rounded-full border border-border/80 flex items-center justify-center bg-card transition-all duration-200 cursor-pointer shrink-0 ml-2",
+              'w-10 h-10 rounded-full border border-border/80 flex items-center justify-center bg-card transition-all duration-200 cursor-pointer shrink-0 ml-2',
               bookmarked
-                ? "text-primary border-primary bg-primary/5"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                ? 'text-primary border-primary bg-primary/5'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted',
             )}
           >
-            <Bookmark size={16} fill={bookmarked ? "currentColor" : "none"} />
+            <Bookmark size={16} fill={bookmarked ? 'currentColor' : 'none'} />
           </button>
         </div>
 
@@ -136,14 +138,18 @@ function AIMatchCard({ builder }: { builder: Builder }) {
               <span
                 key={s}
                 className={cn(
-                  "rounded-full text-[12px] font-semibold px-3 py-1.5 border transition-colors",
+                  'rounded-full text-[12px] font-semibold px-3 py-1.5 border transition-colors',
                   isMatching
-                    ? "bg-success/10 border-success/20 text-success"
-                    : "bg-muted/60 border-border/10 text-foreground/80",
+                    ? 'bg-success/10 border-success/20 text-success'
+                    : 'bg-muted/60 border-border/10 text-foreground/80',
                 )}
               >
                 {isMatching && (
-                  <Check size={10} strokeWidth={3} className="inline-block mr-1 shrink-0 -mt-0.5" />
+                  <Check
+                    size={10}
+                    strokeWidth={3}
+                    className="inline-block mr-1 shrink-0 -mt-0.5"
+                  />
                 )}
                 {s}
               </span>
@@ -206,15 +212,15 @@ function BuildersPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { tab } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState('');
   const { data = [], isLoading } = useQuery({
-    queryKey: ["builders", tab],
-    queryFn: tab === "matches" ? buildersService.matches : buildersService.list,
+    queryKey: ['builders', tab],
+    queryFn: tab === 'matches' ? buildersService.matches : buildersService.list,
   });
 
   const [connections, setConnections] = useState<string[]>(() => {
     try {
-      const stored = localStorage.getItem("devlink:connections");
+      const stored = localStorage.getItem('devlink:connections');
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -223,19 +229,24 @@ function BuildersPage() {
 
   const handleConnect = (id: string) => {
     setConnections((prev) => {
-      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
-      localStorage.setItem("devlink:connections", JSON.stringify(next));
+      const next = prev.includes(id)
+        ? prev.filter((item) => item !== id)
+        : [...prev, id];
+      localStorage.setItem('devlink:connections', JSON.stringify(next));
       return next;
     });
   };
 
-  const isDetails = pathname.split("/").filter(Boolean).length > 1;
+  const isDetails = pathname.split('/').filter(Boolean).length > 1;
 
   if (isDetails) {
     return <Outlet />;
   }
 
-  const baseData = tab === "connections" ? data.filter((b) => connections.includes(b.id)) : data;
+  const baseData =
+    tab === 'connections'
+      ? data.filter((b) => connections.includes(b.id))
+      : data;
 
   const filtered = baseData.filter(
     (b) =>
@@ -244,16 +255,20 @@ function BuildersPage() {
   );
 
   const tabs = [
-    { k: "discover", label: "Discover" },
-    { k: "matches", label: "AI Matches" },
-    { k: "connections", label: "Connections" },
+    { k: 'discover', label: 'Discover' },
+    { k: 'matches', label: 'AI Matches' },
+    { k: 'connections', label: 'Connections' },
   ] as const;
 
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-[22px] font-bold tracking-tight text-foreground">Builders</h1>
-        <p className="text-[13px] text-muted-foreground">Find your next collaborator.</p>
+        <h1 className="text-[22px] font-bold tracking-tight text-foreground">
+          Builders
+        </h1>
+        <p className="text-[13px] text-muted-foreground">
+          Find your next collaborator.
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -263,10 +278,10 @@ function BuildersPage() {
               key={t.k}
               onClick={() => navigate({ search: (prev) => ({ ...prev, tab: t.k }) })}
               className={cn(
-                "rounded px-2.5 py-1 text-[12px] font-medium transition-colors cursor-pointer",
+                'rounded px-2.5 py-1 text-[12px] font-medium transition-colors cursor-pointer',
                 tab === t.k
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {t.label}
@@ -312,20 +327,22 @@ function BuildersPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        q !== "" ? (
+        q !== '' ? (
           <EmptyState
             variant="search"
             title="No builders found"
             desc={`We couldn't find any developers or skills matching "${q}".`}
           />
-        ) : tab === "connections" ? (
+        ) : tab === 'connections' ? (
           <EmptyState
             variant="connections"
             title="No connections yet"
             desc="Start connecting with other builders to collaborate, share flares, and message them."
             action={
               <button
-                onClick={() => navigate({ search: (prev) => ({ ...prev, tab: "discover" }) })}
+                onClick={() =>
+                  navigate({ search: (prev) => ({ ...prev, tab: 'discover' }) })
+                }
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90 cursor-pointer"
               >
                 Discover builders
@@ -339,7 +356,7 @@ function BuildersPage() {
             desc="No builders are currently available in this section."
           />
         )
-      ) : tab === "matches" ? (
+      ) : tab === 'matches' ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((b) => (
             <AIMatchCard key={b.id} builder={b} />
@@ -356,10 +373,19 @@ function BuildersPage() {
             const isConnected = connections.includes(b.id);
             return (
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-                <AnimatedCard interactive index={i} className="p-4 text-center h-full flex flex-col justify-between">
+                <AnimatedCard
+                  interactive
+                  index={i}
+                  className="p-4 text-center h-full flex flex-col justify-between"
+                >
                   <div>
                     <div className="mx-auto w-fit">
-                      <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
+                      <Avatar
+                        src={b.avatar}
+                        alt={b.name}
+                        size={64}
+                        online={b.online}
+                      />
                     </div>
                     <p className="mt-2 text-[14px] font-semibold text-foreground">
                       <HighlightText text={b.name} query={q} />
@@ -370,7 +396,10 @@ function BuildersPage() {
                     <p className="text-[11px] text-muted-foreground">
                       {b.country} · {b.yearsExp} yrs
                     </p>
-                    <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
+                    <LastActive
+                      lastActiveAt={b.lastActiveAt}
+                      className="mt-1 justify-center"
+                    />
                     <div className="mt-2 flex flex-wrap justify-center gap-1">
                       {b.skills.slice(0, 3).map((s) => (
                         <TagChip key={s}>
@@ -390,13 +419,13 @@ function BuildersPage() {
                         handleConnect(b.id);
                       }}
                       className={cn(
-                        "flex-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors cursor-pointer",
+                        'flex-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors cursor-pointer',
                         isConnected
-                          ? "border border-success bg-success/10 text-success hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
-                          : "bg-primary text-primary-foreground hover:opacity-90",
+                          ? 'border border-success bg-success/10 text-success hover:bg-destructive/10 hover:border-destructive hover:text-destructive'
+                          : 'bg-primary text-primary-foreground hover:opacity-90',
                       )}
                     >
-                      {isConnected ? "Connected" : "Connect"}
+                      {isConnected ? 'Connected' : 'Connect'}
                     </button>
                     <button
                       onClick={(e) => {
