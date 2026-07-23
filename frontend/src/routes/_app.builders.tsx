@@ -1,12 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
-import { Card, AnimatedCard, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
+import type { Builder } from "@/services";
+import {
+  Card,
+  AnimatedCard,
+  TagChip,
+  Avatar,
+  Skeleton,
+} from "@/components/shared/primitives";
 import { HighlightText } from "@/components/shared/HighlightText";
 import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, Sparkles, Calendar, Briefcase, Check, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { containerVariants } from "@/lib/animations";
 
@@ -113,30 +120,36 @@ function BuildersPage() {
             ))
           : filtered.map((b, i) => (
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-                <AnimatedCard interactive index={i} className="p-4 text-center">
-                  <div className="mx-auto w-fit">
-                    <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
+                <AnimatedCard
+                  interactive
+                  index={i}
+                  className="p-4 text-center h-full flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="mx-auto w-fit">
+                      <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
+                    </div>
+                    <p className="mt-2 text-[14px] font-semibold text-foreground">
+                      <HighlightText text={b.name} query={q} />
+                    </p>
+                    <p className="text-[12px] text-muted-foreground">
+                      <HighlightText text={b.role} query={q} />
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {b.country} · {b.yearsExp} yrs
+                    </p>
+                    <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
+                    <div className="mt-2 flex flex-wrap justify-center gap-1">
+                      {b.skills.slice(0, 3).map((s) => (
+                        <TagChip key={s}>
+                          <HighlightText text={s} query={q} />
+                        </TagChip>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-[12px] font-semibold text-success">
+                      {b.matchScore}% Match
+                    </p>
                   </div>
-                  <p className="mt-2 text-[14px] font-semibold text-foreground">
-                    <HighlightText text={b.name} query={q} />
-                  </p>
-                  <p className="text-[12px] text-muted-foreground">
-                    <HighlightText text={b.role} query={q} />
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {b.country} · {b.yearsExp} yrs
-                  </p>
-                  <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
-                  <div className="mt-2 flex flex-wrap justify-center gap-1">
-                    {b.skills.slice(0, 3).map((s) => (
-                      <TagChip key={s}>
-                        <HighlightText text={s} query={q} />
-                      </TagChip>
-                    ))}
-                  </div>
-                  <p className="mt-2 text-[12px] font-semibold text-success">
-                    {b.matchScore}% Match
-                  </p>
                   <div className="mt-2 flex gap-1.5">
                     <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
                       Connect

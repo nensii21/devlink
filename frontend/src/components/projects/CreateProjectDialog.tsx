@@ -11,12 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Props {
   open: boolean;
@@ -109,7 +104,10 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
 
             <ul className="space-y-2">
               {warnings.map((w) => (
-                <li key={w.id} className="rounded-md border border-border bg-surface p-3 text-[12px]">
+                <li
+                  key={w.id}
+                  className="rounded-md border border-border bg-surface p-3 text-[12px]"
+                >
                   <p className="font-semibold text-foreground">{w.title}</p>
                   <p className="mt-0.5 text-muted-foreground">
                     Title match: {Math.round(w.title_similarity * 100)}% · Description match:{" "}
@@ -146,7 +144,11 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-[12px] text-muted-foreground">Title</Label>
-              <Input {...register("title")} placeholder="My awesome project" className="bg-surface" />
+              <Input
+                {...register("title")}
+                placeholder="My awesome project"
+                className="bg-surface"
+              />
               {errors.title && (
                 <p className="text-[11px] text-destructive">{errors.title.message}</p>
               )}
@@ -154,7 +156,11 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
 
             <div className="space-y-1.5">
               <Label className="text-[12px] text-muted-foreground">Tagline</Label>
-              <Input {...register("tagline")} placeholder="One-liner (optional)" className="bg-surface" />
+              <Input
+                {...register("tagline")}
+                placeholder="One-liner (optional)"
+                className="bg-surface"
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -226,11 +232,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[12px] text-muted-foreground">Demo URL</Label>
-                <Input
-                  {...register("demo_url")}
-                  placeholder="https://…"
-                  className="bg-surface"
-                />
+                <Input {...register("demo_url")} placeholder="https://…" className="bg-surface" />
                 {errors.demo_url && (
                   <p className="text-[11px] text-destructive">{errors.demo_url.message}</p>
                 )}
