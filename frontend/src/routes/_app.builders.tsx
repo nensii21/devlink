@@ -8,6 +8,7 @@ import {
   TagChip,
   Avatar,
   Skeleton,
+  EmptyState,
 } from "@/components/shared/primitives";
 import { HighlightText } from "@/components/shared/HighlightText";
 import { LastActive } from "@/components/shared/LastActive";
