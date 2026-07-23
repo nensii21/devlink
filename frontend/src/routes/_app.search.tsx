@@ -91,10 +91,10 @@ function SearchPage() {
 
   const suggestions = inputValue.trim()
     ? ALL_SKILLS.filter(
-      (skill) =>
-        skill.toLowerCase().includes(inputValue.toLowerCase()) &&
-        skill.toLowerCase() !== q.toLowerCase(),
-    ).slice(0, 8)
+        (skill) =>
+          skill.toLowerCase().includes(inputValue.toLowerCase()) &&
+          skill.toLowerCase() !== q.toLowerCase(),
+      ).slice(0, 8)
     : [];
 
   useEffect(() => {
@@ -167,7 +167,6 @@ function SearchPage() {
           placeholder="Search DevLink…"
           className="w-full rounded-md border border-border bg-surface py-2.5 pl-10 pr-10 text-[14px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
           autoFocus
-
         />
 
         {inputValue && (
@@ -306,7 +305,10 @@ function SearchPage() {
                   <p className="text-[13px] font-semibold text-foreground">{f.author.name}</p>
                   <div className="flex gap-1">
                     {f.tags.map((t) => (
-                      <span key={t} className="text-[10px] text-primary bg-primary/5 px-1.5 py-0.5 rounded">
+                      <span
+                        key={t}
+                        className="text-[10px] text-primary bg-primary/5 px-1.5 py-0.5 rounded"
+                      >
                         #{t}
                       </span>
                     ))}

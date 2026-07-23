@@ -41,9 +41,10 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
   }, []);
 
   const suggestions = inputValue.trim()
-    ? ALL_SKILLS.filter((skill) =>
-      skill.toLowerCase().includes(inputValue.toLowerCase()),
-    ).slice(0, 6)
+    ? ALL_SKILLS.filter((skill) => skill.toLowerCase().includes(inputValue.toLowerCase())).slice(
+        0,
+        6,
+      )
     : [];
 
   useEffect(() => {
