@@ -16,6 +16,12 @@ export { searchApi } from "./modules/search";
 export { activitiesApi } from "./modules/activities";
 export { collectionsApi } from "./modules/collections";
 export { teamMatchApi } from "./modules/teamMatch";
+export { bookmarksApi } from "./modules/bookmarks";
+export type {
+  BookmarkResponse as BookmarkItem,
+  BookmarkCheckResponse,
+  BookmarkCountResponse,
+} from "./modules/bookmarks";
 export type {
   BookmarkCollection,
   BookmarkCollectionWithBookmarks,
