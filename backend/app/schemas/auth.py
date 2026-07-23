@@ -183,6 +183,7 @@ class ResendVerificationEmailRequest(BaseModel):
 class CurrentUserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: str
     id: UUID
 
     first_name: str
@@ -198,6 +199,14 @@ class CurrentUserResponse(BaseModel):
 
     is_active: bool
 
+    last_seen: Optional[datetime] = Field(
+        default=None,
+        description="The date and time when the user was last active.",
+    )
+    is_online: bool = Field(
+        default=False,
+        description="Whether the user is currently online based on the active threshold.",
+    )
     last_active_at: Optional[datetime] = None
 
     created_at: datetime
