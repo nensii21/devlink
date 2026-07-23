@@ -148,7 +148,7 @@ function SuggestionCard({
                 "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
                 suggestion.priority === "high" && "bg-red-500/10 text-red-500",
                 suggestion.priority === "medium" && "bg-amber-500/10 text-amber-500",
-                suggestion.priority === "low" && "bg-blue-500/10 text-blue-500"
+                suggestion.priority === "low" && "bg-blue-500/10 text-blue-500",
               )}
             >
               {suggestion.priority}
