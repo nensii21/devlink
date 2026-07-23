@@ -38,7 +38,11 @@ def setup_db():
 
 
 # ==================== Helper ====================
-def _register_and_login(client: TestClient, email: str, username: str) -> tuple[str, str]:
+
+
+def _register_and_login(
+    client: TestClient, email: str, username: str
+) -> tuple[str, str]:
     client.post(
         "/api/auth/register",
         json={
@@ -56,6 +60,8 @@ def _register_and_login(client: TestClient, email: str, username: str) -> tuple[
 
 
 # ==================== Tests ====================
+
+
 def test_last_seen_updated_on_login():
     client = TestClient(app)
     user_id, token = _register_and_login(client, "test@devlink.com", "testuser")
@@ -119,6 +125,7 @@ def test_is_online_status_and_custom_thresholds():
     assert any(u["id"] == user_id and u["is_online"] is True for u in users)
 
     # Check on list users endpoint with small threshold (e.g. 5 seconds) -> should show offline
+
     r6 = client.get("/api/users/?online_threshold=5")
     users_offline = r6.json()
     assert any(u["id"] == user_id and u["is_online"] is False for u in users_offline)
