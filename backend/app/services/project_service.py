@@ -12,6 +12,8 @@ from app.services.activity_service import ActivityService
 from app.core.cache import cached
 from app.schemas.project import (
     ProjectCreate,
+    ProjectDraftCreate,
+    ProjectDraftUpdate,
     ProjectStatsResponse,
     ProjectUpdate,
 )
@@ -301,3 +303,115 @@ class ProjectService:
         ).delete(synchronize_session=False)
         db.delete(db_project)
         db.flush()
+
+    @staticmethod
+    def create_draft(
+        db: Session,
+        owner_id: uuid.UUID,
+        project: ProjectDraftCreate,
+    ) -> Project:
+
+        from datetime import datetime, timezone
+
+        db_project = Project(
+            owner_id=owner_id,
+            title=project.title,
+            slug=project.slug,
+            description=project.description or "",
+            tagline=project.tagline,
+            stage=project.stage,
+            visibility=project.visibility,
+            tech_stack=project.tech_stack,
+            repository_url=project.repository_url,
+            website_url=project.website_url,
+            demo_url=project.demo_url,
+            team_size=project.team_size,
+            max_team_size=project.max_team_size,
+            hiring=project.hiring,
+            logo_url=project.logo_url,
+            banner_url=project.banner_url,
+            is_draft=True,
+            last_draft_save=datetime.now(timezone.utc),
+        )
+
+        db.add(db_project)
+        db.flush()
+        db.refresh(db_project)
+
+        from app.models.project_member import ProjectMember, MemberRole
+
+        member = ProjectMember(
+            project_id=db_project.id,
+            user_id=owner_id,
+            role=MemberRole.OWNER,
+            is_active=True,
+        )
+        db.add(member)
+        db.commit()
+
+        return db_project
+
+    @staticmethod
+    def update_draft(
+        db: Session,
+        db_project: Project,
+        project: ProjectDraftUpdate,
+    ) -> Project:
+
+        from datetime import datetime, timezone
+
+        data = project.model_dump(exclude_unset=True)
+
+        for key, value in data.items():
+            setattr(db_project, key, value)
+
+        db_project.last_draft_save = datetime.now(timezone.utc)
+
+        db.flush()
+        db.refresh(db_project)
+
+        return db_project
+
+    @staticmethod
+    def publish_draft(
+        db: Session,
+        db_project: Project,
+    ) -> Project:
+
+        if not db_project.title or not db_project.slug:
+            from fastapi import HTTPException
+
+            raise HTTPException(
+                status_code=400,
+                detail="Title and slug are required to publish a project",
+            )
+
+        if (
+            ProjectService.get_by_slug(db, db_project.slug)
+            and ProjectService.get_by_slug(db, db_project.slug).id != db_project.id
+        ):
+            from fastapi import HTTPException
+
+            raise HTTPException(
+                status_code=400,
+                detail="Project slug already exists",
+            )
+
+        db_project.is_draft = False
+        db_project.last_draft_save = None
+
+        db.flush()
+        db.refresh(db_project)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_project.owner_id,
+            activity_type=ActivityType.PROJECT_CREATED,
+            title="Published project",
+            description=db_project.title,
+            project_id=db_project.id,
+            icon="folder-plus",
+            color="primary",
+        )
+
+        return db_project
