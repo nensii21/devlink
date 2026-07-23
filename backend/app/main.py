@@ -13,6 +13,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from slowapi import _rate_limit_exceeded_handler
 
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -165,3 +166,5 @@ app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
 app.include_router(users.router)
+from app.routers import websockets
+app.include_router(websockets.router)
