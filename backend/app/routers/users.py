@@ -110,8 +110,12 @@ def create_user(
     response_model=CurrentUser,
 )
 def get_me(
+    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
     current_user: User = Depends(get_current_user),
 ):
+
+    if online_threshold is not None:
+        current_user._online_threshold = online_threshold
 
     return current_user
 
@@ -122,6 +126,7 @@ def get_me(
 )
 def get_user(
     user_id: uuid.UUID,
+    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
     db: Session = Depends(get_database),
 ):
 
@@ -136,6 +141,9 @@ def get_user(
             detail="User not found",
         )
 
+    if online_threshold is not None:
+        user._online_threshold = online_threshold
+
     return user
 
 
@@ -148,14 +156,21 @@ def list_users(
     request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
+    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
     db: Session = Depends(get_database),
 ):
 
-    return UserService.list_users(
+    users = UserService.list_users(
         db,
         skip,
         limit,
     )
+
+    if online_threshold is not None:
+        for u in users:
+            u._online_threshold = online_threshold
+
+    return users
 
 
 @router.get(
