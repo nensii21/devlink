@@ -2,19 +2,19 @@ import { createFileRoute, Link, useNavigate, useRouterState, Outlet } from "@tan
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import type { Builder } from "@/services";
-import { Card, AnimatedCard, TagChip, Avatar, Skeleton, EmptyState } from "@/components/shared/primitives";
+import {
+  Card,
+  AnimatedCard,
+  TagChip,
+  Avatar,
+  Skeleton,
+  EmptyState,
+} from "@/components/shared/primitives";
 import { HighlightText } from "@/components/shared/HighlightText";
 import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  Search,
-  Sparkles,
-  Calendar,
-  Briefcase,
-  Check,
-  Bookmark,
-} from "lucide-react";
+import { Search, Sparkles, Calendar, Briefcase, Check, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { containerVariants } from "@/lib/animations";
 
@@ -356,7 +356,11 @@ function BuildersPage() {
             const isConnected = connections.includes(b.id);
             return (
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-                <AnimatedCard interactive index={i} className="p-4 text-center h-full flex flex-col justify-between">
+                <AnimatedCard
+                  interactive
+                  index={i}
+                  className="p-4 text-center h-full flex flex-col justify-between"
+                >
                   <div>
                     <div className="mx-auto w-fit">
                       <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />

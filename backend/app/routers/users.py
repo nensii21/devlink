@@ -5,9 +5,6 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-
-# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_database
@@ -110,7 +107,9 @@ def create_user(
     response_model=CurrentUser,
 )
 def get_me(
-    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
+    online_threshold: int | None = Query(
+        None, description="Online threshold in seconds"
+    ),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -126,7 +125,9 @@ def get_me(
 )
 def get_user(
     user_id: uuid.UUID,
-    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
+    online_threshold: int | None = Query(
+        None, description="Online threshold in seconds"
+    ),
     db: Session = Depends(get_database),
 ):
 
@@ -156,7 +157,9 @@ def list_users(
     request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    online_threshold: int | None = Query(None, description="Online threshold in seconds"),
+    online_threshold: int | None = Query(
+        None, description="Online threshold in seconds"
+    ),
     db: Session = Depends(get_database),
 ):
 
