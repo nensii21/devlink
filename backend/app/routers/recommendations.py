@@ -1,5 +1,6 @@
 """
-API router for the AI-Powered Builder Recommendation System.
+API router for the AI-Powered Builder Recommendation System
+and AI Tech Stack Recommendation.
 """
 
 from __future__ import annotations
@@ -16,7 +17,9 @@ from app.dependencies import get_current_user
 from app.middleware.rate_limit import limiter, RECOMMENDATION_LIMIT
 from app.models.user import User
 from app.schemas.recommendation import RecommendationResponse, RecommendedBuilder
+from app.schemas.tech_stack import TechStackRequest, TechStackResponse
 from app.services.recommendation_service import RecommendationService
+from app.services.ai_service import AIService
 
 router = APIRouter(
     prefix="/recommendations",
@@ -86,3 +89,22 @@ def get_recommended_builders(
         limit=limit,
         results=results,
     )
+
+
+@router.post(
+    "/tech-stack",
+    response_model=TechStackResponse,
+    summary="Get AI tech stack recommendation",
+)
+@limiter.limit(RECOMMENDATION_LIMIT)
+def recommend_tech_stack(
+    request: Request,
+    body: TechStackRequest,
+) -> TechStackResponse:
+    """
+    Recommend technologies for a new project based on the project idea.
+
+    Uses OpenAI to generate ranked recommendations with explanations.
+    Falls back to rule-based recommendations if the AI service is unavailable.
+    """
+    return AIService.recommend_tech_stack(body)
