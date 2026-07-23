@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import time
+from datetime import datetime, timezone, timedelta
 import uuid
-from datetime import datetime, timedelta, timezone
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -15,6 +14,7 @@ from app.dependencies import get_database
 from app.main import app
 from app.models.user import User
 
+# SQLite setup for tests
 engine = create_engine(
     "sqlite://",
     connect_args={"check_same_thread": False},
@@ -35,14 +35,11 @@ def override_get_db():
 def setup_db():
     app.dependency_overrides[get_database] = override_get_db
     Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.clear()
 
 
-# ==================== Helper ====================
-
-
-def _register_and_login(
-    client: TestClient, email: str, username: str
-) -> tuple[str, str]:
 def _register_and_login(
     client: TestClient, email: str, username: str
 ) -> tuple[str, str]:
@@ -57,13 +54,11 @@ def _register_and_login(
             "password": "Passw0rd!",
         },
     )
+    # Login
     r = client.post("/api/auth/login", json={"email": email, "password": "Passw0rd!"})
     token = r.json()["access_token"]
     me = client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
     return me.json()["id"], token
-
-
-# ==================== Tests ====================
 
 
 def test_last_seen_updated_on_login():
@@ -113,9 +108,6 @@ def test_is_online_status_and_custom_thresholds():
     assert data["is_online"] is True
     assert data["last_seen"] is not None
 
-    r2 = client.get(f"/api/users/{user_id}")
-    assert r2.json()["is_online"] is True
-
     # 2. Check via public profile endpoint
     r2 = client.get(f"/api/users/{user_id}")
     assert r2.json()["is_online"] is True
@@ -126,12 +118,6 @@ def test_is_online_status_and_custom_thresholds():
     user.last_seen = datetime.now(timezone.utc) - timedelta(minutes=10)
     db.commit()
     db.close()
-
-    r3 = client.get(f"/api/users/{user_id}")
-    assert r3.json()["is_online"] is False
-
-    r4 = client.get(f"/api/users/{user_id}?online_threshold=1200")
-    assert r4.json()["is_online"] is True
 
     # Check default (should be offline now)
     r3 = client.get(f"/api/users/{user_id}")
@@ -148,7 +134,6 @@ def test_is_online_status_and_custom_thresholds():
     assert any(u["id"] == user_id and u["is_online"] is True for u in users)
 
     # Check on list users endpoint with small threshold (e.g. 5 seconds) -> should show offline
-
     r6 = client.get("/api/users/?online_threshold=5")
     users_offline = r6.json()
     assert any(u["id"] == user_id and u["is_online"] is False for u in users_offline)

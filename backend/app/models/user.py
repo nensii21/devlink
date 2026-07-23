@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 import uuid
 from datetime import datetime
 
@@ -9,10 +8,9 @@ from sqlalchemy import (
     DateTime,
     String,
     Text,
-    JSON,
     func,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, UUID
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -74,13 +72,6 @@ class User(Base):
     # Profile
     # ------------------------------------------------------------------
 
-    badges: Mapped[list[str]] = mapped_column(
-        ARRAY(String),
-        default=list,
-        server_default="{}",
-        nullable=False,
-    )
-
     headline: Mapped[str | None] = mapped_column(
         String(150),
         nullable=True,
@@ -109,12 +100,6 @@ class User(Base):
     timezone: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
-    )
-
-    availability: Mapped[list] = mapped_column(
-    JSON,
-    nullable=True,
-    default=list,
     )
 
     website: Mapped[str | None] = mapped_column(
@@ -204,22 +189,13 @@ class User(Base):
     last_seen: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
-    DateTime(timezone=True),
-    nullable=True,
     )
 
     last_active_at: Mapped[datetime | None] = mapped_column(
-    DateTime(timezone=True),
-    nullable=True,
-        DateTime, default=datetime.utcnow, nullable=True
-    )
         DateTime(timezone=True),
         nullable=True,
     )
 
-    last_active_at: Mapped[datetime | None] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=True
-    )
     # ------------------------------------------------------------------
     # OAuth
     # ------------------------------------------------------------------
@@ -283,4 +259,4 @@ class User(Base):
     # ------------------------------------------------------------------
 
     def __repr__(self) -> str:
-        return f"<User(username='{self.username}', email='{self.email}')>"
+        return f"<User(" f"username='{self.username}', " f"email='{self.email}'" f")>"

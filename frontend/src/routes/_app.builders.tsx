@@ -22,8 +22,14 @@ import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-import { Search, Bookmark } from "lucide-react";
-import { Search, Sparkles, Calendar, Briefcase, Check, Bookmark } from "lucide-react";
+import {
+  Search,
+  Sparkles,
+  Calendar,
+  Briefcase,
+  Check,
+  Bookmark,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { containerVariants } from "@/lib/animations";
 import { useBookmarks } from "@/context/BookmarkContext";

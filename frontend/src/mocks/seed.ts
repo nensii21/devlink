@@ -21,6 +21,7 @@ export interface Builder {
   online: boolean;
   bio: string;
   lastActiveAt: string | null;
+  availability?: string;
   publicEmail?: string;
 }
 export interface Project {
