@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 from sqlalchemy import (
     DateTime,
@@ -11,6 +12,8 @@ from sqlalchemy import (
     String,
     Text,
     func,
+    Index,
+    JSON,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -25,6 +28,7 @@ class ActivityType(str, Enum):
     PROJECT_CREATED = "project_created"
     PROJECT_UPDATED = "project_updated"
     PROJECT_ARCHIVED = "project_archived"
+    PROJECT_MILESTONE = "project_milestone"
 
     BUILDER_FLARE_CREATED = "builder_flare_created"
 
@@ -32,11 +36,15 @@ class ActivityType(str, Enum):
     APPLICATION_ACCEPTED = "application_accepted"
     APPLICATION_REJECTED = "application_rejected"
 
+    TEAM_INVITATION = "team_invitation"
+
     REPOSITORY_CONNECTED = "repository_connected"
 
     FOLLOWED_USER = "followed_user"
 
     MESSAGE_SENT = "message_sent"
+    COMMENT_CREATED = "comment_created"
+    DISCUSSION_CREATED = "discussion_created"
 
     ORGANIZATION_CREATED = "organization_created"
 
@@ -78,6 +86,7 @@ class Activity(Base):
     activity_type: Mapped[ActivityType] = mapped_column(
         SqlEnum(ActivityType),
         nullable=False,
+        index=True,
     )
 
     title: Mapped[str] = mapped_column(
@@ -90,42 +99,32 @@ class Activity(Base):
     )
 
     # ==========================================================
-    # Related Resources
+    # Generic Target
     # ==========================================================
 
-    project_id: Mapped[uuid.UUID | None] = mapped_column(
+    target_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("projects.id", ondelete="SET NULL"),
+        nullable=True,
         index=True,
     )
 
-    organization_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("organizations.id", ondelete="SET NULL"),
-        index=True,
-    )
-
-    repository_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("repositories.id", ondelete="SET NULL"),
-        index=True,
-    )
-
-    application_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("applications.id", ondelete="SET NULL"),
-        index=True,
-    )
-
-    builder_flare_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("builder_flares.id", ondelete="SET NULL"),
+    target_type: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
         index=True,
     )
 
     # ==========================================================
     # Metadata
     # ==========================================================
+
+    meta: Mapped[dict[str, Any]] = mapped_column(
+        JSON,
+        name="metadata",
+        default=dict,
+        server_default="{}",
+        nullable=False,
+    )
 
     icon: Mapped[str | None] = mapped_column(
         String(100),
@@ -144,31 +143,6 @@ class Activity(Base):
         backref="activities",
     )
 
-    project = relationship(
-        "Project",
-        backref="activities",
-    )
-
-    organization = relationship(
-        "Organization",
-        backref="activities",
-    )
-
-    repository = relationship(
-        "Repository",
-        backref="activities",
-    )
-
-    application = relationship(
-        "Application",
-        backref="activities",
-    )
-
-    builder_flare = relationship(
-        "BuilderFlare",
-        backref="activities",
-    )
-
     # ==========================================================
     # Audit
     # ==========================================================
@@ -180,10 +154,9 @@ class Activity(Base):
         index=True,
     )
 
+    __table_args__ = (
+        Index("ix_activities_type_created", "activity_type", "created_at"),
+    )
+
     def __repr__(self):
-        return (
-            f"<Activity("
-            f"type='{self.activity_type.value}', "
-            f"actor={self.actor_id}"
-            f")>"
-        )
+        return f"<Activity(type='{self.activity_type.value}', actor={self.actor_id})>"

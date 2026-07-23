@@ -2,9 +2,18 @@ import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-ro
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { LastActive } from "@/components/shared/LastActive";
 import { builders, currentUser, projects } from "@/mocks/seed";
-import { MapPin, Calendar, Link as LinkIcon, MessageCircle, Mail } from "lucide-react";
+import {
+  MapPin,
+  Calendar,
+  Link as LinkIcon,
+  MessageCircle,
+  Mail,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { copyText } from "@/lib/clipboard";
+import { ReportUserModal } from "@/components/shared/ReportUserModal";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -21,6 +30,7 @@ export const Route = createFileRoute("/_app/profile/$username")({
 
 function ProfilePage() {
   const { username } = Route.useParams();
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const navigate = useNavigate();
   const me = username === currentUser.handle;
   const b = me
@@ -128,19 +138,27 @@ function ProfilePage() {
               </button>
             )}
             {!me && (
-              <button
-                type="button"
-                onClick={() =>
-                  navigate({
-                    to: "/messages/$conversationId",
-                    params: { conversationId: b.id },
-                  })
-                }
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                <MessageCircle size={16} />
-                Contact Developer
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate({
+                      to: "/messages/$conversationId",
+                      params: { conversationId: b.id },
+                    })
+                  }
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                >
+                  <MessageCircle size={16} />
+                  Contact Developer
+                </button>
+                <button
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] font-semibold text-destructive hover:bg-destructive/20 transition-colors flex items-center gap-1"
+                >
+                  <AlertTriangle size={14} /> Report
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -172,6 +190,24 @@ function ProfilePage() {
             </Card>
           )}
         </div>
+      {!me && (
+        <ReportUserModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          userId={b.id || ""}
+          username={b.handle}
+        />
+      )}
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        <Card className="p-4">
+          <p className="text-[13px] font-semibold text-foreground">Skills</p>
+          <div className="mt-3 flex flex-wrap gap-1">
+            {b.skills.map((s) => (
+              <TagChip key={s}>{s}</TagChip>
+            ))}
+          </div>
+        </Card>
         <Card className="p-4 lg:col-span-2">
           <p className="text-[13px] font-semibold text-foreground">Projects</p>
           <ul className="mt-3 divide-y divide-border">

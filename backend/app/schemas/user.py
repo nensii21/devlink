@@ -72,8 +72,8 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
-    headline: Optional[str] = None
-    bio: Optional[str] = None
+    headline: Optional[str] = Field(default=None, max_length=150)
+    bio: Optional[str] = Field(default=None, max_length=1000)
 
     location: Optional[str] = None
     timezone: Optional[str] = None
@@ -109,6 +109,14 @@ class UserResponse(UserBase):
     is_verified: bool
     is_superuser: bool
 
+    last_seen: Optional[datetime] = Field(
+        default=None,
+        description="The date and time when the user was last active.",
+    )
+    is_online: bool = Field(
+        default=False,
+        description="Whether the user is currently online based on the active threshold.",
+    )
     last_active_at: Optional[datetime] = None
 
     created_at: datetime
