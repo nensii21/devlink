@@ -4,11 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { containerVariants, cardEntrance, STAGGER_DELAY } from "@/lib/animations";
 import { repositoryQualityApi } from "@/api";
-import type {
-  RepositoryQualityResponse,
-  MetricScore,
-  ImprovementSuggestion,
-} from "@/api";
+import type { RepositoryQualityResponse, MetricScore, ImprovementSuggestion } from "@/api";
 import { cn } from "@/lib/utils";
 import {
   Search,
@@ -120,9 +116,7 @@ function MetricCard({ metric, index }: { metric: MetricScore; index: number }) {
             />
           </div>
           <div className="mt-1.5 flex items-center justify-between">
-            <p className="text-[11px] text-muted-foreground truncate pr-2">
-              {metric.description}
-            </p>
+            <p className="text-[11px] text-muted-foreground truncate pr-2">{metric.description}</p>
             <span className="text-xs font-bold tabular-nums">{percentage}%</span>
           </div>
         </div>
@@ -152,11 +146,9 @@ function SuggestionCard({
             <span
               className={cn(
                 "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
-                suggestion.priority === "high" &&
-                  "bg-red-500/10 text-red-500",
-                suggestion.priority === "medium" &&
-                  "bg-amber-500/10 text-amber-500",
-                suggestion.priority === "low" && "bg-blue-500/10 text-blue-500",
+                suggestion.priority === "high" && "bg-red-500/10 text-red-500",
+                suggestion.priority === "medium" && "bg-amber-500/10 text-amber-500",
+                suggestion.priority === "low" && "bg-blue-500/10 text-blue-500"
               )}
             >
               {suggestion.priority}
@@ -298,9 +290,7 @@ function ResultDisplay({ result }: { result: RepositoryQualityResponse }) {
       {/* Suggestions */}
       {result.suggestions.length > 0 && (
         <div>
-          <h2 className="mb-3 text-sm font-semibold text-foreground">
-            Improvement Suggestions
-          </h2>
+          <h2 className="mb-3 text-sm font-semibold text-foreground">Improvement Suggestions</h2>
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -337,8 +327,8 @@ function RepositoryQualityPage() {
           Repository Quality Analyzer
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Analyze any GitHub repository and get a comprehensive quality score
-          with actionable improvement suggestions.
+          Analyze any GitHub repository and get a comprehensive quality score with actionable
+          improvement suggestions.
         </p>
       </div>
 
@@ -360,11 +350,7 @@ function RepositoryQualityPage() {
             disabled={mutation.isPending || !url.trim()}
             className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {mutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Analyze"
-            )}
+            {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Analyze"}
           </button>
         </div>
       </form>

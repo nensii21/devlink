@@ -113,9 +113,9 @@ class RepositoryQualityService:
             contributors=contributors,
         )
 
-        overall_score = sum(
-            m.score * m.weight for m in metrics
-        ) / sum(m.weight for m in metrics)
+        overall_score = sum(m.score * m.weight for m in metrics) / sum(
+            m.weight for m in metrics
+        )
 
         grade = RepositoryQualityService._score_to_grade(overall_score)
 
@@ -324,7 +324,9 @@ class RepositoryQualityService:
             reasons.append("has badges")
 
         has_install = bool(
-            re.search(r"(installation|install|setup|getting started)", readme_content, re.I)
+            re.search(
+                r"(installation|install|setup|getting started)", readme_content, re.I
+            )
         )
         if has_install:
             score += 0.1
@@ -389,7 +391,10 @@ class RepositoryQualityService:
         """Score license presence."""
         weight = METRIC_WEIGHTS[QualityMetric.LICENSE]
         file_lower = {f.lower() for f in file_tree}
-        has_license = any(f in ("license", "license.md", "license.txt", "license.mit") for f in file_lower)
+        has_license = any(
+            f in ("license", "license.md", "license.txt", "license.mit")
+            for f in file_lower
+        )
 
         score = 1.0 if has_license else 0.0
 
@@ -397,7 +402,9 @@ class RepositoryQualityService:
             metric=QualityMetric.LICENSE,
             score=score,
             label="License",
-            description="License file is present." if has_license else "No license file found.",
+            description=(
+                "License file is present." if has_license else "No license file found."
+            ),
             weight=weight,
         )
 
@@ -411,12 +418,29 @@ class RepositoryQualityService:
         has_test_dir = bool(test_dirs & file_lower)
 
         has_test_files = any(
-            f.endswith((".test.js", ".test.ts", ".spec.js", ".spec.ts", "_test.go", "test_*.py"))
+            f.endswith(
+                (
+                    ".test.js",
+                    ".test.ts",
+                    ".spec.js",
+                    ".spec.ts",
+                    "_test.go",
+                    "test_*.py",
+                )
+            )
             for f in file_tree
         )
 
         has_coverage_config = any(
-            f in (".nycrc", ".nycrc.json", "jest.config.js", "jest.config.ts", "vitest.config.ts", ".coveragerc")
+            f
+            in (
+                ".nycrc",
+                ".nycrc.json",
+                "jest.config.js",
+                "jest.config.ts",
+                "vitest.config.ts",
+                ".coveragerc",
+            )
             for f in file_lower
         )
 
@@ -452,7 +476,14 @@ class RepositoryQualityService:
         has_workflows = len(workflows) > 0
         has_github_actions = ".github" in file_lower
         has_ci_configs = any(
-            f in (".travis.yml", ".circleci", "jenkinsfile", "gitlab-ci.yml", "azure-pipelines.yml")
+            f
+            in (
+                ".travis.yml",
+                ".circleci",
+                "jenkinsfile",
+                "gitlab-ci.yml",
+                "azure-pipelines.yml",
+            )
             for f in file_lower
         )
 
@@ -500,7 +531,9 @@ class RepositoryQualityService:
             date_str = commit.get("commit", {}).get("author", {}).get("date")
             if date_str:
                 try:
-                    commit_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                    commit_date = datetime.fromisoformat(
+                        date_str.replace("Z", "+00:00")
+                    )
                     days = (now - commit_date).days
                     days_ago.append(days)
                 except (ValueError, TypeError):
