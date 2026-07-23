@@ -16,6 +16,13 @@ export { searchApi } from "./modules/search";
 export { activitiesApi } from "./modules/activities";
 export { collectionsApi } from "./modules/collections";
 export { bookmarksApi } from "./modules/bookmarks";
+export { repositoryQualityApi } from "./modules/repositoryQuality";
+export type {
+  RepositoryQualityResponse,
+  MetricScore,
+  ImprovementSuggestion,
+  RepositoryInfo,
+} from "./modules/repositoryQuality";
 export type {
   BookmarkResponse as BookmarkItem,
   BookmarkCheckResponse,
