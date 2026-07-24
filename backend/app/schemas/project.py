@@ -26,6 +26,9 @@ class ProjectBase(BaseModel):
     logo_url: Optional[str] = None
     banner_url: Optional[str] = None
 
+    scheduled_publish_at: Optional[datetime] = None
+    is_published: bool = True
+
 
 class ProjectCreate(ProjectBase):
     pass
@@ -47,6 +50,9 @@ class ProjectUpdate(BaseModel):
     hiring: Optional[bool] = None
     logo_url: Optional[str] = None
     banner_url: Optional[str] = None
+
+    scheduled_publish_at: Optional[datetime] = None
+    is_published: Optional[bool] = None
 
 
 class SimilarProjectWarning(BaseModel):
@@ -74,10 +80,16 @@ class ProjectResponse(ProjectBase):
 
     id: uuid.UUID
     owner_id: uuid.UUID
+
     stars: int
     views: int
     applications_count: int
+
     is_featured: bool
     is_archived: bool
+
+    scheduled_publish_at: Optional[datetime]
+    is_published: bool
+
     created_at: datetime
     updated_at: datetime

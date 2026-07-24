@@ -182,9 +182,22 @@ class Project(Base):
     )
 
     is_archived: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
-        index=True,
+    Boolean,
+    default=False,
+    index=True,
+    )
+
+    scheduled_publish_at: Mapped[datetime | None] = mapped_column(
+    DateTime(timezone=True),
+    nullable=True,
+    index=True,
+    )
+
+    is_published: Mapped[bool] = mapped_column(
+    Boolean,
+    default=True,
+    nullable=False,
+    index=True,
     )
 
     # ----------------------------------------------------------
