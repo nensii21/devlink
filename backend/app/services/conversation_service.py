@@ -35,7 +35,6 @@ class ConversationService:
 
         db.add(db_conversation)
         db.flush()
-
         # Automatically add the owner/creator as a member of the conversation
         owner_member = ConversationMember(
             conversation_id=db_conversation.id,
@@ -43,7 +42,7 @@ class ConversationService:
             role=ConversationRole.OWNER,
         )
         db.add(owner_member)
-        db.commit()
+        db.flush()
         db.refresh(db_conversation)
 
         return db_conversation
@@ -156,7 +155,7 @@ class ConversationService:
         )
 
         db.add(member)
-        db.commit()
+        db.flush()
         db.refresh(member)
 
         return member
@@ -179,7 +178,7 @@ class ConversationService:
 
         if member:
             db.delete(member)
-            db.commit()
+            db.flush()
 
     @staticmethod
     def update_conversation(
@@ -193,7 +192,7 @@ class ConversationService:
         for key, value in data.items():
             setattr(db_conversation, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_conversation)
 
         return db_conversation
@@ -206,7 +205,7 @@ class ConversationService:
 
         db_conversation.archived = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_conversation)
 
         return db_conversation
@@ -219,7 +218,7 @@ class ConversationService:
 
         db_conversation.archived = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_conversation)
 
         return db_conversation
@@ -231,4 +230,4 @@ class ConversationService:
     ) -> None:
 
         db.delete(db_conversation)
-        db.commit()
+        db.flush()

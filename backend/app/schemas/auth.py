@@ -2,6 +2,7 @@ from __future__ import annotations
 from app.schemas.user import CurrentUser
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -39,6 +40,10 @@ class LoginRequest(BaseModel):
         min_length=8,
         max_length=128,
     )
+
+
+class GitHubLoginRequest(BaseModel):
+    code: str
 
 
 # ==========================================================
@@ -168,7 +173,10 @@ class ResendVerificationEmailRequest(BaseModel):
 
 
 class CurrentUserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
+    id: UUID
 
     first_name: str
     last_name: str
@@ -182,6 +190,16 @@ class CurrentUserResponse(BaseModel):
     is_verified: bool
 
     is_active: bool
+
+    last_seen: Optional[datetime] = Field(
+        default=None,
+        description="The date and time when the user was last active.",
+    )
+    is_online: bool = Field(
+        default=False,
+        description="Whether the user is currently online based on the active threshold.",
+    )
+    last_active_at: Optional[datetime] = None
 
     created_at: datetime
 

@@ -3,13 +3,18 @@ from __future__ import annotations
 import uuid
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
+from app.models.activity import ActivityType
 from app.models.project import Project
+from app.schemas.project import ProjectCreate, ProjectUpdate
+from app.services.activity_service import ActivityService
+from app.core.cache import cached
 from app.schemas.project import (
     ProjectCreate,
     ProjectStatsResponse,
     ProjectUpdate,
+    SimilarProjectWarning,
 )
 
 
@@ -43,12 +48,35 @@ class ProjectService:
         )
 
         db.add(db_project)
-        db.commit()
+        db.flush()
         db.refresh(db_project)
+
+        # Create ProjectMember record for owner
+        from app.models.project_member import ProjectMember, MemberRole
+
+        member = ProjectMember(
+            project_id=db_project.id,
+            user_id=owner_id,
+            role=MemberRole.OWNER,
+            is_active=True,
+        )
+        db.add(member)
+        db.commit()
+        ActivityService.record_activity(
+            db=db,
+            actor_id=owner_id,
+            activity_type=ActivityType.PROJECT_CREATED,
+            title="Created project",
+            description=db_project.title,
+            project_id=db_project.id,
+            icon="folder-plus",
+            color="primary",
+        )
 
         return db_project
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def get_project(
         db: Session,
         project_id: uuid.UUID,
@@ -57,32 +85,48 @@ class ProjectService:
         return db.get(Project, project_id)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def get_by_slug(
         db: Session,
         slug: str,
     ) -> Project | None:
 
-        stmt = select(Project).where(Project.slug == slug)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .where(Project.slug == slug)
+        )
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def list_projects(
         db: Session,
         skip: int = 0,
         limit: int = 20,
     ) -> list[Project]:
 
-        stmt = select(Project).offset(skip).limit(limit)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .offset(skip)
+            .limit(limit)
+        )
 
         return list(db.scalars(stmt))
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def list_owner_projects(
         db: Session,
         owner_id: uuid.UUID,
     ) -> list[Project]:
 
-        stmt = select(Project).where(Project.owner_id == owner_id)
+        stmt = (
+            select(Project)
+            .options(selectinload(Project.owner))
+            .where(Project.owner_id == owner_id)
+        )
 
         return list(db.scalars(stmt))
 
@@ -98,8 +142,19 @@ class ProjectService:
         for key, value in data.items():
             setattr(db_project, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_project.owner_id,
+            activity_type=ActivityType.PROJECT_UPDATED,
+            title="Updated project",
+            description=db_project.title,
+            project_id=db_project.id,
+            icon="pencil",
+            color="info",
+        )
 
         return db_project
 
@@ -111,8 +166,19 @@ class ProjectService:
 
         db_project.is_archived = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_project.owner_id,
+            activity_type=ActivityType.PROJECT_ARCHIVED,
+            title="Archived project",
+            description=db_project.title,
+            project_id=db_project.id,
+            icon="archive",
+            color="warning",
+        )
 
         return db_project
 
@@ -124,7 +190,7 @@ class ProjectService:
 
         db_project.is_archived = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
 
         return db_project
@@ -137,7 +203,7 @@ class ProjectService:
 
         db_project.is_featured = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_project)
 
         return db_project
@@ -158,7 +224,7 @@ class ProjectService:
     ) -> None:
 
         db_project.stars += 1
-        db.commit()
+        db.flush()
 
     @staticmethod
     def decrement_stars(
@@ -169,7 +235,7 @@ class ProjectService:
         if db_project.stars > 0:
             db_project.stars -= 1
 
-        db.commit()
+        db.flush()
 
     @staticmethod
     def get_project_stats(
@@ -223,11 +289,52 @@ class ProjectService:
             bookmark_count=bookmark_count,
         )
 
+
+@staticmethod
+def find_similar_projects(
+    db: Session,
+    title: str,
+    description: str,
+    title_threshold: float = 0.75,
+    description_threshold: float = 0.65,
+) -> list[SimilarProjectWarning]:
+    from difflib import SequenceMatcher
+
+    candidates = list(db.scalars(select(Project).where(Project.is_archived.is_(False))))
+
+    results = []
+    title_lower = title.lower()
+    desc_lower = description.lower()
+
+    for project in candidates:
+        title_sim = SequenceMatcher(None, title_lower, project.title.lower()).ratio()
+        desc_sim = SequenceMatcher(
+            None, desc_lower, project.description.lower()
+        ).ratio()
+
+        if title_sim >= title_threshold or desc_sim >= description_threshold:
+            results.append(
+                SimilarProjectWarning(
+                    id=project.id,
+                    title=project.title,
+                    slug=project.slug,
+                    title_similarity=round(title_sim, 2),
+                    description_similarity=round(desc_sim, 2),
+                )
+            )
+
+    return results
+
     @staticmethod
     def delete_project(
         db: Session,
         db_project: Project,
     ) -> None:
+        from app.models.project_member import ProjectMember
 
+        # Explicitly delete member rows first to avoid SQLAlchemy FK nullification
+        db.query(ProjectMember).filter(
+            ProjectMember.project_id == db_project.id
+        ).delete(synchronize_session=False)
         db.delete(db_project)
-        db.commit()
+        db.flush()

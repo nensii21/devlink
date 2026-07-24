@@ -16,8 +16,11 @@ export interface Builder {
   yearsExp: number;
   matchScore: number;
   skills: string[];
+  interests: string[];
   online: boolean;
   bio: string;
+  lastActiveAt: string | null;
+  publicEmail?: string;
 }
 export interface Project {
   id: ID;
@@ -25,14 +28,17 @@ export interface Project {
   description: string;
   stack: string[];
   owner: string;
+  owner_id?: string;
+  ownerId?: string;
   members: number;
   stars: number;
+  views: number;
   forks: number;
   progress: number;
   status: "recruiting" | "in-progress" | "completed" | "archived";
   icon: string;
   language?: string;
-  difficulty?: "beginner" | "intermediate" | "advanced";
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
   remote?: boolean;
   paid?: boolean;
   openSource?: boolean;
@@ -111,6 +117,8 @@ export interface Deadline {
 const AV = (seed: string) =>
   `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
+const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+
 export const builders: Builder[] = [
   {
     id: "b1",
@@ -122,8 +130,11 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 92,
     skills: ["React", "Next.js", "TypeScript"],
+    interests: ["Web Dev", "Design Systems", "AI"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
+    lastActiveAt: ago(1),
+    publicEmail: "priya@example.com",
   },
   {
     id: "b2",
@@ -135,8 +146,10 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 89,
     skills: ["Node.js", "MongoDB", "Express"],
+    interests: ["Backend", "Web Dev"],
     online: true,
     bio: "Builds end-to-end features fast.",
+    lastActiveAt: ago(3),
   },
   {
     id: "b3",
@@ -148,8 +161,10 @@ export const builders: Builder[] = [
     yearsExp: 2,
     matchScore: 87,
     skills: ["Python", "FastAPI", "PostgreSQL"],
+    interests: ["Backend", "AI"],
     online: false,
     bio: "APIs, queues and Postgres tuning.",
+    lastActiveAt: ago(120),
   },
   {
     id: "b4",
@@ -161,8 +176,10 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 94,
     skills: ["Figma", "Adobe XD"],
+    interests: ["Design Systems", "Web Dev"],
     online: true,
     bio: "Product design for early-stage teams.",
+    lastActiveAt: ago(5),
   },
   {
     id: "b5",
@@ -174,8 +191,10 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 93,
     skills: ["MERN", "Next.js"],
+    interests: ["Web Dev", "Frontend"],
     online: false,
     bio: "Ships side-projects on weekends.",
+    lastActiveAt: ago(1440),
   },
   {
     id: "b6",
@@ -187,8 +206,10 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 91,
     skills: ["Flutter", "Firebase"],
+    interests: ["Mobile", "Web Dev"],
     online: true,
     bio: "Cross-platform mobile since 2021.",
+    lastActiveAt: ago(10),
   },
   {
     id: "b7",
@@ -200,8 +221,10 @@ export const builders: Builder[] = [
     yearsExp: 5,
     matchScore: 88,
     skills: ["Python", "PyTorch", "AWS"],
+    interests: ["AI", "Backend"],
     online: true,
     bio: "Recsys, embeddings, evals.",
+    lastActiveAt: ago(30),
   },
   {
     id: "b8",
@@ -213,8 +236,10 @@ export const builders: Builder[] = [
     yearsExp: 6,
     matchScore: 86,
     skills: ["Kubernetes", "Terraform"],
+    interests: ["Backend", "AI"],
     online: false,
     bio: "Infra as code, cost optimization.",
+    lastActiveAt: null,
   },
 ];
 
@@ -227,12 +252,13 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 4,
     stars: 24,
+    views: 1042,
     forks: 12,
     progress: 75,
     status: "in-progress",
     icon: "🤖",
     language: "JavaScript",
-    difficulty: "intermediate",
+    difficulty: "Intermediate",
     remote: true,
     paid: true,
     openSource: false,
@@ -249,12 +275,13 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 6,
     stars: 18,
+    views: 890,
     forks: 8,
     progress: 40,
     status: "in-progress",
     icon: "✨",
     language: "Python",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: true,
     openSource: false,
@@ -271,12 +298,13 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 3,
     stars: 16,
+    views: 521,
     forks: 6,
     progress: 60,
     status: "in-progress",
     icon: "🚀",
     language: "Go",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: false,
     openSource: false,
@@ -292,12 +320,13 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 5,
     stars: 14,
+    views: 310,
     forks: 7,
     progress: 25,
     status: "recruiting",
     icon: "🪙",
     language: "TypeScript",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: false,
     openSource: true,
@@ -314,12 +343,13 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 2,
     stars: 12,
+    views: 180,
     forks: 5,
     progress: 90,
     status: "in-progress",
     icon: "🧩",
     language: "TypeScript",
-    difficulty: "beginner",
+    difficulty: "Beginner",
     remote: true,
     paid: false,
     openSource: true,
@@ -335,12 +365,13 @@ export const projects: Project[] = [
     owner: "Community",
     members: 8,
     stars: 240,
+    views: 5040,
     forks: 96,
     progress: 100,
     status: "completed",
     icon: "📇",
     language: "JavaScript",
-    difficulty: "intermediate",
+    difficulty: "Intermediate",
     remote: false,
     paid: false,
     openSource: true,

@@ -26,7 +26,7 @@ class BookmarkService:
         )
 
         db.add(bookmark)
-        db.commit()
+        db.flush()
         db.refresh(bookmark)
 
         return bookmark
@@ -112,7 +112,7 @@ class BookmarkService:
     ) -> None:
 
         db.delete(db_bookmark)
-        db.commit()
+        db.flush()
 
     @staticmethod
     def remove_all_user_bookmarks(
@@ -127,4 +127,4 @@ class BookmarkService:
         for bookmark in bookmarks:
             db.delete(bookmark)
 
-        db.commit()
+        db.flush()

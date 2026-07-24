@@ -5,10 +5,16 @@ import uuid
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.models.activity import ActivityType
+from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
+from app.services.activity_service import ActivityService
 from app.models.application import Application, ApplicationStatus
 from app.models.follower import Follower
 from app.models.project import Project
 from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
+from app.core.cache import cached
 from app.schemas.user import UserCreate, UserStats, UserUpdate
 
 
@@ -27,11 +33,13 @@ class UserService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def get_by_username(db: Session, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def list_users(
         db: Session,
         skip: int = 0,
@@ -56,8 +64,18 @@ class UserService:
         )
 
         db.add(db_user)
-        db.commit()
+        db.flush()
         db.refresh(db_user)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_user.id,
+            activity_type=ActivityType.USER_REGISTERED,
+            title="Joined DevLink",
+            description=f"{db_user.first_name} {db_user.last_name} joined DevLink.",
+            icon="user-plus",
+            color="success",
+        )
 
         return db_user
 
@@ -73,8 +91,18 @@ class UserService:
         for key, value in data.items():
             setattr(db_user, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_user.id,
+            activity_type=ActivityType.PROFILE_UPDATED,
+            title="Updated profile",
+            description=f"{db_user.first_name} {db_user.last_name} updated their profile.",
+            icon="user-round-pen",
+            color="info",
+        )
 
         return db_user
 
@@ -85,7 +113,7 @@ class UserService:
     ) -> None:
 
         db.delete(db_user)
-        db.commit()
+        db.flush()
 
     @staticmethod
     def activate_user(
@@ -95,7 +123,7 @@ class UserService:
 
         db_user.is_active = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -108,7 +136,7 @@ class UserService:
 
         db_user.is_active = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -182,7 +210,7 @@ class UserService:
 
         db_user.is_verified = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
@@ -55,7 +55,7 @@ class NotificationService:
             existing.message = notification.message
             existing.title = notification.title
             existing.created_at = datetime.utcnow()
-            db.commit()
+            db.flush()
             db.refresh(existing)
             return existing
 
@@ -74,7 +74,7 @@ class NotificationService:
         )
 
         db.add(db_notification)
-        db.commit()
+        db.flush()
         db.refresh(db_notification)
 
         return db_notification
@@ -162,12 +162,16 @@ class NotificationService:
         recipient_id: uuid.UUID,
     ) -> int:
 
-        stmt = select(Notification).where(
-            Notification.recipient_id == recipient_id,
-            Notification.is_read.is_(False),
+        stmt = (
+            select(func.count())
+            .select_from(Notification)
+            .where(
+                Notification.recipient_id == recipient_id,
+                Notification.is_read.is_(False),
+            )
         )
 
-        return len(list(db.scalars(stmt)))
+        return db.scalar(stmt) or 0
 
     @staticmethod
     def mark_as_read(
@@ -178,7 +182,7 @@ class NotificationService:
         db_notification.is_read = True
         db_notification.read_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
         db.refresh(db_notification)
 
         return db_notification
@@ -200,7 +204,7 @@ class NotificationService:
             notification.is_read = True
             notification.read_at = datetime.utcnow()
 
-        db.commit()
+        db.flush()
 
     @staticmethod
     def update_notification(
@@ -214,7 +218,7 @@ class NotificationService:
         for key, value in data.items():
             setattr(db_notification, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_notification)
 
         return db_notification
@@ -226,4 +230,4 @@ class NotificationService:
     ) -> None:
 
         db.delete(db_notification)
-        db.commit()
+        db.flush()

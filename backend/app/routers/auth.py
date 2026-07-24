@@ -5,19 +5,47 @@ from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
+    Request,
     status,
+)
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+import httpx
+from app.core.config import settings
+from app.core.security import (
+    decode_token,
+    is_refresh_token,
+    create_verification_token,
 )
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
+from app.middleware.rate_limit import (
+    limiter,
+    LOGIN_LIMIT,
+    PASSWORD_RESET_LIMIT,
+    REGISTER_LIMIT,
+)
 from app.dependencies import get_database
 from app.schemas.auth import (
     AuthResponse,
+    ForgotPasswordRequest,
     LoginRequest,
     RegisterRequest,
+    GitHubLoginRequest,
+    RefreshTokenRequest,
+    LogoutResponse,
+    CurrentUserResponse,
+    ChangePasswordRequest,
+    ForgotPasswordResponse,
+    ResetPasswordRequest,
+    SuccessResponse,
+    VerifyEmailRequest,
+    VerifyEmailResponse,
+    ResendVerificationEmailRequest,
 )
-from app.schemas.user import UserResponse
+from app.schemas.user import CurrentUser
 from app.services.auth_service import AuthService
 
 router = APIRouter(
@@ -31,11 +59,13 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    response_model=UserResponse,
+    response_model=CurrentUser,
     status_code=status.HTTP_201_CREATED,
     summary="Register a new user",
 )
+@limiter.limit(REGISTER_LIMIT)
 def register(
+    request: Request,
     payload: RegisterRequest,
     db: Session = Depends(get_database),
 ):
@@ -60,7 +90,9 @@ def register(
     response_model=AuthResponse,
     summary="Login",
 )
+@limiter.limit(LOGIN_LIMIT)
 def login(
+    request: Request,
     payload: LoginRequest,
     db: Session = Depends(get_database),
 ):
@@ -73,20 +105,96 @@ def login(
     return auth_service.login(payload)
 
 
-# pyrefly: ignore [missing-import]
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.security import (
-    decode_token,
-    is_refresh_token,
-    create_verification_token,
-    is_verification_token,
+
+@router.post(
+    "/github",
+    response_model=AuthResponse,
+    summary="GitHub OAuth Login",
 )
-from app.schemas.auth import (
-    RefreshTokenRequest,
-    LogoutResponse,
-    CurrentUserResponse,
-)
+async def github_login(
+    payload: GitHubLoginRequest,
+    db: Session = Depends(get_database),
+):
+    """
+    Authenticate a user via GitHub OAuth.
+    """
+    if not settings.GITHUB_CLIENT_ID or not settings.GITHUB_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="GitHub OAuth is not configured.",
+        )
+
+    # 1. Exchange code for access token
+    token_url = "https://github.com/login/oauth/access_token"
+    headers = {"Accept": "application/json"}
+    data = {
+        "client_id": settings.GITHUB_CLIENT_ID,
+        "client_secret": settings.GITHUB_CLIENT_SECRET,
+        "code": payload.code,
+    }
+
+    async with httpx.AsyncClient() as client:
+        token_res = await client.post(token_url, json=data, headers=headers)
+        if token_res.status_code != 200:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Failed to exchange code for GitHub token.",
+            )
+        
+        token_data = token_res.json()
+        if "error" in token_data:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=token_data.get("error_description", "Invalid GitHub code."),
+            )
+
+        access_token = token_data["access_token"]
+
+        # 2. Fetch user profile
+        user_res = await client.get(
+            "https://api.github.com/user",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        if user_res.status_code != 200:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Failed to fetch GitHub profile.",
+            )
+        github_user = user_res.json()
+        
+        # 3. Fetch user emails if primary email not public
+        primary_email = github_user.get("email")
+        if not primary_email:
+            emails_res = await client.get(
+                "https://api.github.com/user/emails",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            if emails_res.status_code == 200:
+                emails = emails_res.json()
+                for email_obj in emails:
+                    if email_obj.get("primary") and email_obj.get("verified"):
+                        primary_email = email_obj.get("email")
+                        break
+                
+                # Fallback to any verified email if no primary verified email is found
+                if not primary_email:
+                    for email_obj in emails:
+                        if email_obj.get("verified"):
+                            primary_email = email_obj.get("email")
+                            break
+
+    if not primary_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A verified primary email is required for GitHub login.",
+        )
+
+    auth_service = AuthService(db)
+    return auth_service.github_login(github_user, primary_email)
+
+
+
 
 security = HTTPBearer()
 
@@ -125,7 +233,9 @@ def get_current_user_id(
     response_model=CurrentUserResponse,
     summary="Current authenticated user",
 )
+@limiter.limit("30/minute")
 def me(
+    request: Request,
     user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_database),
 ):
@@ -145,7 +255,9 @@ def me(
     response_model=AuthResponse,
     summary="Refresh JWT",
 )
+@limiter.limit("10/minute")
 def refresh(
+    request: Request,
     payload: RefreshTokenRequest,
     db: Session = Depends(get_database),
 ):
@@ -180,7 +292,9 @@ def refresh(
     response_model=LogoutResponse,
     summary="Logout",
 )
+@limiter.limit("10/minute")
 def logout(
+    request: Request,
     user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_database),
 ):
@@ -190,16 +304,7 @@ def logout(
     return auth_service.logout(user_id)
 
 
-from app.schemas.auth import (
-    ChangePasswordRequest,
-    ForgotPasswordRequest,
-    ForgotPasswordResponse,
-    ResetPasswordRequest,
-    SuccessResponse,
-    VerifyEmailRequest,
-    VerifyEmailResponse,
-    ResendVerificationEmailRequest,
-)
+
 
 # ==========================================================
 # Change Password
@@ -211,7 +316,9 @@ from app.schemas.auth import (
     response_model=SuccessResponse,
     summary="Change Password",
 )
+@limiter.limit("5/minute")
 def change_password(
+    request: Request,
     payload: ChangePasswordRequest,
     user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_database),
@@ -236,7 +343,9 @@ def change_password(
     response_model=ForgotPasswordResponse,
     summary="Forgot Password",
 )
+@limiter.limit(PASSWORD_RESET_LIMIT)
 def forgot_password(
+    request: Request,
     payload: ForgotPasswordRequest,
     db: Session = Depends(get_database),
 ):
@@ -258,7 +367,9 @@ def forgot_password(
     response_model=SuccessResponse,
     summary="Reset Password",
 )
+@limiter.limit(PASSWORD_RESET_LIMIT)
 def reset_password(
+    request: Request,
     payload: ResetPasswordRequest,
     db: Session = Depends(get_database),
 ):
@@ -299,7 +410,9 @@ def reset_password(
     response_model=VerifyEmailResponse,
     summary="Verify Email",
 )
+@limiter.limit("5/minute")
 def verify_email(
+    request: Request,
     payload: VerifyEmailRequest,
     db: Session = Depends(get_database),
 ):
@@ -332,7 +445,9 @@ def verify_email(
     response_model=SuccessResponse,
     summary="Resend Verification Email",
 )
+@limiter.limit("3/hour")
 def resend_verification(
+    request: Request,
     payload: ResendVerificationEmailRequest,
     db: Session = Depends(get_database),
 ):
@@ -358,7 +473,7 @@ def resend_verification(
         }
 
     # Generate verification token
-    token = create_verification_token(str(user.id))
+    create_verification_token(str(user.id))
     # TODO:
     # Send email via SMTP
 

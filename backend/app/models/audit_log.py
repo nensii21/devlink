@@ -101,6 +101,7 @@ class AuditLog(Base):
     action: Mapped[AuditAction] = mapped_column(
         SqlEnum(AuditAction),
         nullable=False,
+        index=True,
     )
 
     resource_type: Mapped[str] = mapped_column(
@@ -144,6 +145,7 @@ class AuditLog(Base):
         Boolean,
         default=True,
         nullable=False,
+        index=True,
     )
 
     status_code: Mapped[int | None] = mapped_column()
@@ -169,6 +171,7 @@ class AuditLog(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+        index=True,
     )
 
     def __repr__(self) -> str:
