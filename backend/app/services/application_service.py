@@ -13,7 +13,6 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.orm import Session, selectinload
 
 from app.models.application import (
     Application,

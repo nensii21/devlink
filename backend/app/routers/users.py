@@ -3,6 +3,8 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 # pyrefly: ignore [missing-import]
@@ -25,7 +27,6 @@ from app.schemas.user_report import (
 )
 from app.models.user_report import UserReport
 from app.core.security import hash_password
-from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.utils.validators import validate_username
 

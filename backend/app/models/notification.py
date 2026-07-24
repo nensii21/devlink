@@ -189,8 +189,5 @@ class Notification(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<Notification("
-            f"type='{self.type.value}', "
-            f"recipient={self.recipient_id}"
-            f")>"
+            f"<Notification(type='{self.type.value}', recipient={self.recipient_id})>"
         )

@@ -1,5 +1,4 @@
 import pytest
-from datetime import timedelta
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

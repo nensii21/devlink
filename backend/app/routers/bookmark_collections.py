@@ -17,7 +17,6 @@ from app.schemas.bookmark_collection import (
     BookmarkCollectionUpdate,
     BookmarkCollectionWithBookmarks,
 )
-from app.schemas.bookmark import BookmarkResponse
 from app.services.bookmark_collection_service import BookmarkCollectionService
 from app.services.bookmark_service import BookmarkService
 

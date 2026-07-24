@@ -2,9 +2,21 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 
-from app.core.config import settings
+_original_hashpw = bcrypt.hashpw
+
+
+def _patched_hashpw(password, salt):
+    if len(password) > 72:
+        return _original_hashpw(password[:72], salt)
+    return _original_hashpw(password, salt)
+
+
+bcrypt.hashpw = _patched_hashpw
+from passlib.context import CryptContext  # noqa: E402
+
+from app.core.config import settings  # noqa: E402
 
 # ------------------------------------------------------------------
 # Password Hashing

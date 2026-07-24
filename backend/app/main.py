@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 
 # pyrefly: ignore [missing-import]
-from fastapi.routing import APIRoute
 
 # pyrefly: ignore [missing-import]
 from fastapi import FastAPI

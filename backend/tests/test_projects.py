@@ -7,10 +7,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database.base import Base
-from app.dependencies import get_database, get_current_user
+from app.dependencies import get_database
 from app.main import app
 from app.models.user import User
-from app.models.project import Project, ProjectStage, ProjectVisibility
+from app.models.project import ProjectStage, ProjectVisibility
 from app.schemas.project import ProjectCreate
 from app.services.project_service import ProjectService
 
@@ -162,9 +162,8 @@ def test_list_projects_does_not_increment_views():
     db.close()
 
 
-import pytest
-import uuid
-from fastapi.testclient import TestClient
+import pytest  # noqa: E402
+import uuid  # noqa: E402
 
 
 def test_create_project(client: TestClient, register_and_login):

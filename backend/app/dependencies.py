@@ -148,7 +148,7 @@ def get_current_admin(
 # RBAC Permission Guards
 # ---------------------------------------------------------------------
 
-from app.core.rbac import has_org_permission, has_project_permission
+from app.core.rbac import has_org_permission, has_project_permission  # noqa: E402
 
 
 def require_org_permission(action: str):

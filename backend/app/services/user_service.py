@@ -12,10 +12,8 @@ from app.services.activity_service import ActivityService
 from app.models.application import Application, ApplicationStatus
 from app.models.follower import Follower
 from app.models.project import Project
-from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
 from app.core.cache import cached
-from app.schemas.user import UserCreate, UserStats, UserUpdate
+from app.schemas.user import UserStats
 
 
 class UserService:

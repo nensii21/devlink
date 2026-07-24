@@ -46,6 +46,10 @@ class GitHubLoginRequest(BaseModel):
     code: str
 
 
+class GitHubLoginRequest(BaseModel):  # noqa: F811
+    code: str
+
+
 # ==========================================================
 # JWT Tokens
 # ==========================================================
@@ -68,6 +72,9 @@ class TokenPayload(BaseModel):
 # ==========================================================
 
 
+from app.schemas.user import UserResponse  # noqa: E402
+
+
 class AuthResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -77,6 +84,7 @@ class AuthResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+    user: Optional[UserResponse] = None
 
     user: CurrentUser
 
