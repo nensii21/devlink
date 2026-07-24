@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { activitiesApi, ActivityType } from "@/api/modules/activities";
 import { ActivityItem } from "./ActivityItem";
-import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 type FilterGroup = {
   id: string;
@@ -28,10 +29,24 @@ const FILTERS: FilterGroup[] = [
   { id: "profile", label: "Profile Updates", types: ["profile_updated", "user_registered"] },
 ];
 
+const PAGE_SIZE = 20;
+
 interface ActivityFeedProps {
   actorId?: string;
   targetId?: string;
   targetType?: string;
+}
+
+function ActivitySkeleton() {
+  return (
+    <div className="flex gap-4 p-4 rounded-lg bg-white border border-gray-100">
+      <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
+      </div>
+    </div>
+  );
 }
 
 export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProps) {
@@ -44,7 +59,7 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
     queryKey: ["activities", { actorId, targetId, targetType, activityTypes }],
     queryFn: async ({ pageParam }) => {
       const response = await activitiesApi.getFeed({
-        limit: 20,
+        limit: PAGE_SIZE,
         cursor: pageParam as string | undefined,
         actor_id: actorId,
         target_id: targetId,
@@ -55,33 +70,26 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
     },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || lastPage.length < 20) return undefined;
+      if (!lastPage || lastPage.length < PAGE_SIZE) return undefined;
       return lastPage[lastPage.length - 1].created_at;
     },
   });
 
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastElementRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (isFetchingNextPage) return;
-      if (observer.current) observer.current.disconnect();
+  const handleIntersect = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNextPage) {
-          fetchNextPage();
-        }
-      });
-
-      if (node) observer.current.observe(node);
-    },
-    [isFetchingNextPage, hasNextPage, fetchNextPage],
+  const sentinelRef = useIntersectionObserver(
+    handleIntersect,
+    Boolean(hasNextPage && !isFetchingNextPage),
   );
 
-  const activities = data?.pages.flatMap((page) => page) || [];
+  const activities = data?.pages.flatMap((page) => page) ?? [];
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
-      {/* Filters */}
       <div className="flex flex-wrap gap-2 pb-2" role="group" aria-label="Activity filters">
         {FILTERS.map((filter) => (
           <button
@@ -99,14 +107,12 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
         ))}
       </div>
 
-      {/* Feed */}
       <div className="space-y-4" role="feed" aria-busy={status === "pending" || isFetchingNextPage}>
         {status === "pending" ? (
-          <div className="flex justify-center p-8">
-            <Loader2
-              className="w-8 h-8 text-indigo-600 animate-spin"
-              aria-label="Loading activities"
-            />
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <ActivitySkeleton key={i} />
+            ))}
           </div>
         ) : status === "error" ? (
           <div className="p-8 text-center bg-red-50 text-red-600 rounded-lg border border-red-100">
@@ -115,25 +121,30 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
         ) : activities.length === 0 ? (
           <div className="p-12 text-center bg-gray-50 rounded-lg border border-gray-200 border-dashed">
             <p className="text-gray-500 font-medium">No activities found</p>
-            <p className="text-sm text-gray-400 mt-1">
-              Check back later or try a different filter.
-            </p>
+            <p className="text-sm text-gray-400 mt-1">Check back later or try a different filter.</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {activities.map((activity, index) => {
-              const isLast = index === activities.length - 1;
-              return (
-                <div key={activity.id} ref={isLast ? lastElementRef : null}>
-                  <ActivityItem activity={activity} />
-                </div>
-              );
-            })}
+            {activities.map((activity) => (
+              <ActivityItem key={activity.id} activity={activity} />
+            ))}
 
             {isFetchingNextPage && (
-              <div className="flex justify-center p-4">
-                <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <ActivitySkeleton key={i} />
+                ))}
               </div>
+            )}
+
+            {hasNextPage && !isFetchingNextPage && (
+              <div ref={sentinelRef} className="h-1" aria-hidden="true" />
+            )}
+
+            {!hasNextPage && activities.length > 0 && (
+              <p className="py-4 text-center text-sm text-gray-400">
+                You've reached the end of the feed.
+              </p>
             )}
           </div>
         )}

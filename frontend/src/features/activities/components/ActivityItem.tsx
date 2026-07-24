@@ -1,4 +1,3 @@
-import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Activity } from "@/api/modules/activities";
 import {
@@ -63,7 +62,7 @@ const getActivityIcon = (type: Activity["activity_type"]) => {
 };
 
 export function ActivityItem({ activity }: ActivityItemProps) {
-  // Use metadata for extra rendering details if available
+  
   const metadata = (activity.metadata ?? {}) as {
     actor_name?: string;
     actor_avatar?: string;
