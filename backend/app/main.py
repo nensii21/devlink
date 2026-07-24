@@ -34,6 +34,7 @@ from app.routers import (
     bookmark_collections,
     bookmarks,
     builder_flares,
+    contributor_matching,
     conversations,
     export,
     followers,
@@ -193,6 +194,11 @@ app.include_router(bookmarks.router)
 app.include_router(bookmark_collections.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)
+app.include_router(
+    contributor_matching.router,
+    prefix="/api/contributor-matching",
+    tags=["Contributor Matching"],
+)
 app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
