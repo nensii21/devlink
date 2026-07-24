@@ -101,6 +101,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         />
         <input
           type="search"
+          placeholder="Search for developers, projects, or skills..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
