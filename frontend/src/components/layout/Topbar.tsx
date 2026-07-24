@@ -12,6 +12,8 @@ import {
   Rss,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { Avatar } from "@/components/shared/primitives";
+import { currentUser } from "@/mocks/seed";
 import { currentUser, builders, projects, flares } from "@/mocks/seed";
 import { useTheme } from "@/hooks/useTheme";
 import { NotificationCenter } from "@/components/shared/NotificationCenter";
@@ -275,11 +277,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         params={{ username: currentUser.handle }}
         className="ml-1 flex items-center gap-2 rounded-md p-1 hover:bg-muted"
       >
-        <img
-          src={currentUser.avatar}
-          alt=""
-          className="h-8 w-8 rounded-full border border-border bg-muted"
-        />
+        <Avatar src={currentUser.avatar} alt={currentUser.name} name={currentUser.name} size={32} />
         <div className="hidden text-left sm:block">
           <p className="text-[12px] font-semibold leading-tight text-foreground">
             {currentUser.name}

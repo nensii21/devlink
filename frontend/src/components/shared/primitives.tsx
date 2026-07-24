@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState, type ReactNode } from "react";
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useCardAnimation } from "@/lib/animations";
@@ -23,6 +24,11 @@ export function SectionHeader({
       </h3>
       {action &&
         (actionTo ? (
+          <Link to={actionTo} className="text-[12px] font-medium text-primary hover:underline">
+            {action}
+          </Link>
+        ) : (
+          <button className="text-[12px] font-medium text-primary hover:underline">{action}</button>
           <Link
             to={actionTo}
             className="text-[12px] font-semibold text-primary transition-all hover:text-primary/80 hover:underline"
@@ -145,14 +151,42 @@ export function Avatar({
   alt,
   size = 32,
   online,
+  name,
 }: {
-  src: string;
+  src?: string | null;
   alt: string;
   size?: number;
   online?: boolean;
+  name?: string | null;
 }) {
+  const [hasError, setHasError] = useState(false);
+  const normalizedSrc = typeof src === "string" ? src.trim() : "";
+  const shouldRenderImage = Boolean(normalizedSrc) && !hasError;
+  const fallbackLabel = alt || name || "User avatar";
+
+  useEffect(() => {
+    setHasError(false);
+  }, [normalizedSrc]);
+
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
+      {shouldRenderImage ? (
+        <img
+          src={normalizedSrc}
+          alt={alt}
+          width={size}
+          height={size}
+          onError={() => setHasError(true)}
+          className="h-full w-full rounded-full border border-border bg-muted object-cover"
+        />
+      ) : (
+        <div
+          aria-label={fallbackLabel}
+          className="flex h-full w-full items-center justify-center rounded-full border border-border bg-primary/10 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-primary"
+        >
+          {getInitials(name ?? alt)}
+        </div>
+      )}
       <img
         src={src}
         alt={alt}
