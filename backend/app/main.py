@@ -50,6 +50,7 @@ from app.routers import (
     repositories,
     skills,
     users,
+    search,
 )
 
 
@@ -232,3 +233,4 @@ from app.routers import websockets
 app.include_router(websockets.router)
 app.include_router(recommendations.router)
 app.include_router(health.router)
+app.include_router(search.router, prefix="/api/search", tags=["Search"])
