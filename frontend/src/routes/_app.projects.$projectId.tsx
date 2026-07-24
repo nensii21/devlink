@@ -1,17 +1,18 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
-import { Card, TagChip, SectionHeader, Avatar } from "@/components/shared/primitives";
-import { ArrowLeft, Star, GitFork, Users2, Github, Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { ArrowLeft, Star, GitFork, Users2, Github, Copy, Check, Eye } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
-import { ArrowLeft, Star, GitFork, Users2, Github } from "lucide-react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { builders, activity } from "@/mocks/seed";
 import { BackButton } from "@/components/shared/BackButton";
+import { ShareProjectButton } from "@/components/shared/ShareProjectButton";
+import { BookmarkToggleButton } from "@/components/shared/BookmarkToggleButton";
+import { addRecentlyViewedProject } from "@/lib/recentlyViewedProjects";
+
+import { usePermissions } from "@/hooks/usePermissions";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   head: ({ params }) => ({
@@ -31,8 +32,19 @@ function ProjectDetail() {
   });
   const [tab, setTab] = useState<"overview" | "members" | "activity" | "repos">("overview");
   const [copied, setCopied] = useState(false);
-  const isOwner = p?.owner === currentUser.name;
 
+  // Integrate RBAC hook
+  const { can } = usePermissions(currentUser.id || "current-user-uuid");
+  const hasInvitePermission = can("project:invite", {
+    ownerId: p?.ownerId,
+  });
+
+  const isOwner = p?.owner === currentUser.name;
+  useEffect(() => {
+    if (p) {
+      addRecentlyViewedProject(p.id);
+    }
+  }, [p]);
   const handleCopyInviteLink = async () => {
     const inviteLink = `${window.location.origin}/projects/${projectId}?invite=true`;
 
@@ -49,17 +61,8 @@ function ProjectDetail() {
 
   return (
     <div className="space-y-4">
-      <Link
-        to="/projects"
-        className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft size={14} /> Back to projects
-      </Link>
-      <BackButton
-  to="/projects"
-  label="Back to projects"
-/>
-      <Card className="p-5">
+      <BackButton to="/projects" label="Back to projects" />
+      <Card className="p-4">
         <div className="flex items-start gap-4">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-md bg-muted text-3xl">
             {p.icon}
@@ -74,7 +77,7 @@ function ProjectDetail() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            {isOwner && (
+            {hasInvitePermission && (
               <button
                 type="button"
                 onClick={handleCopyInviteLink}
@@ -86,9 +89,16 @@ function ProjectDetail() {
               </button>
             )}
 
+            <ShareProjectButton projectTitle={p.name} projectDescription={p.description} />
+
+            <BookmarkToggleButton projectId={p.id} />
+
             <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
               <span className="inline-flex items-center gap-1">
                 <Star size={12} /> {p.stars}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Eye size={12} /> {p.views}
               </span>
               <span className="inline-flex items-center gap-1">
                 <GitFork size={12} /> {p.forks}
@@ -97,16 +107,6 @@ function ProjectDetail() {
                 <Users2 size={12} /> {p.members}
               </span>
             </div>
-          <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
-            <span className="inline-flex items-center gap-1">
-              <Star size={12} /> {p.stars}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <GitFork size={12} /> {p.forks}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Users2 size={12} /> {p.members}
-            </span>
           </div>
         </div>
       </Card>
@@ -129,7 +129,7 @@ function ProjectDetail() {
       </div>
 
       {tab === "overview" && (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-3 lg:grid-cols-3">
           <Card className="p-4 lg:col-span-2">
             <p className="text-[13px] font-semibold text-foreground">About</p>
             <Markdown content={p.description} className="mt-2 text-muted-foreground" />
