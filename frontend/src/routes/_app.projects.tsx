@@ -4,6 +4,7 @@ import { projectsService } from "@/services";
 import { Card, TagChip } from "@/components/shared/primitives";
 import { Star, GitFork, Users2, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { cn } from "@/lib/utils";
 import { getRecentlyViewedProjectIds } from "@/lib/recentlyViewedProjects";
 
@@ -72,6 +73,7 @@ function toggle<T>(set: T[], val: T): T[] {
 
 function ProjectsPage() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [createOpen, setCreateOpen] = useState(false);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "recruiting" | "in-progress" | "completed" | "archived"
@@ -129,9 +131,13 @@ function ProjectsPage() {
             Everything you're building, in one place.
           </p>
         </div>
-        <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+        <button
+          onClick={() => setCreateOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90"
+        >
           <Plus size={14} /> New project
         </button>
+        <CreateProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
       </div>
       {recentlyViewed.length > 0 && (
         <section className="space-y-2">

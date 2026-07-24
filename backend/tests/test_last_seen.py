@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone, timedelta
 import uuid
+from datetime import datetime, timedelta, timezone
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -14,7 +15,6 @@ from app.dependencies import get_database
 from app.main import app
 from app.models.user import User
 
-# SQLite setup for tests
 engine = create_engine(
     "sqlite://",
     connect_args={"check_same_thread": False},
@@ -35,12 +35,17 @@ def override_get_db():
 def setup_db():
     app.dependency_overrides[get_database] = override_get_db
     Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
-    app.dependency_overrides.clear()
 
 
-def _register_and_login(client: TestClient, email: str, username: str) -> tuple[str, str]:
+# ==================== Helper ====================
+
+
+def _register_and_login(
+    client: TestClient, email: str, username: str
+) -> tuple[str, str]:
+def _register_and_login(
+    client: TestClient, email: str, username: str
+) -> tuple[str, str]:
     # Register
     client.post(
         "/api/auth/register",
@@ -52,17 +57,19 @@ def _register_and_login(client: TestClient, email: str, username: str) -> tuple[
             "password": "Passw0rd!",
         },
     )
-    # Login
     r = client.post("/api/auth/login", json={"email": email, "password": "Passw0rd!"})
     token = r.json()["access_token"]
     me = client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
     return me.json()["id"], token
 
 
+# ==================== Tests ====================
+
+
 def test_last_seen_updated_on_login():
     client = TestClient(app)
     user_id, token = _register_and_login(client, "test@devlink.com", "testuser")
-    
+
     # Check that user.last_seen is not None after login
     db = TestingSessionLocal()
     user = db.get(User, uuid.UUID(user_id))
@@ -73,22 +80,22 @@ def test_last_seen_updated_on_login():
 def test_last_seen_updated_on_authenticated_requests_with_throttling():
     client = TestClient(app)
     user_id, token = _register_and_login(client, "test@devlink.com", "testuser")
-    
+
     db = TestingSessionLocal()
     user = db.get(User, uuid.UUID(user_id))
     first_seen = user.last_seen
     assert first_seen is not None
-    
+
     # Repeated request within 60 seconds should NOT update last_seen (throttling)
     client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
     db.refresh(user)
     assert user.last_seen == first_seen
-    
+
     # Manually set last_seen to 70 seconds ago to bypass throttle
     user.last_seen = datetime.now(timezone.utc) - timedelta(seconds=70)
     db.commit()
     throttled_seen = user.last_seen
-    
+
     # Next request should trigger update
     client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
     db.refresh(user)
@@ -99,32 +106,41 @@ def test_last_seen_updated_on_authenticated_requests_with_throttling():
 def test_is_online_status_and_custom_thresholds():
     client = TestClient(app)
     user_id, token = _register_and_login(client, "test@devlink.com", "testuser")
-    
+
     # 1. Default threshold (300 seconds) - should be online
     r = client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
     data = r.json()
     assert data["is_online"] is True
     assert data["last_seen"] is not None
-    
+
+    r2 = client.get(f"/api/users/{user_id}")
+    assert r2.json()["is_online"] is True
+
     # 2. Check via public profile endpoint
     r2 = client.get(f"/api/users/{user_id}")
     assert r2.json()["is_online"] is True
-    
+
     # 3. Simulate user has not been seen for 10 minutes (600 seconds)
     db = TestingSessionLocal()
     user = db.get(User, uuid.UUID(user_id))
     user.last_seen = datetime.now(timezone.utc) - timedelta(minutes=10)
     db.commit()
     db.close()
-    
+
+    r3 = client.get(f"/api/users/{user_id}")
+    assert r3.json()["is_online"] is False
+
+    r4 = client.get(f"/api/users/{user_id}?online_threshold=1200")
+    assert r4.json()["is_online"] is True
+
     # Check default (should be offline now)
     r3 = client.get(f"/api/users/{user_id}")
     assert r3.json()["is_online"] is False
-    
+
     # Check with query param online_threshold=1200 (20 minutes) -> should show online!
     r4 = client.get(f"/api/users/{user_id}?online_threshold=1200")
     assert r4.json()["is_online"] is True
-    
+
     # Check on list users endpoint with custom threshold
     r5 = client.get("/api/users/?online_threshold=1200")
     users = r5.json()
@@ -132,6 +148,7 @@ def test_is_online_status_and_custom_thresholds():
     assert any(u["id"] == user_id and u["is_online"] is True for u in users)
 
     # Check on list users endpoint with small threshold (e.g. 5 seconds) -> should show offline
+
     r6 = client.get("/api/users/?online_threshold=5")
     users_offline = r6.json()
     assert any(u["id"] == user_id and u["is_online"] is False for u in users_offline)

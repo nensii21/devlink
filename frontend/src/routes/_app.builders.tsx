@@ -1,4 +1,11 @@
-import { createFileRoute, Link, useNavigate, useRouterState, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useChildMatches,
+  Outlet,
+} from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
 import type { Builder } from "@/services";
@@ -18,20 +25,7 @@ import { Search, Sparkles, Calendar, Briefcase, Check, Bookmark } from "lucide-r
 import { motion } from "framer-motion";
 import { containerVariants } from "@/lib/animations";
 
-type BuildersSearch = {
-  tab?: "discover" | "matches" | "connections";
-};
-
-const VALID_TABS = ["discover", "matches", "connections"] as const;
-
 export const Route = createFileRoute("/_app/builders")({
-  validateSearch: (search: Record<string, unknown>): BuildersSearch => {
-    const rawTab = search.tab as string;
-    const tab = (VALID_TABS as readonly string[]).includes(rawTab)
-      ? (rawTab as "discover" | "matches" | "connections")
-      : "discover";
-    return { tab };
-  },
   head: () => ({
     meta: [
       { title: "Builders — DevLink" },
@@ -44,6 +38,8 @@ export const Route = createFileRoute("/_app/builders")({
   component: BuildersPage,
 });
 
+function BuildersPage() {
+  const [tab, setTab] = useState<"discover" | "matches" | "connections">("discover");
 const TARGET_SKILLS = [
   "React",
   "Next.js",
@@ -64,6 +60,8 @@ function AIMatchCard({ builder }: { builder: Builder }) {
   const matchPercentage = `${builder.matchScore}%`;
   const experienceText = `${builder.yearsExp} Yrs`;
   const availabilityText = "Full-time";
+  const rawAvailability = (builder as Builder & { availability?: string }).availability;
+  const availabilityText = rawAvailability ? rawAvailability.split(" (")[0] : "Full-time";
 
   return (
     <motion.div
@@ -203,16 +201,19 @@ function AIMatchCard({ builder }: { builder: Builder }) {
 }
 
 function BuildersPage() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const childMatches = useChildMatches();
   const { tab } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [q, setQ] = useState("");
+
   const { data = [], isLoading } = useQuery({
     queryKey: ["builders", tab],
-    queryFn: tab === "matches" ? buildersService.matches : buildersService.list,
+    queryFn: () => (tab === "matches" ? buildersService.matches() : buildersService.list()),
   });
 
+  const filtered = data.filter(
   const [connections, setConnections] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem("devlink:connections");
       return stored ? JSON.parse(stored) : [];
@@ -229,9 +230,7 @@ function BuildersPage() {
     });
   };
 
-  const isDetails = pathname.split("/").filter(Boolean).length > 1;
-
-  if (isDetails) {
+  if (childMatches.length > 0) {
     return <Outlet />;
   }
 
@@ -261,9 +260,11 @@ function BuildersPage() {
           {tabs.map((t) => (
             <button
               key={t.k}
+              onClick={() => setTab(t.k)}
+              type="button"
               onClick={() => navigate({ search: (prev) => ({ ...prev, tab: t.k }) })}
               className={cn(
-                "rounded px-2.5 py-1 text-[12px] font-medium transition-colors cursor-pointer",
+                "rounded px-2.5 py-1 text-[12px] font-medium transition-colors",
                 tab === t.k
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -287,6 +288,37 @@ function BuildersPage() {
         </div>
       </div>
 
+      <motion.div
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        role="status"
+        aria-busy={isLoading || undefined}
+      >
+        {isLoading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="p-4 text-center">
+                <div className="mx-auto w-fit">
+                  <Skeleton className="h-16 w-16 shrink-0 rounded-full" />
+                </div>
+                <Skeleton className="mx-auto mt-2 h-4 w-28" />
+                <Skeleton className="mx-auto h-3 w-20" />
+                <Skeleton className="mx-auto h-3 w-36" />
+                <Skeleton className="mx-auto mt-1 h-3 w-24" />
+                <div className="mt-2 flex flex-wrap justify-center gap-1">
+                  <Skeleton className="h-5 w-14" />
+                  <Skeleton className="h-5 w-12" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="mx-auto mt-2 h-3 w-20" />
+                <div className="mt-2 flex gap-1.5">
+                  <Skeleton className="h-7 flex-1" />
+                  <Skeleton className="h-7 flex-1" />
+                </div>
+              </Card>
+            ))
+          : filtered.map((b, i) => (
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -328,6 +360,8 @@ function BuildersPage() {
                     search: (prev) => ({ ...prev, tab: "discover" }),
                   })
                 }
+                type="button"
+                onClick={() => navigate({ search: (prev) => ({ ...prev, tab: "discover" }) })}
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90 cursor-pointer"
               >
                 Discover builders
@@ -356,6 +390,19 @@ function BuildersPage() {
           {filtered.map((b, i) => {
             const isConnected = connections.includes(b.id);
             return (
+              <AnimatedCard
+                key={b.id}
+                interactive
+                index={i}
+                className="p-4 text-center h-full flex flex-col justify-between"
+              >
+                <Link
+                  to="/builders/$builderId"
+                  params={{ builderId: b.id }}
+                  className="block flex-1 group"
+                >
+                  <div className="mx-auto w-fit">
+                    <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
                 <AnimatedCard
                   interactive
@@ -387,34 +434,61 @@ function BuildersPage() {
                       {b.matchScore}% Match
                     </p>
                   </div>
-                  <div className="mt-3 flex gap-1.5">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleConnect(b.id);
-                      }}
-                      className={cn(
-                        "flex-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors cursor-pointer",
-                        isConnected
-                          ? "border border-success bg-success/10 text-success hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
-                          : "bg-primary text-primary-foreground hover:opacity-90",
-                      )}
-                    >
-                      {isConnected ? "Connected" : "Connect"}
+                  <div className="mt-2 flex gap-1.5">
+                    <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
+                      Connect
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted cursor-pointer"
-                    >
+                    <button className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted">
                       Message
                     </button>
                   </div>
                 </AnimatedCard>
               </Link>
+            ))}
+      </motion.div>
+                  <p className="mt-2 text-[14px] font-semibold text-foreground group-hover:underline">
+                    <HighlightText text={b.name} query={q} />
+                  </p>
+                  <p className="text-[12px] text-muted-foreground">
+                    <HighlightText text={b.role} query={q} />
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {b.country} · {b.yearsExp} yrs
+                  </p>
+                  <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
+                  <div className="mt-2 flex flex-wrap justify-center gap-1">
+                    {b.skills.slice(0, 3).map((s) => (
+                      <TagChip key={s}>
+                        <HighlightText text={s} query={q} />
+                      </TagChip>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-[12px] font-semibold text-success">
+                    {b.matchScore}% Match
+                  </p>
+                </Link>
+                <div className="mt-3 flex gap-1.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleConnect(b.id)}
+                    className={cn(
+                      "flex-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors cursor-pointer",
+                      isConnected
+                        ? "border border-success bg-success/10 text-success hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
+                        : "bg-primary text-primary-foreground hover:opacity-90",
+                    )}
+                  >
+                    {isConnected ? "Connected" : "Connect"}
+                  </button>
+                  <Link
+                    to="/builders/$builderId"
+                    params={{ builderId: b.id }}
+                    className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted cursor-pointer flex items-center justify-center"
+                  >
+                    Message
+                  </Link>
+                </div>
+              </AnimatedCard>
             );
           })}
         </motion.div>
