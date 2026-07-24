@@ -1,3 +1,7 @@
 {
-    "DockerRun.DisableDockerrc": true
+    "DockerRun.DisableDockerrc": true,
+    "python.defaultInterpreterPath": "${workspaceFolder}/devlink/backend/venv/Scripts/python.exe",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/devlink/backend"
+    ]
 }

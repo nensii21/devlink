@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.notification import (
@@ -16,7 +19,6 @@ from app.schemas.notification import (
 from app.services.notification_service import NotificationService
 
 router = APIRouter(
-    prefix="/notifications",
     tags=["Notifications"],
 )
 
@@ -28,7 +30,7 @@ router = APIRouter(
 )
 def create_notification(
     notification: NotificationCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -41,12 +43,76 @@ def create_notification(
 
 
 @router.get(
+    "/",
+    response_model=list[NotificationResponse],
+)
+def list_notifications(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+
+    return NotificationService.list_notifications(
+        db,
+        current_user.id,
+    )
+
+
+@router.get(
+    "/unread",
+    response_model=list[NotificationResponse],
+)
+def unread_notifications(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+
+    return NotificationService.list_unread_notifications(
+        db,
+        current_user.id,
+    )
+
+
+@router.get(
+    "/unread/count",
+)
+def unread_count(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+
+    return {
+        "count": NotificationService.unread_count(
+            db,
+            current_user.id,
+        )
+    }
+
+
+@router.patch(
+    "/read-all",
+)
+def mark_all_as_read(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+
+    NotificationService.mark_all_as_read(
+        db,
+        current_user.id,
+    )
+
+    return {
+        "message": "All notifications marked as read",
+    }
+
+
+@router.get(
     "/{notification_id}",
     response_model=NotificationResponse,
 )
 def get_notification(
     notification_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     notification = NotificationService.get_notification(
@@ -63,59 +129,13 @@ def get_notification(
     return notification
 
 
-@router.get(
-    "/",
-    response_model=list[NotificationResponse],
-)
-def list_notifications(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-
-    return NotificationService.list_notifications(
-        db,
-        current_user.id,
-    )
-
-
-@router.get(
-    "/unread",
-    response_model=list[NotificationResponse],
-)
-def unread_notifications(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-
-    return NotificationService.list_unread_notifications(
-        db,
-        current_user.id,
-    )
-
-
-@router.get(
-    "/unread/count",
-)
-def unread_count(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-
-    return {
-        "count": NotificationService.unread_count(
-            db,
-            current_user.id,
-        )
-    }
-
-
 @router.patch(
     "/{notification_id}/read",
     response_model=NotificationResponse,
 )
 def mark_as_read(
     notification_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     notification = NotificationService.get_notification(
@@ -135,24 +155,6 @@ def mark_as_read(
     )
 
 
-@router.patch(
-    "/read-all",
-)
-def mark_all_as_read(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-
-    NotificationService.mark_all_as_read(
-        db,
-        current_user.id,
-    )
-
-    return {
-        "message": "All notifications marked as read",
-    }
-
-
 @router.put(
     "/{notification_id}",
     response_model=NotificationResponse,
@@ -160,7 +162,7 @@ def mark_all_as_read(
 def update_notification(
     notification_id: uuid.UUID,
     notification: NotificationUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_notification = NotificationService.get_notification(
@@ -187,7 +189,7 @@ def update_notification(
 )
 def delete_notification(
     notification_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     notification = NotificationService.get_notification(

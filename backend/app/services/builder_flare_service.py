@@ -10,6 +10,7 @@ from app.schemas.builder_flare import (
     BuilderFlareCreate,
     BuilderFlareUpdate,
 )
+from app.core.cache import cached
 
 
 class BuilderFlareService:
@@ -39,7 +40,7 @@ class BuilderFlareService:
         )
 
         db.add(db_flare)
-        db.commit()
+        db.flush()
         db.refresh(db_flare)
 
         return db_flare
@@ -53,6 +54,7 @@ class BuilderFlareService:
         return db.get(BuilderFlare, flare_id)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="flare")
     def list_open_flares(
         db: Session,
     ) -> list[BuilderFlare]:
@@ -83,7 +85,7 @@ class BuilderFlareService:
         for key, value in data.items():
             setattr(db_flare, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_flare)
 
         return db_flare
@@ -96,7 +98,7 @@ class BuilderFlareService:
 
         db_flare.status = "closed"
 
-        db.commit()
+        db.flush()
         db.refresh(db_flare)
 
         return db_flare
@@ -108,4 +110,4 @@ class BuilderFlareService:
     ) -> None:
 
         db.delete(db_flare)
-        db.commit()
+        db.flush()

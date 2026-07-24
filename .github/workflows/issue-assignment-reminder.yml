@@ -1,0 +1,69 @@
+name: Issue Assignment Reminder
+
+on:
+  schedule:
+    - cron: "0 */12 * * *" # Every 12 hours
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  remind-assignees:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const issues = await github.paginate(
+              github.rest.issues.listForRepo,
+              {
+                owner,
+                repo,
+                state: "open",
+                per_page: 100
+              }
+            );
+
+            const now = new Date();
+
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+              if (!issue.assignees.length) continue;
+
+              const updated = new Date(issue.updated_at);
+              const diffDays = (now - updated) / (1000 * 60 * 60 * 24);
+
+              if (diffDays < 2 || diffDays > 3) continue;
+
+              const prs = await github.paginate(
+                github.rest.pulls.list,
+                {
+                  owner,
+                  repo,
+                  state: "open",
+                  per_page: 100
+                }
+              );
+
+              const hasPR = prs.some(pr => {
+                return pr.body && pr.body.includes(`#${issue.number}`);
+              });
+
+              if (hasPR) continue;
+
+              for (const assignee of issue.assignees) {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  body:
+                    `⚠️ It has been 2 days since this issue was assigned to @${assignee.login} without an associated pull request.Please respond or show activity within **24 hours** (for example, submit a PR or leave a comment). Otherwise, the assignment may be removed.`
+                });
+              }
+            }

@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+
+# pyrefly: ignore [missing-import]
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
+from app.middleware.rate_limit import limiter, MESSAGE_LIMIT, SEARCH_LIMIT
 from app.models.user import User
 from app.schemas.message import (
     MessageCreate,
@@ -15,8 +20,14 @@ from app.schemas.message import (
 )
 from app.services.message_service import MessageService
 
+# pyrefly: ignore [missing-import]
+from sqlalchemy import select
+
+from app.models.conversation_member import ConversationMember
+from app.models.notification import NotificationType
+from app.services.notification_service import NotificationService
+
 router = APIRouter(
-    prefix="/messages",
     tags=["Messages"],
 )
 
@@ -26,18 +37,190 @@ router = APIRouter(
     response_model=MessageResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit(MESSAGE_LIMIT)
 def send_message(
+    request: Request,
     message: MessageCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
-    return MessageService.send_message(
+    sent = MessageService.send_message(
         db=db,
         conversation_id=message.conversation_id,
         sender_id=current_user.id,
         message=message,
     )
+
+    try:
+        recipient_ids = db.scalars(
+            select(ConversationMember.user_id).where(
+                ConversationMember.conversation_id == message.conversation_id,
+                ConversationMember.user_id != current_user.id,
+            )
+        ).all()
+
+        for recipient_id in recipient_ids:
+            NotificationService.enqueue(
+                db,
+                recipient_id=recipient_id,
+                sender_id=current_user.id,
+                type=NotificationType.MESSAGE,
+                title="New message",
+                message=f"{current_user.username} sent you a message.",
+                conversation_id=message.conversation_id,
+                message_id=sent.id,
+                action_url=f"/conversations/{message.conversation_id}",
+            )
+    except Exception:
+        db.rollback()
+
+    return sent
+
+
+@router.get(
+    "/me",
+    response_model=list[MessageResponse],
+)
+def my_messages(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+
+    return MessageService.list_user_messages(
+        db,
+        current_user.id,
+    )
+
+
+@router.get(
+    "/search/{conversation_id}",
+    response_model=list[MessageResponse],
+)
+def search_messages(
+    conversation_id: uuid.UUID,
+    keyword: str = Query(...),
+    db: Session = Depends(get_database),
+):
+
+    return MessageService.search_messages(
+        db,
+        conversation_id,
+        keyword,
+    )
+
+
+@router.get(
+    "/conversation/{conversation_id}/count",
+)
+def count_messages(
+    conversation_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+
+    return {
+        "count": MessageService.count_messages(
+            db,
+            conversation_id,
+        )
+    }
+
+
+@router.get(
+    "/conversation/{conversation_id}",
+    response_model=list[MessageResponse],
+)
+@limiter.limit(SEARCH_LIMIT)
+def list_conversation_messages(
+    request: Request,
+    conversation_id: uuid.UUID,
+    limit: int = Query(100, ge=1, le=500),
+    db: Session = Depends(get_database),
+):
+
+    return MessageService.list_conversation_messages(
+        db,
+        conversation_id,
+        limit,
+    )
+
+
+# ------------------------------------------------------------------
+# Typing indicator  (issue #337)
+# ------------------------------------------------------------------
+
+
+@router.post(
+    "/conversation/{conversation_id}/typing",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+@limiter.limit("60/minute")
+def set_typing(
+    request: Request,
+    conversation_id: uuid.UUID,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Record that the current user is typing in a conversation.
+
+    Clients should call this on a debounce (e.g. every 1–2s while the
+    input has focus and is changing). The state expires automatically
+    after ``MessageService.TYPING_TTL_SECONDS`` if no further heartbeats
+    arrive, so there is no strict requirement to call the "stop" endpoint.
+    """
+    MessageService.set_typing(
+        conversation_id=conversation_id,
+        user_id=current_user.id,
+    )
+    return None
+
+
+@router.delete(
+    "/conversation/{conversation_id}/typing",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+@limiter.limit("60/minute")
+def stop_typing(
+    request: Request,
+    conversation_id: uuid.UUID,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Explicitly clear the current user's typing state.
+
+    Called when the user sends a message or blurs the input so the
+    indicator disappears immediately rather than waiting for the TTL.
+    """
+    MessageService.clear_typing(
+        conversation_id=conversation_id,
+        user_id=current_user.id,
+    )
+    return None
+
+
+@router.get(
+    "/conversation/{conversation_id}/typing",
+)
+@limiter.limit("60/minute")
+def get_typing(
+    request: Request,
+    conversation_id: uuid.UUID,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Return the list of user IDs currently typing in a conversation.
+
+    The requesting user is excluded so a client never sees its own
+    indicator echoed back.
+    """
+    typing_user_ids = MessageService.get_typing_users(
+        conversation_id=conversation_id,
+        exclude_user_id=current_user.id,
+    )
+    return {
+        "conversation_id": str(conversation_id),
+        "typing_user_ids": [str(uid) for uid in typing_user_ids],
+    }
 
 
 @router.get(
@@ -46,7 +229,7 @@ def send_message(
 )
 def get_message(
     message_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     message = MessageService.get_message(
@@ -63,63 +246,16 @@ def get_message(
     return message
 
 
-@router.get(
-    "/conversation/{conversation_id}",
-    response_model=list[MessageResponse],
-)
-def list_conversation_messages(
-    conversation_id: uuid.UUID,
-    limit: int = Query(100, ge=1, le=500),
-    db: Session = Depends(get_db),
-):
-
-    return MessageService.list_conversation_messages(
-        db,
-        conversation_id,
-        limit,
-    )
-
-
-@router.get(
-    "/me",
-    response_model=list[MessageResponse],
-)
-def my_messages(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-
-    return MessageService.list_user_messages(
-        db,
-        current_user.id,
-    )
-
-
-@router.get(
-    "/search/{conversation_id}",
-    response_model=list[MessageResponse],
-)
-def search_messages(
-    conversation_id: uuid.UUID,
-    keyword: str = Query(...),
-    db: Session = Depends(get_db),
-):
-
-    return MessageService.search_messages(
-        db,
-        conversation_id,
-        keyword,
-    )
-
-
 @router.put(
     "/{message_id}",
     response_model=MessageResponse,
 )
+@limiter.limit("20/minute")
 def update_message(
+    request: Request,
     message_id: uuid.UUID,
     message: MessageUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_message = MessageService.get_message(
@@ -144,9 +280,11 @@ def update_message(
     "/{message_id}/restore",
     response_model=MessageResponse,
 )
+@limiter.limit("10/minute")
 def restore_message(
+    request: Request,
     message_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_message = MessageService.get_message(
@@ -170,9 +308,11 @@ def restore_message(
     "/{message_id}",
     response_model=MessageResponse,
 )
+@limiter.limit("10/minute")
 def delete_message(
+    request: Request,
     message_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_message = MessageService.get_message(
@@ -190,19 +330,3 @@ def delete_message(
         db,
         db_message,
     )
-
-
-@router.get(
-    "/conversation/{conversation_id}/count",
-)
-def count_messages(
-    conversation_id: uuid.UUID,
-    db: Session = Depends(get_db),
-):
-
-    return {
-        "count": MessageService.count_messages(
-            db,
-            conversation_id,
-        )
-    }

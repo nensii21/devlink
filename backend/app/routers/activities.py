@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.activity import ActivityType
 from app.models.user import User
@@ -29,7 +33,7 @@ router = APIRouter(
 )
 def create_activity(
     activity: ActivityCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -46,7 +50,7 @@ def create_activity(
 )
 def get_activity(
     activity_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     activity = ActivityService.get_activity(
@@ -67,14 +71,28 @@ def get_activity(
     "/",
     response_model=list[ActivityResponse],
 )
-def recent_activities(
-    limit: int = Query(100, ge=1, le=500),
-    db: Session = Depends(get_db),
+def get_feed(
+    limit: int = Query(50, ge=1, le=100),
+    cursor: datetime | None = Query(
+        None, description="Cursor for pagination (created_at timestamp)"
+    ),
+    actor_id: uuid.UUID | None = Query(None, description="Filter by actor"),
+    target_id: uuid.UUID | None = Query(None, description="Filter by target"),
+    target_type: str | None = Query(None, description="Filter by target type"),
+    activity_types: list[ActivityType] | None = Query(
+        None, description="Filter by activity types"
+    ),
+    db: Session = Depends(get_database),
 ):
 
-    return ActivityService.list_recent_activities(
-        db,
-        limit,
+    return ActivityService.list_activities(
+        db=db,
+        limit=limit,
+        cursor=cursor,
+        actor_id=actor_id,
+        target_id=target_id,
+        target_type=target_type,
+        activity_types=activity_types,
     )
 
 
@@ -84,7 +102,7 @@ def recent_activities(
 )
 def user_activities(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ActivityService.list_user_activities(
@@ -99,7 +117,7 @@ def user_activities(
 )
 def project_activities(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ActivityService.list_project_activities(
@@ -114,7 +132,7 @@ def project_activities(
 )
 def organization_activities(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ActivityService.list_organization_activities(
@@ -129,7 +147,7 @@ def organization_activities(
 )
 def repository_activities(
     repository_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ActivityService.list_repository_activities(
@@ -144,7 +162,7 @@ def repository_activities(
 )
 def activities_by_type(
     activity_type: ActivityType,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ActivityService.list_by_type(
@@ -160,7 +178,7 @@ def activities_by_type(
 def update_activity(
     activity_id: uuid.UUID,
     activity: ActivityUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_activity = ActivityService.get_activity(
@@ -187,7 +205,7 @@ def update_activity(
 )
 def delete_activity(
     activity_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_activity = ActivityService.get_activity(

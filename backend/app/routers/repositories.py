@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+# pyrefly: ignore [missing-import]
+from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.repository import (
@@ -28,7 +31,7 @@ router = APIRouter(
 )
 def connect_repository(
     repository: RepositoryCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -55,7 +58,7 @@ def connect_repository(
 )
 def get_repository(
     repository_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     repository = RepositoryService.get_repository(
@@ -78,7 +81,7 @@ def get_repository(
 )
 def list_project_repositories(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return RepositoryService.list_project_repositories(
@@ -93,7 +96,7 @@ def list_project_repositories(
 )
 def my_repositories(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return RepositoryService.list_user_repositories(
@@ -109,7 +112,7 @@ def my_repositories(
 def update_repository(
     repository_id: uuid.UUID,
     repository: RepositoryUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_repository = RepositoryService.get_repository(
@@ -136,7 +139,7 @@ def update_repository(
 )
 def sync_repository(
     repository_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     repository = RepositoryService.get_repository(
@@ -169,7 +172,7 @@ def sync_repository(
 )
 def mark_unsynced(
     repository_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     repository = RepositoryService.get_repository(
@@ -195,7 +198,7 @@ def mark_unsynced(
 )
 def disconnect_repository(
     repository_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     repository = RepositoryService.get_repository(

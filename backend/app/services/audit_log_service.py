@@ -50,7 +50,7 @@ class AuditLogService:
         )
 
         db.add(log)
-        db.commit()
+        db.flush()
         db.refresh(log)
 
         return log
@@ -128,7 +128,7 @@ class AuditLogService:
     ) -> None:
 
         db.delete(log)
-        db.commit()
+        db.flush()
 
     @staticmethod
     def delete_user_logs(
@@ -143,4 +143,4 @@ class AuditLogService:
         for log in logs:
             db.delete(log)
 
-        db.commit()
+        db.flush()

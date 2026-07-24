@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.builder_flare import (
@@ -16,7 +19,6 @@ from app.schemas.builder_flare import (
 from app.services.builder_flare_service import BuilderFlareService
 
 router = APIRouter(
-    prefix="/builder-flares",
     tags=["Builder Flares"],
 )
 
@@ -28,7 +30,7 @@ router = APIRouter(
 )
 def create_builder_flare(
     flare: BuilderFlareCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -46,7 +48,7 @@ def create_builder_flare(
 )
 def get_builder_flare(
     flare_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     flare = BuilderFlareService.get_flare(
@@ -68,7 +70,7 @@ def get_builder_flare(
     response_model=list[BuilderFlareResponse],
 )
 def list_open_builder_flares(
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return BuilderFlareService.list_open_flares(db)
@@ -80,7 +82,7 @@ def list_open_builder_flares(
 )
 def list_project_builder_flares(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return BuilderFlareService.list_project_flares(
@@ -96,7 +98,7 @@ def list_project_builder_flares(
 def update_builder_flare(
     flare_id: uuid.UUID,
     flare: BuilderFlareUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_flare = BuilderFlareService.get_flare(
@@ -123,7 +125,7 @@ def update_builder_flare(
 )
 def close_builder_flare(
     flare_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_flare = BuilderFlareService.get_flare(
@@ -149,7 +151,7 @@ def close_builder_flare(
 )
 def delete_builder_flare(
     flare_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_flare = BuilderFlareService.get_flare(

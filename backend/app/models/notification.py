@@ -127,6 +127,7 @@ class Notification(Base):
         Boolean,
         default=False,
         nullable=False,
+        index=True,
     )
 
     read_at: Mapped[datetime | None] = mapped_column(
@@ -176,6 +177,7 @@ class Notification(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+        index=True,
     )
 
     updated_at: Mapped[datetime] = mapped_column(
@@ -187,8 +189,5 @@ class Notification(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<Notification("
-            f"type='{self.type.value}', "
-            f"recipient={self.recipient_id}"
-            f")>"
+            f"<Notification(type='{self.type.value}', recipient={self.recipient_id})>"
         )

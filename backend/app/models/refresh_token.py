@@ -140,9 +140,4 @@ class RefreshToken(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<RefreshToken("
-            f"user={self.user_id}, "
-            f"revoked={self.is_revoked}"
-            f")>"
-        )
+        return f"<RefreshToken(user={self.user_id}, revoked={self.is_revoked})>"

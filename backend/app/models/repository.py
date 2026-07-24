@@ -201,8 +201,5 @@ class Repository(Base):
 
     def __repr__(self):
         return (
-            f"<Repository("
-            f"provider='{self.provider.value}', "
-            f"repo='{self.full_name}'"
-            f")>"
+            f"<Repository(provider='{self.provider.value}', repo='{self.full_name}')>"
         )

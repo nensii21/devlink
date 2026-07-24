@@ -116,12 +116,14 @@ class BuilderFlare(Base):
         SqlEnum(FlareStatus),
         default=FlareStatus.OPEN,
         nullable=False,
+        index=True,
     )
 
     featured: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
         nullable=False,
+        index=True,
     )
 
     remote: Mapped[bool] = mapped_column(
@@ -152,6 +154,7 @@ class BuilderFlare(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+        index=True,
     )
 
     updated_at: Mapped[datetime] = mapped_column(
@@ -162,4 +165,4 @@ class BuilderFlare(Base):
     )
 
     def __repr__(self):
-        return f"<BuilderFlare(title='{self.title}', " f"role='{self.role}')>"
+        return f"<BuilderFlare(title='{self.title}', role='{self.role}')>"

@@ -25,8 +25,13 @@ class Skill(Base):
 
     name: Mapped[str] = mapped_column(
         String(100),
-        unique=True,
         nullable=False,
+    )
+
+    normalized_name: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        unique=True,
         index=True,
     )
 

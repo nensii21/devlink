@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.bookmark import BookmarkResponse
@@ -24,7 +27,7 @@ router = APIRouter(
 )
 def bookmark_project(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -53,7 +56,7 @@ def bookmark_project(
 )
 def get_bookmark(
     bookmark_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     bookmark = BookmarkService.get_bookmark(
@@ -76,7 +79,7 @@ def get_bookmark(
 )
 def my_bookmarks(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return BookmarkService.list_user_bookmarks(
@@ -91,7 +94,7 @@ def my_bookmarks(
 )
 def project_bookmarks(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return BookmarkService.list_project_bookmarks(
@@ -106,7 +109,7 @@ def project_bookmarks(
 def check_bookmark(
     project_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return {
@@ -123,7 +126,7 @@ def check_bookmark(
 )
 def bookmark_count(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return {
@@ -140,7 +143,7 @@ def bookmark_count(
 )
 def remove_bookmark(
     bookmark_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     bookmark = BookmarkService.get_bookmark(
@@ -166,7 +169,7 @@ def remove_bookmark(
 )
 def remove_all_bookmarks(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     BookmarkService.remove_all_user_bookmarks(
