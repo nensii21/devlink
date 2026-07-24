@@ -11,8 +11,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
+from app.middleware.rate_limit import limiter
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.activity import ActivityTrackingMiddleware
@@ -177,6 +181,27 @@ async def global_exception_handler(request, exc):
 # API Routers
 # ------------------------------------------------------------------
 
+# Uncomment as each router is created.
+
+from app.routers import (
+    activities,
+    ai,
+    applications,
+    auth,
+    bookmarks,
+    builder_flare,
+    builders,
+    conversations,
+    followers,
+    messages,
+    notifications,
+    organizations,
+    projects,
+    recommendations,
+    repositories,
+    skills,
+    users,
+)
 # Router inclusions
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
