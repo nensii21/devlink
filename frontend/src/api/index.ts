@@ -16,6 +16,8 @@ export { searchApi } from "./modules/search";
 export { activitiesApi } from "./modules/activities";
 export { collectionsApi } from "./modules/collections";
 export { bookmarksApi } from "./modules/bookmarks";
+export { exportApi } from "./modules/export";
+export type { UserExportData, ExportResponse } from "./modules/export";
 export type {
   BookmarkResponse as BookmarkItem,
   BookmarkCheckResponse,
