@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { cn } from "@/lib/utils";
 import { getRecentlyViewedProjectIds } from "@/lib/recentlyViewedProjects";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 
 export const Route = createFileRoute("/_app/projects")({
   head: () => ({
@@ -237,8 +238,27 @@ function ProjectsPage() {
           )}
         </div>
 
-        {showFilters && (
-          <div className="mt-3 space-y-3 border-t border-border pt-3">
+        <BottomSheet
+          open={showFilters}
+          onOpenChange={setShowFilters}
+          title="Filters"
+          description={
+            chipFilterCount > 0
+              ? `${chipFilterCount} active filter${chipFilterCount !== 1 ? "s" : ""}`
+              : undefined
+          }
+          footer={
+            hasActiveFilters ? (
+              <button
+                onClick={clearFilters}
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-border px-3 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
+              >
+                <X size={13} /> Clear all filters
+              </button>
+            ) : undefined
+          }
+        >
+          <div className="space-y-3">
             {/* Language */}
             <div>
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -292,17 +312,8 @@ function ProjectsPage() {
                 ))}
               </div>
             </div>
-
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
-              >
-                <X size={12} /> Clear filters
-              </button>
-            )}
           </div>
-        )}
+        </BottomSheet>
       </Card>
 
       {isLoading ? (
