@@ -12,7 +12,7 @@ from sqlalchemy import (
     JSON,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
@@ -73,6 +73,13 @@ class User(Base):
     # ------------------------------------------------------------------
     # Profile
     # ------------------------------------------------------------------
+
+    badges: Mapped[list[str]] = mapped_column(
+        ARRAY(String),
+        default=list,
+        server_default="{}",
+        nullable=False,
+    )
 
     headline: Mapped[str | None] = mapped_column(
         String(150),

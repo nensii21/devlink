@@ -164,6 +164,32 @@ function ProfilePage() {
         </div>
       </Card>
 
+      <div className="grid gap-4 lg:grid-cols-3 items-start">
+        <div className="flex flex-col gap-4">
+          <Card className="p-4">
+            <p className="text-[13px] font-semibold text-foreground">Skills</p>
+            <div className="mt-3 flex flex-wrap gap-1">
+              {b.skills.map((s) => (
+                <TagChip key={s}>{s}</TagChip>
+              ))}
+            </div>
+          </Card>
+          {b.badges && b.badges.length > 0 && (
+            <Card className="p-4">
+              <p className="text-[13px] font-semibold text-foreground">Badges</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {b.badges.map((badge) => (
+                  <span
+                    key={badge}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
+                  >
+                    <span className="text-[14px]">🏅</span> {badge}
+                  </span>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
       {!me && (
         <ReportUserModal
           isOpen={isReportModalOpen}

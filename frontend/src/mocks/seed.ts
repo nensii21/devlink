@@ -16,6 +16,7 @@ export interface Builder {
   yearsExp: number;
   matchScore: number;
   skills: string[];
+  badges: string[];
   interests: string[];
   online: boolean;
   bio: string;
@@ -130,6 +131,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 92,
     skills: ["React", "Next.js", "TypeScript"],
+    badges: ["Top Contributor", "Social Butterfly"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
     interests: ["Web Dev", "Design Systems", "AI"],
@@ -148,6 +150,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 89,
     skills: ["Node.js", "MongoDB", "Express"],
+    badges: ["Active Developer"],
     online: true,
     bio: "Builds end-to-end features fast.",
     interests: ["Backend", "Web Dev"],
@@ -165,6 +168,7 @@ export const builders: Builder[] = [
     yearsExp: 2,
     matchScore: 87,
     skills: ["Python", "FastAPI", "PostgreSQL"],
+    badges: ["Project Owner", "Active Developer"],
     online: false,
     bio: "APIs, queues and Postgres tuning.",
     interests: ["Backend", "AI"],
@@ -182,6 +186,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 94,
     skills: ["Figma", "Adobe XD"],
+    badges: ["Social Butterfly"],
     online: true,
     bio: "Product design for early-stage teams.",
     interests: ["Design Systems", "Web Dev"],
@@ -199,6 +204,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 93,
     skills: ["MERN", "Next.js"],
+    badges: ["Top Contributor", "Project Owner"],
     online: false,
     bio: "Ships side-projects on weekends.",
     interests: ["Web Dev", "Frontend"],
@@ -216,6 +222,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 91,
     skills: ["Flutter", "Firebase"],
+    badges: ["Active Developer"],
     online: true,
     bio: "Cross-platform mobile since 2021.",
     interests: ["Mobile", "Web Dev"],
@@ -233,6 +240,7 @@ export const builders: Builder[] = [
     yearsExp: 5,
     matchScore: 88,
     skills: ["Python", "PyTorch", "AWS"],
+    badges: ["Top Contributor", "Social Butterfly"],
     online: true,
     bio: "Recsys, embeddings, evals.",
     interests: ["AI", "Backend"],
@@ -250,6 +258,7 @@ export const builders: Builder[] = [
     yearsExp: 6,
     matchScore: 86,
     skills: ["Kubernetes", "Terraform"],
+    badges: ["Project Owner"],
     online: false,
     bio: "Infra as code, cost optimization.",
     interests: ["Backend", "AI"],
