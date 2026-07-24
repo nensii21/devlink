@@ -6,9 +6,10 @@ import { HighlightText } from "@/components/shared/HighlightText";
 import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
 import { containerVariants } from "@/lib/animations";
+import { useBookmarks } from "@/context/BookmarkContext";
 
 export const Route = createFileRoute("/_app/builders")({
   head: () => ({
@@ -30,6 +31,8 @@ function BuildersPage() {
     queryKey: ["builders", tab],
     queryFn: tab === "matches" ? buildersService.matches : buildersService.list,
   });
+
+  const { toggleBookmark, isBookmarked } = useBookmarks();
 
   const filtered = data.filter(
     (b) =>
@@ -89,6 +92,84 @@ function BuildersPage() {
         role="status"
         aria-busy={isLoading || undefined}
       >
+
+
+
+
+        {filtered.map((b, i) => {
+          const saved = isBookmarked(b.id);
+
+          return (
+            <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
+              <AnimatedCard interactive index={i} className="relative p-4 text-center">
+                {/* BOOKMARK BUTTON */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleBookmark({
+                      id: b.id,
+                      name: b.name,
+                      role: b.role,
+                      location: b.country,
+                      experience: `${b.yearsExp} yrs`,
+                      skills: b.skills || [],
+                      avatar_url: b.avatar,
+                    });
+                  }}
+                  title={saved ? "Remove bookmark" : "Save developer"}
+                  className="absolute right-3 top-3 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                >
+                  <Bookmark size={15} className={saved ? "fill-primary text-primary" : ""} />
+                </button>
+
+                <div className="mx-auto w-fit">
+                  <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
+                </div>
+                <p className="mt-2 text-[14px] font-semibold text-foreground">
+                  <HighlightText text={b.name} query={q} />
+                </p>
+                <p className="text-[12px] text-muted-foreground">
+                  <HighlightText text={b.role} query={q} />
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {b.country} · {b.yearsExp} yrs
+                </p>
+                <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
+                <div className="mt-2 flex flex-wrap justify-center gap-1">
+                  {b.skills.slice(0, 3).map((s) => (
+                    <TagChip key={s}>
+                      <HighlightText text={s} query={q} />
+                    </TagChip>
+                  ))}
+                </div>
+                <p className="mt-2 text-[12px] font-semibold text-success">{b.matchScore}% Match</p>
+                <div className="mt-2 flex gap-1.5">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                    className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90"
+                  >
+                    Connect
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                    }}
+                    className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted"
+                  >
+                    Message
+                  </button>
+                </div>
+              </AnimatedCard>
+            </Link>
+          );
+        })}
+
+
+
         {isLoading
           ? Array.from({ length: 8 }).map((_, i) => (
               <Card key={i} className="p-4 text-center">

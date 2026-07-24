@@ -15,3 +15,7 @@ backend/logs/
 # OS files
 .DS_Store
 Thumbs.db
+
+backend/venv/
+*.pyc
+__pycache__/
