@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.conversation import (
@@ -28,7 +31,7 @@ router = APIRouter(
 )
 def create_conversation(
     conversation: ConversationCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -46,7 +49,7 @@ def create_conversation(
 )
 def create_conversation(
     conversation: ConversationCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -64,7 +67,7 @@ def create_conversation(
 )
 def create_conversation(
     conversation: ConversationCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -81,7 +84,7 @@ def create_conversation(
 )
 def get_conversation(
     conversation_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     conversation = ConversationService.get_conversation(
@@ -104,7 +107,7 @@ def get_conversation(
 )
 def list_my_conversations(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ConversationService.list_user_conversations(
@@ -120,7 +123,7 @@ def list_my_conversations(
 def update_conversation(
     conversation_id: uuid.UUID,
     conversation: ConversationUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_conversation = ConversationService.get_conversation(
@@ -148,7 +151,7 @@ def update_conversation(
 def add_member(
     conversation_id: uuid.UUID,
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ConversationService.add_member(
@@ -165,7 +168,7 @@ def add_member(
 def remove_member(
     conversation_id: uuid.UUID,
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     ConversationService.remove_member(
@@ -181,7 +184,7 @@ def remove_member(
 )
 def archive_conversation(
     conversation_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     conversation = ConversationService.get_conversation(
@@ -207,7 +210,7 @@ def archive_conversation(
 )
 def restore_conversation(
     conversation_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     conversation = ConversationService.get_conversation(
@@ -233,7 +236,7 @@ def restore_conversation(
 )
 def delete_conversation(
     conversation_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     conversation = ConversationService.get_conversation(
