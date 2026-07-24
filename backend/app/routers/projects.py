@@ -17,6 +17,7 @@ from app.schemas.project import (
     ProjectResponse,
     ProjectStatsResponse,
     ProjectUpdate,
+    SimilarProjectWarning,
 )
 from app.services.project_service import ProjectService
 
@@ -51,6 +52,22 @@ def create_project(
         db=db,
         owner_id=current_user.id,
         project=project,
+    )
+
+
+@router.post(
+    "/check-similarity",
+    response_model=list[SimilarProjectWarning],
+)
+def check_project_similarity(
+    project: ProjectCreate,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    return ProjectService.find_similar_projects(
+        db,
+        title=project.title,
+        description=project.description,
     )
 
 

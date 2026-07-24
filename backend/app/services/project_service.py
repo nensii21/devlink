@@ -12,6 +12,8 @@ from app.services.activity_service import ActivityService
 from app.core.cache import cached
 from app.schemas.project import (
     ProjectStatsResponse,
+    ProjectUpdate,
+    SimilarProjectWarning,
 )
 
 
@@ -285,6 +287,42 @@ class ProjectService:
             accepted_members=accepted_members,
             bookmark_count=bookmark_count,
         )
+
+
+@staticmethod
+def find_similar_projects(
+    db: Session,
+    title: str,
+    description: str,
+    title_threshold: float = 0.75,
+    description_threshold: float = 0.65,
+) -> list[SimilarProjectWarning]:
+    from difflib import SequenceMatcher
+
+    candidates = list(db.scalars(select(Project).where(Project.is_archived.is_(False))))
+
+    results = []
+    title_lower = title.lower()
+    desc_lower = description.lower()
+
+    for project in candidates:
+        title_sim = SequenceMatcher(None, title_lower, project.title.lower()).ratio()
+        desc_sim = SequenceMatcher(
+            None, desc_lower, project.description.lower()
+        ).ratio()
+
+        if title_sim >= title_threshold or desc_sim >= description_threshold:
+            results.append(
+                SimilarProjectWarning(
+                    id=project.id,
+                    title=project.title,
+                    slug=project.slug,
+                    title_similarity=round(title_sim, 2),
+                    description_similarity=round(desc_sim, 2),
+                )
+            )
+
+    return results
 
     @staticmethod
     def delete_project(

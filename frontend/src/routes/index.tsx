@@ -1,21 +1,8 @@
 import React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { APP_LOGO } from "@/lib/logo";
-import { useTheme } from "@/hooks/useTheme";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Sparkles,
-  Users2,
-  MessageSquare,
-  Trophy,
-  Github,
-  ArrowRight,
-  Check,
-  Moon,
-  Sun,
-  Menu,
-  X,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Sparkles, Users2, MessageSquare, Trophy, Github, ArrowRight, Check } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -170,7 +157,7 @@ function Landing() {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-[12px] font-medium text-muted-foreground">
               <Sparkles size={12} className="text-primary" /> AI-powered team matching · in beta
             </span>
-            <h1 className="mx-auto mt-6 max-w-3xl text-[30px] sm:text-[52px] font-bold leading-tight tracking-tight text-foreground">
+            <h1 className="mx-auto mt-6 max-w-3xl text-[36px] font-bold leading-tight tracking-tight text-foreground sm:text-[52px]">
               Where builders connect, <span className="text-primary">collaborate</span> and ship.
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground">
