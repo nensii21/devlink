@@ -228,3 +228,123 @@ def test_restore_message_not_found(client: TestClient, test_conversation):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 404
+
+
+# ------------------------------------------------------------------
+# Typing indicator  (issue #337)
+# ------------------------------------------------------------------
+
+
+def test_set_typing_returns_204(client: TestClient, test_conversation):
+    cid = test_conversation["id"]
+    token = test_conversation["token1"]
+
+    response = client.post(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 204
+
+
+def test_get_typing_returns_other_user(client: TestClient, test_conversation):
+    """When user 1 is typing, user 2's GET should report user 1's id."""
+    from app.services.message_service import MessageService
+
+    # Clear any leftover state from previous tests so this is deterministic.
+
+    MessageService._typing_store.clear()
+
+    cid = test_conversation["id"]
+    token1 = test_conversation["token1"]
+    token2 = test_conversation["token2"]
+    uid1 = test_conversation["u1"]
+
+    # User 1 says they're typing.
+
+    client.post(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+
+    # User 2 asks who's typing — should see user 1.
+
+    response = client.get(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["conversation_id"] == str(cid)
+    assert uid1 in body["typing_user_ids"]
+
+
+def test_get_typing_excludes_self(client: TestClient, test_conversation):
+    """A user should never see their own typing indicator echoed back."""
+    from app.services.message_service import MessageService
+
+    MessageService._typing_store.clear()
+
+    cid = test_conversation["id"]
+    token1 = test_conversation["token1"]
+    uid1 = test_conversation["u1"]
+
+    client.post(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+
+    response = client.get(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+    assert response.status_code == 200
+    assert uid1 not in response.json()["typing_user_ids"]
+
+
+def test_stop_typing_clears_state(client: TestClient, test_conversation):
+    """DELETE /typing immediately removes the user from the typing set."""
+    from app.services.message_service import MessageService
+
+    MessageService._typing_store.clear()
+
+    cid = test_conversation["id"]
+    token1 = test_conversation["token1"]
+    token2 = test_conversation["token2"]
+
+    client.post(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+
+    # User 1 stops typing.
+
+    stop = client.delete(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+    assert stop.status_code == 204
+
+    # User 2 should now see an empty typing list.
+
+    response = client.get(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+    assert response.status_code == 200
+    assert response.json()["typing_user_ids"] == []
+
+
+def test_get_typing_empty_when_nobody_typing(client: TestClient, test_conversation):
+    from app.services.message_service import MessageService
+
+    MessageService._typing_store.clear()
+
+    cid = test_conversation["id"]
+    token1 = test_conversation["token1"]
+
+    response = client.get(
+        f"/api/messages/conversation/{cid}/typing",
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+    assert response.status_code == 200
+    assert response.json()["typing_user_ids"] == []

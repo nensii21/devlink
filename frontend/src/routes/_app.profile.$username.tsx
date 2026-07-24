@@ -2,9 +2,18 @@ import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-ro
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { LastActive } from "@/components/shared/LastActive";
 import { builders, currentUser, projects } from "@/mocks/seed";
-import { MapPin, Calendar, Link as LinkIcon, MessageCircle, Mail } from "lucide-react";
+import {
+  MapPin,
+  Calendar,
+  Link as LinkIcon,
+  MessageCircle,
+  Mail,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { copyText } from "@/lib/clipboard";
+import { ReportUserModal } from "@/components/shared/ReportUserModal";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -21,6 +30,7 @@ export const Route = createFileRoute("/_app/profile/$username")({
 
 function ProfilePage() {
   const { username } = Route.useParams();
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const navigate = useNavigate();
   const me = username === currentUser.handle;
   const b = me
@@ -128,23 +138,66 @@ function ProfilePage() {
               </button>
             )}
             {!me && (
-              <button
-                type="button"
-                onClick={() =>
-                  navigate({
-                    to: "/messages/$conversationId",
-                    params: { conversationId: b.id },
-                  })
-                }
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                <MessageCircle size={16} />
-                Contact Developer
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate({
+                      to: "/messages/$conversationId",
+                      params: { conversationId: b.id },
+                    })
+                  }
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                >
+                  <MessageCircle size={16} />
+                  Contact Developer
+                </button>
+                <button
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] font-semibold text-destructive hover:bg-destructive/20 transition-colors flex items-center gap-1"
+                >
+                  <AlertTriangle size={14} /> Report
+                </button>
+              </>
             )}
           </div>
         </div>
       </Card>
+
+      <div className="grid gap-4 lg:grid-cols-3 items-start">
+        <div className="flex flex-col gap-4">
+          <Card className="p-4">
+            <p className="text-[13px] font-semibold text-foreground">Skills</p>
+            <div className="mt-3 flex flex-wrap gap-1">
+              {b.skills.map((s) => (
+                <TagChip key={s}>{s}</TagChip>
+              ))}
+            </div>
+          </Card>
+          {b.badges && b.badges.length > 0 && (
+            <Card className="p-4">
+              <p className="text-[13px] font-semibold text-foreground">Badges</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {b.badges.map((badge) => (
+                  <span
+                    key={badge}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
+                  >
+                    <span className="text-[14px]">🏅</span> {badge}
+                  </span>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
+      {!me && (
+        <ReportUserModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          userId={b.id || ""}
+          username={b.handle}
+        />
+      )}
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card className="p-4">

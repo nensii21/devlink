@@ -11,8 +11,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # pyrefly: ignore [missing-import]
 from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
+from app.middleware.rate_limit import limiter
 from app.middleware.request_id import RequestIDMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.activity import ActivityTrackingMiddleware
@@ -34,7 +38,9 @@ from app.routers import (
     bookmark_collections,
     bookmarks,
     builder_flares,
+    contributor_matching,
     conversations,
+    export,
     followers,
     health,
     messages,
@@ -47,6 +53,7 @@ from app.routers import (
     users,
     search,
 )
+
 
 
 @asynccontextmanager
@@ -175,10 +182,32 @@ async def global_exception_handler(request, exc):
 # API Routers
 # ------------------------------------------------------------------
 
+# Uncomment as each router is created.
+
+from app.routers import (
+    activities,
+    ai,
+    applications,
+    auth,
+    bookmarks,
+    builder_flare,
+    builders,
+    conversations,
+    followers,
+    messages,
+    notifications,
+    organizations,
+    projects,
+    recommendations,
+    repositories,
+    skills,
+    users,
+)
 # Router inclusions
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(export.router, prefix="/api/users", tags=["Export"])
 app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
 app.include_router(builder_flares.router, prefix="/api/flare", tags=["Builder's Flare"])
 app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
@@ -191,10 +220,18 @@ app.include_router(bookmarks.router)
 app.include_router(bookmark_collections.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)
+app.include_router(
+    contributor_matching.router,
+    prefix="/api/contributor-matching",
+    tags=["Contributor Matching"],
+)
 app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
+app.include_router(users.router)
+from app.routers import websockets
+app.include_router(websockets.router)
 app.include_router(recommendations.router)
 app.include_router(health.router)
 app.include_router(search.router, prefix="/api/search", tags=["Search"])

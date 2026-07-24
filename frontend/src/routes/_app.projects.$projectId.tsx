@@ -9,7 +9,10 @@ import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
 import { BackButton } from "@/components/shared/BackButton";
 import { ShareProjectButton } from "@/components/shared/ShareProjectButton";
+import { BookmarkToggleButton } from "@/components/shared/BookmarkToggleButton";
 import { addRecentlyViewedProject } from "@/lib/recentlyViewedProjects";
+
+import { usePermissions } from "@/hooks/usePermissions";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   head: ({ params }) => ({
@@ -29,6 +32,13 @@ function ProjectDetail() {
   });
   const [tab, setTab] = useState<"overview" | "members" | "activity" | "repos">("overview");
   const [copied, setCopied] = useState(false);
+
+  // Integrate RBAC hook
+  const { can } = usePermissions(currentUser.id || "current-user-uuid");
+  const hasInvitePermission = can("project:invite", {
+    ownerId: p?.ownerId,
+  });
+
   const isOwner = p?.owner === currentUser.name;
   useEffect(() => {
     if (p) {
@@ -67,7 +77,7 @@ function ProjectDetail() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            {isOwner && (
+            {hasInvitePermission && (
               <button
                 type="button"
                 onClick={handleCopyInviteLink}
@@ -80,6 +90,8 @@ function ProjectDetail() {
             )}
 
             <ShareProjectButton projectTitle={p.name} projectDescription={p.description} />
+
+            <BookmarkToggleButton projectId={p.id} />
 
             <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
               <span className="inline-flex items-center gap-1">

@@ -196,6 +196,8 @@ export const userService = {
     }, seed.currentUser),
 };
 
+export { teamMatchService } from "./teamMatch";
+
 export type {
   Builder,
   Project,

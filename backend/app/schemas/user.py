@@ -1,11 +1,31 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, time
 from typing import Optional
 
 # pyrefly: ignore [missing-import]
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    HttpUrl,
+    model_validator,
+)
+
+
+
+class AvailabilitySlot(BaseModel):
+    day: str
+    start_time: time
+    end_time: time
+
+    @model_validator(mode="after")
+    def validate_times(self):
+        if self.end_time <= self.start_time:
+            raise ValueError("end_time must be after start_time")
+        return self
 
 # ==========================================================
 # Base User Schema
@@ -47,6 +67,7 @@ class UserBase(BaseModel):
     company: Optional[str] = None
 
     open_to_work: bool = True
+    availability: list[AvailabilitySlot] = Field(default_factory=list)
 
 
 # ==========================================================
@@ -72,8 +93,8 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
-    headline: Optional[str] = None
-    bio: Optional[str] = None
+    headline: Optional[str] = Field(default=None, max_length=150)
+    bio: Optional[str] = Field(default=None, max_length=1000)
 
     location: Optional[str] = None
     timezone: Optional[str] = None
@@ -89,6 +110,7 @@ class UserUpdate(BaseModel):
     company: Optional[str] = None
 
     open_to_work: Optional[bool] = None
+    availability: Optional[list[AvailabilitySlot]] = None
 
 
 # ==========================================================
@@ -103,11 +125,20 @@ class UserResponse(UserBase):
 
     profile_image: Optional[str] = None
     cover_image: Optional[str] = None
+    badges: list[str] = Field(default_factory=list)
 
     is_active: bool
     is_verified: bool
     is_superuser: bool
 
+    last_seen: Optional[datetime] = Field(
+        default=None,
+        description="The date and time when the user was last active.",
+    )
+    is_online: bool = Field(
+        default=False,
+        description="Whether the user is currently online based on the active threshold.",
+    )
     last_active_at: Optional[datetime] = None
 
     created_at: datetime

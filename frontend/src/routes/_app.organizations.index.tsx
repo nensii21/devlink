@@ -1,15 +1,15 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_app/organizations/')({
+export const Route = createFileRoute("/_app/organizations/")({
   component: OrganizationsListPage,
 });
 
 function OrganizationsListPage() {
   const mockOrgs = [
     {
-      id: 'devlink-org',
-      name: 'DevLink',
-      description: 'The developer portfolio & project collaboration network.',
+      id: "devlink-org",
+      name: "DevLink",
+      description: "The developer portfolio & project collaboration network.",
       hiring: true,
       members_count: 12,
       projects_count: 5,

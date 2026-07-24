@@ -1,11 +1,22 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
+import { Card, TagChip, SectionHeader } from "@/components/shared/primitives";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Card, TagChip } from "@/components/shared/primitives";
 import { Star, GitFork, Users2, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { cn } from "@/lib/utils";
 import { getRecentlyViewedProjectIds } from "@/lib/recentlyViewedProjects";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 
 export const Route = createFileRoute("/_app/projects")({
   head: () => ({
@@ -72,7 +83,14 @@ function toggle<T>(set: T[], val: T): T[] {
 
 function ProjectsPage() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const search = useRouterState({ select: (state) => state.location.search as Record<string, unknown> });
+  const page = Number(search?.page) || 1;
+  const ITEMS_PER_PAGE = 6;
+  const [createOpen, setCreateOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "planning" | "shipped">(
+    "all",
+  );
   const [statusFilter, setStatusFilter] = useState<
     "all" | "recruiting" | "in-progress" | "completed" | "archived"
   >("all");
@@ -120,6 +138,9 @@ function ProjectsPage() {
     return true;
   });
 
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -129,9 +150,13 @@ function ProjectsPage() {
             Everything you're building, in one place.
           </p>
         </div>
-        <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
+        <button
+          onClick={() => setCreateOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90"
+        >
           <Plus size={14} /> New project
         </button>
+        <CreateProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
       </div>
       {recentlyViewed.length > 0 && (
         <section className="space-y-2">
@@ -231,8 +256,27 @@ function ProjectsPage() {
           )}
         </div>
 
-        {showFilters && (
-          <div className="mt-3 space-y-3 border-t border-border pt-3">
+        <BottomSheet
+          open={showFilters}
+          onOpenChange={setShowFilters}
+          title="Filters"
+          description={
+            chipFilterCount > 0
+              ? `${chipFilterCount} active filter${chipFilterCount !== 1 ? "s" : ""}`
+              : undefined
+          }
+          footer={
+            hasActiveFilters ? (
+              <button
+                onClick={clearFilters}
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-border px-3 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
+              >
+                <X size={13} /> Clear all filters
+              </button>
+            ) : undefined
+          }
+        >
+          <div className="space-y-3">
             {/* Language */}
             <div>
               <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -286,17 +330,8 @@ function ProjectsPage() {
                 ))}
               </div>
             </div>
-
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
-              >
-                <X size={12} /> Clear filters
-              </button>
-            )}
           </div>
-        )}
+        </BottomSheet>
       </Card>
 
       {isLoading ? (
@@ -318,6 +353,10 @@ function ProjectsPage() {
           </p>
           {hasActiveFilters && (
             <button
+              onClick={resetFilters}
+              className="mt-3 text-[13px] font-medium text-primary hover:underline"
+            >
+              Reset filters
               onClick={clearFilters}
               className="mt-3 text-[13px] font-medium text-primary hover:underline"
             >
@@ -326,8 +365,29 @@ function ProjectsPage() {
           )}
         </div>
       ) : (
+        <>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {paginated.map((p) => (
+              <a key={p.id} href={`/projects/${p.id}`} className="block">
+                <Card interactive className="p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
+                      {p.icon}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-semibold text-foreground">{p.name}</p>
+                      <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
+                        {p.description}
+                      </p>
+                    </div>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
+            <Link
+              key={p.id}
+              to="/projects/$projectId"
+              params={{ projectId: p.id }}
+              className="block"
+            >
             <a key={p.id} href={`/projects/${p.id}`} className="block">
               <Card interactive className="p-4">
                 <div className="flex items-start gap-3">
@@ -340,33 +400,98 @@ function ProjectsPage() {
                       {p.description}
                     </p>
                   </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {p.stack.map((s) => (
-                    <TagChip key={s}>{s}</TagChip>
-                  ))}
-                  {p.difficulty && (
-                    <TagChip
-                      className={cn(
-                        p.difficulty === "beginner"
-                          ? "border-success/30 bg-success/10 text-success"
-                          : p.difficulty === "intermediate"
-                            ? "border-warning/30 bg-warning/10 text-warning"
-                            : "border-destructive/30 bg-destructive/10 text-destructive",
-                      )}
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {p.stack.map((s) => (
+                      <TagChip key={s}>{s}</TagChip>
+                    ))}
+                    {p.difficulty && (
+                      <TagChip
+                        className={cn(
+                          p.difficulty === "beginner"
+                            ? "border-success/30 bg-success/10 text-success"
+                            : p.difficulty === "intermediate"
+                              ? "border-warning/30 bg-warning/10 text-warning"
+                              : "border-destructive/30 bg-destructive/10 text-destructive",
+                        )}
+                      >
+                        {p.difficulty}
+                      </TagChip>
+                    )}
+                  </div>
+                  <div className="mt-3">
+                    <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+                      <span>Progress</span>
+                      <span>{p.progress}%</span>
+                    </div>
+                    <div className="h-1 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full bg-primary" style={{ width: `${p.progress}%` }} />
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      <Users2 size={12} /> {p.members}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Star size={12} /> {p.stars}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <GitFork size={12} /> {p.forks}
+                    </span>
+                    <span
+                      className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
+                        p.status === "recruiting"
+                          ? "bg-primary/10 text-primary"
+                          : p.status === "in-progress"
+                            ? "bg-warning/10 text-warning"
+                            : p.status === "completed"
+                              ? "bg-success/10 text-success"
+                              : "bg-muted text-muted-foreground"
+                      }`}
                     >
-                      {p.difficulty}
-                    </TagChip>
-                  )}
-                </div>
-                <div className="mt-3">
-                  <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span>Progress</span>
-                    <span>{p.progress}%</span>
+                      {p.status
+                        .split("-")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
+                    </span>
                   </div>
-                  <div className="h-1 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full bg-primary" style={{ width: `${p.progress}%` }} />
-                  </div>
+                </Card>
+              </a>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href={`/projects?page=${Math.max(1, page - 1)}`}
+                      aria-disabled={page === 1}
+                      className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        href={`/projects?page=${i + 1}`}
+                        isActive={page === i + 1}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      href={`/projects?page=${Math.min(totalPages, page + 1)}`}
+                      aria-disabled={page === totalPages}
+                      className={page === totalPages ? "pointer-events-none opacity-50" : ""}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </>
                 </div>
                 <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
@@ -380,6 +505,14 @@ function ProjectsPage() {
                   </span>
                   <span
                     className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
+                      p.status === "active"
+                        ? "bg-success/10 text-success"
+                        : p.status === "planning"
+                          ? "bg-warning/10 text-warning"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {p.status}
                       p.status === "recruiting"
                         ? "bg-primary/10 text-primary"
                         : p.status === "in-progress"

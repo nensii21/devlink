@@ -20,23 +20,19 @@ export const Route = createFileRoute("/auth")({
 
 const signInSchema = z.object({
   email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "At least 8 characters"),
+  password: z.string().min(6, "At least 6 characters"),
 });
 const signUpSchema = signInSchema
   .extend({
-    first_name: z.string().min(2, "At least 2 characters").max(100, "At most 100 characters"),
-    last_name: z.string().min(2, "At least 2 characters").max(100, "At most 100 characters"),
-    username: z
-      .string()
-      .min(3, "At least 3 characters")
-      .max(50, "At most 50 characters")
-      .regex(/^[a-zA-Z0-9_]+$/, "Letters, numbers, and underscores only"),
+    firstName: z.string().min(1, "Required").max(50),
+    lastName: z.string().min(1, "Required").max(50),
     confirmPassword: z.string(),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: "Passwords must match",
     path: ["confirmPassword"],
   });
+import { loginSchema as signInSchema, signupSchema as signUpSchema } from "@/lib/schemas/forms";
 
 type SignIn = z.infer<typeof signInSchema>;
 type SignUp = z.infer<typeof signUpSchema>;
