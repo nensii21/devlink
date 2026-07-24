@@ -205,6 +205,12 @@ function BuildersPage() {
   const { tab } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [q, setQ] = useState("");
+  const { data = [] } = useQuery({
+    queryKey: ["builders", tab],
+    queryFn: tab === "matches" ? buildersService.matches : buildersService.list,
+  });
+
+  const filtered = data.filter(
 
   const { data = [], isLoading } = useQuery({
     queryKey: ["builders", tab],
@@ -326,6 +332,15 @@ function BuildersPage() {
               <div className="mx-auto w-fit">
                 <Skeleton className="h-16 w-16 shrink-0 rounded-full" />
               </div>
+              <p className="mt-2 text-[14px] font-semibold text-foreground">{b.name}</p>
+              <p className="text-[12px] text-muted-foreground">{b.role}</p>
+              <p className="text-[11px] text-muted-foreground">
+                {b.country} · {b.yearsExp} yrs
+              </p>
+              <div className="mt-2 flex flex-wrap justify-center gap-1">
+                {b.skills.slice(0, 3).map((s) => (
+                  <TagChip key={s}>{s}</TagChip>
+                ))}
               <Skeleton className="mx-auto mt-2 h-4 w-28" />
               <Skeleton className="mx-auto h-3 w-20" />
               <Skeleton className="mx-auto h-3 w-36" />
@@ -337,6 +352,12 @@ function BuildersPage() {
               </div>
               <Skeleton className="mx-auto mt-2 h-3 w-20" />
               <div className="mt-2 flex gap-1.5">
+                <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
+                  Connect
+                </button>
+                <button className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted">
+                  Message
+                </button>
                 <Skeleton className="h-7 flex-1" />
                 <Skeleton className="h-7 flex-1" />
               </div>

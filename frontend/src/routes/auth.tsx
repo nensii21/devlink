@@ -18,6 +18,20 @@ export const Route = createFileRoute("/auth")({
   component: AuthScreen,
 });
 
+const signInSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(6, "At least 6 characters"),
+});
+const signUpSchema = signInSchema
+  .extend({
+    firstName: z.string().min(1, "Required").max(50),
+    lastName: z.string().min(1, "Required").max(50),
+    confirmPassword: z.string(),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Passwords must match",
+    path: ["confirmPassword"],
+  });
 import { loginSchema as signInSchema, signupSchema as signUpSchema } from "@/lib/schemas/forms";
 
 type SignIn = z.infer<typeof signInSchema>;

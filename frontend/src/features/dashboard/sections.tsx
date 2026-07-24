@@ -93,6 +93,10 @@ export function InviteRequests() {
       <SectionHeader title="Invite Requests" action="View All" />
       <ul className="divide-y divide-border/60">
         {data.map((r) => (
+          <li key={r.id} className="flex items-center gap-3 px-4 py-3">
+            <span
+              className={cn(
+                "grid h-10 w-10 shrink-0 place-items-center rounded-md text-lg",
           <li
             key={r.id}
             className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30"
@@ -159,6 +163,10 @@ export function SuggestedBuilders() {
                 <TagChip key={s}>{s}</TagChip>
               ))}
             </div>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">{b.yearsExp} yrs exp</p>
+            <p className="text-[11px] font-semibold text-success">{b.matchScore}% Match</p>
+            <div className="mt-2 flex gap-1.5">
+              <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
             <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
               {b.yearsExp} yrs exp
             </p>
@@ -228,6 +236,7 @@ export function AIRecommendations() {
             <Avatar
               src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Rahul"
               alt="Rahul"
+              size={40}
               size={42}
             />
             <div className="min-w-0 flex-1">
@@ -299,36 +308,42 @@ export function QuickActions() {
     {
       icon: FolderPlus,
       label: "New Project",
+      tint: "bg-info/10 text-info",
       tint: "bg-blue-500/10 text-blue-500",
       to: "/projects" as const,
     },
     {
       icon: Flame,
       label: "Create Flare",
+      tint: "bg-warning/10 text-warning",
       tint: "bg-amber-500/10 text-amber-500",
       to: "/flares" as const,
     },
     {
       icon: Users2,
       label: "Find Builder",
+      tint: "bg-success/10 text-success",
       tint: "bg-emerald-500/10 text-emerald-500",
       to: "/builders" as const,
     },
     {
       icon: Trophy,
       label: "Start Hackathon",
+      tint: "bg-primary-soft text-primary",
       tint: "bg-cyan-500/10 text-cyan-500",
       to: "/hackathons" as const,
     },
     {
       icon: FileText,
       label: "AI Description",
+      tint: "bg-destructive/10 text-destructive",
       tint: "bg-rose-500/10 text-rose-500",
       to: "/dashboard" as const,
     },
     {
       icon: BarChart3,
       label: "View Analytics",
+      tint: "bg-info/10 text-info",
       tint: "bg-blue-500/10 text-blue-500",
       to: "/analytics" as const,
     },
@@ -379,6 +394,9 @@ export function UpcomingDeadlines() {
             <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-foreground">
               {d.project} — <span className="text-muted-foreground">{d.milestone}</span>
             </p>
+            <span
+              className={cn("whitespace-nowrap text-[11px] font-semibold", sevTint[d.severity])}
+            >
             <span className={cn("whitespace-nowrap text-[11px]", sevTint[d.severity])}>
               Due in {d.dueDays} days
             </span>
@@ -399,6 +417,15 @@ export function NotificationsFeed() {
       <SectionHeader title="Notifications Feed" action="View All" actionTo="/notifications" />
       <ul className="divide-y divide-border/60">
         {data.map((n) => (
+          <li key={n.id} className="flex items-center gap-3 px-4 py-2.5">
+            <span
+              className={cn(
+                "h-2 w-2 shrink-0 rounded-full",
+                n.unread ? "bg-primary" : "bg-transparent",
+              )}
+            />
+            <p className="min-w-0 flex-1 truncate text-[13px] text-foreground">{n.text}</p>
+            <span className="text-[11px] text-muted-foreground">{n.ago}</span>
           <li
             key={n.id}
             className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"

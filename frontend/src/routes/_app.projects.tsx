@@ -76,6 +76,9 @@ function ProjectsPage() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [createOpen, setCreateOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "planning" | "shipped">(
+    "all",
+  );
   const [statusFilter, setStatusFilter] = useState<
     "all" | "recruiting" | "in-progress" | "completed" | "archived"
   >("all");
@@ -335,6 +338,10 @@ function ProjectsPage() {
           </p>
           {hasActiveFilters && (
             <button
+              onClick={resetFilters}
+              className="mt-3 text-[13px] font-medium text-primary hover:underline"
+            >
+              Reset filters
               onClick={clearFilters}
               className="mt-3 text-[13px] font-medium text-primary hover:underline"
             >
@@ -345,6 +352,12 @@ function ProjectsPage() {
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
+            <Link
+              key={p.id}
+              to="/projects/$projectId"
+              params={{ projectId: p.id }}
+              className="block"
+            >
             <a key={p.id} href={`/projects/${p.id}`} className="block">
               <Card interactive className="p-4">
                 <div className="flex items-start gap-3">
@@ -397,6 +410,14 @@ function ProjectsPage() {
                   </span>
                   <span
                     className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
+                      p.status === "active"
+                        ? "bg-success/10 text-success"
+                        : p.status === "planning"
+                          ? "bg-warning/10 text-warning"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {p.status}
                       p.status === "recruiting"
                         ? "bg-primary/10 text-primary"
                         : p.status === "in-progress"

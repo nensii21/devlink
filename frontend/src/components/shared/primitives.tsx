@@ -29,6 +29,10 @@ export function SectionHeader({
           </Link>
         ) : (
           <button className="text-[12px] font-medium text-primary hover:underline">{action}</button>
+            {action}
+          </Link>
+        ) : (
+          <button className="text-[12px] font-medium text-primary hover:underline">{action}</button>
           <Link
             to={actionTo}
             className="text-[12px] font-semibold text-primary transition-all hover:text-primary/80 hover:underline"
