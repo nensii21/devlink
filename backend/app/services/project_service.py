@@ -14,6 +14,7 @@ from app.schemas.project import (
     ProjectCreate,
     ProjectStatsResponse,
     ProjectUpdate,
+    SimilarProjectWarning,
 )
 
 
@@ -50,6 +51,17 @@ class ProjectService:
         db.flush()
         db.refresh(db_project)
 
+        # Create ProjectMember record for owner
+        from app.models.project_member import ProjectMember, MemberRole
+
+        member = ProjectMember(
+            project_id=db_project.id,
+            user_id=owner_id,
+            role=MemberRole.OWNER,
+            is_active=True,
+        )
+        db.add(member)
+        db.commit()
         ActivityService.record_activity(
             db=db,
             actor_id=owner_id,
@@ -203,7 +215,7 @@ class ProjectService:
     ) -> None:
 
         db_project.views += 1
-        db.flush()
+        db.commit()
 
     @staticmethod
     def increment_stars(
@@ -277,11 +289,52 @@ class ProjectService:
             bookmark_count=bookmark_count,
         )
 
+
+@staticmethod
+def find_similar_projects(
+    db: Session,
+    title: str,
+    description: str,
+    title_threshold: float = 0.75,
+    description_threshold: float = 0.65,
+) -> list[SimilarProjectWarning]:
+    from difflib import SequenceMatcher
+
+    candidates = list(db.scalars(select(Project).where(Project.is_archived.is_(False))))
+
+    results = []
+    title_lower = title.lower()
+    desc_lower = description.lower()
+
+    for project in candidates:
+        title_sim = SequenceMatcher(None, title_lower, project.title.lower()).ratio()
+        desc_sim = SequenceMatcher(
+            None, desc_lower, project.description.lower()
+        ).ratio()
+
+        if title_sim >= title_threshold or desc_sim >= description_threshold:
+            results.append(
+                SimilarProjectWarning(
+                    id=project.id,
+                    title=project.title,
+                    slug=project.slug,
+                    title_similarity=round(title_sim, 2),
+                    description_similarity=round(desc_sim, 2),
+                )
+            )
+
+    return results
+
     @staticmethod
     def delete_project(
         db: Session,
         db_project: Project,
     ) -> None:
+        from app.models.project_member import ProjectMember
 
+        # Explicitly delete member rows first to avoid SQLAlchemy FK nullification
+        db.query(ProjectMember).filter(
+            ProjectMember.project_id == db_project.id
+        ).delete(synchronize_session=False)
         db.delete(db_project)
         db.flush()

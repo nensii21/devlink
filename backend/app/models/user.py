@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 import uuid
 from datetime import datetime
 
@@ -8,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     String,
     Text,
+    JSON,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -102,6 +104,12 @@ class User(Base):
         nullable=True,
     )
 
+    availability: Mapped[list] = mapped_column(
+    JSON,
+    nullable=True,
+    default=list,
+    )
+
     website: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
@@ -186,11 +194,25 @@ class User(Base):
         nullable=True,
     )
 
+    last_seen: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    DateTime(timezone=True),
+    nullable=True,
+    )
+
     last_active_at: Mapped[datetime | None] = mapped_column(
+    DateTime(timezone=True),
+    nullable=True,
+        DateTime, default=datetime.utcnow, nullable=True
+    )
         DateTime(timezone=True),
         nullable=True,
     )
 
+    last_active_at: Mapped[datetime | None] = mapped_column(
+        DateTime, default=datetime.utcnow, nullable=True
+    )
     # ------------------------------------------------------------------
     # OAuth
     # ------------------------------------------------------------------
@@ -223,6 +245,31 @@ class User(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+    # ------------------------------------------------------------------
+    # Properties
+    # ------------------------------------------------------------------
+
+    @property
+    def is_online(self) -> bool:
+        """
+        Check if the user is currently online.
+
+        Returns True if the user was active within the online threshold
+        (defaults to 300 seconds, customizable via _online_threshold).
+        """
+        if not self.last_seen:
+            return False
+        threshold = getattr(self, "_online_threshold", 300)
+        from datetime import datetime, timezone
+
+        now = datetime.now(timezone.utc)
+
+        last_seen = self.last_seen
+        if last_seen.tzinfo is None:
+            last_seen = last_seen.replace(tzinfo=timezone.utc)
+
+        return (now - last_seen).total_seconds() < threshold
 
     # ------------------------------------------------------------------
     # Representation

@@ -2,12 +2,15 @@ import { useState, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, EmptyState, TagChip, Avatar } from "@/components/shared/primitives";
 import { projects, flares } from "@/mocks/seed";
+
 import { Bookmark, FolderOpen, Trash2, MapPin, Briefcase, Users } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CollectionSidebar } from "@/components/bookmarks/CollectionSidebar";
 import { CollectionDialog } from "@/components/bookmarks/CollectionDialog";
 import { AddToCollectionMenu } from "@/components/bookmarks/AddToCollectionMenu";
 import { useBookmarks } from "@/context/BookmarkContext";
+import { BookmarkToggleButton } from "@/components/shared/BookmarkToggleButton";
 import {
   useCreateCollection,
   useRenameCollection,
@@ -15,6 +18,7 @@ import {
   useAddBookmarkToCollection,
 } from "@/hooks/useBookmarkCollections";
 import type { BookmarkCollection } from "@/api";
+import { ProjectDifficultyBadge } from "@/components/project/ProjectDifficultyBadge";
 
 export const Route = createFileRoute("/_app/bookmarks")({
   head: () => ({
@@ -226,14 +230,25 @@ function BookmarksPage() {
                           {p.icon}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[14px] font-semibold text-foreground">
-                            {p.name}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="truncate text-[14px] font-semibold text-foreground">
+                              {p.name}
+                            </p>
+                            {p.difficulty && (
+                              <ProjectDifficultyBadge difficulty={p.difficulty} />
+                            )}
+                          </div>
                           <p className="mt-0.5 text-[12px] text-muted-foreground line-clamp-2">
                             {p.description}
                           </p>
                         </div>
+
                         <Bookmark size={14} className="text-primary fill-primary" />
+
+
+                        <Bookmark size={14} className="text-primary fill-primary shrink-0" />
+
+
                       </div>
                       <div className="mt-3 flex flex-wrap gap-1">
                         {p.stack.map((s) => (
@@ -242,7 +257,8 @@ function BookmarksPage() {
                       </div>
                     </Card>
                   </Link>
-                  <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
+                  <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <BookmarkToggleButton projectId={p.id} />
                     <AddToCollectionMenu
                       bookmarkId={p.id}
                       onAddToCollection={handleAddToCollection(p.id)}

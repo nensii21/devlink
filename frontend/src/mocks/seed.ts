@@ -16,6 +16,7 @@ export interface Builder {
   yearsExp: number;
   matchScore: number;
   skills: string[];
+  interests: string[];
   online: boolean;
   bio: string;
   lastActiveAt: string | null;
@@ -27,6 +28,8 @@ export interface Project {
   description: string;
   stack: string[];
   owner: string;
+  owner_id?: string;
+  ownerId?: string;
   members: number;
   stars: number;
   views: number;
@@ -35,7 +38,7 @@ export interface Project {
   status: "recruiting" | "in-progress" | "completed" | "archived";
   icon: string;
   language?: string;
-  difficulty?: "beginner" | "intermediate" | "advanced";
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
   remote?: boolean;
   paid?: boolean;
   openSource?: boolean;
@@ -127,6 +130,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 92,
     skills: ["React", "Next.js", "TypeScript"],
+    interests: ["Web Dev", "Design Systems", "AI"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
     lastActiveAt: ago(1),
@@ -142,6 +146,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 89,
     skills: ["Node.js", "MongoDB", "Express"],
+    interests: ["Backend", "Web Dev"],
     online: true,
     bio: "Builds end-to-end features fast.",
     lastActiveAt: ago(3),
@@ -156,6 +161,7 @@ export const builders: Builder[] = [
     yearsExp: 2,
     matchScore: 87,
     skills: ["Python", "FastAPI", "PostgreSQL"],
+    interests: ["Backend", "AI"],
     online: false,
     bio: "APIs, queues and Postgres tuning.",
     lastActiveAt: ago(120),
@@ -170,6 +176,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 94,
     skills: ["Figma", "Adobe XD"],
+    interests: ["Design Systems", "Web Dev"],
     online: true,
     bio: "Product design for early-stage teams.",
     lastActiveAt: ago(5),
@@ -184,6 +191,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 93,
     skills: ["MERN", "Next.js"],
+    interests: ["Web Dev", "Frontend"],
     online: false,
     bio: "Ships side-projects on weekends.",
     lastActiveAt: ago(1440),
@@ -198,6 +206,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 91,
     skills: ["Flutter", "Firebase"],
+    interests: ["Mobile", "Web Dev"],
     online: true,
     bio: "Cross-platform mobile since 2021.",
     lastActiveAt: ago(10),
@@ -212,6 +221,7 @@ export const builders: Builder[] = [
     yearsExp: 5,
     matchScore: 88,
     skills: ["Python", "PyTorch", "AWS"],
+    interests: ["AI", "Backend"],
     online: true,
     bio: "Recsys, embeddings, evals.",
     lastActiveAt: ago(30),
@@ -226,6 +236,7 @@ export const builders: Builder[] = [
     yearsExp: 6,
     matchScore: 86,
     skills: ["Kubernetes", "Terraform"],
+    interests: ["Backend", "AI"],
     online: false,
     bio: "Infra as code, cost optimization.",
     lastActiveAt: null,
@@ -247,7 +258,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "🤖",
     language: "JavaScript",
-    difficulty: "intermediate",
+    difficulty: "Intermediate",
     remote: true,
     paid: true,
     openSource: false,
@@ -270,7 +281,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "✨",
     language: "Python",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: true,
     openSource: false,
@@ -293,7 +304,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "🚀",
     language: "Go",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: false,
     openSource: false,
@@ -315,7 +326,7 @@ export const projects: Project[] = [
     status: "recruiting",
     icon: "🪙",
     language: "TypeScript",
-    difficulty: "advanced",
+    difficulty: "Advanced",
     remote: true,
     paid: false,
     openSource: true,
@@ -338,7 +349,7 @@ export const projects: Project[] = [
     status: "in-progress",
     icon: "🧩",
     language: "TypeScript",
-    difficulty: "beginner",
+    difficulty: "Beginner",
     remote: true,
     paid: false,
     openSource: true,
@@ -360,7 +371,7 @@ export const projects: Project[] = [
     status: "completed",
     icon: "📇",
     language: "JavaScript",
-    difficulty: "intermediate",
+    difficulty: "Intermediate",
     remote: false,
     paid: false,
     openSource: true,
