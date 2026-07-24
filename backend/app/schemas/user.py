@@ -15,7 +15,6 @@ from pydantic import (
 )
 
 
-
 class AvailabilitySlot(BaseModel):
     day: str
     start_time: time
@@ -26,6 +25,7 @@ class AvailabilitySlot(BaseModel):
         if self.end_time <= self.start_time:
             raise ValueError("end_time must be after start_time")
         return self
+
 
 # ==========================================================
 # Base User Schema

@@ -30,27 +30,23 @@ class ProjectService:
     ) -> Project:
 
         db_project = Project(
-        owner_id=owner_id,
-        title=project.title,
-        slug=project.slug,
-        tagline=project.tagline,
-        description=project.description,
-        stage=project.stage,
-        visibility=project.visibility,
-        tech_stack=project.tech_stack,
-        repository_url=project.repository_url,
-        website_url=project.website_url,
-        demo_url=project.demo_url,
-        team_size=project.team_size,
-        max_team_size=project.max_team_size,
-        hiring=project.hiring,
-
-        scheduled_publish_at=project.scheduled_publish_at,
-
-        is_published=(
-            project.scheduled_publish_at is None
-        ),
-    )
+            owner_id=owner_id,
+            title=project.title,
+            slug=project.slug,
+            tagline=project.tagline,
+            description=project.description,
+            stage=project.stage,
+            visibility=project.visibility,
+            tech_stack=project.tech_stack,
+            repository_url=project.repository_url,
+            website_url=project.website_url,
+            demo_url=project.demo_url,
+            team_size=project.team_size,
+            max_team_size=project.max_team_size,
+            hiring=project.hiring,
+            scheduled_publish_at=project.scheduled_publish_at,
+            is_published=(project.scheduled_publish_at is None),
+        )
 
         db.add(db_project)
         db.flush()
@@ -112,12 +108,12 @@ class ProjectService:
     ) -> list[Project]:
 
         stmt = (
-        select(Project)
-        .options(selectinload(Project.owner))
-        .where(Project.is_published.is_(True))
-        .offset(skip)
-        .limit(limit)
-    )
+            select(Project)
+            .options(selectinload(Project.owner))
+            .where(Project.is_published.is_(True))
+            .offset(skip)
+            .limit(limit)
+        )
 
         return list(db.scalars(stmt))
 
@@ -147,13 +143,9 @@ class ProjectService:
 
         from datetime import datetime, timezone
 
-        if (
-            "scheduled_publish_at" in data
-            and data["scheduled_publish_at"] is not None
-        ):
-            data["is_published"] = (
-                data["scheduled_publish_at"]
-                <= datetime.now(timezone.utc)
+        if "scheduled_publish_at" in data and data["scheduled_publish_at"] is not None:
+            data["is_published"] = data["scheduled_publish_at"] <= datetime.now(
+                timezone.utc
             )
 
         for key, value in data.items():
