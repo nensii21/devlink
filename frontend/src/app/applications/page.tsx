@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getMyApplications, type ApplicationResponse, type UUID } from "@/lib/api";
 import { Card, EmptyState, Skeleton } from "@/components/shared/primitives";
@@ -8,6 +8,20 @@ import { ApplicationStatusBadge } from "@/components/applications/ApplicationSta
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+export default function MyApplicationsPage() {
+  const [q, setQ] = useState("");
+  const [busyId, setBusyId] = useState<UUID | null>(null);
+  const ITEMS_PER_PAGE = 5;
+  const [currentPage, setCurrentPage] = useState(1);
 import { useWithdrawApplication } from "@/hooks/useApplications";
 
 export default function MyApplicationsPage() {
@@ -41,6 +55,31 @@ export default function MyApplicationsPage() {
       return hay.includes(needle);
     });
   }, [data, q]);
+
+  const totalPages = Math.ceil(apps.length / ITEMS_PER_PAGE);
+
+  const paginatedApps = apps.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [q]);
+
+  async function onWithdraw(id: UUID) {
+    if (busyId) return;
+    setBusyId(id);
+    try {
+      await withdrawApplication(id);
+      toast.success("Application withdrawn");
+      await refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to withdraw application");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -90,6 +129,63 @@ export default function MyApplicationsPage() {
           desc="When you apply to a Builder Flare, your applications will appear here."
         />
       ) : (
+        <>
+          <div className="grid gap-3 md:grid-cols-2">
+            {paginatedApps.map((a) => (
+              <ApplicationCard
+                key={a.id}
+                app={a}
+                busy={busyId === a.id}
+                onWithdraw={() => onWithdraw(a.id)}
+              />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <Pagination className="mt-6">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage > 1) {
+                        setCurrentPage(currentPage - 1);
+                      }
+                    }}
+                  />
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      href="#"
+                      isActive={currentPage === index + 1}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(index + 1);
+                      }}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (currentPage < totalPages) {
+                        setCurrentPage(currentPage + 1);
+                      }
+                    }}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </>
         <div className="grid gap-3 md:grid-cols-2">
           {apps.map((a) => (
             <ApplicationCard
@@ -102,6 +198,7 @@ export default function MyApplicationsPage() {
         </div>
       )}
     </div>
+
   );
 }
 

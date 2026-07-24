@@ -5,6 +5,9 @@ import { buildersService } from "@/services";
 import { Card, TagChip, Avatar, EmptyState, Skeleton } from "@/components/shared/primitives";
 import { LastActive } from "@/components/shared/LastActive";
 import { FollowButton } from "@/components/shared/FollowButton";
+import { TeamMatchScore } from "@/components/shared/TeamMatchScore";
+import { MatchBreakdown } from "@/components/shared/MatchBreakdown";
+import { useTeamMatch } from "@/hooks/useTeamMatch";
 import {
   MessageSquare,
   Users2,
@@ -43,7 +46,12 @@ function BuilderProfile() {
     queryKey: ["builder", builderId],
     queryFn: () => buildersService.get(builderId),
   });
+  if (isLoading) return <Card className="h-96 animate-pulse" />;
   const [tab, setTab] = useState<Tab>(getTabFromURL);
+
+  const builderProjects = allProjects.filter((p) => b && p.owner === b.name);
+  const relatedProjectId = builderProjects[0]?.id ?? allProjects[0]?.id ?? "";
+  const { data: match } = useTeamMatch(builderId, relatedProjectId);
 
   const handleTabChange = (value: string) => {
     setTab(value as Tab);
@@ -88,10 +96,15 @@ function BuilderProfile() {
     );
   if (!b) throw notFound();
 
-  const builderProjects = allProjects.filter((p) => p.owner === b.name);
-
   return (
     <div className="space-y-4">
+      <Link
+        to="/builders"
+        className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft size={14} /> Back to builders
+      </Link>
+      <Card className="p-6">
       <BackButton to="/builders" label="Back to builders" />
       <Card className="p-4">
         <div className="flex flex-wrap items-start gap-5">
@@ -102,6 +115,10 @@ function BuilderProfile() {
               @{b.handle} · {b.role}
             </p>
             <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>
+            <div className="mt-3 flex flex-wrap gap-1">
+              {b.skills.map((s) => (
+                <TagChip key={s}>{s}</TagChip>
+              ))}
             <div className="mt-2">
               <LastActive lastActiveAt={b.lastActiveAt} />
             </div>
@@ -114,11 +131,20 @@ function BuilderProfile() {
           </div>
         </div>
       </Card>
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Match Score</p>
           <p className="mt-2 text-[36px] font-bold text-success">{b.matchScore}%</p>
         </Card>
+      <div className="grid gap-3 lg:grid-cols-3">
+        {match ? (
+          <TeamMatchScore match={match} />
+        ) : (
+          <Card className="p-4">
+            <p className="text-[13px] font-semibold text-foreground">Match Score</p>
+            <p className="mt-2 text-[36px] font-bold text-success">{b.matchScore}%</p>
+          </Card>
+        )}
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Experience</p>
           <p className="mt-2 text-[36px] font-bold text-foreground">
@@ -141,10 +167,14 @@ function BuilderProfile() {
 
         <TabsContent value="overview">
           <div className="grid gap-4 lg:grid-cols-3">
-            <Card className="p-4">
-              <p className="text-[13px] font-semibold text-foreground">Match Score</p>
-              <p className="mt-2 text-[36px] font-bold text-success">{b.matchScore}%</p>
-            </Card>
+            {match ? (
+              <TeamMatchScore match={match} />
+            ) : (
+              <Card className="p-4">
+                <p className="text-[13px] font-semibold text-foreground">Match Score</p>
+                <p className="mt-2 text-[36px] font-bold text-success">{b.matchScore}%</p>
+              </Card>
+            )}
             <Card className="p-4">
               <p className="text-[13px] font-semibold text-foreground">Experience</p>
               <p className="mt-2 text-[36px] font-bold text-foreground">
@@ -157,6 +187,11 @@ function BuilderProfile() {
               <p className="mt-2 text-[20px] font-bold text-foreground">{b.country}</p>
             </Card>
           </div>
+          {match && (
+            <div className="mt-4">
+              <MatchBreakdown breakdown={match.breakdown} />
+            </div>
+          )}
           <Card className="p-4 mt-4">
             <p className="text-[13px] font-semibold text-foreground">About</p>
             <p className="mt-2 text-[13px] text-muted-foreground">{b.bio}</p>

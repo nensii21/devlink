@@ -81,6 +81,7 @@ function MiniStat({
         <p className="text-[16px] font-extrabold leading-tight tracking-tight text-foreground">
           <span className={valueTint}>{value}</span>
           {suffix && (
+            <span className="text-[12px] font-medium text-muted-foreground">{suffix}</span>
             <span className="text-[11px] font-medium text-muted-foreground">{suffix}</span>
           )}
         </p>
