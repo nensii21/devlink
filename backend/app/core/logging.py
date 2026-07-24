@@ -1,6 +1,5 @@
 import logging
 import logging.config
-import os
 from pathlib import Path
 
 from app.core.config import settings
@@ -147,13 +146,17 @@ def log_security_event(
 
 
 def log_request(
+    request_id: str,
     method: str,
     path: str,
     status_code: int,
     duration_ms: float,
 ) -> None:
     logger.info(
-        f"{method} {path} " f"status={status_code} " f"time={duration_ms:.2f}ms"
+        f"[{request_id}] "
+        f"{method} {path} "
+        f"status={status_code} "
+        f"time={duration_ms:.2f}ms"
     )
 
 

@@ -8,6 +8,7 @@ import {
   Compass,
   Bookmark,
   Users2,
+  Building2,
   Sparkles,
   Share2,
   Flame,
@@ -42,6 +43,7 @@ const groups: Group[] = [
     label: "Community",
     items: [
       { label: "Builders", to: "/builders", icon: <Users2 size={16} /> },
+      { label: "Organizations", to: "/organizations", icon: <Building2 size={16} /> },
       { label: "AI Matches", to: "/builders?tab=matches", icon: <Sparkles size={16} /> },
       { label: "Connections", to: "/builders?tab=connections", icon: <Share2 size={16} /> },
     ],
@@ -92,12 +94,12 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-4">
-          <img src={APP_LOGO} alt="" className="h-8 w-8 rounded-md" />
+        <Link to="/dashboard" className="flex items-center gap-2 px-5 py-3">
+          <img src={APP_LOGO} alt="" className="h-10 w-10 rounded-md" />
           <span className="text-[18px] font-bold tracking-tight text-foreground">DevLink</span>
         </Link>
 
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 overflow-y-auto px-3 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {groups.map((group) => (
             <SidebarGroup key={group.label} group={group} onNav={onClose} />
           ))}
@@ -166,10 +168,10 @@ function SidebarGroup({ group, onNav }: { group: Group; onNav: () => void }) {
                     to={item.to.split("?")[0]}
                     onClick={onNav}
                     className={cn(
-                      "mt-0.5 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors",
+                      "mt-0.5 flex items-center gap-2.5 rounded-md px-2 py-2 text-[13px] font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary",
                       active
-                        ? "bg-primary-soft text-primary"
-                        : "text-foreground/80 hover:bg-sidebar-accent hover:text-foreground",
+                        ? "bg-primary-soft font-semibold text-primary"
+                        : "text-foreground/80 hover:bg-sidebar-accent hover:text-foreground focus:bg-sidebar-accent",
                     )}
                   >
                     <span className={cn(active ? "text-primary" : "text-muted-foreground")}>

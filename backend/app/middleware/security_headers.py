@@ -18,8 +18,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         response = await call_next(request)
 
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "DENY"
+        if settings.ENABLE_X_CONTENT_TYPE_OPTIONS:
+            response.headers["X-Content-Type-Options"] = "nosniff"
+
+        if settings.ENABLE_X_FRAME_OPTIONS:
+            response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
         response.headers["Permissions-Policy"] = (
@@ -31,6 +34,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
 
         response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+
+        if settings.ENABLE_CROSS_DOMAIN_POLICIES:
+            response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
+
+        if settings.ENABLE_DNS_PREFETCH_CONTROL:
+            response.headers["X-DNS-Prefetch-Control"] = "off"
 
         if settings.ENABLE_HSTS:
             response.headers["Strict-Transport-Security"] = (

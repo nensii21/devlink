@@ -33,7 +33,7 @@ psycopg[binary]>=3.2.9
 
 python-jose[cryptography]>=3.5.0
 passlib[bcrypt]>=1.7.4
-bcrypt>=4.2.1
+bcrypt==3.2.0
 
 # ----------------------------
 # Email Validation
