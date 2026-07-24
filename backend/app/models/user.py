@@ -187,8 +187,6 @@ class User(Base):
     )
 
     last_seen: Mapped[datetime | None] = mapped_column(
-        DateTime, default=datetime.utcnow, nullable=True
-    )
         DateTime(timezone=True),
         nullable=True,
     )

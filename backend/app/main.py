@@ -50,7 +50,6 @@ from app.routers import (
 )
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -200,6 +199,7 @@ app.include_router(applications.router)
 app.include_router(skills.router)
 app.include_router(users.router)
 from app.routers import websockets
+
 app.include_router(websockets.router)
 app.include_router(recommendations.router)
 app.include_router(

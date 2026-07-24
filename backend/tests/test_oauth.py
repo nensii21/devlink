@@ -13,9 +13,7 @@ def override_github_config(monkeypatch):
     )
 
 
-def test_github_login_success_new_user(
-    client: TestClient, db, override_github_config
-):
+def test_github_login_success_new_user(client: TestClient, db, override_github_config):
     # Mock token exchange
     mock_post = AsyncMock()
     mock_response = MagicMock()
@@ -122,9 +120,7 @@ def test_github_login_link_existing_account(
 
             # Verify DB state
             db.expire_all()
-            user = (
-                db.query(User).filter(User.email == "existing@example.com").first()
-            )
+            user = db.query(User).filter(User.email == "existing@example.com").first()
             assert user.github_id == "987654"
             assert user.profile_image == "https://github.com/avatar2.png"
 

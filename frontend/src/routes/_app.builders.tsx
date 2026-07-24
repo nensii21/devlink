@@ -361,19 +361,6 @@ function BuildersPage() {
           {filtered.map((b, i) => {
             const isConnected = connections.includes(b.id);
             return (
-              <AnimatedCard
-                key={b.id}
-                interactive
-                index={i}
-                className="p-4 text-center h-full flex flex-col justify-between"
-              >
-                <Link
-                  to="/builders/$builderId"
-                  params={{ builderId: b.id }}
-                  className="block flex-1 group"
-                >
-                  <div className="mx-auto w-fit">
-                    <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
                 <AnimatedCard
                   interactive
@@ -405,49 +392,36 @@ function BuildersPage() {
                       {b.matchScore}% Match
                     </p>
                   </div>
-                  <p className="mt-2 text-[14px] font-semibold text-foreground group-hover:underline">
-                    <HighlightText text={b.name} query={q} />
-                  </p>
-                  <p className="text-[12px] text-muted-foreground">
-                    <HighlightText text={b.role} query={q} />
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {b.country} · {b.yearsExp} yrs
-                  </p>
-                  <LastActive lastActiveAt={b.lastActiveAt} className="mt-1 justify-center" />
-                  <div className="mt-2 flex flex-wrap justify-center gap-1">
-                    {b.skills.slice(0, 3).map((s) => (
-                      <TagChip key={s}>
-                        <HighlightText text={s} query={q} />
-                      </TagChip>
-                    ))}
+                  <div className="mt-3 flex gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleConnect(b.id);
+                      }}
+                      className={cn(
+                        "flex-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors cursor-pointer",
+                        isConnected
+                          ? "border border-success bg-success/10 text-success hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
+                          : "bg-primary text-primary-foreground hover:opacity-90",
+                      )}
+                    >
+                      {isConnected ? "Connected" : "Connect"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted cursor-pointer"
+                    >
+                      Message
+                    </button>
                   </div>
-                  <p className="mt-2 text-[12px] font-semibold text-success">
-                    {b.matchScore}% Match
-                  </p>
-                </Link>
-                <div className="mt-3 flex gap-1.5 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => handleConnect(b.id)}
-                    className={cn(
-                      "flex-1 rounded-md px-2 py-1 text-[11px] font-semibold transition-colors cursor-pointer",
-                      isConnected
-                        ? "border border-success bg-success/10 text-success hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
-                        : "bg-primary text-primary-foreground hover:opacity-90",
-                    )}
-                  >
-                    {isConnected ? "Connected" : "Connect"}
-                  </button>
-                  <Link
-                    to="/builders/$builderId"
-                    params={{ builderId: b.id }}
-                    className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted cursor-pointer flex items-center justify-center"
-                  >
-                    Message
-                  </Link>
-                </div>
-              </AnimatedCard>
+                </AnimatedCard>
+              </Link>
             );
           })}
         </motion.div>

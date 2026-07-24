@@ -105,8 +105,6 @@ def login(
     return auth_service.login(payload)
 
 
-
-
 @router.post(
     "/github",
     response_model=AuthResponse,
@@ -141,7 +139,7 @@ async def github_login(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Failed to exchange code for GitHub token.",
             )
-        
+
         token_data = token_res.json()
         if "error" in token_data:
             raise HTTPException(
@@ -162,7 +160,7 @@ async def github_login(
                 detail="Failed to fetch GitHub profile.",
             )
         github_user = user_res.json()
-        
+
         # 3. Fetch user emails if primary email not public
         primary_email = github_user.get("email")
         if not primary_email:
@@ -176,7 +174,7 @@ async def github_login(
                     if email_obj.get("primary") and email_obj.get("verified"):
                         primary_email = email_obj.get("email")
                         break
-                
+
                 # Fallback to any verified email if no primary verified email is found
                 if not primary_email:
                     for email_obj in emails:
@@ -192,8 +190,6 @@ async def github_login(
 
     auth_service = AuthService(db)
     return auth_service.github_login(github_user, primary_email)
-
-
 
 
 security = HTTPBearer()
@@ -302,8 +298,6 @@ def logout(
     auth_service = AuthService(db)
 
     return auth_service.logout(user_id)
-
-
 
 
 # ==========================================================
