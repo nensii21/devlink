@@ -20,6 +20,7 @@ from app.schemas.project import (
     SimilarProjectWarning,
 )
 from app.services.project_service import ProjectService
+from app.core.cache import cached
 
 from app.middleware.idempotency import IdempotentRoute
 
@@ -75,6 +76,7 @@ def check_project_similarity(
     "/{project_id}",
     response_model=ProjectResponse,
 )
+@cached(ttl=60, key_prefix="projects:get")
 def get_project(
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
@@ -103,6 +105,7 @@ def get_project(
     "/slug/{slug}",
     response_model=ProjectResponse,
 )
+@cached(ttl=60, key_prefix="projects:slug")
 def get_project_by_slug(
     slug: str,
     db: Session = Depends(get_database),
@@ -131,6 +134,7 @@ def get_project_by_slug(
     "/",
     response_model=list[ProjectResponse],
 )
+@cached(ttl=120, key_prefix="projects:list")
 def list_projects(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),

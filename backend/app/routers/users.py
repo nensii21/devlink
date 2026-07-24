@@ -28,6 +28,7 @@ from app.schemas.user_report import (
 from app.models.user_report import UserReport
 from app.core.security import hash_password
 from app.services.user_service import UserService
+from app.core.cache import cached
 from app.utils.validators import validate_username
 
 router = APIRouter(
@@ -119,6 +120,7 @@ def get_me(
     "/{user_id}",
     response_model=UserResponse,
 )
+@cached(ttl=120, key_prefix="users:get")
 def get_user(
     user_id: uuid.UUID,
     online_threshold: int | None = Query(

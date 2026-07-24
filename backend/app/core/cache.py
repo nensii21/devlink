@@ -102,6 +102,7 @@ cache_manager = MultiLevelCache()
 def cached(ttl: int = 300, key_prefix: str = ""):
     """
     Decorator to easily cache the result of a synchronous function.
+    Correctly ignores FastAPI dependencies (Session, Request, Response, User) when generating cache keys.
     """
 
     def decorator(func: Callable):
@@ -112,8 +113,20 @@ def cached(ttl: int = 300, key_prefix: str = ""):
             if "pytest" in sys.modules:
                 return func(*args, **kwargs)
 
+            # Filter kwargs to remove non-serializable FastAPI objects
+            safe_kwargs = {}
+            for k, v in kwargs.items():
+                if k in ["db", "request", "response", "current_user"]:
+                    continue
+                # Also skip objects that look like SQLAlchemy sessions or FastAPI requests
+                if "Session" in type(v).__name__ or "Request" in type(v).__name__:
+                    continue
+                safe_kwargs[k] = str(v)
+            
+            safe_args = [str(a) for a in args if "Session" not in type(a).__name__ and "Request" not in type(a).__name__]
+
             # Generate a consistent cache key
-            cache_key = f"{key_prefix}:{func.__name__}:{args}:{kwargs}"
+            cache_key = f"{key_prefix}:{func.__name__}:{safe_args}:{safe_kwargs}"
 
             # Try to get from cache
             cached_value = cache_manager.get(cache_key)
@@ -125,28 +138,35 @@ def cached(ttl: int = 300, key_prefix: str = ""):
 
             # Save to cache
             if result is not None:
-                # Handle SQLAlchemy models by converting to dict if possible
-                # Note: this is a basic implementation. Complex objects might need specific serialization.
                 store_value = result
-                if hasattr(result, "__dict__"):
+                # Serialize Pydantic or SQLAlchemy objects
+                if hasattr(result, "model_dump"):
+                    store_value = result.model_dump(mode="json")
+                elif hasattr(result, "dict"):
+                    store_value = result.dict()
+                elif hasattr(result, "__dict__"):
                     store_value = {
-                        k: v
+                        k: str(v)
                         for k, v in result.__dict__.items()
                         if not k.startswith("_")
                     }
                 elif isinstance(result, list):
-                    store_value = [
-                        (
-                            {
-                                k: v
+                    processed_list = []
+                    for item in result:
+                        if hasattr(item, "model_dump"):
+                            processed_list.append(item.model_dump(mode="json"))
+                        elif hasattr(item, "dict"):
+                            processed_list.append(item.dict())
+                        elif hasattr(item, "__dict__"):
+                            processed_list.append({
+                                k: str(v)
                                 for k, v in item.__dict__.items()
                                 if not k.startswith("_")
-                            }
-                            if hasattr(item, "__dict__")
-                            else item
-                        )
-                        for item in result
-                    ]
+                            })
+                        else:
+                            processed_list.append(item)
+                    store_value = processed_list
+                    
                 cache_manager.set(cache_key, store_value, ttl)
 
             return result
