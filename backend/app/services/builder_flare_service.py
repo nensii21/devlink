@@ -10,6 +10,7 @@ from app.schemas.builder_flare import (
     BuilderFlareCreate,
     BuilderFlareUpdate,
 )
+from app.core.cache import cached
 
 
 class BuilderFlareService:
@@ -53,6 +54,7 @@ class BuilderFlareService:
         return db.get(BuilderFlare, flare_id)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="flare")
     def list_open_flares(
         db: Session,
     ) -> list[BuilderFlare]:

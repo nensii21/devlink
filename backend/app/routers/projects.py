@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import uuid
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
+from app.dependencies import get_database, get_current_user, require_project_permission
+from app.middleware.rate_limit import limiter, PROJECT_LIMIT
 from app.models.user import User
 from app.schemas.project import (
     ProjectCreate,
@@ -32,7 +34,9 @@ router = APIRouter(
     response_model=ProjectResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit(PROJECT_LIMIT)
 def create_project(
+    request: Request,
     project: ProjectCreate,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
@@ -143,11 +147,13 @@ def my_projects(
     "/{project_id}",
     response_model=ProjectResponse,
 )
+@limiter.limit("30/minute")
 def update_project(
+    request: Request,
     project_id: uuid.UUID,
     project: ProjectUpdate,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_project_permission("project:update")),
 ):
 
     db_project = ProjectService.get_project(
@@ -161,12 +167,6 @@ def update_project(
             detail="Project not found",
         )
 
-    if db_project.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
-        )
-
     return ProjectService.update_project(
         db,
         db_project,
@@ -178,10 +178,12 @@ def update_project(
     "/{project_id}/archive",
     response_model=ProjectResponse,
 )
+@limiter.limit("20/minute")
 def archive_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_project_permission("project:archive")),
 ):
 
     project = ProjectService.get_project(
@@ -193,12 +195,6 @@ def archive_project(
         raise HTTPException(
             status_code=404,
             detail="Project not found",
-        )
-
-    if project.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     return ProjectService.archive_project(
@@ -211,10 +207,12 @@ def archive_project(
     "/{project_id}/restore",
     response_model=ProjectResponse,
 )
+@limiter.limit("20/minute")
 def restore_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_project_permission("project:restore")),
 ):
 
     project = ProjectService.get_project(
@@ -228,12 +226,6 @@ def restore_project(
             detail="Project not found",
         )
 
-    if project.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
-        )
-
     return ProjectService.restore_project(
         db,
         project,
@@ -244,7 +236,9 @@ def restore_project(
     "/{project_id}/feature",
     response_model=ProjectResponse,
 )
+@limiter.limit("20/minute")
 def feature_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
@@ -269,7 +263,9 @@ def feature_project(
 @router.post(
     "/{project_id}/star",
 )
+@limiter.limit("30/minute")
 def star_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
@@ -318,7 +314,9 @@ def get_project_stats(
 @router.delete(
     "/{project_id}/star",
 )
+@limiter.limit("30/minute")
 def unstar_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
@@ -348,10 +346,12 @@ def unstar_project(
     "/{project_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
+@limiter.limit("20/minute")
 def delete_project(
+    request: Request,
     project_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_project_permission("project:delete")),
 ):
 
     project = ProjectService.get_project(
@@ -363,12 +363,6 @@ def delete_project(
         raise HTTPException(
             status_code=404,
             detail="Project not found",
-        )
-
-    if project.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     ProjectService.delete_project(

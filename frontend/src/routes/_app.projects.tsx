@@ -1,10 +1,11 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
-import { Card, TagChip, SectionHeader } from "@/components/shared/primitives";
+import { Card, TagChip } from "@/components/shared/primitives";
 import { Star, GitFork, Users2, Plus, Search, SlidersHorizontal, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { getRecentlyViewedProjectIds } from "@/lib/recentlyViewedProjects";
 
 export const Route = createFileRoute("/_app/projects")({
   head: () => ({
@@ -79,19 +80,29 @@ function ProjectsPage() {
   const [langs, setLangs] = useState<string[]>([]);
   const [difficulties, setDifficulties] = useState<string[]>([]);
   const [boolFilters, setBoolFilters] = useState<BoolFilter[]>([]);
+  const [recentProjectIds, setRecentProjectIds] = useState<string[]>([]);
 
+  useEffect(() => {
+    setRecentProjectIds(getRecentlyViewedProjectIds());
+  }, []);
   const { data = [], isLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: projectsService.list,
   });
+  const recentlyViewed = recentProjectIds
+    .map((id) => data.find((project) => project.id === id))
+    .filter((project): project is NonNullable<typeof project> => Boolean(project));
 
-  const hasActiveFilters = langs.length > 0 || difficulties.length > 0 || boolFilters.length > 0;
+  const chipFilterCount = langs.length + difficulties.length + boolFilters.length;
+  const hasActiveFilters = q !== "" || statusFilter !== "all" || chipFilterCount > 0;
 
   if (pathname !== "/projects" && pathname !== "/projects/") {
     return <Outlet />;
   }
 
-  function resetFilters() {
+  function clearFilters() {
+    setQ("");
+    setStatusFilter("all");
     setLangs([]);
     setDifficulties([]);
     setBoolFilters([]);
@@ -122,8 +133,44 @@ function ProjectsPage() {
           <Plus size={14} /> New project
         </button>
       </div>
+      {recentlyViewed.length > 0 && (
+        <section className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[15px] font-semibold text-foreground">Recently Viewed Projects</h2>
+            <span className="text-[11px] text-muted-foreground">Your latest project visits</span>
+          </div>
 
-      <Card className="p-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {recentlyViewed.map((project) => (
+              <a key={project.id} href={`/projects/${project.id}`} className="block">
+                <Card interactive className="p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
+                      {project.icon}
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-semibold text-foreground">
+                        {project.name}
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
+                        {project.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {project.stack.slice(0, 3).map((tech) => (
+                      <TagChip key={tech}>{tech}</TagChip>
+                    ))}
+                  </div>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+      <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1">
             <Search
@@ -166,12 +213,22 @@ function ProjectsPage() {
           >
             <SlidersHorizontal size={13} />
             Filters
-            {hasActiveFilters && (
+            {chipFilterCount > 0 && (
               <span className="grid h-4 w-4 place-items-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                {langs.length + difficulties.length + boolFilters.length}
+                {chipFilterCount}
               </span>
             )}
           </button>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-[7px] text-[12px] font-medium text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive focus:outline-none focus:ring-2 focus:ring-destructive/20"
+              aria-label="Clear all active filters"
+            >
+              <X size={13} />
+              Clear filters
+            </button>
+          )}
         </div>
 
         {showFilters && (
@@ -232,10 +289,10 @@ function ProjectsPage() {
 
             {hasActiveFilters && (
               <button
-                onClick={resetFilters}
+                onClick={clearFilters}
                 className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
               >
-                <X size={12} /> Reset filters
+                <X size={12} /> Clear filters
               </button>
             )}
           </div>
@@ -261,10 +318,10 @@ function ProjectsPage() {
           </p>
           {hasActiveFilters && (
             <button
-              onClick={resetFilters}
+              onClick={clearFilters}
               className="mt-3 text-[13px] font-medium text-primary hover:underline"
             >
-              Reset filters
+              Clear filters
             </button>
           )}
         </div>

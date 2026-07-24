@@ -26,7 +26,7 @@ function HackathonsPage() {
       </div>
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {data.map((h) => (
-          <Card key={h.id} interactive className="p-5">
+          <Card key={h.id} interactive className="p-4">
             <div className="flex items-start justify-between">
               <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-soft text-primary">
                 <Trophy size={16} />

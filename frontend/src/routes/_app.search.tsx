@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
+import { HighlightText } from "@/components/shared/HighlightText";
 import { builders, projects, flares } from "@/mocks/seed";
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/_app/search")({
       { title: "Search — DevLink" },
       {
         name: "description",
-        content: "Global search across developers, projects, skills and flares.",
+        content: "Global search across developers, projects, posts and organizations.",
       },
     ],
   }),
@@ -164,6 +165,23 @@ function SearchPage() {
       o.description.toLowerCase().includes(q.toLowerCase())
     );
   });
+  const query = q.toLowerCase();
+
+  const devs = builders.filter((b) =>
+    (b.name + " " + b.skills.join(" ")).toLowerCase().includes(query),
+  );
+
+  const projs = projects.filter((p) =>
+    (p.name + " " + p.stack.join(" ")).toLowerCase().includes(query),
+  );
+
+  const posts = flares.filter((f) =>
+    (f.author.name + " " + f.content + " " + f.tags.join(" ")).toLowerCase().includes(query),
+  );
+
+  const orgs = organizations.filter((o) =>
+    (o.name + " " + o.description).toLowerCase().includes(query),
+  );
 
   return (
     <div className="space-y-4">

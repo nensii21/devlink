@@ -13,3 +13,18 @@ export { notificationsApi } from "./modules/notifications";
 export { analyticsApi } from "./modules/analytics";
 export { hackathonsApi } from "./modules/hackathons";
 export { searchApi } from "./modules/search";
+export { activitiesApi } from "./modules/activities";
+export { collectionsApi } from "./modules/collections";
+export { bookmarksApi } from "./modules/bookmarks";
+export { exportApi } from "./modules/export";
+export type { UserExportData, ExportResponse } from "./modules/export";
+export type {
+  BookmarkResponse as BookmarkItem,
+  BookmarkCheckResponse,
+  BookmarkCountResponse,
+} from "./modules/bookmarks";
+export type {
+  BookmarkCollection,
+  BookmarkCollectionWithBookmarks,
+  Bookmark,
+} from "./modules/collections";
