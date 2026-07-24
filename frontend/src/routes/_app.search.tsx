@@ -140,31 +140,6 @@ function SearchPage() {
     }
   };
 
-  const devs = builders.filter((b) => {
-    if (!q) return true;
-    return b.skills.some((s) => s.toLowerCase().includes(q.toLowerCase()));
-  });
-
-  const projs = projects.filter((p) => {
-    if (!q) return true;
-    return p.stack.some((s) => s.toLowerCase().includes(q.toLowerCase()));
-  });
-
-  const posts = flares.filter((f) => {
-    if (!q) return true;
-    return (
-      f.tags.some((t) => t.toLowerCase().includes(q.toLowerCase())) ||
-      f.author.skills.some((s) => s.toLowerCase().includes(q.toLowerCase()))
-    );
-  });
-
-  const orgs = organizations.filter((o) => {
-    if (!q) return true;
-    return (
-      o.name.toLowerCase().includes(q.toLowerCase()) ||
-      o.description.toLowerCase().includes(q.toLowerCase())
-    );
-  });
   const query = q.toLowerCase();
 
   const devs = builders.filter((b) =>
@@ -403,20 +378,4 @@ function EmptyState({ query, label }: { query: string; label: string }) {
   );
 }
 
-function HighlightText({ text, query }: { text: string; query: string }) {
-  if (!query.trim()) return <>{text}</>;
-  const parts = text.split(new RegExp(`(${query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")})`, "gi"));
-  return (
-    <>
-      {parts.map((part, i) =>
-        part.toLowerCase() === query.toLowerCase() ? (
-          <mark key={i} className="bg-primary/20 text-foreground rounded px-0.5 font-semibold">
-            {part}
-          </mark>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
-}
+
