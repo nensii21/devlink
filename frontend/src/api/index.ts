@@ -23,6 +23,8 @@ export type {
   ImprovementSuggestion,
   RepositoryInfo,
 } from "./modules/repositoryQuality";
+export { exportApi } from "./modules/export";
+export type { UserExportData, ExportResponse } from "./modules/export";
 export type {
   BookmarkResponse as BookmarkItem,
   BookmarkCheckResponse,

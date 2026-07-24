@@ -35,6 +35,7 @@ from app.routers import (
     bookmarks,
     builder_flares,
     conversations,
+    export,
     followers,
     health,
     messages,
@@ -47,6 +48,7 @@ from app.routers import (
     skills,
     users,
 )
+
 
 
 @asynccontextmanager
@@ -179,6 +181,7 @@ async def global_exception_handler(request, exc):
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(export.router, prefix="/api/users", tags=["Export"])
 app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
 app.include_router(builder_flares.router, prefix="/api/flare", tags=["Builder's Flare"])
 app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
@@ -195,6 +198,9 @@ app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
+app.include_router(users.router)
+from app.routers import websockets
+app.include_router(websockets.router)
 app.include_router(recommendations.router)
 app.include_router(
     repository_quality.router, prefix="/api", tags=["Repository Quality"]
