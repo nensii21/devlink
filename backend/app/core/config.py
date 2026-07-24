@@ -99,6 +99,7 @@ class Settings(BaseSettings):
     # ==========================================================
 
     MAX_UPLOAD_SIZE_MB: int = 10
+    RESUME_MAX_SIZE_MB: int = 5
 
     ALLOWED_IMAGE_TYPES: str = "image/png,image/jpeg,image/webp"
 

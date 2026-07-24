@@ -122,6 +122,11 @@ class User(Base):
         nullable=True,
     )
 
+    resume_url: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+    )
+
     portfolio_url: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,

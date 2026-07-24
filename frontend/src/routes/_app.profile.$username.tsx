@@ -28,6 +28,71 @@ export const Route = createFileRoute("/_app/profile/$username")({
   component: ProfilePage,
 });
 
+type ProfileFormValues = {
+  headline: string;
+  bio: string;
+  location: string;
+  timezone: string;
+  website: string;
+  resumeUrl: string;
+  portfolioUrl: string;
+  githubUrl: string;
+  linkedinUrl: string;
+  role: string;
+  experienceLevel: string;
+  company: string;
+  profileSkills: ProfileSkill[];
+  techStack: string[];
+};
+
+function mapBuilderToFormValues(builder: Builder): ProfileFormValues {
+  return {
+    headline: builder.headline ?? "",
+    bio: builder.bio ?? "",
+    location: builder.location ?? "",
+    timezone: builder.timezone ?? "",
+    website: builder.website ?? "",
+    resumeUrl: builder.resumeUrl ?? "",
+    portfolioUrl: builder.portfolioUrl ?? "",
+    githubUrl: builder.githubUrl ?? "",
+    linkedinUrl: builder.linkedinUrl ?? "",
+    role: builder.role ?? "",
+    experienceLevel: builder.experienceLevel ?? "",
+    company: builder.company ?? "",
+    profileSkills:
+      builder.profileSkills?.length
+        ? builder.profileSkills.map((skill) => ({ ...skill, level: skill.level ?? "Intermediate", yearsOfExperience: skill.yearsOfExperience ?? 0 }))
+        : builder.skills.map((skill) => ({ name: skill, level: "Intermediate", category: "general" })),
+    techStack: builder.techStack ?? [],
+  };
+}
+
+function buildUpdatedBuilder(builder: Builder, values: ProfileFormValues): Builder {
+  return {
+    ...builder,
+    headline: values.headline || undefined,
+    bio: values.bio || undefined,
+    location: values.location || undefined,
+    timezone: values.timezone || undefined,
+    website: values.website || undefined,
+    resumeUrl: values.resumeUrl || undefined,
+    portfolioUrl: values.portfolioUrl || undefined,
+    githubUrl: values.githubUrl || undefined,
+    linkedinUrl: values.linkedinUrl || undefined,
+    role: values.role || undefined,
+    experienceLevel: values.experienceLevel || undefined,
+    company: values.company || undefined,
+    profileSkills: values.profileSkills.map((skill) => ({
+      name: skill.name,
+      level: skill.level || "Intermediate",
+      category: skill.category || "general",
+      yearsOfExperience: skill.yearsOfExperience ?? 0,
+    })),
+    techStack: values.techStack.filter(Boolean),
+    skills: values.profileSkills.map((skill) => skill.name),
+  };
+}
+
 function ProfilePage() {
   const { username } = Route.useParams();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);

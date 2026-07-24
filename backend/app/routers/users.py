@@ -199,6 +199,33 @@ def update_me(
     )
 
 
+@router.post(
+    "/me/resume",
+    response_model=UserResponse,
+)
+async def upload_resume(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    contents = await file.read()
+    try:
+        validate_resume_upload(file.filename, file.content_type, len(contents))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    resume_url = save_resume_upload(contents, file.filename, current_user.id)
+    current_user.resume_url = str(request.base_url).rstrip("/") + resume_url
+    db.commit()
+    db.refresh(current_user)
+
+    return current_user
+
+
 @router.delete(
     "/me",
     status_code=status.HTTP_204_NO_CONTENT,
