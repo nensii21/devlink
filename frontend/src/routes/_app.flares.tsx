@@ -10,6 +10,8 @@ import { useState, useCallback } from "react";
 import { currentUser, builders } from "@/mocks/seed";
 import type { Flare } from "@/mocks/seed";
 import { toast } from "sonner";
+import { useToggleLike, useLikedFlares } from "@/hooks/useLike";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/flares")({
   head: () => ({
@@ -20,6 +22,60 @@ export const Route = createFileRoute("/_app/flares")({
   }),
   component: FlaresPage,
 });
+
+function FlareCard({ flare }: { flare: Flare }) {
+  const { data: likedMap } = useLikedFlares();
+  const toggleLike = useToggleLike(flare.id);
+  const isLiked = likedMap?.[flare.id] ?? false;
+
+  return (
+    <Card className="p-4">
+      <div className="flex items-start gap-3">
+        <Avatar
+          src={flare.author.avatar}
+          alt={flare.author.name}
+          size={40}
+          online={flare.author.online}
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="text-[13px] font-semibold text-foreground">{flare.author.name}</p>
+            <p className="text-[12px] text-muted-foreground">
+              @{flare.author.handle} · {flare.ago}
+            </p>
+          </div>
+          <div className="mt-2">
+            <Markdown content={flare.content} />
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {flare.tags.map((t) => (
+              <TagChip key={t}>#{t}</TagChip>
+            ))}
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-4 text-[12px] text-muted-foreground">
+            <div className="flex items-center gap-4">
+              <button
+                className={cn(
+                  "inline-flex items-center gap-1 transition-colors",
+                  isLiked ? "text-destructive" : "hover:text-destructive",
+                )}
+                onClick={() => toggleLike.mutate()}
+                disabled={toggleLike.isPending}
+                aria-label={isLiked ? "Unlike this flare" : "Like this flare"}
+                aria-pressed={isLiked}
+              >
+                <Heart size={12} className={isLiked ? "fill-current" : ""} /> {flare.likes}
+              </button>
+              <button className="inline-flex items-center gap-1 hover:text-primary">
+                <MessageCircle size={12} /> {flare.comments}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 function FlaresPage() {
   const { data = [] } = useQuery({ queryKey: ["flares"], queryFn: flaresService.list });
@@ -73,6 +129,11 @@ function FlaresPage() {
                 <p className="text-[11px] text-muted-foreground">Markdown supported</p>
                 <LoadingButton
                   disabled={!content.trim()}
+                  onClick={() => {
+                    toast.success("Flare posted");
+                    setContent("");
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
                   loading={submitting}
                   loadingText="Posting..."
                   onClick={handlePost}
@@ -102,28 +163,23 @@ function FlaresPage() {
                     @{f.author.handle} · {f.ago}
                   </p>
                 </div>
-                <div className="mt-2">
-                  <Markdown content={f.content} />
-                </div>
                 <div className="mt-2 flex flex-wrap gap-1">
                   {f.tags.map((t) => (
                     <TagChip key={t}>#{t}</TagChip>
                   ))}
                 </div>
-                <div className="mt-3 flex items-center justify-between gap-4 text-[12px] text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    <button className="inline-flex items-center gap-1 hover:text-destructive">
-                      <Heart size={12} /> {f.likes}
-                    </button>
-                    <button className="inline-flex items-center gap-1 hover:text-primary">
-                      <MessageCircle size={12} /> {f.comments}
-                    </button>
-                  </div>
-                  {/* Placeholder: ApplyButton needs flareId+projectId; current flares feed is mock-only. */}
+                <div className="mt-3 flex items-center gap-4 text-[12px] text-muted-foreground">
+                  <button className="inline-flex items-center gap-1 hover:text-destructive">
+                    <Heart size={12} /> {f.likes}
+                  </button>
+                  <button className="inline-flex items-center gap-1 hover:text-primary">
+                    <MessageCircle size={12} /> {f.comments}
+                  </button>
                 </div>
               </div>
             </div>
           </Card>
+          <FlareCard key={f.id} flare={f} />
         ))}
       </div>
 

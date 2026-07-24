@@ -1,5 +1,9 @@
-import { toast } from "sonner";
+"use client";
 
+export type ProjectSearchResult = {
+  id: string;
+  title: string;
+  slug: string;
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
@@ -42,10 +46,16 @@ export type ApplicationUpdatePayload = {
   status?: ApplicationStatus;
 };
 
-type ApiConfig = {
-  baseUrl: string;
+export type DeveloperSearchResult = {
+  id: string;
+  username: string;
+  headline: string;
 };
 
+async function fetchJson<T>(signal: AbortSignal, url: string): Promise<T> {
+  const response = await fetch(url, { method: "GET", signal });
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
 function getApiConfig(): ApiConfig {
   const baseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined;
 
@@ -88,58 +98,23 @@ async function requestJson<TResponse, TBody extends JsonValue | undefined = unde
 
     throw new Error(message);
   }
-
-  if (res.status === 204) {
-    return undefined as unknown as TResponse;
-  }
-
-  const data: unknown = await res.json();
-  return assertJson<TResponse>(data);
+  return (await response.json()) as T;
 }
 
-export async function applyToFlare(
-  flareId: UUID,
-  projectId: UUID,
-  payload: {
-    message?: string;
-    portfolio_url?: string;
-    github_url?: string;
-  },
-): Promise<ApplicationResponse> {
-  const body: ApplicationCreatePayload = {
-    project_id: projectId,
-    flare_id: flareId,
-    message: payload.message,
-    portfolio_url: payload.portfolio_url,
-    github_url: payload.github_url,
-  };
-
-  return requestJson<ApplicationResponse, ApplicationCreatePayload>({
-    url: "/applications/",
-    method: "POST",
-    body,
-  });
+export async function searchProjects(
+  query: string,
+  signal: AbortSignal,
+): Promise<ProjectSearchResult[]> {
+  const params = new URLSearchParams({ query });
+  return fetchJson<ProjectSearchResult[]>(signal, `/api/projects?${params.toString()}`);
 }
 
-export async function getMyApplications(): Promise<ApplicationResponse[]> {
-  return requestJson<ApplicationResponse[]>({
-    url: "/applications/me",
-    method: "GET",
-  });
-}
-
-export async function getProjectApplications(projectId: UUID): Promise<ApplicationResponse[]> {
-  return requestJson<ApplicationResponse[]>({
-    url: `/applications/project/${projectId}`,
-    method: "GET",
-  });
-}
-
-export async function acceptApplication(id: UUID): Promise<ApplicationResponse> {
-  return requestJson<ApplicationResponse>({
-    url: `/applications/${id}/accept`,
-    method: "PATCH",
-  });
+export async function searchUsers(
+  query: string,
+  signal: AbortSignal,
+): Promise<DeveloperSearchResult[]> {
+  const params = new URLSearchParams({ query });
+  return fetchJson<DeveloperSearchResult[]>(signal, `/api/users?${params.toString()}`);
 }
 
 export async function rejectApplication(id: UUID): Promise<ApplicationResponse> {

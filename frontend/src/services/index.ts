@@ -36,6 +36,43 @@ async function withFallback<T>(call: () => Promise<T>, fallback: T): Promise<T> 
   }
 }
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+
+async function fetchJson<T>(path: string): Promise<T> {
+  const response = await fetch(`${apiBaseUrl}${path}`);
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+export interface ActivityActor {
+  id: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  profile_image?: string | null;
+}
+
+export interface BackendActivity {
+  id: string;
+  actor_id: string;
+  actor?: ActivityActor | null;
+  activity_type: string;
+  title: string;
+  description?: string | null;
+  project_id?: string | null;
+  organization_id?: string | null;
+  repository_id?: string | null;
+  application_id?: string | null;
+  builder_flare_id?: string | null;
+  icon?: string | null;
+  color?: string | null;
+  created_at: string;
+}
+
 export const projectsService = {
   list: () => withFallback(() => projectsApi.list(), seed.projects),
   get: (id: string) =>
@@ -96,6 +133,11 @@ export const dashboardService = {
     ),
 };
 
+export const activitiesService = {
+  list: (limit = 20) => fetchJson<BackendActivity[]>(`/activities/?limit=${limit}`),
+  user: (userId: string) => fetchJson<BackendActivity[]>(`/activities/user/${userId}`),
+};
+
 export const flaresService = {
   list: () => withFallback(() => postsApi.list(), seed.flares),
 };
@@ -140,6 +182,8 @@ export const userService = {
       };
     }, seed.currentUser),
 };
+
+export { teamMatchService } from "./teamMatch";
 
 export type {
   Builder,

@@ -1,7 +1,7 @@
 import pytest
 from typing import Generator
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -17,6 +17,9 @@ class MockPwdContext:
 
 
 app.core.security.pwd_context = MockPwdContext()
+app.core.security.hash_password = lambda p: p + "_hashed"
+app.core.security.verify_password = lambda p, h: h == p + "_hashed"
+
 from app.database.base import Base
 from app.dependencies import get_database
 from app.main import app
@@ -26,6 +29,15 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
+
+
+@event.listens_for(engine, "connect")
+def _set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
+
 TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
@@ -39,6 +51,15 @@ def override_get_db() -> Generator:
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_db():
+    import app.database.session
+
+    app.database.session.SessionLocal = TestingSessionLocal
+    app.database.session.get_db = override_get_db
+    import app.database.database
+
+    app.database.database.engine = engine
+    from app.main import app
+
     app.dependency_overrides[get_database] = override_get_db
     Base.metadata.create_all(bind=engine)
     yield

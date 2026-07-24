@@ -1,21 +1,8 @@
 import React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { APP_LOGO } from "@/lib/logo";
-import { useTheme } from "@/hooks/useTheme";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Sparkles,
-  Users2,
-  MessageSquare,
-  Trophy,
-  Github,
-  ArrowRight,
-  Check,
-  Moon,
-  Sun,
-  Menu,
-  X,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Sparkles, Users2, MessageSquare, Trophy, Github, ArrowRight, Check } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,10 +40,10 @@ function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-surface/80 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src={APP_LOGO} alt="" className="h-7 w-7 rounded-md" />
-            <span className="text-[16px] font-bold tracking-tight text-foreground">DevLink</span>
+            <img src={APP_LOGO} alt="" className="h-9 w-9 rounded-md" />
+            <span className="text-[20px] font-bold tracking-tight text-foreground">DevLink</span>
           </Link>
           <nav className="ml-6 hidden items-center gap-5 text-[13px] font-medium text-muted-foreground md:flex">
             <a href="#features" className="hover:text-foreground">
@@ -170,7 +157,7 @@ function Landing() {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-[12px] font-medium text-muted-foreground">
               <Sparkles size={12} className="text-primary" /> AI-powered team matching · in beta
             </span>
-            <h1 className="mx-auto mt-6 max-w-3xl text-[30px] sm:text-[52px] font-bold leading-tight tracking-tight text-foreground">
+            <h1 className="mx-auto mt-6 max-w-3xl text-[36px] font-bold leading-tight tracking-tight text-foreground sm:text-[52px]">
               Where builders connect, <span className="text-primary">collaborate</span> and ship.
             </h1>
             <p className="mx-auto mt-4 max-w-xl text-[15px] text-muted-foreground">
@@ -283,16 +270,16 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t border-border bg-surface py-6">
+      <footer className="border-t border-border bg-surface py-3">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-2 sm:flex-row sm:text-left">
           <div className="flex items-center gap-2">
-            <img src={APP_LOGO} alt="Devlink Logo" className="h-8 w-8 rounded" />
-            <span className="text-[13px] font-bold text-foreground ">DevLink</span>
+            <img src={APP_LOGO} alt="Devlink Logo" className="h-12 w-12 rounded" />
+            <span className="text-[20px] font-bold text-foreground ">DevLink</span>
             <span className="text-[11px] text-muted-foreground opacity-70">
               © {new Date().getFullYear()}
             </span>
           </div>
-          <div className="flex items-center gap-5 text-[12px] text-muted-foreground">
+          <div className="flex items-center gap-5 text-[16px] text-muted-foreground">
             {[
               { label: "GitHub", href: "https://github.com/nensii21/devlink" },
               { label: "Privacy Policy", href: "#" },
