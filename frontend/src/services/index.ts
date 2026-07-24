@@ -177,7 +177,7 @@ export const userService = {
         id: u.id,
         name: u.full_name ?? u.username,
         handle: u.username,
-        avatar: u.avatar ?? seed.currentUser.avatar,
+        avatar: u.profile_image ?? u.avatar ?? seed.currentUser.avatar,
         premium: (u as unknown as { premium?: boolean }).premium ?? false,
       };
     }, seed.currentUser),
