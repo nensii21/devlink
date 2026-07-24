@@ -113,10 +113,10 @@ export function InviteRequests() {
               </p>
             </div>
             <div className="flex gap-1.5">
-              <button className="grid h-8 w-8 place-items-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 transition-colors hover:bg-emerald-500/20 active:scale-95">
+              <button className="grid h-11 w-11 place-items-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 transition-colors hover:bg-emerald-500/20 active:scale-95">
                 <Check size={15} />
               </button>
-              <button className="grid h-8 w-8 place-items-center rounded-xl border border-destructive/30 bg-destructive/10 text-destructive transition-colors hover:bg-destructive/20 active:scale-95">
+              <button className="grid h-11 w-11 place-items-center rounded-xl border border-destructive/30 bg-destructive/10 text-destructive transition-colors hover:bg-destructive/20 active:scale-95">
                 <X size={15} />
               </button>
             </div>
