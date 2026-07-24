@@ -1,5 +1,6 @@
 # DevLink
 
+
 <p align="center">
   <img src="docs/images/devlink-banner.jpeg" alt="DevLink Banner" width="400">
 </p>
@@ -44,24 +45,24 @@ participate in hackathons, and launch products together.
 
 # Table of Contents
 
-- Overview
-- Why DevLink?
-- Features
-- Architecture
-- Tech Stack
-- Project Structure
-- Screenshots
-- Getting Started
-- Environment Variables
-- Development Workflow
-- API Documentation
-- Roadmap
-- Contributing
-- ECSoc 2026
-- Security
-- Code of Conduct
-- License
-- Maintainers
+- [Overview](https://github.com/nensii21/devlink#overview)
+- [Why DevLink?](https://github.com/nensii21/devlink#why-devlink)
+- [Features](https://github.com/nensii21/devlink#features)
+- [Architecture](https://github.com/nensii21/devlink#architecture)
+- [Tech Stack](https://github.com/nensii21/devlink#tech-stack)
+- [Project Structure](https://github.com/nensii21/devlink#project-structure)
+- [Screenshots](https://github.com/nensii21/devlink#screenshots)
+- [Getting Started](https://github.com/nensii21/devlink#getting-started)
+- [Environment Variables](https://github.com/nensii21/devlink#environment-variables)
+- [Development Workflow](https://github.com/nensii21/devlink#development-workflow)
+- [API Documentation](https://github.com/nensii21/devlink#api-documentation)
+- [Roadmap](https://github.com/nensii21/devlink#roadmap)
+- [Contributing](https://github.com/nensii21/devlink#contributing)
+- [ECSoc 2026](https://github.com/nensii21/devlink#ecsoc-2026)
+- [Security](https://github.com/nensii21/devlink#security)
+- [Code of Conduct](https://github.com/nensii21/devlink#code-of-conduct)
+- [License](https://github.com/nensii21/devlink#license)
+- [Maintainers](https://github.com/nensii21/devlink#maintainers)
 
 ---
 
@@ -583,3 +584,4 @@ Made with ❤️ by developers, for developers.
 Building the future of developer collaboration.
 
 </p>
+...

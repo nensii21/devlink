@@ -18,7 +18,10 @@ export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — DevLink" },
-      { name: "description", content: "Your DevLink command center: projects, matches, messages and streaks." },
+      {
+        name: "description",
+        content: "Your DevLink command center: projects, matches, messages and streaks.",
+      },
     ],
   }),
   component: Dashboard,
@@ -26,24 +29,33 @@ export const Route = createFileRoute("/_app/dashboard")({
 
 function Dashboard() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <GreetingHero />
       <StatsRow />
-      <div className="grid gap-4 lg:grid-cols-3">
-        <RecentActivity />
-        <BuilderRequests />
-        <InviteRequests />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-[2fr_2fr_1.2fr]">
-        <SuggestedBuilders />
-        <TrendingProjects />
-        <AIRecommendations />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-4">
-        <MessagesPreview />
-        <QuickActions />
-        <UpcomingDeadlines />
-        <NotificationsFeed />
+
+      {/* Modern Bento Command Grid */}
+      <div className="grid gap-5 lg:grid-cols-[1.8fr_1fr]">
+        {/* Main Column */}
+        <div className="space-y-5">
+          <SuggestedBuilders />
+          <TrendingProjects />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <BuilderRequests />
+            <InviteRequests />
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <MessagesPreview />
+            <NotificationsFeed />
+          </div>
+        </div>
+
+        {/* Side Column */}
+        <div className="space-y-5">
+          <QuickActions />
+          <AIRecommendations />
+          <UpcomingDeadlines />
+          <RecentActivity />
+        </div>
       </div>
     </div>
   );
