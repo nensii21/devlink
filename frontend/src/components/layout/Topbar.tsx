@@ -1,3 +1,4 @@
+import { MessageSquare, Plus, Search, Sparkles, Menu, Moon, Sun } from "lucide-react";
 import {
   Bell,
   MessageSquare,
@@ -13,6 +14,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { currentUser, builders, projects, flares } from "@/mocks/seed";
 import { useTheme } from "@/hooks/useTheme";
+import { NotificationCenter } from "@/components/shared/NotificationCenter";
 import { useState } from "react";
 
 const organizations = [
@@ -262,9 +264,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         >
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
-        <IconButton to="/notifications" count={8}>
-          <Bell size={16} />
-        </IconButton>
+        <NotificationCenter />
         <IconButton to="/messages" count={3}>
           <MessageSquare size={16} />
         </IconButton>
