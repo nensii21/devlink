@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -28,3 +29,41 @@ class SearchResponse(BaseModel):
     types: list[str]
     total: int
     results: SearchResultGroups
+
+
+# ---------------------------------------------------------------------------
+# Autocomplete (lightweight suggestion response for the Topbar typeahead)
+# ---------------------------------------------------------------------------
+
+
+class SearchSuggestionUser(BaseModel):
+    """Lightweight user shape for autocomplete suggestions."""
+
+    id: uuid.UUID
+    name: str
+    username: str
+    role: Optional[str] = None
+    profile_image: Optional[str] = None
+
+
+class SearchSuggestionProject(BaseModel):
+    """Lightweight project shape for autocomplete suggestions."""
+
+    id: uuid.UUID
+    title: str
+    icon: Optional[str] = None
+
+
+class SearchSuggestionSkill(BaseModel):
+    """Lightweight skill shape for autocomplete suggestions."""
+
+    id: uuid.UUID
+    name: str
+
+
+class SearchAutocompleteResponse(BaseModel):
+    """Grouped autocomplete response returned by ``GET /api/search/autocomplete``."""
+
+    users: list[SearchSuggestionUser] = Field(default_factory=list)
+    projects: list[SearchSuggestionProject] = Field(default_factory=list)
+    skills: list[SearchSuggestionSkill] = Field(default_factory=list)
