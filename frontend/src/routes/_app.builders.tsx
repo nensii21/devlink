@@ -1,3 +1,4 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   createFileRoute,
   Link,
@@ -24,20 +25,7 @@ import { Search, Sparkles, Calendar, Briefcase, Check, Bookmark } from "lucide-r
 import { motion } from "framer-motion";
 import { containerVariants } from "@/lib/animations";
 
-type BuildersSearch = {
-  tab?: "discover" | "matches" | "connections";
-};
-
-const VALID_TABS = ["discover", "matches", "connections"] as const;
-
 export const Route = createFileRoute("/_app/builders")({
-  validateSearch: (search: Record<string, unknown>): BuildersSearch => {
-    const rawTab = search.tab as string;
-    const tab = (VALID_TABS as readonly string[]).includes(rawTab)
-      ? (rawTab as "discover" | "matches" | "connections")
-      : "discover";
-    return { tab };
-  },
   head: () => ({
     meta: [
       { title: "Builders — DevLink" },
@@ -50,6 +38,8 @@ export const Route = createFileRoute("/_app/builders")({
   component: BuildersPage,
 });
 
+function BuildersPage() {
+  const [tab, setTab] = useState<"discover" | "matches" | "connections">("discover");
 const TARGET_SKILLS = [
   "React",
   "Next.js",
@@ -220,6 +210,7 @@ function BuildersPage() {
     queryFn: () => (tab === "matches" ? buildersService.matches() : buildersService.list()),
   });
 
+  const filtered = data.filter(
   const [connections, setConnections] = useState<string[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -268,10 +259,11 @@ function BuildersPage() {
           {tabs.map((t) => (
             <button
               key={t.k}
+              onClick={() => setTab(t.k)}
               type="button"
               onClick={() => navigate({ search: (prev) => ({ ...prev, tab: t.k }) })}
               className={cn(
-                "rounded px-2.5 py-1 text-[12px] font-medium transition-colors cursor-pointer",
+                "rounded px-2.5 py-1 text-[12px] font-medium transition-colors",
                 tab === t.k
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground",
@@ -295,6 +287,37 @@ function BuildersPage() {
         </div>
       </div>
 
+      <motion.div
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        role="status"
+        aria-busy={isLoading || undefined}
+      >
+        {isLoading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="p-4 text-center">
+                <div className="mx-auto w-fit">
+                  <Skeleton className="h-16 w-16 shrink-0 rounded-full" />
+                </div>
+                <Skeleton className="mx-auto mt-2 h-4 w-28" />
+                <Skeleton className="mx-auto h-3 w-20" />
+                <Skeleton className="mx-auto h-3 w-36" />
+                <Skeleton className="mx-auto mt-1 h-3 w-24" />
+                <div className="mt-2 flex flex-wrap justify-center gap-1">
+                  <Skeleton className="h-5 w-14" />
+                  <Skeleton className="h-5 w-12" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="mx-auto mt-2 h-3 w-20" />
+                <div className="mt-2 flex gap-1.5">
+                  <Skeleton className="h-7 flex-1" />
+                  <Skeleton className="h-7 flex-1" />
+                </div>
+              </Card>
+            ))
+          : filtered.map((b, i) => (
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -405,6 +428,18 @@ function BuildersPage() {
                       {b.matchScore}% Match
                     </p>
                   </div>
+                  <div className="mt-2 flex gap-1.5">
+                    <button className="flex-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90">
+                      Connect
+                    </button>
+                    <button className="flex-1 rounded-md border border-border px-2 py-1 text-[11px] font-medium text-foreground hover:bg-muted">
+                      Message
+                    </button>
+                  </div>
+                </AnimatedCard>
+              </Link>
+            ))}
+      </motion.div>
                   <p className="mt-2 text-[14px] font-semibold text-foreground group-hover:underline">
                     <HighlightText text={b.name} query={q} />
                   </p>
