@@ -1,16 +1,16 @@
 import React, { useState, useMemo } from "react";
-import { 
-  CheckCircle2, 
-  Circle, 
-  User, 
-  FileText, 
-  Code2, 
-  Github, 
-  Globe, 
+import {
+  CheckCircle2,
+  Circle,
+  User,
+  FileText,
+  Code2,
+  Github,
+  Globe,
   Briefcase,
   ChevronDown,
   ChevronUp,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -96,18 +96,15 @@ export function ProfileCompletionChecklist({
         icon: Briefcase,
         completed: Boolean(
           userProfile.experience !== undefined &&
-            userProfile.experience !== null &&
-            userProfile.experience !== ""
+          userProfile.experience !== null &&
+          userProfile.experience !== "",
         ),
         actionText: "Add experience",
       },
     ];
   }, [userProfile]);
 
-  const completedCount = useMemo(
-    () => items.filter((item) => item.completed).length,
-    [items]
-  );
+  const completedCount = useMemo(() => items.filter((item) => item.completed).length, [items]);
 
   const percentage = Math.round((completedCount / items.length) * 100);
 
@@ -120,7 +117,7 @@ export function ProfileCompletionChecklist({
     <div
       className={cn(
         "rounded-xl border border-border bg-card p-4 transition-all shadow-sm",
-        className
+        className,
       )}
     >
       {/* Header & Progress Gauge */}
@@ -131,9 +128,7 @@ export function ProfileCompletionChecklist({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">
-                Complete your profile
-              </h3>
+              <h3 className="text-sm font-semibold text-foreground">Complete your profile</h3>
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                 {percentage}%
               </span>
@@ -182,16 +177,14 @@ export function ProfileCompletionChecklist({
                     size={14}
                     className={cn(
                       "shrink-0",
-                      item.completed ? "text-primary" : "text-muted-foreground"
+                      item.completed ? "text-primary" : "text-muted-foreground",
                     )}
                   />
                   <div className="min-w-0">
                     <p
                       className={cn(
                         "font-medium truncate",
-                        item.completed
-                          ? "line-through text-muted-foreground"
-                          : "text-foreground"
+                        item.completed ? "line-through text-muted-foreground" : "text-foreground",
                       )}
                     >
                       {item.label}

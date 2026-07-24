@@ -1,7 +1,3 @@
-
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import Lottie from "lottie-react";
-
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import lottie from "lottie-web";
@@ -9,6 +5,7 @@ import lottie from "lottie-web";
 import { AppShell } from "@/components/layout/AppShell";
 import searchAnimation from "@/assets/404 Error - Doodle animation.json";
 import { ProfileCompletionChecklist } from "@/components/profile/ProfileCompletionChecklist";
+import { BookmarkProvider } from "@/context/BookmarkContext";
 
 const mockUserProfile = {
   avatar: "",
@@ -21,17 +18,19 @@ const mockUserProfile = {
 
 function AppLayoutWithProfileChecklist() {
   return (
-    <div className="space-y-4">
-      <ProfileCompletionChecklist
-        userProfile={mockUserProfile}
-        onActionClick={(itemId) => {
-          if (itemId === "avatar" || itemId === "bio") {
-            window.location.href = "/settings";
-          }
-        }}
-      />
-      <AppShell />
-    </div>
+    <BookmarkProvider>
+      <div className="space-y-4">
+        <ProfileCompletionChecklist
+          userProfile={mockUserProfile}
+          onActionClick={(itemId) => {
+            if (itemId === "avatar" || itemId === "bio") {
+              window.location.href = "/settings";
+            }
+          }}
+        />
+        <AppShell />
+      </div>
+    </BookmarkProvider>
   );
 }
 

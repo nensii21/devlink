@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { 
-  Bell, 
-  Check, 
-  CheckCircle, 
-  FolderPlus, 
-  MessageCircle, 
-  MessageSquare, 
-  Users, 
+import {
+  Bell,
+  Check,
+  CheckCircle,
+  FolderPlus,
+  MessageCircle,
+  MessageSquare,
+  Users,
   XCircle,
-  AtSign
+  AtSign,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -17,13 +17,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type NotificationType = 
-  | "project_invitation" 
-  | "team_request" 
-  | "comment" 
-  | "mention" 
-  | "application_accepted" 
-  | "application_rejected" 
+type NotificationType =
+  | "project_invitation"
+  | "team_request"
+  | "comment"
+  | "mention"
+  | "application_accepted"
+  | "application_rejected"
   | "message_received";
 
 interface Notification {
@@ -132,7 +132,7 @@ export function NotificationCenter() {
     <div
       className={cn(
         "flex gap-3 px-4 py-3 hover:bg-muted/50 transition-colors cursor-pointer group",
-        !notification.read && "bg-muted/30"
+        !notification.read && "bg-muted/30",
       )}
       onClick={() => markAsRead(notification.id)}
     >
@@ -148,9 +148,7 @@ export function NotificationCenter() {
             {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {notification.description}
-        </p>
+        <p className="text-sm text-muted-foreground line-clamp-2">{notification.description}</p>
       </div>
       {!notification.read && (
         <div className="shrink-0 flex items-center">
@@ -175,9 +173,9 @@ export function NotificationCenter() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent 
-        className="w-[380px] p-0 sm:w-[420px] rounded-xl shadow-xl overflow-hidden" 
-        align="end" 
+      <PopoverContent
+        className="w-[380px] p-0 sm:w-[420px] rounded-xl shadow-xl overflow-hidden"
+        align="end"
         sideOffset={8}
       >
         <Tabs defaultValue="all" className="w-full">
@@ -185,7 +183,9 @@ export function NotificationCenter() {
             <h2 className="text-sm font-semibold text-foreground">Notifications</h2>
             <div className="flex items-center gap-2">
               <TabsList className="h-8">
-                <TabsTrigger value="all" className="text-xs px-3">All</TabsTrigger>
+                <TabsTrigger value="all" className="text-xs px-3">
+                  All
+                </TabsTrigger>
                 <TabsTrigger value="unread" className="text-xs px-3">
                   Unread
                   {unreadCount > 0 && (
@@ -197,15 +197,15 @@ export function NotificationCenter() {
               </TabsList>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/20">
             <span className="text-xs text-muted-foreground font-medium">
               You have {unreadCount} unread notifications
             </span>
             {unreadCount > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground"
                 onClick={markAllAsRead}
               >
@@ -216,7 +216,10 @@ export function NotificationCenter() {
           </div>
 
           <ScrollArea className="h-[400px]">
-            <TabsContent value="all" className="m-0 focus-visible:outline-none focus-visible:ring-0">
+            <TabsContent
+              value="all"
+              className="m-0 focus-visible:outline-none focus-visible:ring-0"
+            >
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
                   <Bell className="h-8 w-8 mb-2 opacity-20" />
@@ -230,7 +233,10 @@ export function NotificationCenter() {
                 </div>
               )}
             </TabsContent>
-            <TabsContent value="unread" className="m-0 focus-visible:outline-none focus-visible:ring-0">
+            <TabsContent
+              value="unread"
+              className="m-0 focus-visible:outline-none focus-visible:ring-0"
+            >
               {notifications.filter((n) => !n.read).length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
                   <CheckCircle className="h-8 w-8 mb-2 opacity-20 text-emerald-500" />

@@ -35,5 +35,6 @@ export interface SearchAutocompleteResponse {
 
 export const searchApi = {
   all: (q: string) => api.get<SearchResults>("/api/search", { query: { q } }),
-  autocomplete: (q: string) => api.get<SearchAutocompleteResponse>("/api/search/autocomplete", { query: { q } }),
+  autocomplete: (q: string) =>
+    api.get<SearchAutocompleteResponse>("/api/search/autocomplete", { query: { q } }),
 };

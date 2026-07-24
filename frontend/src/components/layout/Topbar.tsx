@@ -1,6 +1,4 @@
-import { MessageSquare, Plus, Search, Sparkles, Menu, Moon, Sun } from "lucide-react";
 import {
-  Bell,
   MessageSquare,
   Plus,
   Search,
@@ -10,10 +8,10 @@ import {
   Sun,
   Building2,
   Rss,
+  Loader2,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Avatar } from "@/components/shared/primitives";
-import { currentUser } from "@/mocks/seed";
 import { currentUser, builders, projects, flares } from "@/mocks/seed";
 import { useTheme } from "@/hooks/useTheme";
 import { NotificationCenter } from "@/components/shared/NotificationCenter";
@@ -50,27 +48,6 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
   const developerSuggestions = searchResults?.users || [];
   const projectSuggestions = searchResults?.projects || [];
   const skillSuggestions = searchResults?.skills?.map((s) => s.name) || [];
-  const normalizedQuery = query.trim().toLowerCase();
-
-  const developerSuggestions = normalizedQuery
-    ? builders
-        .filter(
-          (builder) =>
-            builder.name.toLowerCase().includes(normalizedQuery) ||
-            builder.skills.some((skill) => skill.toLowerCase().includes(normalizedQuery)),
-        )
-        .slice(0, 3)
-    : [];
-
-  const projectSuggestions = normalizedQuery
-    ? projects
-        .filter(
-          (project) =>
-            project.name.toLowerCase().includes(normalizedQuery) ||
-            project.stack.some((tech) => tech.toLowerCase().includes(normalizedQuery)),
-        )
-        .slice(0, 3)
-    : [];
 
   const postSuggestions = normalizedQuery
     ? flares
@@ -125,7 +102,6 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
           onFocus={() => {
             if (query.trim()) setShowSuggestions(true);
           }}
-          placeholder="Search developers, projects, posts, organizations…"
           className="w-full rounded-md border border-border bg-surface py-[7px] pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
         {showSuggestions && normalizedQuery && (
@@ -150,7 +126,11 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
                         className="flex items-center gap-2 rounded-md px-2 py-2 text-[13px] text-foreground hover:bg-muted"
                       >
                         {builder.profile_image ? (
-                          <img src={builder.profile_image} alt="" className="h-7 w-7 rounded-full" />
+                          <img
+                            src={builder.profile_image}
+                            alt=""
+                            className="h-7 w-7 rounded-full"
+                          />
                         ) : (
                           <div className="h-7 w-7 rounded-full bg-muted" />
                         )}
@@ -186,7 +166,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
                           {project.icon}
                         </span>
 
-                        <span className="truncate font-medium">{project.name}</span>
+                        <span className="truncate font-medium">{project.title}</span>
                       </Link>
                     ))}
                   </div>

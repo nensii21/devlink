@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { issuesService } from "@/services";
 import { issuesApi } from "@/api";
+import type { Issue } from "@/api";
 import { Card } from "@/components/shared/primitives";
 import {
   AlertCircle,
@@ -61,7 +62,7 @@ function IssuesPage() {
     queryFn: () => issuesService.list(projectId),
   });
 
-  const filteredIssues = issues.filter((issue) => {
+  const filteredIssues = issues.filter((issue: Issue) => {
     if (statusFilter !== "all" && issue.status !== statusFilter) return false;
     if (searchQuery && !issue.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
@@ -146,7 +147,7 @@ function IssuesPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {filteredIssues.map((issue) => {
+          {filteredIssues.map((issue: Issue) => {
             const statusConfig = STATUS_CONFIG[issue.status];
             const StatusIcon = statusConfig.icon;
             const priorityConfig = PRIORITY_CONFIG[issue.priority];

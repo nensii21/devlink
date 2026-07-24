@@ -41,9 +41,7 @@ export function ProjectDifficultyBadge({
 }: ProjectDifficultyBadgeProps) {
   // Normalize string input to match valid DifficultyLevel keys
   const levelKey = (
-    Object.keys(difficultyStyles).includes(difficulty)
-      ? difficulty
-      : "Beginner"
+    Object.keys(difficultyStyles).includes(difficulty) ? difficulty : "Beginner"
   ) as DifficultyLevel;
 
   const style = difficultyStyles[levelKey];
@@ -56,7 +54,7 @@ export function ProjectDifficultyBadge({
         style.bg,
         style.text,
         style.border,
-        className
+        className,
       )}
     >
       {showIcon && <Icon size={12} className="shrink-0" />}

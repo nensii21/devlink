@@ -46,7 +46,6 @@ function BuilderProfile() {
     queryKey: ["builder", builderId],
     queryFn: () => buildersService.get(builderId),
   });
-  if (isLoading) return <Card className="h-96 animate-pulse" />;
   const [tab, setTab] = useState<Tab>(getTabFromURL);
 
   const builderProjects = allProjects.filter((p) => b && p.owner === b.name);
@@ -98,13 +97,6 @@ function BuilderProfile() {
 
   return (
     <div className="space-y-4">
-      <Link
-        to="/builders"
-        className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft size={14} /> Back to builders
-      </Link>
-      <Card className="p-6">
       <BackButton to="/builders" label="Back to builders" />
       <Card className="p-4">
         <div className="flex flex-wrap items-start gap-5">
@@ -115,10 +107,6 @@ function BuilderProfile() {
               @{b.handle} · {b.role}
             </p>
             <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>
-            <div className="mt-3 flex flex-wrap gap-1">
-              {b.skills.map((s) => (
-                <TagChip key={s}>{s}</TagChip>
-              ))}
             <div className="mt-2">
               <LastActive lastActiveAt={b.lastActiveAt} />
             </div>
@@ -131,11 +119,6 @@ function BuilderProfile() {
           </div>
         </div>
       </Card>
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="p-4">
-          <p className="text-[13px] font-semibold text-foreground">Match Score</p>
-          <p className="mt-2 text-[36px] font-bold text-success">{b.matchScore}%</p>
-        </Card>
       <div className="grid gap-3 lg:grid-cols-3">
         {match ? (
           <TeamMatchScore match={match} />

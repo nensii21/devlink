@@ -61,7 +61,7 @@ function projectToRequirements(project: Project): ProjectRequirements {
       ...(project.frontend ? ["Frontend"] : []),
     ],
     requiredExperienceYears:
-      project.difficulty === "advanced" ? 4 : project.difficulty === "intermediate" ? 2 : 1,
+      project.difficulty === "Advanced" ? 4 : project.difficulty === "Intermediate" ? 2 : 1,
     requiredAvailabilityHoursPerWeek: 10,
     ownerId: "owner-1",
     maintainerIds: [],

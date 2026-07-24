@@ -26,7 +26,6 @@ export const Route = createFileRoute("/_app/search")({
       { title: "Search — DevLink" },
       {
         name: "description",
-        content: "Global search across developers, projects, skills and flares.",
         content: "Global search across developers, projects, posts and organizations.",
       },
     ],
@@ -38,16 +37,6 @@ function SearchPage() {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<Tab>("Developers");
 
-  const devs = builders.filter((b) =>
-    (b.name + b.skills.join(" ")).toLowerCase().includes(q.toLowerCase()),
-  );
-  const projs = projects.filter((p) =>
-    (p.name + p.stack.join(" ")).toLowerCase().includes(q.toLowerCase()),
-  );
-  const skillSet = Array.from(new Set(builders.flatMap((b) => b.skills))).filter((s) =>
-    s.toLowerCase().includes(q.toLowerCase()),
-  );
-  const fls = flares.filter((f) => f.content.toLowerCase().includes(q.toLowerCase()));
   const query = q.toLowerCase();
 
   const devs = builders.filter((b) =>
@@ -69,27 +58,6 @@ function SearchPage() {
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search DevLink for developers, projects, or skills..."
-          className="w-full rounded-md border border-border bg-surface py-2.5 pl-10 pr-3 text-[14px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-          autoFocus
-        />
-      </div>
-      
-  {q && (
-    <button
-      type="button"
-      onClick={() => setQ("")}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-      aria-label="Clear search"
-    >
-      <X size={16} />
-    </button>
-  )}
-</div>
         <Search
           size={16}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -99,10 +67,6 @@ function SearchPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search DevLink…"
-          className="w-full rounded-md border border-border bg-surface py-2.5 pl-10 pr-3 text-[14px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-          autoFocus
-        />
-      </div>
           className="w-full rounded-md border border-border bg-surface py-2.5 pl-10 pr-10 text-[14px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
           autoFocus
         />
@@ -167,18 +131,6 @@ function SearchPage() {
 
       {tab === "Projects" && (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {projs.map((p) => (
-            <Link key={p.id} to="/projects/$projectId" params={{ projectId: p.id }}>
-              <Card interactive className="p-4">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-10 w-10 place-items-center rounded-md bg-muted text-xl">
-                    {p.icon}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-[13px] font-semibold text-foreground">{p.name}</p>
-                    <p className="truncate text-[12px] text-muted-foreground">
-                      {p.stack.join(" · ")}
-                    </p>
           {projs.length === 0 ? (
             <EmptyState query={q} label="projects" />
           ) : (
@@ -208,16 +160,6 @@ function SearchPage() {
           )}
         </div>
       )}
-      {tab === "Skills" && (
-        <Card className="p-4">
-          <div className="flex flex-wrap gap-2">
-            {skillSet.map((s) => (
-              <TagChip key={s} className="text-[12px]">
-                {s}
-              </TagChip>
-            ))}
-          </div>
-        </Card>
 
       {tab === "Posts" && (
         <div className="space-y-4">

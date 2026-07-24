@@ -29,8 +29,7 @@ export function DeleteAccountModal({
 
   const CONFIRMATION_KEYWORD = "DELETE";
 
-  const isConfirmed =
-    confirmationInput.trim().toUpperCase() === CONFIRMATION_KEYWORD;
+  const isConfirmed = confirmationInput.trim().toUpperCase() === CONFIRMATION_KEYWORD;
 
   const handleDelete = async () => {
     if (!isConfirmed) return;
@@ -41,11 +40,7 @@ export function DeleteAccountModal({
       await onConfirmDelete();
       onOpenChange(false);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to delete account. Please try again."
-      );
+      setError(err instanceof Error ? err.message : "Failed to delete account. Please try again.");
     } finally {
       setIsDeleting(false);
     }
@@ -67,12 +62,10 @@ export function DeleteAccountModal({
             <AlertTriangle size={24} />
           </div>
           <div>
-            <DialogTitle className="text-lg font-bold text-foreground">
-              Delete Account
-            </DialogTitle>
+            <DialogTitle className="text-lg font-bold text-foreground">Delete Account</DialogTitle>
             <DialogDescription className="mt-1 text-xs text-muted-foreground">
-              This action is permanent and cannot be undone. All your profile
-              data, projects, bookmarks, and activity will be erased forever.
+              This action is permanent and cannot be undone. All your profile data, projects,
+              bookmarks, and activity will be erased forever.
             </DialogDescription>
           </div>
         </DialogHeader>
@@ -81,15 +74,13 @@ export function DeleteAccountModal({
           <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-xs text-destructive">
             <p className="font-semibold">Warning:</p>
             <p className="mt-0.5">
-              Account registered as <span className="font-mono font-bold">{userEmail}</span> will be permanently removed.
+              Account registered as <span className="font-mono font-bold">{userEmail}</span> will be
+              permanently removed.
             </p>
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="confirm-input"
-              className="text-xs font-medium text-foreground block"
-            >
+            <label htmlFor="confirm-input" className="text-xs font-medium text-foreground block">
               To confirm, type <span className="font-bold select-all">DELETE</span> below:
             </label>
             <input
@@ -103,9 +94,7 @@ export function DeleteAccountModal({
             />
           </div>
 
-          {error && (
-            <p className="text-xs font-medium text-destructive">{error}</p>
-          )}
+          {error && <p className="text-xs font-medium text-destructive">{error}</p>}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">

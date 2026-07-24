@@ -20,6 +20,14 @@ export { contributorMatchingApi } from "./modules/contributorMatching";
 export type { ContributorMatchResponse, MatchedContributor } from "./modules/contributorMatching";
 export { bookmarksApi } from "./modules/bookmarks";
 export { exportApi } from "./modules/export";
+export { issuesApi } from "./modules/issues";
+export type {
+  Issue,
+  IssueCreateInput,
+  IssueUpdateInput,
+  DuplicateCheckResponse,
+  DuplicateSuggestion,
+} from "./modules/issues";
 export type { UserExportData, ExportResponse } from "./modules/export";
 export type {
   BookmarkResponse as BookmarkItem,

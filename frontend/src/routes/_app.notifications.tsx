@@ -47,21 +47,17 @@ function NotificationsPage() {
                 key={n.id}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3",
-                  n.unread && "bg-primary-soft/30"
+                  n.unread && "bg-primary-soft/30",
                 )}
               >
                 <span
                   className={cn(
                     "h-2 w-2 shrink-0 rounded-full",
-                    n.unread ? "bg-primary" : "bg-transparent"
+                    n.unread ? "bg-primary" : "bg-transparent",
                   )}
                 />
-                <p className="min-w-0 flex-1 text-[13px] text-foreground">
-                  {n.text}
-                </p>
-                <span className="text-[11px] text-muted-foreground">
-                  {n.ago}
-                </span>
+                <p className="min-w-0 flex-1 text-[13px] text-foreground">{n.text}</p>
+                <span className="text-[11px] text-muted-foreground">{n.ago}</span>
               </li>
             ))
           )}
