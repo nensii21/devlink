@@ -74,6 +74,35 @@ export interface SearchResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Autocomplete suggestion shapes (lightweight, for the Topbar typeahead)
+// ---------------------------------------------------------------------------
+
+export interface SearchSuggestionUser {
+  id: string;
+  name: string;
+  username: string;
+  role?: string | null;
+  profile_image?: string | null;
+}
+
+export interface SearchSuggestionProject {
+  id: string;
+  title: string;
+  icon?: string | null;
+}
+
+export interface SearchSuggestionSkill {
+  id: string;
+  name: string;
+}
+
+export interface SearchAutocompleteResponse {
+  users: SearchSuggestionUser[];
+  projects: SearchSuggestionProject[];
+  skills: SearchSuggestionSkill[];
+}
+
+// ---------------------------------------------------------------------------
 // API methods
 // ---------------------------------------------------------------------------
 
@@ -82,4 +111,6 @@ export const searchApi = {
     api.get<SearchResponse>("/api/search", {
       query: { q, types: types?.join(","), limit },
     }),
+  autocomplete: (q: string) =>
+    api.get<SearchAutocompleteResponse>("/api/search/autocomplete", { query: { q } }),
 };
