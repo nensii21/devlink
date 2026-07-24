@@ -1,8 +1,39 @@
+
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import Lottie from "lottie-react";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import lottie from "lottie-web";
+
 import { AppShell } from "@/components/layout/AppShell";
 import searchAnimation from "@/assets/404 Error - Doodle animation.json";
+import { ProfileCompletionChecklist } from "@/components/profile/ProfileCompletionChecklist";
+
+const mockUserProfile = {
+  avatar: "",
+  bio: "Frontend Developer interested in React & Open Source.",
+  skills: ["React", "TypeScript", "Tailwind CSS"],
+  githubUrl: "https://github.com/mridul",
+  portfolioUrl: "",
+  experience: "2 yrs",
+};
+
+function AppLayoutWithProfileChecklist() {
+  return (
+    <div className="space-y-4">
+      <ProfileCompletionChecklist
+        userProfile={mockUserProfile}
+        onActionClick={(itemId) => {
+          if (itemId === "avatar" || itemId === "bio") {
+            window.location.href = "/settings";
+          }
+        }}
+      />
+      <AppShell />
+    </div>
+  );
+}
 
 function AppNotFound() {
   const ref = useRef<HTMLDivElement>(null);
@@ -51,6 +82,6 @@ function AppNotFound() {
 }
 
 export const Route = createFileRoute("/_app")({
-  component: AppShell,
+  component: AppLayoutWithProfileChecklist,
   notFoundComponent: AppNotFound,
 });
