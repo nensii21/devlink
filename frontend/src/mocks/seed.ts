@@ -16,6 +16,7 @@ export interface Builder {
   yearsExp: number;
   matchScore: number;
   skills: string[];
+  interests: string[];
   online: boolean;
   bio: string;
   lastActiveAt: string | null;
@@ -129,6 +130,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 92,
     skills: ["React", "Next.js", "TypeScript"],
+    interests: ["Web Dev", "Design Systems", "AI"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
     lastActiveAt: ago(1),
@@ -144,6 +146,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 89,
     skills: ["Node.js", "MongoDB", "Express"],
+    interests: ["Backend", "Web Dev"],
     online: true,
     bio: "Builds end-to-end features fast.",
     lastActiveAt: ago(3),
@@ -158,6 +161,7 @@ export const builders: Builder[] = [
     yearsExp: 2,
     matchScore: 87,
     skills: ["Python", "FastAPI", "PostgreSQL"],
+    interests: ["Backend", "AI"],
     online: false,
     bio: "APIs, queues and Postgres tuning.",
     lastActiveAt: ago(120),
@@ -172,6 +176,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 94,
     skills: ["Figma", "Adobe XD"],
+    interests: ["Design Systems", "Web Dev"],
     online: true,
     bio: "Product design for early-stage teams.",
     lastActiveAt: ago(5),
@@ -186,6 +191,7 @@ export const builders: Builder[] = [
     yearsExp: 4,
     matchScore: 93,
     skills: ["MERN", "Next.js"],
+    interests: ["Web Dev", "Frontend"],
     online: false,
     bio: "Ships side-projects on weekends.",
     lastActiveAt: ago(1440),
@@ -200,6 +206,7 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 91,
     skills: ["Flutter", "Firebase"],
+    interests: ["Mobile", "Web Dev"],
     online: true,
     bio: "Cross-platform mobile since 2021.",
     lastActiveAt: ago(10),
@@ -214,6 +221,7 @@ export const builders: Builder[] = [
     yearsExp: 5,
     matchScore: 88,
     skills: ["Python", "PyTorch", "AWS"],
+    interests: ["AI", "Backend"],
     online: true,
     bio: "Recsys, embeddings, evals.",
     lastActiveAt: ago(30),
@@ -228,6 +236,7 @@ export const builders: Builder[] = [
     yearsExp: 6,
     matchScore: 86,
     skills: ["Kubernetes", "Terraform"],
+    interests: ["Backend", "AI"],
     online: false,
     bio: "Infra as code, cost optimization.",
     lastActiveAt: null,

@@ -59,6 +59,7 @@ function AIMatchCard({ builder }: { builder: Builder }) {
   const remainingCount = builder.skills.length - 3;
   const matchPercentage = `${builder.matchScore}%`;
   const experienceText = `${builder.yearsExp} Yrs`;
+  const availabilityText = "Full-time";
   const rawAvailability = (builder as Builder & { availability?: string }).availability;
   const availabilityText = rawAvailability ? rawAvailability.split(" (")[0] : "Full-time";
 
@@ -354,6 +355,11 @@ function BuildersPage() {
             desc="Start connecting with other builders to collaborate, share flares, and message them."
             action={
               <button
+                onClick={() =>
+                  navigate({
+                    search: (prev) => ({ ...prev, tab: "discover" }),
+                  })
+                }
                 type="button"
                 onClick={() => navigate({ search: (prev) => ({ ...prev, tab: "discover" }) })}
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90 cursor-pointer"
