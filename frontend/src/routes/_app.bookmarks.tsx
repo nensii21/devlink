@@ -1,58 +1,207 @@
+import { useState, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Card, TagChip } from "@/components/shared/primitives";
+import { Card, EmptyState, TagChip } from "@/components/shared/primitives";
 import { projects, flares } from "@/mocks/seed";
-import { Bookmark } from "lucide-react";
+import { FolderOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CollectionSidebar } from "@/components/bookmarks/CollectionSidebar";
+import { CollectionDialog } from "@/components/bookmarks/CollectionDialog";
+import { AddToCollectionMenu } from "@/components/bookmarks/AddToCollectionMenu";
+import { BookmarkToggleButton } from "@/components/shared/BookmarkToggleButton";
+import {
+  useCreateCollection,
+  useRenameCollection,
+  useDeleteCollection,
+  useAddBookmarkToCollection,
+} from "@/hooks/useBookmarkCollections";
+import type { BookmarkCollection } from "@/api";
 
 export const Route = createFileRoute("/_app/bookmarks")({
   head: () => ({
     meta: [
       { title: "Bookmarks — DevLink" },
-      { name: "description", content: "Projects, builders and flares you've saved for later." },
+      {
+        name: "description",
+        content: "Projects, builders and flares you've saved for later.",
+      },
     ],
   }),
   component: BookmarksPage,
 });
 
 function BookmarksPage() {
+  const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<BookmarkCollection | null>(null);
+
+  const createCollection = useCreateCollection();
+  const renameCollection = useRenameCollection();
+  const deleteCollection = useDeleteCollection();
+  const addBookmarkToCollection = useAddBookmarkToCollection();
+
+  const handleCreateCollection = useCallback(
+    (name: string) => {
+      createCollection.mutate(name, {
+        onSuccess: () => setCreateDialogOpen(false),
+      });
+    },
+    [createCollection],
+  );
+
+  const handleRenameCollection = useCallback(
+    (name: string) => {
+      if (!renameTarget) return;
+      renameCollection.mutate(
+        { id: renameTarget.id, name },
+        {
+          onSuccess: () => setRenameTarget(null),
+        },
+      );
+    },
+    [renameTarget, renameCollection],
+  );
+
+  const handleDeleteCollection = useCallback(
+    (col: BookmarkCollection) => {
+      deleteCollection.mutate(col.id, {
+        onSuccess: () => {
+          if (activeCollectionId === col.id) {
+            setActiveCollectionId(null);
+          }
+        },
+      });
+    },
+    [deleteCollection, activeCollectionId],
+  );
+
+  const handleAddToCollection = useCallback(
+    (bookmarkId: string) => (collectionId: string) => {
+      addBookmarkToCollection.mutate({
+        collectionId,
+        bookmarkId,
+      });
+    },
+    [addBookmarkToCollection],
+  );
+
+  const bookmarkedProjects = projects.slice(0, 3);
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-[22px] font-bold tracking-tight text-foreground">Bookmarks</h1>
-        <p className="text-[13px] text-muted-foreground">Everything you've saved.</p>
-      </div>
-      <section>
-        <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Projects</p>
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {projects.slice(0, 3).map((p) => (
-            <Link key={p.id} to="/projects/$projectId" params={{ projectId: p.id }}>
-              <Card interactive className="p-4">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">{p.icon}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[14px] font-semibold text-foreground">{p.name}</p>
-                    <p className="mt-0.5 text-[12px] text-muted-foreground line-clamp-2">{p.description}</p>
+    <div className="flex gap-6">
+      <aside className="hidden w-56 shrink-0 md:block">
+        <div className="sticky top-6">
+          <CollectionSidebar
+            activeCollectionId={activeCollectionId}
+            onSelectCollection={setActiveCollectionId}
+            onCreateCollection={() => setCreateDialogOpen(true)}
+            onRenameCollection={setRenameTarget}
+            onDeleteCollection={handleDeleteCollection}
+          />
+        </div>
+      </aside>
+
+      <div className="min-w-0 flex-1 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[22px] font-bold tracking-tight text-foreground">Bookmarks</h1>
+            <p className="text-[13px] text-muted-foreground">
+              {activeCollectionId ? "Filtered by collection" : "Everything you've saved."}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="md:hidden"
+            onClick={() => setCreateDialogOpen(true)}
+          >
+            <FolderOpen size={14} className="mr-1.5" />
+            New Collection
+          </Button>
+        </div>
+
+        <section>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Projects
+            </p>
+          </div>
+          {bookmarkedProjects.length === 0 ? (
+            <EmptyState
+              title="No bookmarked projects"
+              desc="Save projects you're interested in to see them here."
+            />
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {bookmarkedProjects.map((p) => (
+                <div key={p.id} className="group relative">
+                  <Link to="/projects/$projectId" params={{ projectId: p.id }}>
+                    <Card interactive className="p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
+                          {p.icon}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[14px] font-semibold text-foreground">
+                            {p.name}
+                          </p>
+                          <p className="mt-0.5 text-[12px] text-muted-foreground line-clamp-2">
+                            {p.description}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {p.stack.map((s) => (
+                          <TagChip key={s}>{s}</TagChip>
+                        ))}
+                      </div>
+                    </Card>
+                  </Link>
+                  <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <BookmarkToggleButton projectId={p.id} />
+                    <AddToCollectionMenu
+                      bookmarkId={p.id}
+                      onAddToCollection={handleAddToCollection(p.id)}
+                    />
                   </div>
-                  <Bookmark size={14} className="text-primary" />
                 </div>
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {p.stack.map((s) => <TagChip key={s}>{s}</TagChip>)}
-                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Flares
+          </p>
+          <div className="space-y-2">
+            {flares.slice(0, 2).map((f) => (
+              <Card key={f.id} className="p-4">
+                <p className="text-[13px] font-semibold text-foreground">{f.author.name}</p>
+                <p className="mt-1 text-[13px] text-foreground">{f.content}</p>
               </Card>
-            </Link>
-          ))}
-        </div>
-      </section>
-      <section>
-        <p className="mb-2 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Flares</p>
-        <div className="space-y-2">
-          {flares.slice(0, 2).map((f) => (
-            <Card key={f.id} className="p-4">
-              <p className="text-[13px] font-semibold text-foreground">{f.author.name}</p>
-              <p className="mt-1 text-[13px] text-foreground">{f.content}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <CollectionDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        title="New Collection"
+        description="Create a collection to organize your bookmarks."
+        onSubmit={handleCreateCollection}
+      />
+
+      <CollectionDialog
+        open={!!renameTarget}
+        onOpenChange={(open) => {
+          if (!open) setRenameTarget(null);
+        }}
+        initialName={renameTarget?.name}
+        title="Rename Collection"
+        description="Give your collection a new name."
+        onSubmit={handleRenameCollection}
+      />
     </div>
   );
 }
