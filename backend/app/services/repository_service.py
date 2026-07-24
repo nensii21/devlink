@@ -5,11 +5,13 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.models.activity import ActivityType
 from app.models.repository import Repository
 from app.schemas.repository import (
     RepositoryCreate,
     RepositoryUpdate,
 )
+from app.services.activity_service import ActivityService
 
 
 class RepositoryService:
@@ -48,8 +50,20 @@ class RepositoryService:
         )
 
         db.add(db_repository)
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=user_id,
+            activity_type=ActivityType.REPOSITORY_CONNECTED,
+            title="Connected repository",
+            description=db_repository.full_name,
+            project_id=db_repository.project_id,
+            repository_id=db_repository.id,
+            icon="git-branch",
+            color="success",
+        )
 
         return db_repository
 
@@ -103,7 +117,7 @@ class RepositoryService:
         for key, value in data.items():
             setattr(db_repository, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
 
         return db_repository
@@ -131,7 +145,7 @@ class RepositoryService:
         db_repository.default_branch = default_branch
         db_repository.synced = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
 
         return db_repository
@@ -144,7 +158,7 @@ class RepositoryService:
 
         db_repository.synced = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_repository)
 
         return db_repository
@@ -156,4 +170,4 @@ class RepositoryService:
     ) -> None:
 
         db.delete(db_repository)
-        db.commit()
+        db.flush()
