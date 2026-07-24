@@ -348,9 +348,9 @@ function ProjectsPage() {
                   {p.difficulty && (
                     <TagChip
                       className={cn(
-                        p.difficulty === "beginner"
+                        p.difficulty === "Beginner"
                           ? "border-success/30 bg-success/10 text-success"
-                          : p.difficulty === "intermediate"
+                          : p.difficulty === "Intermediate"
                             ? "border-warning/30 bg-warning/10 text-warning"
                             : "border-destructive/30 bg-destructive/10 text-destructive",
                       )}

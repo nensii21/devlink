@@ -1,8 +1,5 @@
-
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import Lottie from "lottie-react";
-
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import lottie from "lottie-web";
 

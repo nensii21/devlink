@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Card, EmptyState, TagChip } from "@/components/shared/primitives";
 import { projects, flares } from "@/mocks/seed";
-import { FolderOpen } from "lucide-react";
+import { FolderOpen, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CollectionSidebar } from "@/components/bookmarks/CollectionSidebar";
 import { CollectionDialog } from "@/components/bookmarks/CollectionDialog";
