@@ -1,6 +1,5 @@
 import logging
 import logging.config
-import os
 from pathlib import Path
 
 from app.core.config import settings
@@ -25,16 +24,12 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "default": {
-            "format": ("[%(asctime)s] " "[%(levelname)s] " "[%(name)s] " "%(message)s"),
+            "format": ("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "access": {
             "format": (
-                "%(asctime)s | "
-                "%(levelname)s | "
-                "%(clientip)s | "
-                "%(request)s | "
-                "%(status)s"
+                "%(asctime)s | %(levelname)s | %(clientip)s | %(request)s | %(status)s"
             ),
         },
     },
@@ -147,13 +142,14 @@ def log_security_event(
 
 
 def log_request(
+    request_id: str,
     method: str,
     path: str,
     status_code: int,
     duration_ms: float,
 ) -> None:
     logger.info(
-        f"{method} {path} " f"status={status_code} " f"time={duration_ms:.2f}ms"
+        f"[{request_id}] {method} {path} status={status_code} time={duration_ms:.2f}ms"
     )
 
 

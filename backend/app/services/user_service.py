@@ -2,11 +2,18 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.models.activity import ActivityType
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
+from app.services.activity_service import ActivityService
+from app.models.application import Application, ApplicationStatus
+from app.models.follower import Follower
+from app.models.project import Project
+from app.core.cache import cached
+from app.schemas.user import UserStats
 
 
 class UserService:
@@ -24,11 +31,13 @@ class UserService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def get_by_username(db: Session, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def list_users(
         db: Session,
         skip: int = 0,
@@ -53,8 +62,18 @@ class UserService:
         )
 
         db.add(db_user)
-        db.commit()
+        db.flush()
         db.refresh(db_user)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_user.id,
+            activity_type=ActivityType.USER_REGISTERED,
+            title="Joined DevLink",
+            description=f"{db_user.first_name} {db_user.last_name} joined DevLink.",
+            icon="user-plus",
+            color="success",
+        )
 
         return db_user
 
@@ -70,8 +89,18 @@ class UserService:
         for key, value in data.items():
             setattr(db_user, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
+
+        ActivityService.record_activity(
+            db=db,
+            actor_id=db_user.id,
+            activity_type=ActivityType.PROFILE_UPDATED,
+            title="Updated profile",
+            description=f"{db_user.first_name} {db_user.last_name} updated their profile.",
+            icon="user-round-pen",
+            color="info",
+        )
 
         return db_user
 
@@ -82,7 +111,7 @@ class UserService:
     ) -> None:
 
         db.delete(db_user)
-        db.commit()
+        db.flush()
 
     @staticmethod
     def activate_user(
@@ -92,7 +121,7 @@ class UserService:
 
         db_user.is_active = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -105,10 +134,100 @@ class UserService:
 
         db_user.is_active = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
+
+    @staticmethod
+    def get_user_stats(
+        db: Session,
+        user_id: uuid.UUID,
+    ) -> UserStats:
+        projects = (
+            db.scalar(
+                select(func.count())
+                .select_from(Project)
+                .where(Project.owner_id == user_id)
+            )
+            or 0
+        )
+
+        followers = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.following_id == user_id)
+            )
+            or 0
+        )
+
+        following = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.follower_id == user_id)
+            )
+            or 0
+        )
+
+        applications = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(Application.applicant_id == user_id)
+            )
+            or 0
+        )
+
+        accepted = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(
+                    Application.applicant_id == user_id,
+                    Application.status == ApplicationStatus.ACCEPTED,
+                )
+            )
+            or 0
+        )
+
+        stats = UserStats(
+            projects=projects,
+            followers=followers,
+            following=following,
+            applications=applications,
+            accepted=accepted,
+        )
+
+        user = db.get(User, user_id)
+        if user:
+            UserService.update_user_badges(db, user, stats)
+
+        return stats
+
+    @staticmethod
+    def update_user_badges(
+        db: Session,
+        user: User,
+        stats: UserStats,
+    ) -> None:
+        new_badges = []
+        if stats.accepted >= 5:
+            new_badges.append("Top Contributor")
+        elif stats.accepted >= 1:
+            new_badges.append("Active Developer")
+
+        if stats.projects >= 1:
+            new_badges.append("Project Owner")
+
+        if stats.followers >= 10:
+            new_badges.append("Social Butterfly")
+
+        if set(user.badges) != set(new_badges):
+            user.badges = new_badges
+            db.add(user)
+            db.commit()
 
     @staticmethod
     def verify_email(
@@ -118,7 +237,7 @@ class UserService:
 
         db_user.is_verified = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user

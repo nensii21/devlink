@@ -3,17 +3,8 @@
 
 export type ID = string;
 
-export interface Skill { name: string; }
-export interface ProfileSkill {
+export interface Skill {
   name: string;
-  level?: string;
-  category?: string;
-  yearsOfExperience?: number;
-}
-export interface EducationEntry {
-  school: string;
-  degree?: string | null;
-  years?: string | null;
 }
 export interface Builder {
   id: ID;
@@ -25,21 +16,12 @@ export interface Builder {
   yearsExp: number;
   matchScore: number;
   skills: string[];
+  badges: string[];
+  interests: string[];
   online: boolean;
   bio: string;
-  headline?: string;
-  location?: string;
-  timezone?: string;
-  website?: string;
-  resumeUrl?: string;
-  portfolioUrl?: string;
-  githubUrl?: string;
-  linkedinUrl?: string;
-  experienceLevel?: string;
-  company?: string;
-  profileSkills?: ProfileSkill[];
-  techStack?: string[];
-  education?: EducationEntry[];
+  lastActiveAt: string | null;
+  publicEmail?: string;
 }
 export interface Project {
   id: ID;
@@ -47,14 +29,17 @@ export interface Project {
   description: string;
   stack: string[];
   owner: string;
+  owner_id?: string;
+  ownerId?: string;
   members: number;
   stars: number;
+  views: number;
   forks: number;
   progress: number;
   status: "recruiting" | "in-progress" | "completed" | "archived";
   icon: string;
   language?: string;
-  difficulty?: "beginner" | "intermediate" | "advanced";
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
   remote?: boolean;
   paid?: boolean;
   openSource?: boolean;
@@ -133,35 +118,339 @@ export interface Deadline {
 const AV = (seed: string) =>
   `https://api.dicebear.com/9.x/notionists-neutral/svg?seed=${encodeURIComponent(seed)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
+const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+
 export const builders: Builder[] = [
-  { id: "b1", name: "Priya Sharma", handle: "priya_dev", role: "Frontend Developer", avatar: AV("Priya"), country: "India", yearsExp: 3, matchScore: 92, skills: ["React", "Next.js", "TypeScript"], online: true, bio: "Loves accessible UIs and design systems.", headline: "Designing polished, accessible product experiences", location: "Bengaluru, India", timezone: "IST (UTC+5:30)", website: "https://priya.dev", portfolioUrl: "https://priya.dev/portfolio", githubUrl: "https://github.com/priya", linkedinUrl: "https://linkedin.com/in/priya", experienceLevel: "Senior", company: "Northstar Labs", profileSkills: [
-    { name: "React", level: "Advanced", category: "frontend", yearsOfExperience: 4 },
-    { name: "Next.js", level: "Advanced", category: "frontend", yearsOfExperience: 3 },
-    { name: "TypeScript", level: "Expert", category: "frontend", yearsOfExperience: 5 },
-    { name: "Tailwind CSS", level: "Advanced", category: "frontend", yearsOfExperience: 3 },
-    { name: "Node.js", level: "Intermediate", category: "backend", yearsOfExperience: 2 },
-    { name: "Docker", level: "Intermediate", category: "devops", yearsOfExperience: 2 },
-  ], techStack: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Figma"], education: [{ school: "IIIT Bangalore", degree: "B.Tech in Computer Science", years: "2018–2022" }] },
-  { id: "b2", name: "Rahul Verma", handle: "rahul_v", role: "Full Stack Developer", avatar: AV("Rahul"), country: "India", yearsExp: 4, matchScore: 89, skills: ["Node.js", "MongoDB", "Express"], online: true, bio: "Builds end-to-end features fast." },
-  { id: "b3", name: "Ankit Singh", handle: "ankit_be", role: "Backend Developer", avatar: AV("Ankit"), country: "India", yearsExp: 2, matchScore: 87, skills: ["Python", "FastAPI", "PostgreSQL"], online: false, bio: "APIs, queues and Postgres tuning." },
-  { id: "b4", name: "Sneha Iyer", handle: "sneha_ux", role: "UI/UX Designer", avatar: AV("Sneha"), country: "India", yearsExp: 3, matchScore: 94, skills: ["Figma", "Adobe XD"], online: true, bio: "Product design for early-stage teams." },
-  { id: "b5", name: "Vikram Mehta", handle: "vikram_fs", role: "Full Stack Dev", avatar: AV("Vikram"), country: "India", yearsExp: 4, matchScore: 93, skills: ["MERN", "Next.js"], online: false, bio: "Ships side-projects on weekends." },
-  { id: "b6", name: "Aditya Rao", handle: "aditya_m", role: "Mobile Developer", avatar: AV("Aditya"), country: "India", yearsExp: 3, matchScore: 91, skills: ["Flutter", "Firebase"], online: true, bio: "Cross-platform mobile since 2021." },
-  { id: "b7", name: "Sarah Chen", handle: "sarah_c", role: "ML Engineer", avatar: AV("Sarah"), country: "US", yearsExp: 5, matchScore: 88, skills: ["Python", "PyTorch", "AWS"], online: true, bio: "Recsys, embeddings, evals." },
-  { id: "b8", name: "Alex Johnson", handle: "alex_j", role: "DevOps", avatar: AV("Alex"), country: "UK", yearsExp: 6, matchScore: 86, skills: ["Kubernetes", "Terraform"], online: false, bio: "Infra as code, cost optimization." },
+  {
+    id: "b1",
+    name: "Priya Sharma",
+    handle: "priya_dev",
+    role: "Frontend Developer",
+    avatar: AV("Priya"),
+    country: "India",
+    yearsExp: 3,
+    matchScore: 92,
+    skills: ["React", "Next.js", "TypeScript"],
+    badges: ["Top Contributor", "Social Butterfly"],
+    online: true,
+    bio: "Loves accessible UIs and design systems.",
+    interests: ["Web Dev", "Design Systems", "AI"],
+    online: true,
+    bio: "Loves accessible UIs and design systems.",
+    lastActiveAt: ago(1),
+    publicEmail: "priya@example.com",
+  },
+  {
+    id: "b2",
+    name: "Rahul Verma",
+    handle: "rahul_v",
+    role: "Full Stack Developer",
+    avatar: AV("Rahul"),
+    country: "India",
+    yearsExp: 4,
+    matchScore: 89,
+    skills: ["Node.js", "MongoDB", "Express"],
+    badges: ["Active Developer"],
+    online: true,
+    bio: "Builds end-to-end features fast.",
+    interests: ["Backend", "Web Dev"],
+    online: true,
+    bio: "Builds end-to-end features fast.",
+    lastActiveAt: ago(3),
+  },
+  {
+    id: "b3",
+    name: "Ankit Singh",
+    handle: "ankit_be",
+    role: "Backend Developer",
+    avatar: AV("Ankit"),
+    country: "India",
+    yearsExp: 2,
+    matchScore: 87,
+    skills: ["Python", "FastAPI", "PostgreSQL"],
+    badges: ["Project Owner", "Active Developer"],
+    online: false,
+    bio: "APIs, queues and Postgres tuning.",
+    interests: ["Backend", "AI"],
+    online: false,
+    bio: "APIs, queues and Postgres tuning.",
+    lastActiveAt: ago(120),
+  },
+  {
+    id: "b4",
+    name: "Sneha Iyer",
+    handle: "sneha_ux",
+    role: "UI/UX Designer",
+    avatar: AV("Sneha"),
+    country: "India",
+    yearsExp: 3,
+    matchScore: 94,
+    skills: ["Figma", "Adobe XD"],
+    badges: ["Social Butterfly"],
+    online: true,
+    bio: "Product design for early-stage teams.",
+    interests: ["Design Systems", "Web Dev"],
+    online: true,
+    bio: "Product design for early-stage teams.",
+    lastActiveAt: ago(5),
+  },
+  {
+    id: "b5",
+    name: "Vikram Mehta",
+    handle: "vikram_fs",
+    role: "Full Stack Dev",
+    avatar: AV("Vikram"),
+    country: "India",
+    yearsExp: 4,
+    matchScore: 93,
+    skills: ["MERN", "Next.js"],
+    badges: ["Top Contributor", "Project Owner"],
+    online: false,
+    bio: "Ships side-projects on weekends.",
+    interests: ["Web Dev", "Frontend"],
+    online: false,
+    bio: "Ships side-projects on weekends.",
+    lastActiveAt: ago(1440),
+  },
+  {
+    id: "b6",
+    name: "Aditya Rao",
+    handle: "aditya_m",
+    role: "Mobile Developer",
+    avatar: AV("Aditya"),
+    country: "India",
+    yearsExp: 3,
+    matchScore: 91,
+    skills: ["Flutter", "Firebase"],
+    badges: ["Active Developer"],
+    online: true,
+    bio: "Cross-platform mobile since 2021.",
+    interests: ["Mobile", "Web Dev"],
+    online: true,
+    bio: "Cross-platform mobile since 2021.",
+    lastActiveAt: ago(10),
+  },
+  {
+    id: "b7",
+    name: "Sarah Chen",
+    handle: "sarah_c",
+    role: "ML Engineer",
+    avatar: AV("Sarah"),
+    country: "US",
+    yearsExp: 5,
+    matchScore: 88,
+    skills: ["Python", "PyTorch", "AWS"],
+    badges: ["Top Contributor", "Social Butterfly"],
+    online: true,
+    bio: "Recsys, embeddings, evals.",
+    interests: ["AI", "Backend"],
+    online: true,
+    bio: "Recsys, embeddings, evals.",
+    lastActiveAt: ago(30),
+  },
+  {
+    id: "b8",
+    name: "Alex Johnson",
+    handle: "alex_j",
+    role: "DevOps",
+    avatar: AV("Alex"),
+    country: "UK",
+    yearsExp: 6,
+    matchScore: 86,
+    skills: ["Kubernetes", "Terraform"],
+    badges: ["Project Owner"],
+    online: false,
+    bio: "Infra as code, cost optimization.",
+    interests: ["Backend", "AI"],
+    online: false,
+    bio: "Infra as code, cost optimization.",
+    lastActiveAt: null,
+  },
 ];
 
 export const projects: Project[] = [
-  { id: "p1", name: "AI Chatbot", description: "Multi-agent customer support bot for SaaS.", stack: ["React", "Node.js", "MongoDB"], owner: "Nancy Patel", members: 4, stars: 24, forks: 12, progress: 75, status: "active", icon: "🤖", language: "JavaScript", difficulty: "intermediate", remote: true, paid: true, openSource: false, ai: true, web: true, frontend: true, backend: true },
-  { id: "p2", name: "AI SaaS Platform", description: "Full-stack platform with billing and dashboards.", stack: ["Next.js", "Python", "PostgreSQL"], owner: "Nancy Patel", members: 6, stars: 18, forks: 8, progress: 40, status: "active", icon: "✨", language: "Python", difficulty: "advanced", remote: true, paid: true, openSource: false, ai: true, web: true, frontend: true, backend: true },
-  { id: "p3", name: "DevOps Dashboard", description: "K8s deploy monitoring with drift detection.", stack: ["Docker", "Kubernetes", "AWS"], owner: "Nancy Patel", members: 3, stars: 16, forks: 6, progress: 60, status: "active", icon: "🚀", language: "Go", difficulty: "advanced", remote: true, paid: false, openSource: false, ai: false, web: true, backend: true },
-  { id: "p4", name: "Blockchain Wallet", description: "Non-custodial multi-chain wallet.", stack: ["Solidity", "Web3", "React"], owner: "Nancy Patel", members: 5, stars: 14, forks: 7, progress: 25, status: "planning", icon: "🪙", language: "TypeScript", difficulty: "advanced", remote: true, paid: false, openSource: true, ai: false, web: true, mobile: true, frontend: true },
-  { id: "p5", name: "React Component Library", description: "Accessible component library with docs.", stack: ["TypeScript", "Tailwind", "Storybook"], owner: "Nancy Patel", members: 2, stars: 12, forks: 5, progress: 90, status: "active", icon: "🧩", language: "TypeScript", difficulty: "beginner", remote: true, paid: false, openSource: true, ai: false, web: true, frontend: true },
-  { id: "p6", name: "Open Source CRM", description: "Lightweight CRM with pipelines and reports.", stack: ["React", "Node.js", "MongoDB"], owner: "Community", members: 8, stars: 240, forks: 96, progress: 100, status: "shipped", icon: "📇", language: "JavaScript", difficulty: "intermediate", remote: false, paid: false, openSource: true, ai: false, web: true, frontend: true, backend: true },
+  {
+    id: "p1",
+    name: "AI Chatbot",
+    description: "Multi-agent customer support bot for SaaS.",
+    stack: ["React", "Node.js", "MongoDB"],
+    owner: "Nancy Patel",
+    members: 4,
+    stars: 24,
+    forks: 12,
+    progress: 75,
+    status: "active",
+    icon: "🤖",
+    language: "JavaScript",
+    difficulty: "intermediate",
+    views: 1042,
+    forks: 12,
+    progress: 75,
+    status: "in-progress",
+    icon: "🤖",
+    language: "JavaScript",
+    difficulty: "Intermediate",
+    remote: true,
+    paid: true,
+    openSource: false,
+    ai: true,
+    web: true,
+    frontend: true,
+    backend: true,
+  },
+  {
+    id: "p2",
+    name: "AI SaaS Platform",
+    description: "Full-stack platform with billing and dashboards.",
+    stack: ["Next.js", "Python", "PostgreSQL"],
+    owner: "Nancy Patel",
+    members: 6,
+    stars: 18,
+    forks: 8,
+    progress: 40,
+    status: "active",
+    icon: "✨",
+    language: "Python",
+    difficulty: "advanced",
+    views: 890,
+    forks: 8,
+    progress: 40,
+    status: "in-progress",
+    icon: "✨",
+    language: "Python",
+    difficulty: "Advanced",
+    remote: true,
+    paid: true,
+    openSource: false,
+    ai: true,
+    web: true,
+    frontend: true,
+    backend: true,
+  },
+  {
+    id: "p3",
+    name: "DevOps Dashboard",
+    description: "K8s deploy monitoring with drift detection.",
+    stack: ["Docker", "Kubernetes", "AWS"],
+    owner: "Nancy Patel",
+    members: 3,
+    stars: 16,
+    forks: 6,
+    progress: 60,
+    status: "active",
+    icon: "🚀",
+    language: "Go",
+    difficulty: "advanced",
+    views: 521,
+    forks: 6,
+    progress: 60,
+    status: "in-progress",
+    icon: "🚀",
+    language: "Go",
+    difficulty: "Advanced",
+    remote: true,
+    paid: false,
+    openSource: false,
+    ai: false,
+    web: true,
+    backend: true,
+  },
+  {
+    id: "p4",
+    name: "Blockchain Wallet",
+    description: "Non-custodial multi-chain wallet.",
+    stack: ["Solidity", "Web3", "React"],
+    owner: "Nancy Patel",
+    members: 5,
+    stars: 14,
+    forks: 7,
+    progress: 25,
+    status: "planning",
+    icon: "🪙",
+    language: "TypeScript",
+    difficulty: "advanced",
+    views: 310,
+    forks: 7,
+    progress: 25,
+    status: "recruiting",
+    icon: "🪙",
+    language: "TypeScript",
+    difficulty: "Advanced",
+    remote: true,
+    paid: false,
+    openSource: true,
+    ai: false,
+    web: true,
+    mobile: true,
+    frontend: true,
+  },
+  {
+    id: "p5",
+    name: "React Component Library",
+    description: "Accessible component library with docs.",
+    stack: ["TypeScript", "Tailwind", "Storybook"],
+    owner: "Nancy Patel",
+    members: 2,
+    stars: 12,
+    forks: 5,
+    progress: 90,
+    status: "active",
+    icon: "🧩",
+    language: "TypeScript",
+    difficulty: "beginner",
+    views: 180,
+    forks: 5,
+    progress: 90,
+    status: "in-progress",
+    icon: "🧩",
+    language: "TypeScript",
+    difficulty: "Beginner",
+    remote: true,
+    paid: false,
+    openSource: true,
+    ai: false,
+    web: true,
+    frontend: true,
+  },
+  {
+    id: "p6",
+    name: "Open Source CRM",
+    description: "Lightweight CRM with pipelines and reports.",
+    stack: ["React", "Node.js", "MongoDB"],
+    owner: "Community",
+    members: 8,
+    stars: 240,
+    forks: 96,
+    progress: 100,
+    status: "shipped",
+    icon: "📇",
+    language: "JavaScript",
+    difficulty: "intermediate",
+    views: 5040,
+    forks: 96,
+    progress: 100,
+    status: "completed",
+    icon: "📇",
+    language: "JavaScript",
+    difficulty: "Intermediate",
+    remote: false,
+    paid: false,
+    openSource: true,
+    ai: false,
+    web: true,
+    frontend: true,
+    backend: true,
+  },
 ];
 
 export const activity: Activity[] = [
-  { id: "a1", kind: "join", text: "Alex joined your project", highlight: "AI Chatbot", ago: "2m ago" },
+  {
+    id: "a1",
+    kind: "join",
+    text: "Alex joined your project",
+    highlight: "AI Chatbot",
+    ago: "2m ago",
+  },
   { id: "a2", kind: "accept", text: "Sarah accepted your invitation", ago: "15m ago" },
   { id: "a3", kind: "commit", text: "Backend API development completed", ago: "1h ago" },
   { id: "a4", kind: "merge", text: "Frontend PR #24 merged", ago: "2h ago" },
@@ -178,15 +467,66 @@ export const builderRequests: BuilderRequest[] = [
 ];
 
 export const inviteRequests: InviteRequest[] = [
-  { id: "i1", project: "Open Source CRM", role: "Backend Developer", dueDays: 3, by: "Alex", icon: "📇", color: "bg-info/10 text-info" },
-  { id: "i2", project: "AI SaaS Platform", role: "ML Engineer", dueDays: 5, by: "Sarah", icon: "✨", color: "bg-primary/10 text-primary" },
-  { id: "i3", project: "DevOps Dashboard", role: "DevOps Engineer", dueDays: 7, by: "Mike", icon: "🚀", color: "bg-warning/10 text-warning" },
+  {
+    id: "i1",
+    project: "Open Source CRM",
+    role: "Backend Developer",
+    dueDays: 3,
+    by: "Alex",
+    icon: "📇",
+    color: "bg-info/10 text-info",
+  },
+  {
+    id: "i2",
+    project: "AI SaaS Platform",
+    role: "ML Engineer",
+    dueDays: 5,
+    by: "Sarah",
+    icon: "✨",
+    color: "bg-primary/10 text-primary",
+  },
+  {
+    id: "i3",
+    project: "DevOps Dashboard",
+    role: "DevOps Engineer",
+    dueDays: 7,
+    by: "Mike",
+    icon: "🚀",
+    color: "bg-warning/10 text-warning",
+  },
 ];
 
 export const flares: Flare[] = [
-  { id: "f1", author: builders[3], content: "Just shipped a component library refresh — new tokens, better a11y, half the CSS. AMA about migrating design systems.", tags: ["designsystems", "react"], likes: 128, comments: 22, ago: "1h ago" },
-  { id: "f2", author: builders[6], content: "Wrote a small evaluator for embedding models. Cosine wasn't cutting it for our recall — dot-product + normalized inputs won.", tags: ["ml", "search"], likes: 87, comments: 14, ago: "3h ago" },
-  { id: "f3", author: builders[1], content: "Anyone else notice Node 22 shaving ~10% off cold starts for our fastify APIs? Ran the same suite twice.", tags: ["node", "perf"], likes: 54, comments: 9, ago: "5h ago" },
+  {
+    id: "f1",
+    author: builders[3],
+    content:
+      "Just shipped a component library refresh — new tokens, better a11y, half the CSS. AMA about migrating design systems.",
+    tags: ["designsystems", "react"],
+    likes: 128,
+    comments: 22,
+    ago: "1h ago",
+  },
+  {
+    id: "f2",
+    author: builders[6],
+    content:
+      "Wrote a small evaluator for embedding models. Cosine wasn't cutting it for our recall — dot-product + normalized inputs won.",
+    tags: ["ml", "search"],
+    likes: 87,
+    comments: 14,
+    ago: "3h ago",
+  },
+  {
+    id: "f3",
+    author: builders[1],
+    content:
+      "Anyone else notice Node 22 shaving ~10% off cold starts for our fastify APIs? Ran the same suite twice.",
+    tags: ["node", "perf"],
+    likes: 54,
+    comments: 9,
+    ago: "5h ago",
+  },
 ];
 
 export const conversations: Conversation[] = [
@@ -209,19 +549,61 @@ export const notifications: Notification[] = [
   { id: "n2", kind: "comment", text: "Sarah commented on your post", ago: "15m ago", unread: true },
   { id: "n3", kind: "invite", text: "Your invitation was accepted", ago: "1h ago", unread: false },
   { id: "n4", kind: "match", text: "New builder matches found", ago: "3h ago", unread: false },
-  { id: "n5", kind: "hackathon", text: "Hackathon deadline reminder", ago: "1d ago", unread: false },
+  {
+    id: "n5",
+    kind: "hackathon",
+    text: "Hackathon deadline reminder",
+    ago: "1d ago",
+    unread: false,
+  },
 ];
 
 export const hackathons: Hackathon[] = [
-  { id: "h1", name: "AI for Good 2025", theme: "Social impact", startsIn: 12, prize: "$25k", teamSize: "2–5", registered: true },
-  { id: "h2", name: "DevLink Winter Jam", theme: "Any theme", startsIn: 30, prize: "$10k", teamSize: "1–4", registered: false },
-  { id: "h3", name: "Chain Builders", theme: "Web3", startsIn: 45, prize: "$50k", teamSize: "1–5", registered: false },
+  {
+    id: "h1",
+    name: "AI for Good 2025",
+    theme: "Social impact",
+    startsIn: 12,
+    prize: "$25k",
+    teamSize: "2–5",
+    registered: true,
+  },
+  {
+    id: "h2",
+    name: "DevLink Winter Jam",
+    theme: "Any theme",
+    startsIn: 30,
+    prize: "$10k",
+    teamSize: "1–4",
+    registered: false,
+  },
+  {
+    id: "h3",
+    name: "Chain Builders",
+    theme: "Web3",
+    startsIn: 45,
+    prize: "$50k",
+    teamSize: "1–5",
+    registered: false,
+  },
 ];
 
 export const deadlines: Deadline[] = [
   { id: "d1", project: "AI Chatbot", milestone: "Backend API", dueDays: 2, severity: "danger" },
-  { id: "d2", project: "DevOps Dashboard", milestone: "Deployment", dueDays: 5, severity: "warning" },
-  { id: "d3", project: "Hackathon 2025", milestone: "Registration", dueDays: 7, severity: "warning" },
+  {
+    id: "d2",
+    project: "DevOps Dashboard",
+    milestone: "Deployment",
+    dueDays: 5,
+    severity: "warning",
+  },
+  {
+    id: "d3",
+    project: "Hackathon 2025",
+    milestone: "Registration",
+    dueDays: 7,
+    severity: "warning",
+  },
   { id: "d4", project: "Project Milestone", milestone: "v1.0", dueDays: 10, severity: "info" },
 ];
 

@@ -1,8 +1,10 @@
 from __future__ import annotations
-
+from app.schemas.user import CurrentUser
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
+# pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 # ==========================================================
@@ -40,6 +42,14 @@ class LoginRequest(BaseModel):
     )
 
 
+class GitHubLoginRequest(BaseModel):
+    code: str
+
+
+class GitHubLoginRequest(BaseModel):  # noqa: F811
+    code: str
+
+
 # ==========================================================
 # JWT Tokens
 # ==========================================================
@@ -62,14 +72,21 @@ class TokenPayload(BaseModel):
 # ==========================================================
 
 
+from app.schemas.user import UserResponse  # noqa: E402
+
+
 class AuthResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     success: bool = True
     message: str
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+    user: Optional[UserResponse] = None
+
+    user: CurrentUser
 
 
 # ==========================================================
@@ -164,7 +181,10 @@ class ResendVerificationEmailRequest(BaseModel):
 
 
 class CurrentUserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
+    id: UUID
 
     first_name: str
     last_name: str
@@ -178,6 +198,16 @@ class CurrentUserResponse(BaseModel):
     is_verified: bool
 
     is_active: bool
+
+    last_seen: Optional[datetime] = Field(
+        default=None,
+        description="The date and time when the user was last active.",
+    )
+    is_online: bool = Field(
+        default=False,
+        description="Whether the user is currently online based on the active threshold.",
+    )
+    last_active_at: Optional[datetime] = None
 
     created_at: datetime
 

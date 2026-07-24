@@ -108,7 +108,4 @@ class ProjectSkill(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<ProjectSkill(project_id={self.project_id}, "
-            f"skill_id={self.skill_id})>"
-        )
+        return f"<ProjectSkill(project_id={self.project_id}, skill_id={self.skill_id})>"
