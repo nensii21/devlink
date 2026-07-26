@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -8,8 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_database
 from app.models.activity import ActivityType
 from app.models.user import User
 from app.schemas.activity import (
@@ -18,6 +18,7 @@ from app.schemas.activity import (
     ActivityUpdate,
 )
 from app.services.activity_service import ActivityService
+from app.core.cache import cached
 
 router = APIRouter(
     prefix="/activities",
@@ -31,6 +32,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
 )
 def create_activity(
+
     activity: ActivityCreate,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
@@ -70,14 +72,28 @@ def get_activity(
     "/",
     response_model=list[ActivityResponse],
 )
-def recent_activities(
-    limit: int = Query(100, ge=1, le=500),
+def get_feed(
+    limit: int = Query(50, ge=1, le=100),
+    cursor: datetime | None = Query(
+        None, description="Cursor for pagination (created_at timestamp)"
+    ),
+    actor_id: uuid.UUID | None = Query(None, description="Filter by actor"),
+    target_id: uuid.UUID | None = Query(None, description="Filter by target"),
+    target_type: str | None = Query(None, description="Filter by target type"),
+    activity_types: list[ActivityType] | None = Query(
+        None, description="Filter by activity types"
+    ),
     db: Session = Depends(get_database),
 ):
 
-    return ActivityService.list_recent_activities(
-        db,
-        limit,
+    return ActivityService.list_activities(
+        db=db,
+        limit=limit,
+        cursor=cursor,
+        actor_id=actor_id,
+        target_id=target_id,
+        target_type=target_type,
+        activity_types=activity_types,
     )
 
 

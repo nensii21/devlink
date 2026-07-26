@@ -8,8 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_database
+from app.middleware.idempotency import IdempotentRoute
+from app.models.notification import NotificationType
+from app.models.project import Project
 from app.models.user import User
 from app.schemas.application import (
     ApplicationCreate,
@@ -17,11 +19,7 @@ from app.schemas.application import (
     ApplicationUpdate,
 )
 from app.services.application_service import ApplicationService
-from app.models.notification import NotificationType
-from app.models.project import Project
 from app.services.notification_service import NotificationService
-
-from app.middleware.idempotency import IdempotentRoute
 
 router = APIRouter(
     prefix="/applications",
@@ -52,7 +50,7 @@ def create_application(
     try:
         project = db.get(Project, created.project_id)
         if project is not None:
-            NotificationService.enqueue(
+            NotificationService.notify(
                 db,
                 recipient_id=project.owner_id,
                 sender_id=current_user.id,
@@ -67,6 +65,21 @@ def create_application(
         db.rollback()
 
     return created
+
+
+@router.get(
+    "/me",
+    response_model=list[ApplicationResponse],
+)
+def my_applications(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+
+    return ApplicationService.list_user_applications(
+        db,
+        current_user.id,
+    )
 
 
 @router.get(
@@ -90,21 +103,6 @@ def get_application(
         )
 
     return db_application
-
-
-@router.get(
-    "/me",
-    response_model=list[ApplicationResponse],
-)
-def my_applications(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_database),
-):
-
-    return ApplicationService.list_user_applications(
-        db,
-        current_user.id,
-    )
 
 
 @router.get(
@@ -177,7 +175,7 @@ def accept_application(
     )
 
     try:
-        NotificationService.enqueue(
+        NotificationService.notify(
             db,
             recipient_id=db_application.applicant_id,
             sender_id=current_user.id,
@@ -221,7 +219,7 @@ def reject_application(
     )
 
     try:
-        NotificationService.enqueue(
+        NotificationService.notify(
             db,
             recipient_id=db_application.applicant_id,
             sender_id=current_user.id,

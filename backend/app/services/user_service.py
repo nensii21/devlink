@@ -12,10 +12,8 @@ from app.services.activity_service import ActivityService
 from app.models.application import Application, ApplicationStatus
 from app.models.follower import Follower
 from app.models.project import Project
-from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
 from app.core.cache import cached
-from app.schemas.user import UserCreate, UserStats, UserUpdate
+from app.schemas.user import UserStats
 
 
 class UserService:
@@ -194,13 +192,42 @@ class UserService:
             or 0
         )
 
-        return UserStats(
+        stats = UserStats(
             projects=projects,
             followers=followers,
             following=following,
             applications=applications,
             accepted=accepted,
         )
+
+        user = db.get(User, user_id)
+        if user:
+            UserService.update_user_badges(db, user, stats)
+
+        return stats
+
+    @staticmethod
+    def update_user_badges(
+        db: Session,
+        user: User,
+        stats: UserStats,
+    ) -> None:
+        new_badges = []
+        if stats.accepted >= 5:
+            new_badges.append("Top Contributor")
+        elif stats.accepted >= 1:
+            new_badges.append("Active Developer")
+
+        if stats.projects >= 1:
+            new_badges.append("Project Owner")
+
+        if stats.followers >= 10:
+            new_badges.append("Social Butterfly")
+
+        if set(user.badges) != set(new_badges):
+            user.badges = new_badges
+            db.add(user)
+            db.commit()
 
     @staticmethod
     def verify_email(

@@ -15,8 +15,6 @@ from app.schemas.notification import (
     NotificationUpdate,
 )
 
-from app.schemas.notification import NotificationCreate
-
 
 class NotificationService:
     """
@@ -231,3 +229,36 @@ class NotificationService:
 
         db.delete(db_notification)
         db.flush()
+
+    @staticmethod
+    def enqueue(
+        db: Session,
+        recipient_id,
+        sender_id,
+        type,
+        title,
+        message,
+        action_url=None,
+        image_url=None,
+        project_id=None,
+        conversation_id=None,
+        message_id=None,
+        application_id=None,
+    ):
+        from app.tasks.notification_tasks import send_notification_task
+        
+        payload = {
+            "recipient_id": str(recipient_id) if recipient_id else None,
+            "sender_id": str(sender_id) if sender_id else None,
+            "type": type.value if hasattr(type, "value") else type,
+            "title": title,
+            "message": message,
+            "action_url": action_url,
+            "image_url": image_url,
+            "project_id": str(project_id) if project_id else None,
+            "conversation_id": str(conversation_id) if conversation_id else None,
+            "message_id": str(message_id) if message_id else None,
+            "application_id": str(application_id) if application_id else None,
+        }
+        
+        send_notification_task.delay(payload)

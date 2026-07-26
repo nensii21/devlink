@@ -1,0 +1,96 @@
+from __future__ import annotations
+
+from app.models.user import User
+
+from app.models.notification import NotificationType
+from app.schemas.notification import NotificationCreate
+from app.schemas.project import ProjectCreate
+from app.models.project import ProjectStage, ProjectVisibility
+from app.services.daily_digest_service import DailyDigestService
+from app.services.notification_service import NotificationService
+from app.services.project_service import ProjectService
+
+
+def _create_user(db, email: str, username: str) -> User:
+    user = User(
+        email=email,
+        username=username,
+        first_name=username.capitalize(),
+        last_name="Test",
+        password_hash="fakehash",
+        is_active=True,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+# reuse TestingSessionLocal and _create_user from this test file
+def test_generate_empty_daily_digest(db):
+
+    user = _create_user(db, "digest@example.com", "digestuser")
+
+    digest = DailyDigestService.generate_daily_digest(
+        db=db,
+        recipient_id=user.id,
+    )
+
+    assert digest.new_projects == []
+    assert digest.project_invitations == []
+    assert digest.messages == []
+    assert digest.notifications == []
+
+
+def test_daily_digest_contains_new_project(db):
+
+    owner = _create_user(db, "owner@example.com", "owner")
+
+    from app.models.project import Project
+
+    project = Project(
+        owner_id=owner.id,
+        title="Digest Project",
+        slug="digest-project",
+        description="Testing",
+        stage=ProjectStage.IDEA,
+        visibility=ProjectVisibility.PUBLIC,
+    )
+
+    db.add(project)
+    db.commit()
+    db.refresh(project)
+
+    digest = DailyDigestService.generate_daily_digest(
+        db=db,
+        recipient_id=owner.id,
+    )
+
+    assert len(digest.new_projects) == 1
+    assert digest.new_projects[0].title == project.title
+
+
+def test_daily_digest_contains_project_invitation(db):
+
+    user = _create_user(db, "invite@example.com", "inviteuser")
+
+    NotificationService.create_notification(
+        db=db,
+        recipient_id=user.id,
+        sender_id=None,
+        notification=NotificationCreate(
+            recipient_id=user.id,
+            type=NotificationType.PROJECT_INVITE,
+            title="Invite",
+            message="Join project",
+        ),
+    )
+
+    digest = DailyDigestService.generate_daily_digest(
+        db=db,
+        recipient_id=user.id,
+    )
+
+    assert len(digest.project_invitations) == 1
+    assert digest.project_invitations[0].title == "Invite"
+    assert digest.messages == []

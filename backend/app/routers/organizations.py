@@ -5,13 +5,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
+from app.dependencies import get_database, get_current_user, require_org_permission
 from app.middleware.rate_limit import limiter, SEARCH_LIMIT
 from app.models.user import User
 from app.schemas.organization import (
@@ -158,7 +156,7 @@ def update_organization(
     organization_id: uuid.UUID,
     organization: OrganizationUpdate,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_org_permission("org:update")),
 ):
 
     db_organization = OrganizationService.get_organization(
@@ -170,12 +168,6 @@ def update_organization(
         raise HTTPException(
             status_code=404,
             detail="Organization not found",
-        )
-
-    if db_organization.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     return OrganizationService.update_organization(
@@ -192,7 +184,7 @@ def update_organization(
 def verify_organization(
     organization_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_org_permission("org:update")),
 ):
 
     organization = OrganizationService.get_organization(
@@ -204,12 +196,6 @@ def verify_organization(
         raise HTTPException(
             status_code=404,
             detail="Organization not found",
-        )
-
-    if organization.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     return OrganizationService.verify_organization(
@@ -225,7 +211,7 @@ def verify_organization(
 def activate_organization(
     organization_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_org_permission("org:update")),
 ):
 
     organization = OrganizationService.get_organization(
@@ -237,12 +223,6 @@ def activate_organization(
         raise HTTPException(
             status_code=404,
             detail="Organization not found",
-        )
-
-    if organization.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     return OrganizationService.activate_organization(
@@ -258,7 +238,7 @@ def activate_organization(
 def deactivate_organization(
     organization_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_org_permission("org:update")),
 ):
 
     organization = OrganizationService.get_organization(
@@ -270,12 +250,6 @@ def deactivate_organization(
         raise HTTPException(
             status_code=404,
             detail="Organization not found",
-        )
-
-    if organization.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     return OrganizationService.deactivate_organization(
@@ -291,7 +265,7 @@ def deactivate_organization(
 def enable_hiring(
     organization_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_org_permission("org:update")),
 ):
 
     organization = OrganizationService.get_organization(
@@ -303,12 +277,6 @@ def enable_hiring(
         raise HTTPException(
             status_code=404,
             detail="Organization not found",
-        )
-
-    if organization.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     return OrganizationService.enable_hiring(
@@ -324,7 +292,7 @@ def enable_hiring(
 def disable_hiring(
     organization_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_org_permission("org:update")),
 ):
 
     organization = OrganizationService.get_organization(
@@ -336,12 +304,6 @@ def disable_hiring(
         raise HTTPException(
             status_code=404,
             detail="Organization not found",
-        )
-
-    if organization.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     return OrganizationService.disable_hiring(
@@ -357,7 +319,7 @@ def disable_hiring(
 def delete_organization(
     organization_id: uuid.UUID,
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_org_permission("org:delete")),
 ):
 
     organization = OrganizationService.get_organization(
@@ -369,12 +331,6 @@ def delete_organization(
         raise HTTPException(
             status_code=404,
             detail="Organization not found",
-        )
-
-    if organization.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied",
         )
 
     OrganizationService.delete_organization(

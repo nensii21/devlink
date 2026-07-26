@@ -1,17 +1,9 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual Environment
-backend/venv/
+# Python virtual environments
+.venv/
+backend/.venv/
 venv/
+env/
 
-# Logs
-backend/logs/
-*.log
-
-# OS files
-.DS_Store
-Thumbs.db
+# Python cache
+__pycache__/
+*.py[cod]

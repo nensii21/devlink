@@ -1,26 +1,29 @@
 from __future__ import annotations
 
 import pytest
-import uuid
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from fastapi import HTTPException
 
 from app.database.base import Base
 from app.dependencies import get_database
 from app.main import app
-from app.models.user import User
-from app.models.organization import Organization, OrganizationType
-from app.schemas.organization import OrganizationCreate, OrganizationUpdate
-from app.services.organization_service import OrganizationService
 
 engine = create_engine(
     "sqlite://",
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
+
+
+@event.listens_for(engine, "connect")
+def _set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
+
 TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
@@ -28,6 +31,10 @@ def override_get_db():
     db = TestingSessionLocal()
     try:
         yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
 

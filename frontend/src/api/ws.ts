@@ -1,25 +1,71 @@
-// WebSocket manager for chat, notifications, typing, presence, read receipts.
-// Auto-reconnect with backoff, JWT auth via query param, typed event bus.
+// WebSocket manager for real-time team collaboration.
+//
+// Features:
+//   - JWT auth via query param (browsers can't send headers on WS)
+//   - Auto-reconnect with exponential backoff (capped at 30s)
+//   - Project-scoped rooms (join/leave to receive project events)
+//   - Typed event bus for team collaboration events
+//   - Graceful handling of disconnections
+//
+// Usage:
+//   import { ws } from "@/api/ws";
+//
+//   // Join a project room
+//   ws.joinProject("project-uuid");
+//
+//   // Listen for events
+//   const off = ws.on((event) => {
+//     if (event.type === "team.member_joined") { ... }
+//   });
+//
+//   // Leave when done
+//   ws.leaveProject("project-uuid");
+//   off();
 
 import { tokenStore } from "./tokens";
 import { API_BASE_URL, isBackendConfigured } from "./client";
 
-export type WsEvent =
+// ── Event types ──────────────────────────────────────────────────────────────
+
+export type CollabEvent =
+  | { type: "connected"; user_id: string }
+  | { type: "team.member_joined"; project_id: string; user_id: string }
+  | { type: "team.member_left"; project_id: string; user_id: string }
+  | {
+      type: "project.updated";
+      project_id: string;
+      user_id: string;
+      changes: Record<string, unknown>;
+    }
+  | { type: "message.new"; project_id: string; user_id: string; content: string }
+  | {
+      type: "task.status_changed";
+      project_id: string;
+      user_id: string;
+      task_id: string;
+      status: string;
+    }
   | { type: "message"; conversationId: string; from: string; text: string; at: string; id: string }
   | { type: "typing"; conversationId: string; from: string; typing: boolean }
   | { type: "read"; conversationId: string; by: string; at: string }
   | { type: "presence"; userId: string; online: boolean }
   | { type: "notification"; id: string; kind: string; text: string; at: string }
+  | { type: "status"; sender_id: string; content: string }
+  | { type: "error"; message: string }
   | { type: string; [k: string]: unknown };
 
-type Handler = (ev: WsEvent) => void;
+type Handler = (ev: CollabEvent) => void;
+
+// ── WebSocket URL ────────────────────────────────────────────────────────────
 
 function wsUrl(): string {
   if (!isBackendConfigured()) return "";
   const base = API_BASE_URL.replace(/^http/, "ws");
   const token = tokenStore.getAccess();
-  return `${base}/ws${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+  return `${base}/ws/collab${token ? `?token=${encodeURIComponent(token)}` : ""}`;
 }
+
+// ── WsClient ─────────────────────────────────────────────────────────────────
 
 class WsClient {
   private socket: WebSocket | null = null;
@@ -27,8 +73,10 @@ class WsClient {
   private reconnectAttempts = 0;
   private manualClose = false;
   private connectTimer: ReturnType<typeof setTimeout> | null = null;
+  private joinedProjects = new Set<string>();
 
-  connect() {
+  /** Open the WebSocket connection (idempotent). */
+  connect(): void {
     if (!isBackendConfigured() || typeof window === "undefined") return;
     if (this.socket && this.socket.readyState <= WebSocket.OPEN) return;
     this.manualClose = false;
@@ -43,25 +91,33 @@ class WsClient {
 
     this.socket.onopen = () => {
       this.reconnectAttempts = 0;
-    };
-    this.socket.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data) as WsEvent;
-        this.handlers.forEach((h) => h(data));
-      } catch {
-        /* ignore malformed */
+      // Re-join any project rooms that were active before the reconnect.
+      for (const projectId of this.joinedProjects) {
+        this.send({ type: "join", project_id: projectId });
       }
     };
+
+    this.socket.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data) as CollabEvent;
+        this.handlers.forEach((h) => h(data));
+      } catch {
+        /* ignore malformed messages */
+      }
+    };
+
     this.socket.onclose = () => {
       this.socket = null;
       if (!this.manualClose) this.scheduleReconnect();
     };
+
     this.socket.onerror = () => {
       this.socket?.close();
     };
   }
 
-  private scheduleReconnect() {
+  /** Schedule a reconnection with exponential backoff (capped at 30s). */
+  private scheduleReconnect(): void {
     if (this.connectTimer) return;
     const delay = Math.min(30_000, 1000 * 2 ** this.reconnectAttempts);
     this.reconnectAttempts += 1;
@@ -71,18 +127,25 @@ class WsClient {
     }, delay);
   }
 
-  send(payload: Record<string, unknown>) {
+  /** Send a JSON payload to the server (no-op if socket isn't open). */
+  send(payload: Record<string, unknown>): void {
     if (this.socket?.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(payload));
     }
   }
 
-  disconnect() {
+  /** Close the connection and stop auto-reconnect. */
+  disconnect(): void {
     this.manualClose = true;
     this.socket?.close();
     this.socket = null;
+    if (this.connectTimer) {
+      clearTimeout(this.connectTimer);
+      this.connectTimer = null;
+    }
   }
 
+  /** Register an event handler. Returns an unsubscribe function. */
   on(handler: Handler): () => void {
     this.handlers.add(handler);
     if (!this.socket) this.connect();
@@ -90,11 +153,41 @@ class WsClient {
       this.handlers.delete(handler);
     };
   }
+
+  // ── Project room management ──────────────────────────────────────────
+
+  /** Join a project room to receive project-scoped events. */
+  joinProject(projectId: string): void {
+    this.joinedProjects.add(projectId);
+    this.send({ type: "join", project_id: projectId });
+  }
+
+  /** Leave a project room. */
+  leaveProject(projectId: string): void {
+    this.joinedProjects.delete(projectId);
+    this.send({ type: "leave", project_id: projectId });
+  }
+
+  /** Send a chat message to a project room. */
+  sendProjectMessage(projectId: string, content: string): void {
+    this.send({ type: "message", project_id: projectId, content });
+  }
+
+  /** Notify a project room that a task's status changed. */
+  notifyTaskUpdate(projectId: string, taskId: string, taskStatus: string): void {
+    this.send({ type: "task_update", project_id: projectId, task_id: taskId, status: taskStatus });
+  }
+
+  /** Notify a project room that project metadata changed. */
+  notifyProjectUpdate(projectId: string, changes: Record<string, unknown>): void {
+    this.send({ type: "project_update", project_id: projectId, changes });
+  }
 }
 
 export const ws = new WsClient();
 
-// Reconnect when auth changes.
+// ── Auto-connect / disconnect on auth change ─────────────────────────────────
+
 if (typeof window !== "undefined") {
   tokenStore.subscribe((t) => {
     if (t) ws.connect();

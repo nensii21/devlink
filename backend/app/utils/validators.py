@@ -1,10 +1,10 @@
+from __future__ import annotations
 """
 DevLink Validation Utilities
 
 Reusable validation functions used across the application.
 """
 
-from __future__ import annotations
 
 import re
 from urllib.parse import urlparse

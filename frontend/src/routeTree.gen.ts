@@ -16,19 +16,25 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
+import { Route as AppRepositoryQualityRouteImport } from './routes/_app.repository-quality'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
+import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppMessagesRouteImport } from './routes/_app.messages'
 import { Route as AppHackathonsRouteImport } from './routes/_app.hackathons'
 import { Route as AppFlaresRouteImport } from './routes/_app.flares'
+import { Route as AppFeedRouteImport } from './routes/_app.feed'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBuildersRouteImport } from './routes/_app.builders'
 import { Route as AppBookmarksRouteImport } from './routes/_app.bookmarks'
 import { Route as AppAnalyticsRouteImport } from './routes/_app.analytics'
+import { Route as AppOrganizationsIndexRouteImport } from './routes/_app.organizations.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
 import { Route as AppProfileUsernameRouteImport } from './routes/_app.profile.$username'
+import { Route as AppOrganizationsOrgIdRouteImport } from './routes/_app.organizations.$orgId'
 import { Route as AppMessagesConversationIdRouteImport } from './routes/_app.messages.$conversationId'
 import { Route as AppBuildersBuilderIdRouteImport } from './routes/_app.builders.$builderId'
+import { Route as AppProjectsProjectIdIssuesRouteImport } from './routes/_app.projects.$projectId.issues'
 
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
@@ -64,9 +70,19 @@ const AppSearchRoute = AppSearchRouteImport.update({
   path: '/search',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRepositoryQualityRoute = AppRepositoryQualityRouteImport.update({
+  id: '/repository-quality',
+  path: '/repository-quality',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProjectsRoute = AppProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrganizationsRoute = AppOrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
   getParentRoute: () => AppRoute,
 } as any)
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
@@ -89,6 +105,11 @@ const AppFlaresRoute = AppFlaresRouteImport.update({
   path: '/flares',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -109,6 +130,11 @@ const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppOrganizationsRoute,
+} as any)
 const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
   id: '/$projectId',
   path: '/$projectId',
@@ -118,6 +144,11 @@ const AppProfileUsernameRoute = AppProfileUsernameRouteImport.update({
   id: '/profile/$username',
   path: '/profile/$username',
   getParentRoute: () => AppRoute,
+} as any)
+const AppOrganizationsOrgIdRoute = AppOrganizationsOrgIdRouteImport.update({
+  id: '/$orgId',
+  path: '/$orgId',
+  getParentRoute: () => AppOrganizationsRoute,
 } as any)
 const AppMessagesConversationIdRoute =
   AppMessagesConversationIdRouteImport.update({
@@ -130,6 +161,12 @@ const AppBuildersBuilderIdRoute = AppBuildersBuilderIdRouteImport.update({
   path: '/$builderId',
   getParentRoute: () => AppBuildersRoute,
 } as any)
+const AppProjectsProjectIdIssuesRoute =
+  AppProjectsProjectIdIssuesRouteImport.update({
+    id: '/issues',
+    path: '/issues',
+    getParentRoute: () => AppProjectsProjectIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -139,18 +176,24 @@ export interface FileRoutesByFullPath {
   '/bookmarks': typeof AppBookmarksRoute
   '/builders': typeof AppBuildersRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/feed': typeof AppFeedRoute
   '/flares': typeof AppFlaresRoute
   '/hackathons': typeof AppHackathonsRoute
   '/messages': typeof AppMessagesRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
+  '/organizations': typeof AppOrganizationsRouteWithChildren
   '/projects': typeof AppProjectsRouteWithChildren
+  '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/messages/$conversationId': typeof AppMessagesConversationIdRoute
+  '/organizations/$orgId': typeof AppOrganizationsOrgIdRoute
   '/profile/$username': typeof AppProfileUsernameRoute
-  '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
+  '/organizations/': typeof AppOrganizationsIndexRoute
+  '/projects/$projectId/issues': typeof AppProjectsProjectIdIssuesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -160,18 +203,23 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof AppBookmarksRoute
   '/builders': typeof AppBuildersRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/feed': typeof AppFeedRoute
   '/flares': typeof AppFlaresRoute
   '/hackathons': typeof AppHackathonsRoute
   '/messages': typeof AppMessagesRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
   '/projects': typeof AppProjectsRouteWithChildren
+  '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/messages/$conversationId': typeof AppMessagesConversationIdRoute
+  '/organizations/$orgId': typeof AppOrganizationsOrgIdRoute
   '/profile/$username': typeof AppProfileUsernameRoute
-  '/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
+  '/organizations': typeof AppOrganizationsIndexRoute
+  '/projects/$projectId/issues': typeof AppProjectsProjectIdIssuesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -183,18 +231,24 @@ export interface FileRoutesById {
   '/_app/bookmarks': typeof AppBookmarksRoute
   '/_app/builders': typeof AppBuildersRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/feed': typeof AppFeedRoute
   '/_app/flares': typeof AppFlaresRoute
   '/_app/hackathons': typeof AppHackathonsRoute
   '/_app/messages': typeof AppMessagesRouteWithChildren
   '/_app/notifications': typeof AppNotificationsRoute
+  '/_app/organizations': typeof AppOrganizationsRouteWithChildren
   '/_app/projects': typeof AppProjectsRouteWithChildren
+  '/_app/repository-quality': typeof AppRepositoryQualityRoute
   '/_app/search': typeof AppSearchRoute
   '/_app/settings': typeof AppSettingsRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/_app/builders/$builderId': typeof AppBuildersBuilderIdRoute
   '/_app/messages/$conversationId': typeof AppMessagesConversationIdRoute
+  '/_app/organizations/$orgId': typeof AppOrganizationsOrgIdRoute
   '/_app/profile/$username': typeof AppProfileUsernameRoute
-  '/_app/projects/$projectId': typeof AppProjectsProjectIdRoute
+  '/_app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
+  '/_app/organizations/': typeof AppOrganizationsIndexRoute
+  '/_app/projects/$projectId/issues': typeof AppProjectsProjectIdIssuesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -206,18 +260,24 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/builders'
     | '/dashboard'
+    | '/feed'
     | '/flares'
     | '/hackathons'
     | '/messages'
     | '/notifications'
+    | '/organizations'
     | '/projects'
+    | '/repository-quality'
     | '/search'
     | '/settings'
     | '/portfolio/$username'
     | '/builders/$builderId'
     | '/messages/$conversationId'
+    | '/organizations/$orgId'
     | '/profile/$username'
     | '/projects/$projectId'
+    | '/organizations/'
+    | '/projects/$projectId/issues'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -227,18 +287,23 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/builders'
     | '/dashboard'
+    | '/feed'
     | '/flares'
     | '/hackathons'
     | '/messages'
     | '/notifications'
     | '/projects'
+    | '/repository-quality'
     | '/search'
     | '/settings'
     | '/portfolio/$username'
     | '/builders/$builderId'
     | '/messages/$conversationId'
+    | '/organizations/$orgId'
     | '/profile/$username'
     | '/projects/$projectId'
+    | '/organizations'
+    | '/projects/$projectId/issues'
   id:
     | '__root__'
     | '/'
@@ -249,18 +314,24 @@ export interface FileRouteTypes {
     | '/_app/bookmarks'
     | '/_app/builders'
     | '/_app/dashboard'
+    | '/_app/feed'
     | '/_app/flares'
     | '/_app/hackathons'
     | '/_app/messages'
     | '/_app/notifications'
+    | '/_app/organizations'
     | '/_app/projects'
+    | '/_app/repository-quality'
     | '/_app/search'
     | '/_app/settings'
     | '/portfolio/$username'
     | '/_app/builders/$builderId'
     | '/_app/messages/$conversationId'
+    | '/_app/organizations/$orgId'
     | '/_app/profile/$username'
     | '/_app/projects/$projectId'
+    | '/_app/organizations/'
+    | '/_app/projects/$projectId/issues'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -322,11 +393,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSearchRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/repository-quality': {
+      id: '/_app/repository-quality'
+      path: '/repository-quality'
+      fullPath: '/repository-quality'
+      preLoaderRoute: typeof AppRepositoryQualityRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/projects': {
       id: '/_app/projects'
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof AppProjectsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/organizations': {
+      id: '/_app/organizations'
+      path: '/organizations'
+      fullPath: '/organizations'
+      preLoaderRoute: typeof AppOrganizationsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/notifications': {
@@ -357,6 +442,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFlaresRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/feed': {
+      id: '/_app/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -385,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/organizations/': {
+      id: '/_app/organizations/'
+      path: '/'
+      fullPath: '/organizations/'
+      preLoaderRoute: typeof AppOrganizationsIndexRouteImport
+      parentRoute: typeof AppOrganizationsRoute
+    }
     '/_app/projects/$projectId': {
       id: '/_app/projects/$projectId'
       path: '/$projectId'
@@ -399,6 +498,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileUsernameRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/organizations/$orgId': {
+      id: '/_app/organizations/$orgId'
+      path: '/$orgId'
+      fullPath: '/organizations/$orgId'
+      preLoaderRoute: typeof AppOrganizationsOrgIdRouteImport
+      parentRoute: typeof AppOrganizationsRoute
+    }
     '/_app/messages/$conversationId': {
       id: '/_app/messages/$conversationId'
       path: '/$conversationId'
@@ -412,6 +518,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/builders/$builderId'
       preLoaderRoute: typeof AppBuildersBuilderIdRouteImport
       parentRoute: typeof AppBuildersRoute
+    }
+    '/_app/projects/$projectId/issues': {
+      id: '/_app/projects/$projectId/issues'
+      path: '/issues'
+      fullPath: '/projects/$projectId/issues'
+      preLoaderRoute: typeof AppProjectsProjectIdIssuesRouteImport
+      parentRoute: typeof AppProjectsProjectIdRoute
     }
   }
 }
@@ -440,12 +553,36 @@ const AppMessagesRouteWithChildren = AppMessagesRoute._addFileChildren(
   AppMessagesRouteChildren,
 )
 
+interface AppOrganizationsRouteChildren {
+  AppOrganizationsOrgIdRoute: typeof AppOrganizationsOrgIdRoute
+  AppOrganizationsIndexRoute: typeof AppOrganizationsIndexRoute
+}
+
+const AppOrganizationsRouteChildren: AppOrganizationsRouteChildren = {
+  AppOrganizationsOrgIdRoute: AppOrganizationsOrgIdRoute,
+  AppOrganizationsIndexRoute: AppOrganizationsIndexRoute,
+}
+
+const AppOrganizationsRouteWithChildren =
+  AppOrganizationsRoute._addFileChildren(AppOrganizationsRouteChildren)
+
+interface AppProjectsProjectIdRouteChildren {
+  AppProjectsProjectIdIssuesRoute: typeof AppProjectsProjectIdIssuesRoute
+}
+
+const AppProjectsProjectIdRouteChildren: AppProjectsProjectIdRouteChildren = {
+  AppProjectsProjectIdIssuesRoute: AppProjectsProjectIdIssuesRoute,
+}
+
+const AppProjectsProjectIdRouteWithChildren =
+  AppProjectsProjectIdRoute._addFileChildren(AppProjectsProjectIdRouteChildren)
+
 interface AppProjectsRouteChildren {
-  AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRoute
+  AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
 }
 
 const AppProjectsRouteChildren: AppProjectsRouteChildren = {
-  AppProjectsProjectIdRoute: AppProjectsProjectIdRoute,
+  AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
 }
 
 const AppProjectsRouteWithChildren = AppProjectsRoute._addFileChildren(
@@ -457,11 +594,14 @@ interface AppRouteChildren {
   AppBookmarksRoute: typeof AppBookmarksRoute
   AppBuildersRoute: typeof AppBuildersRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
+  AppFeedRoute: typeof AppFeedRoute
   AppFlaresRoute: typeof AppFlaresRoute
   AppHackathonsRoute: typeof AppHackathonsRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppNotificationsRoute: typeof AppNotificationsRoute
+  AppOrganizationsRoute: typeof AppOrganizationsRouteWithChildren
   AppProjectsRoute: typeof AppProjectsRouteWithChildren
+  AppRepositoryQualityRoute: typeof AppRepositoryQualityRoute
   AppSearchRoute: typeof AppSearchRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppProfileUsernameRoute: typeof AppProfileUsernameRoute
@@ -472,11 +612,14 @@ const AppRouteChildren: AppRouteChildren = {
   AppBookmarksRoute: AppBookmarksRoute,
   AppBuildersRoute: AppBuildersRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
+  AppFeedRoute: AppFeedRoute,
   AppFlaresRoute: AppFlaresRoute,
   AppHackathonsRoute: AppHackathonsRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppNotificationsRoute: AppNotificationsRoute,
+  AppOrganizationsRoute: AppOrganizationsRouteWithChildren,
   AppProjectsRoute: AppProjectsRouteWithChildren,
+  AppRepositoryQualityRoute: AppRepositoryQualityRoute,
   AppSearchRoute: AppSearchRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppProfileUsernameRoute: AppProfileUsernameRoute,

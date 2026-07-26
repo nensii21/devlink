@@ -5,6 +5,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.core.cache import cached
 from app.models.activity import ActivityType
 from app.models.organization import Organization
 from app.schemas.organization import (
@@ -12,7 +13,6 @@ from app.schemas.organization import (
     OrganizationUpdate,
 )
 from app.services.activity_service import ActivityService
-from app.core.cache import cached
 
 
 class OrganizationService:
@@ -49,13 +49,25 @@ class OrganizationService:
         db.flush()
         db.refresh(db_organization)
 
+        # Create OrganizationMember record for owner
+        from app.models.organization_member import OrganizationMember, OrgMemberRole
+
+        member = OrganizationMember(
+            organization_id=db_organization.id,
+            user_id=owner_id,
+            role=OrgMemberRole.OWNER,
+            is_active=True,
+        )
+        db.add(member)
+        db.commit()
         ActivityService.record_activity(
             db=db,
             actor_id=owner_id,
             activity_type=ActivityType.ORGANIZATION_CREATED,
             title="Created organization",
             description=db_organization.name,
-            organization_id=db_organization.id,
+            target_id=db_organization.id,
+            target_type="organization",
             icon="building-2",
             color="primary",
         )
@@ -217,6 +229,11 @@ class OrganizationService:
         db: Session,
         db_organization: Organization,
     ) -> None:
+        from app.models.organization_member import OrganizationMember
 
+        # Explicitly delete member rows first to avoid SQLAlchemy FK nullification
+        db.query(OrganizationMember).filter(
+            OrganizationMember.organization_id == db_organization.id
+        ).delete(synchronize_session=False)
         db.delete(db_organization)
         db.flush()

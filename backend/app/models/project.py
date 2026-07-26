@@ -15,6 +15,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
@@ -109,6 +110,40 @@ class Project(Base):
         Text,
     )
 
+    language: Mapped[str | None] = mapped_column(
+        String(100),
+        index=True,
+    )
+
+    experience: Mapped[str | None] = mapped_column(
+        String(50),
+        index=True,
+    )
+
+    is_remote: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        index=True,
+    )
+
+    is_paid: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        index=True,
+    )
+
+    is_open_source: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        index=True,
+    )
+
+    tags: Mapped[list | None] = mapped_column(
+        JSON,
+        nullable=True,
+        default=list,
+    )
+
     repository_url: Mapped[str | None] = mapped_column(
         String(500),
     )
@@ -184,6 +219,19 @@ class Project(Base):
     is_archived: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
+        index=True,
+    )
+
+    scheduled_publish_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+
+    is_published: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
         index=True,
     )
 

@@ -7,7 +7,6 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 # pyrefly: ignore [missing-import]
-from pydantic import BaseModel, ConfigDict
 
 # ==========================================================
 # Follower Response

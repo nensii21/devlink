@@ -11,7 +11,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, backref
 
 from app.database.base import Base
 
@@ -117,12 +117,14 @@ class CollectionBookmark(Base):
 
     collection = relationship(
         "BookmarkCollection",
-        backref="collection_bookmarks",
+        backref=backref("collection_bookmarks", overlaps="bookmarks,collections"),
+        overlaps="bookmarks,collections",
     )
 
     bookmark = relationship(
         "Bookmark",
-        backref="collection_memberships",
+        backref=backref("collection_memberships", overlaps="bookmarks,collections"),
+        overlaps="bookmarks,collections",
     )
 
     __table_args__ = (

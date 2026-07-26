@@ -11,4 +11,3 @@ class Base(DeclarativeBase):
 
 
 # Import all models so SQLAlchemy registers them
-import app.models

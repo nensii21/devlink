@@ -59,8 +59,9 @@ class RepositoryService:
             activity_type=ActivityType.REPOSITORY_CONNECTED,
             title="Connected repository",
             description=db_repository.full_name,
-            project_id=db_repository.project_id,
-            repository_id=db_repository.id,
+            target_id=db_repository.id,
+            target_type="repository",
+            metadata={"project_id": str(db_repository.project_id)} if db_repository.project_id else {},
             icon="git-branch",
             color="success",
         )

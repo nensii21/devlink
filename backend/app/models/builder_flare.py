@@ -7,12 +7,14 @@ from enum import Enum
 from sqlalchemy import (
     Boolean,
     DateTime,
-    Enum as SqlEnum,
     ForeignKey,
     Integer,
     String,
     Text,
     func,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -165,4 +167,4 @@ class BuilderFlare(Base):
     )
 
     def __repr__(self):
-        return f"<BuilderFlare(title='{self.title}', " f"role='{self.role}')>"
+        return f"<BuilderFlare(title='{self.title}', role='{self.role}')>"

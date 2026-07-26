@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, AliasChoices
 
 from app.models.activity import ActivityType
 
@@ -20,78 +21,11 @@ class ActivityActor(BaseModel):
 
 class ActivityBase(BaseModel):
     activity_type: ActivityType
-
-    title: str = Field(
-        ...,
-        min_length=2,
-        max_length=255,
-    )
-
-    description: str | None = None
-
-    project_id: uuid.UUID | None = None
-    organization_id: uuid.UUID | None = None
-    repository_id: uuid.UUID | None = None
-    application_id: uuid.UUID | None = None
-    builder_flare_id: uuid.UUID | None = None
-
-    icon: str | None = Field(
-        default=None,
-        max_length=100,
-    )
-
-    color: str | None = Field(
-        default=None,
-        max_length=30,
-    )
-
-
-class ActivityCreate(ActivityBase):
-    pass
-
-
-class ActivityUpdate(BaseModel):
-    activity_type: ActivityType | None = None
-
-    title: str | None = Field(
-        default=None,
-        min_length=2,
-        max_length=255,
-    )
-
-    description: str | None = None
-
-    project_id: uuid.UUID | None = None
-    organization_id: uuid.UUID | None = None
-    repository_id: uuid.UUID | None = None
-    application_id: uuid.UUID | None = None
-    builder_flare_id: uuid.UUID | None = None
-
-    icon: str | None = Field(
-        default=None,
-        max_length=100,
-    )
-
-    color: str | None = Field(
-        default=None,
-        max_length=30,
-    )
-from typing import Optional
-
-# pyrefly: ignore [missing-import]
-from pydantic import BaseModel, ConfigDict
-from app.models.activity import ActivityType
-
-
-class ActivityBase(BaseModel):
-    activity_type: ActivityType
     title: str
     description: Optional[str] = None
-    project_id: Optional[uuid.UUID] = None
-    organization_id: Optional[uuid.UUID] = None
-    repository_id: Optional[uuid.UUID] = None
-    application_id: Optional[uuid.UUID] = None
-    builder_flare_id: Optional[uuid.UUID] = None
+    target_id: Optional[uuid.UUID] = None
+    target_type: Optional[str] = None
+    meta: Dict[str, Any] = Field(default_factory=dict, validation_alias=AliasChoices("meta", "metadata"), serialization_alias="metadata")
     icon: Optional[str] = None
     color: Optional[str] = None
 
@@ -105,10 +39,11 @@ class ActivityUpdate(BaseModel):
     description: Optional[str] = None
     icon: Optional[str] = None
     color: Optional[str] = None
+    meta: Optional[Dict[str, Any]] = Field(None, validation_alias=AliasChoices("meta", "metadata"), serialization_alias="metadata")
 
 
 class ActivityResponse(ActivityBase):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: uuid.UUID
     actor_id: uuid.UUID

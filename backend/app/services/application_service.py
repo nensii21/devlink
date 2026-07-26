@@ -13,7 +13,6 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.orm import Session, selectinload
 
 from app.models.application import (
     Application,
@@ -32,6 +31,36 @@ class ApplicationService:
     """
     Business logic for project applications.
     """
+
+    VALID_STATUS_TRANSITIONS = {
+        ApplicationStatus.PENDING: {
+            ApplicationStatus.ACCEPTED,
+            ApplicationStatus.REJECTED,
+            ApplicationStatus.WITHDRAWN,
+        },
+        ApplicationStatus.REVIEWING: {
+            ApplicationStatus.ACCEPTED,
+            ApplicationStatus.REJECTED,
+            ApplicationStatus.WITHDRAWN,
+        },
+        ApplicationStatus.ACCEPTED: set(),
+        ApplicationStatus.REJECTED: set(),
+        ApplicationStatus.WITHDRAWN: set(),
+    }
+
+    @staticmethod
+    def _validate_status_transition(
+        current: ApplicationStatus,
+        new: ApplicationStatus,
+    ) -> None:
+        if new not in ApplicationService.VALID_STATUS_TRANSITIONS[current]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"Cannot change application status "
+                    f"from '{current.value}' to '{new.value}'."
+                ),
+            )
 
     @staticmethod
     def create_application(
@@ -139,8 +168,12 @@ class ApplicationService:
         db_application: Application,
     ) -> Application:
 
-        db_application.status = ApplicationStatus.ACCEPTED
+        ApplicationService._validate_status_transition(
+            db_application.status,
+            ApplicationStatus.ACCEPTED,
+        )
 
+        db_application.status = ApplicationStatus.ACCEPTED
         db.flush()
         db.refresh(db_application)
 
@@ -173,6 +206,11 @@ class ApplicationService:
         db: Session,
         db_application: Application,
     ) -> Application:
+
+        ApplicationService._validate_status_transition(
+            db_application.status,
+            ApplicationStatus.REJECTED,
+        )
 
         db_application.status = ApplicationStatus.REJECTED
 
@@ -209,8 +247,12 @@ class ApplicationService:
         db_application: Application,
     ) -> Application:
 
-        db_application.status = ApplicationStatus.WITHDRAWN
+        ApplicationService._validate_status_transition(
+            db_application.status,
+            ApplicationStatus.WITHDRAWN,
+        )
 
+        db_application.status = ApplicationStatus.WITHDRAWN
         db.flush()
         db.refresh(db_application)
 

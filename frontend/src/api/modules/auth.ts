@@ -12,6 +12,7 @@ export interface AuthUser {
   username: string;
   full_name?: string;
   avatar?: string;
+  profile_image?: string;
 }
 export interface AuthResponse extends AuthTokens {
   user: AuthUser;

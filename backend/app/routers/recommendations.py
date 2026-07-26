@@ -1,9 +1,21 @@
-"""
-API router for the AI-Powered Builder Recommendation System.
-"""
-
 from __future__ import annotations
 
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.orm import Session
+
+from app.database.session import get_db
+from app.dependencies import get_current_user
+from app.models.user import User
+from app.schemas.recommendation import (
+    ProjectRecommendation,
+    RecommendationList,
+    RecommendationProject,
+)
+
+"""
+API router for the AI-Powered Builder Recommendation System
+and AI Tech Stack Recommendation.
+"""
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -11,17 +23,76 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database
-from app.dependencies import get_current_user
-from app.middleware.rate_limit import limiter, RECOMMENDATION_LIMIT
+from app.dependencies import get_current_user, get_database
+from app.middleware.rate_limit import RECOMMENDATION_LIMIT, limiter
 from app.models.user import User
+from app.schemas.recommendation import (
+    ProjectRecommendationResponse,
+    RecommendationResponse,
+    RecommendedBuilder,
+    RecommendedProject,
+)
 from app.schemas.recommendation import RecommendationResponse, RecommendedBuilder
+from app.schemas.tech_stack import TechStackRequest, TechStackResponse
 from app.services.recommendation_service import RecommendationService
+from app.services.ai_service import AIService
 
 router = APIRouter(
     prefix="/recommendations",
     tags=["Recommendations"],
 )
+
+
+@router.get(
+    "/projects",
+    response_model=RecommendationList,
+    status_code=status.HTTP_200_OK,
+    summary="Get Project Recommendations",
+    description=(
+        "Returns a ranked list of projects recommended for the current user."
+        " Recommendations are scored based on shared skills, previous"
+        " contributions, bookmarked projects, and followed organisations."
+    ),
+)
+def recommend_projects(
+    limit: int = Query(20, ge=1, le=100, description="Number of results to return"),
+    offset: int = Query(0, ge=0, description="Number of results to skip"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Get personalised project recommendations for the authenticated user.
+
+    **Scoring factors (weights):**
+    - Shared skills between user and project (40%)
+    - Previous contributions to the project (25%)
+    - Bookmarked projects by the user (20%)
+    - Organisational affiliation (15%)
+    """
+    projects, total = RecommendationService.get_recommended_projects(
+        db=db,
+        user_id=current_user.id,
+        limit=limit,
+        offset=offset,
+    )
+
+    recommendations = [
+        ProjectRecommendation(
+            project=RecommendationProject.model_validate(p["project"]),
+            score=p["score"],
+            skill_match_count=p["skill_match_count"],
+            total_skills=p["total_skills"],
+            is_previous_contribution=p["is_previous_contribution"],
+            is_bookmarked=p["is_bookmarked"],
+            is_org_related=p["is_org_related"],
+        )
+        for p in projects
+    ]
+
+    return RecommendationList(
+        recommendations=recommendations,
+        total=total,
+    )
 
 
 @router.get(
@@ -86,3 +157,57 @@ def get_recommended_builders(
         limit=limit,
         results=results,
     )
+
+
+@router.get(
+    "/projects",
+    response_model=ProjectRecommendationResponse,
+    summary="Get recommended projects",
+)
+@limiter.limit(RECOMMENDATION_LIMIT)
+def get_recommended_projects(
+    request: Request,
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+) -> ProjectRecommendationResponse:
+    """
+    Returns a ranked list of recommended projects for the authenticated developer.
+
+    **Scoring factors**:
+    - **Skills**: Project requirements vs Developer's skills
+    - **Technologies**: Project tech stack vs Developer's skills
+    - **Experience**: Project minimum experience vs Developer's experience
+    - **Interests**: Project title/description vs Developer's bio/headline
+    """
+    results: list[RecommendedProject] = RecommendationService.recommend_projects(
+        db=db,
+        requester=current_user,
+        limit=limit,
+    )
+
+    return ProjectRecommendationResponse(
+        query_context=f"projects_for_user:{current_user.id}",
+        total=len(results),
+        limit=limit,
+        results=results,
+    )
+
+
+@router.post(
+    "/tech-stack",
+    response_model=TechStackResponse,
+    summary="Get AI tech stack recommendation",
+)
+@limiter.limit(RECOMMENDATION_LIMIT)
+def recommend_tech_stack(
+    request: Request,
+    body: TechStackRequest,
+) -> TechStackResponse:
+    """
+    Recommend technologies for a new project based on the project idea.
+
+    Uses OpenAI to generate ranked recommendations with explanations.
+    Falls back to rule-based recommendations if the AI service is unavailable.
+    """
+    return AIService.recommend_tech_stack(body)

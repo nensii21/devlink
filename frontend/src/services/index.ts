@@ -18,8 +18,11 @@ import {
   analyticsApi,
   authApi,
   collectionsApi,
+  recommendationsApi,
+  searchApi,
+  issuesApi,
 } from "@/api";
-import type { BookmarkCollection, BookmarkCollectionWithBookmarks } from "@/api";
+import type { BookmarkCollection, BookmarkCollectionWithBookmarks, TechStackResponse } from "@/api";
 
 const delay = 120;
 const mock = <T>(v: T): Promise<T> => new Promise((r) => setTimeout(() => r(v), delay));
@@ -147,6 +150,43 @@ export const messagesService = {
   thread: (id: string) => withFallback(() => messagesApi.thread(id), seed.messages[id] ?? []),
 };
 
+export const issuesService = {
+  list: (projectId: string, params?: { status?: string; skip?: number; limit?: number }) =>
+    isBackendConfigured()
+      ? issuesApi.list(projectId, params)
+      : Promise.resolve([]),
+  
+  get: (projectId: string, issueId: string) =>
+    isBackendConfigured()
+      ? issuesApi.get(projectId, issueId)
+      : Promise.reject("Not implemented in mock"),
+
+  create: (projectId: string, body: any) =>
+    isBackendConfigured()
+      ? issuesApi.create(projectId, body)
+      : Promise.reject("Not implemented in mock"),
+
+  update: (projectId: string, issueId: string, body: any) =>
+    isBackendConfigured()
+      ? issuesApi.update(projectId, issueId, body)
+      : Promise.reject("Not implemented in mock"),
+
+  remove: (projectId: string, issueId: string) =>
+    isBackendConfigured()
+      ? issuesApi.remove(projectId, issueId)
+      : Promise.reject("Not implemented in mock"),
+
+  checkDuplicates: (projectId: string, body: any) =>
+    isBackendConfigured()
+      ? issuesApi.checkDuplicates(projectId, body)
+      : Promise.reject("Not implemented in mock"),
+
+  markAsDuplicate: (projectId: string, issueId: string, duplicateOfId: string) =>
+    isBackendConfigured()
+      ? issuesApi.markAsDuplicate(projectId, issueId, duplicateOfId)
+      : Promise.reject("Not implemented in mock"),
+};
+
 export const notificationsService = {
   list: async () => {
     if (typeof window !== "undefined") {
@@ -169,6 +209,26 @@ export const hackathonsService = {
   list: () => withFallback(() => hackathonsApi.list(), seed.hackathons),
 };
 
+export const techStackService = {
+  recommend: (projectIdea: string) =>
+    withFallback(
+      () => recommendationsApi.recommendTechStack(projectIdea),
+      null as TechStackResponse | null,
+    ),
+};
+
+export const searchService = {
+  autocomplete: (q: string) =>
+    withFallback(async () => {
+      const res = await searchApi.autocomplete(q);
+      return res;
+    }, {
+      users: [],
+      projects: [],
+      skills: []
+    }), // In fallback we could just return empty or mock data, but we'll handle mock logic in the component for offline mode, or we can add it here.
+};
+
 export const userService = {
   me: () =>
     withFallback(async () => {
@@ -177,11 +237,13 @@ export const userService = {
         id: u.id,
         name: u.full_name ?? u.username,
         handle: u.username,
-        avatar: u.avatar ?? seed.currentUser.avatar,
+        avatar: u.profile_image ?? u.avatar ?? seed.currentUser.avatar,
         premium: (u as unknown as { premium?: boolean }).premium ?? false,
       };
     }, seed.currentUser),
 };
+
+export { teamMatchService } from "./teamMatch";
 
 export type {
   Builder,

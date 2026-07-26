@@ -1,3 +1,191 @@
+from __future__ import annotations
+
+import uuid
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.models.bookmark import Bookmark
+from app.models.follower import Follower
+from app.models.organization import Organization
+from app.models.project import Project
+from app.models.project_member import ProjectMember
+from app.models.project_skill import ProjectSkill
+from app.models.user_skill import UserSkill
+
+
+class RecommendationService:
+    """
+    Business logic for generating personalized project recommendations.
+
+    Scoring factors and default weights:
+      - Skill Match     (40%): overlap between user's skills and project's skills
+      - Contribution    (25%): user is/was a member of the project
+      - Bookmark        (20%): user has bookmarked the project
+      - Organization    (15%): user follows the project owner or owns an
+                               organization associated with the project owner
+    """
+
+    # ----------------------------------------------------------
+    # Scoring Weights
+    # ----------------------------------------------------------
+
+    SKILL_WEIGHT: float = 0.40
+    CONTRIBUTION_WEIGHT: float = 0.25
+    BOOKMARK_WEIGHT: float = 0.20
+    ORG_WEIGHT: float = 0.15
+
+    # ----------------------------------------------------------
+    # Public API
+    # ----------------------------------------------------------
+
+    @staticmethod
+    def get_recommended_projects(
+        db: Session,
+        user_id: uuid.UUID,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> tuple[list[dict], int]:
+        """
+        Return (paginated_scored_results, total_count).
+
+        Each result dict contains:
+          - project            : Project ORM instance
+          - score              : float (0-100)
+          - skill_match_count  : int
+          - total_skills       : int
+          - is_previous_contribution : bool
+          - is_bookmarked            : bool
+          - is_org_related           : bool
+        """
+
+        # ---- 1. Load user's reference data into sets for O(1) lookup ----
+
+        user_skill_ids: set[uuid.UUID] = set(
+            db.scalars(
+                select(UserSkill.skill_id).where(UserSkill.user_id == user_id)
+            ).all()
+        )
+
+        contributed_project_ids: set[uuid.UUID] = set(
+            db.scalars(
+                select(ProjectMember.project_id).where(ProjectMember.user_id == user_id)
+            ).all()
+        )
+
+        bookmarked_project_ids: set[uuid.UUID] = set(
+            db.scalars(
+                select(Bookmark.project_id).where(Bookmark.user_id == user_id)
+            ).all()
+        )
+
+        followed_user_ids: set[uuid.UUID] = set(
+            db.scalars(
+                select(Follower.following_id).where(Follower.follower_id == user_id)
+            ).all()
+        )
+
+        # Organisations where the current user is the owner
+        user_org_owner_ids: set[uuid.UUID] = set(
+            db.scalars(
+                select(Organization.owner_id).where(Organization.owner_id == user_id)
+            ).all()
+        )
+
+        # ---- 2. Load candidate projects (non-archived, not owned by user) ----
+
+        all_projects: list[Project] = list(
+            db.scalars(
+                select(Project)
+                .where(
+                    Project.is_archived == False,  # noqa: E712
+                    Project.owner_id != user_id,
+                )
+                .order_by(Project.created_at.desc())
+            ).all()
+        )
+
+        total_count = len(all_projects)
+        if total_count == 0:
+            return [], 0
+
+        # ---- 3. Batch-load project skills in a single query ----
+
+        project_ids = [p.id for p in all_projects]
+
+        project_skills_rows = db.execute(
+            select(ProjectSkill.project_id, ProjectSkill.skill_id).where(
+                ProjectSkill.project_id.in_(project_ids)
+            )
+        ).all()
+
+        project_skills_map: dict[uuid.UUID, set[uuid.UUID]] = {}
+        for proj_id, skill_id in project_skills_rows:
+            project_skills_map.setdefault(proj_id, set()).add(skill_id)
+
+        # ---- 4. Score every candidate project ----
+
+        scored: list[dict] = []
+        for project in all_projects:
+            proj_skill_ids = project_skills_map.get(project.id, set())
+            total_skills = len(proj_skill_ids)
+            matching_skills = (
+                len(proj_skill_ids & user_skill_ids) if user_skill_ids else 0
+            )
+
+            skill_ratio = matching_skills / max(total_skills, 1)
+
+            is_contributor = project.id in contributed_project_ids
+            is_bookmarked = project.id in bookmarked_project_ids
+            is_org_related = (
+                project.owner_id in followed_user_ids
+                or project.owner_id in user_org_owner_ids
+            )
+
+            score = (
+                skill_ratio * RecommendationService.SKILL_WEIGHT
+                + float(is_contributor) * RecommendationService.CONTRIBUTION_WEIGHT
+                + float(is_bookmarked) * RecommendationService.BOOKMARK_WEIGHT
+                + float(is_org_related) * RecommendationService.ORG_WEIGHT
+            ) * 100  # normalise to 0-100
+
+            scored.append(
+                {
+                    "project": project,
+                    "score": round(score, 2),
+                    "skill_match_count": matching_skills,
+                    "total_skills": total_skills,
+                    "is_previous_contribution": is_contributor,
+                    "is_bookmarked": is_bookmarked,
+                    "is_org_related": is_org_related,
+                }
+            )
+
+        # ---- 5. Rank: highest score first, then newest ----
+
+        scored.sort(key=lambda x: (-x["score"], _project_sort_key(x["project"])))
+
+        # ---- 6. Paginate ----
+
+        paginated = scored[offset : offset + limit]
+
+        return paginated, total_count
+
+
+# -------------------------------------------------------------------
+# Helper
+# -------------------------------------------------------------------
+
+
+def _project_sort_key(project: Project) -> float:
+    """
+    Return a sortable numeric value derived from created_at.
+    Posix timestamp is used so that newer projects sort higher
+    (the outer sort uses descending order).
+    """
+    return project.created_at.timestamp() if project.created_at else 0.0
+
+
 """
 AI-Powered Builder Recommendation Service.
 
@@ -29,13 +217,12 @@ Recommendation factors (per the issue)
 * Network           – Small boost for mutual-follow social proximity.
 """
 
-from __future__ import annotations
 
 import logging
 import math
 import uuid
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy import func, select
@@ -55,6 +242,9 @@ from app.schemas.recommendation import (
     RecommendedBuilder,
     ScoreBreakdown,
 )
+
+if TYPE_CHECKING:
+    from app.schemas.recommendation import RecommendedProject
 
 logger = logging.getLogger(__name__)
 
@@ -489,6 +679,121 @@ class WeightedScoringStrategy(ScoringStrategy):
 
 
 # =====================================================================
+# Strategy interface for Project Recommendations
+# =====================================================================
+
+
+@dataclass
+class ProjectCandidate:
+    """All inputs needed to score a single project."""
+
+    project: Project
+    required_skill_ids: set[uuid.UUID]
+    minimum_experience: int
+    context_tokens: set[str]
+    tech_stack: Optional[str]
+    is_collaborator: bool
+
+
+@dataclass
+class ProjectScoringContext:
+    """The target developer we are matching projects against."""
+
+    builder_skill_ids: set[uuid.UUID] = field(default_factory=set)
+    builder_skill_levels: dict[uuid.UUID, SkillLevel] = field(default_factory=dict)
+    builder_skill_names: set[str] = field(default_factory=set)
+    interest_tokens: set[str] = field(default_factory=set)
+    years_of_experience: int = 0
+    experience_level_rank: int = 0
+
+
+class ProjectScoringStrategy:
+    def score(
+        self,
+        candidate: ProjectCandidate,
+        context: ProjectScoringContext,
+    ) -> tuple[float, ScoreBreakdown, list[str], list[str]]:
+        raise NotImplementedError
+
+
+class WeightedProjectScoringStrategy(ProjectScoringStrategy):
+    def __init__(self, weights: Optional[RecommendationWeights] = None) -> None:
+        self.weights = weights or RecommendationWeights()
+
+    def score(
+        self,
+        candidate: ProjectCandidate,
+        context: ProjectScoringContext,
+    ) -> tuple[float, ScoreBreakdown, list[str], list[str]]:
+        w = self.weights
+
+        # 1. Skills: How well does the builder's skills cover the project's requirements?
+        skills_raw, matched_skill_ids = _skills_score(
+            context.builder_skill_ids,
+            context.builder_skill_levels,
+            candidate.required_skill_ids,
+        )
+        skills = skills_raw * w.skills
+
+        # 2. Interests: Overlap between project description and builder bio.
+        interests = (
+            _interests_score(
+                candidate.context_tokens,
+                context.interest_tokens,
+            )
+            * w.interests
+        )
+
+        # 3. Experience: Does the builder meet the project's minimum years?
+        experience = (
+            _experience_score(
+                context.years_of_experience,
+                context.experience_level_rank,
+                candidate.minimum_experience,
+            )
+            * w.experience
+        )
+
+        # 4. Technologies: Overlap between builder skill names and project tech stack.
+        technologies_raw, matched_techs = _technologies_score(
+            context.builder_skill_names,
+            candidate.tech_stack,
+        )
+        technologies = technologies_raw * w.technologies
+
+        # 5. Availability (not relevant for projects, always give full weight to not penalize)
+        availability = 1.0 * w.availability
+
+        # 6. Contributions (not directly applicable to project ranking, neutral)
+        contributions = 1.0 * w.contributions
+
+        # 7. Network: Has the builder collaborated with this owner before?
+        network = 1.0 if candidate.is_collaborator else 0.0
+        network *= w.network
+
+        breakdown = ScoreBreakdown(
+            skills=round(skills, 6),
+            interests=round(interests, 6),
+            experience=round(experience, 6),
+            technologies=round(technologies, 6),
+            availability=round(availability, 6),
+            contributions=round(contributions, 6),
+            network=round(network, 6),
+        )
+        final = round(
+            skills
+            + interests
+            + experience
+            + technologies
+            + availability
+            + contributions
+            + network,
+            6,
+        )
+        return final, breakdown, matched_skill_ids, matched_techs
+
+
+# =====================================================================
 # Service
 # =====================================================================
 
@@ -506,6 +811,7 @@ class RecommendationService:
 
     # Default scoring strategy instance. Replaceable for tests / future AI.
     _strategy: ScoringStrategy = WeightedScoringStrategy()
+    _project_strategy: ProjectScoringStrategy = WeightedProjectScoringStrategy()
 
     # ------------------------------------------------------------------
     # Public API
@@ -515,6 +821,146 @@ class RecommendationService:
     def set_strategy(cls, strategy: ScoringStrategy) -> None:
         """Swap the active scoring strategy (extensibility hook)."""
         cls._strategy = strategy
+
+    @classmethod
+    def set_project_strategy(cls, strategy: ProjectScoringStrategy) -> None:
+        """Swap the active project scoring strategy."""
+        cls._project_strategy = strategy
+
+    @classmethod
+    def recommend_projects(
+        cls,
+        db: Session,
+        requester: User,
+        limit: int = 20,
+    ) -> list["RecommendedProject"]:
+        """
+        Return a ranked list of recommended projects for the requester.
+        """
+        from app.models.project import ProjectStatus
+        from app.schemas.recommendation import RecommendedProject
+
+        limit = max(1, min(limit, 100))
+
+        # ---- 1. Resolve scoring context --------------------------------
+        requester_skill_ids, requester_skill_levels = cls._load_user_skills(
+            db, requester.id
+        )
+        requester_skill_names = cls._resolve_skill_names(db, requester.id)
+        years_of_experience = cls._resolve_years_of_experience(db, requester.id)
+
+        scoring_context = ProjectScoringContext(
+            builder_skill_ids=set(requester_skill_ids),
+            builder_skill_levels=requester_skill_levels,
+            builder_skill_names=requester_skill_names,
+            interest_tokens=cls._user_interest_tokens(requester),
+            years_of_experience=years_of_experience,
+            experience_level_rank=_experience_rank(requester.experience_level),
+        )
+
+        # ---- 2. Cache lookup ------------------------------------------
+        # Note: we need a slightly different cache_get for RecommendedProject, so we'll bypass it here for simplicity
+        # or just parse it manually if needed. Let's just bypass cache for projects for now or implement _cache_get_projects.
+        # It's better to just compute it dynamically to keep it simple.
+
+        # ---- 3. Collect candidate projects -----------------------------
+        # Load all active projects not owned by the user
+        stmt = select(Project).where(
+            Project.owner_id != requester.id,
+            Project.status == ProjectStatus.OPEN,
+        )
+        candidate_projects = list(db.scalars(stmt))
+        if not candidate_projects:
+            return []
+
+        # Find collaborators
+        # Projects where the user is a member/collaborator
+        # This requires checking ProjectMember or Applications
+        from app.models.application import ApplicationStatus
+        from app.models.project_member import ProjectMember
+
+        collaborator_project_ids = set()
+        member_rows = db.scalars(
+            select(ProjectMember.project_id).where(
+                ProjectMember.user_id == requester.id
+            )
+        )
+        collaborator_project_ids.update(member_rows)
+
+        app_rows = db.scalars(
+            select(Application.project_id).where(
+                Application.applicant_id == requester.id,
+                Application.status == ApplicationStatus.ACCEPTED,
+            )
+        )
+        collaborator_project_ids.update(app_rows)
+
+        # Load project skills
+        project_ids = [p.id for p in candidate_projects]
+        project_skills_rows = db.execute(
+            select(
+                ProjectSkill.project_id,
+                ProjectSkill.skill_id,
+                ProjectSkill.minimum_experience,
+            ).where(
+                ProjectSkill.project_id.in_(project_ids),
+                ProjectSkill.required.is_(True),
+            )
+        )
+
+        project_req_skills: dict[uuid.UUID, set[uuid.UUID]] = {}
+        project_min_exp: dict[uuid.UUID, int] = {}
+
+        for pid, sid, min_exp in project_skills_rows:
+            project_req_skills.setdefault(pid, set()).add(sid)
+            if min_exp > project_min_exp.get(pid, 0):
+                project_min_exp[pid] = min_exp
+
+        # ---- 4. Score & rank ------------------------------------------
+        results: list[RecommendedProject] = []
+        for project in candidate_projects:
+            req_skills = project_req_skills.get(project.id, set())
+            min_exp = project_min_exp.get(project.id, 0)
+
+            candidate = ProjectCandidate(
+                project=project,
+                required_skill_ids=req_skills,
+                minimum_experience=min_exp,
+                context_tokens=_tokenize(project.description)
+                | _tokenize(project.title),
+                tech_stack=project.tech_stack,
+                is_collaborator=(project.id in collaborator_project_ids),
+            )
+
+            final_score, breakdown, matched_skill_ids, matched_techs = (
+                cls._project_strategy.score(candidate, scoring_context)
+            )
+
+            # Fetch owner username
+            owner = db.get(User, project.owner_id)
+            owner_username = owner.username if owner else "unknown"
+
+            results.append(
+                RecommendedProject(
+                    project_id=project.id,
+                    title=project.title,
+                    description=project.description,
+                    owner_username=owner_username,
+                    tech_stack=project.tech_stack,
+                    minimum_experience=min_exp,
+                    status=project.status.value,
+                    matched_skills=matched_skill_ids,
+                    matched_technologies=matched_techs,
+                    score=final_score,
+                    score_breakdown=breakdown,
+                )
+            )
+
+        # Sort by score (desc), then project title
+        results.sort(key=lambda r: (-r.score, r.title))
+        results = results[:limit]
+
+        return results
 
     @classmethod
     def recommend_builders(

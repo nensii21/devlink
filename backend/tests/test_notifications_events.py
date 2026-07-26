@@ -2,6 +2,9 @@ from __future__ import annotations
 
 # pyrefly: ignore [missing-import]
 import pytest
+from app.database.base import Base
+from app.dependencies import get_database
+from app.main import app
 
 # pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
@@ -15,14 +18,7 @@ from sqlalchemy.orm import sessionmaker
 # pyrefly: ignore [missing-import]
 from sqlalchemy.pool import StaticPool
 
-from app.database.base import Base
-from app.dependencies import get_database
-from app.main import app
-
 # Register models
-from app.models.user import User
-from app.models.notification import Notification
-from app.models.follower import Follower
 
 engine = create_engine(
     "sqlite://",
@@ -102,8 +98,8 @@ def test_no_self_notification():
 
 
 def test_notify_returns_none_when_recipient_is_sender():
-    from app.services.notification_service import NotificationService
     from app.models.notification import NotificationType
+    from app.services.notification_service import NotificationService
 
     db = TestingSessionLocal()
     result = NotificationService.notify(
