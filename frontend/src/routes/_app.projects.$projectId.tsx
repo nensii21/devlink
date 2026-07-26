@@ -128,10 +128,43 @@ function ProjectDetail() {
             <p className="mt-1 text-[11px] text-muted-foreground">{p.progress}% complete</p>
           </Card>
           <Card className="p-4">
-            <p className="text-[13px] font-semibold text-foreground">Owner</p>
-            <p className="mt-2 text-[13px] text-muted-foreground">{p.owner}</p>
-            <p className="mt-4 text-[13px] font-semibold text-foreground">Status</p>
-            <p className="mt-1 text-[13px] capitalize text-muted-foreground">{p.status}</p>
+            <h2 className="text-sm font-semibold text-foreground">Project Details</h2>
+
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Owner</span>
+                <span className="font-medium text-foreground">{p.owner}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Status</span>
+                <TagChip className="capitalize">{p.status}</TagChip>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Star size={14} />
+                    <span>{p.stars}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Eye size={14} />
+                    <span>{p.views}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <GitFork size={14} />
+                    <span>{p.forks}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Users2 size={14} />
+                    <span>{p.members}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </Card>
         </div>
       )}
