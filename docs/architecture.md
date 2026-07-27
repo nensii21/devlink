@@ -1,206 +1,324 @@
-# DevLink Architecture Documentation
+# DevLink System Architecture & Mermaid Diagrams
 
-This document provides a comprehensive overview of the DevLink architecture, explaining the overall system design, key components, data flow, background processing, and integration patterns.
-
----
-
-## 1. High-Level Architecture
-
-DevLink uses a decoupled client-server architecture. The frontend is a single-page / server-rendered web application built with React/Next.js and dynamic routing, while the backend is an asynchronous Python API built with FastAPI, PostgreSQL, and Redis.
-
-```mermaid
-graph TB
-    subgraph Client Layer
-        UserClient[Browser / Client App]
-    end
-
-    subgraph API Gateway & Presentation
-        ReverseProxy[Nginx / Cloudflare Ingress]
-        FrontendApp[Frontend Application (React/Next.js)]
-    end
-
-    subgraph Core Backend Services
-        FastAPI[FastAPI Application Server]
-        AuthService[Auth & OAuth Module]
-        MatchService[Matching Algorithm Engine]
-        WebSocketService[Realtime WebSocket Engine]
-    end
-
-    subgraph Data & Storage Layer
-        PostgreSQL[(PostgreSQL Relational DB)]
-        Redis[(Redis Cache & Pub/Sub)]
-        GCS[Cloud Object Storage]
-    end
-
-    subgraph Asynchronous Workers
-        CeleryWorker[Background Workers (Celery/Task Queue)]
-    end
-
-    subgraph External Integrations
-        GitHub[GitHub API]
-        OpenAI[OpenAI / LLM API]
-    end
-
-    UserClient -->|HTTPS / WSS| ReverseProxy
-    ReverseProxy -->|Static / SSR| FrontendApp
-    ReverseProxy -->|REST API & WS| FastAPI
-
-    FastAPI --> AuthService
-    FastAPI --> MatchService
-    FastAPI --> WebSocketService
-    FastAPI --> PostgreSQL
-    FastAPI --> Redis
-
-    FastAPI --> CeleryWorker
-    CeleryWorker --> PostgreSQL
-    CeleryWorker --> Redis
-    CeleryWorker --> GCS
-
-    AuthService --> GitHub
-    MatchService --> OpenAI
-    CeleryWorker --> OpenAI
-```
+This document provides comprehensive architectural specifications and visual Mermaid diagrams for DevLink, including authentication flows, request lifecycle pipelines, component architecture, database entity relationships (ERD), and containerized deployment topology.
 
 ---
 
-## 2. Frontend Architecture
+## 📑 Table of Contents
 
-The frontend application is structured for high modularity, performance, and type safety using React 19, TypeScript, and Tailwind CSS.
-
-### Component Layering
-* **App & Routing**: Next.js App Router / TanStack Router managing application routes and layout wrappers.
-* **Feature Modules**: Self-contained components and hooks structured by domain (`profile`, `projects`, `chat`, `matching`, `settings`).
-* **UI Component Library**: Reusable UI components built on accessibility standards (Radix UI primitives, Tailwind styling).
-* **State & Data Fetching**: React Query / Custom Hooks handling asynchronous API state, caching, optimism, and synchronization.
-
-```mermaid
-graph TD
-    UI[Pages & Layouts] --> Components[Feature Components & UI Elements]
-    Components --> Hooks[Custom Hooks & Context]
-    Hooks --> APIClient[API Module & Axios/Fetch]
-    APIClient --> ServerEndpoint[Backend REST API / WebSockets]
-```
+1. [Authentication Architecture](#1-authentication-architecture)
+2. [Request Lifecycle Pipeline](#2-request-lifecycle-pipeline)
+3. [Component Architecture](#3-component-architecture)
+4. [Database Entity Relationship Diagram (ERD)](#4-database-entity-relationship-diagram-erd)
+5. [Deployment Architecture Topology](#5-deployment-architecture-topology)
 
 ---
 
-## 3. Backend Architecture
+## 1. Authentication Architecture
 
-The backend is built with FastAPI to deliver high-performance, asynchronous REST API endpoints and WebSockets for real-time capabilities.
-
-### Key Architectural Layers
-1. **API Router Layer (`app/api`)**: Endpoint definitions, query parameter parsing, and route handling.
-2. **Schema Layer (`app/schemas`)**: Pydantic models for request validation and response serialization.
-3. **Service Layer (`app/services`)**: Business logic processing, matching calculations, and external integrations.
-4. **Data Access Layer (`app/models`)**: SQLAlchemy ORM models interacting with PostgreSQL.
-5. **Core Config & Security (`app/core`)**: Application configuration, security utilities, and database sessions.
-
-```mermaid
-graph LR
-    Request[HTTP Request] --> Router[API Router]
-    Router --> SchemaValidation[Pydantic Schema Validation]
-    SchemaValidation --> Service[Business Service Layer]
-    Service --> Model[SQLAlchemy Model / ORM]
-    Model --> DB[(PostgreSQL)]
-    Service --> Response[JSON / WS Response]
-```
-
----
-
-## 4. Authentication Flow
-
-DevLink supports both traditional email/password authentication (JWT) and OAuth 2.0 (GitHub).
-
-### JWT & OAuth Authentication Sequence
+DevLink supports dual authentication pathways: standard **JWT Credentials** (email/password with bcrypt hashing) and **GitHub OAuth 2.0**.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User
-    participant Frontend as Frontend App
-    participant API as FastAPI Auth Module
-    participant GitHub as GitHub OAuth API
+    actor User as Developer / User
+    participant Web as Frontend (React 19)
+    participant Auth as FastAPI Auth Router
+    participant GH as GitHub OAuth Provider
     participant DB as PostgreSQL DB
+    participant Redis as Redis Session Cache
 
-    alt Email / Password Auth
-        User->>Frontend: Submit Login Credentials
-        Frontend->>API: POST /api/v1/auth/login
-        API->>DB: Verify credentials & password hash
-        DB-->>API: User Record
-        API-->>Frontend: Return JWT Access & Refresh Tokens
-    else GitHub OAuth Auth
-        User->>Frontend: Click "Login with GitHub"
-        Frontend->>GitHub: Redirect to GitHub Authorize URL
-        GitHub-->>User: Grant Permission Prompt
-        User->>GitHub: Authorize Application
-        GitHub-->>Frontend: Redirect callback with ?code=...
-        Frontend->>API: POST /api/v1/auth/github/callback {code}
-        API->>GitHub: Exchange code for access_token
-        GitHub-->>API: Return GitHub Access Token
-        API->>GitHub: Fetch User Profile Data
-        GitHub-->>API: Return User Profile
-        API->>DB: Find or Create User Record
-        DB-->>API: User Record
-        API-->>Frontend: Return DevLink JWT Access & Refresh Tokens
+    alt 1. JWT Email/Password Login
+        User->>Web: Submit Email & Password
+        Web->>Auth: POST /api/auth/login
+        Auth->>DB: Query user by email
+        DB-->>Auth: User Record & Password Hash
+        Auth->>Auth: Verify Bcrypt Password Hash
+        Auth->>Auth: Generate JWT Access & Refresh Tokens
+        Auth-->>Web: Return { access_token, refresh_token }
+        Web->>Web: Save JWT in Secure Local Storage / HttpOnly Cookie
+    else 2. GitHub OAuth 2.0 Authorization
+        User->>Web: Click "Login with GitHub"
+        Web->>Auth: GET /api/auth/github
+        Auth-->>Web: Return GitHub Authorize URL
+        Web->>GH: Redirect User to GitHub Consent Screen
+        User->>GH: Grant Application Scope Permissions
+        GH-->>Web: Redirect back to /auth/callback?code=AUTH_CODE
+        Web->>Auth: GET /api/auth/github/callback?code=AUTH_CODE
+        Auth->>GH: POST /login/oauth/access_token { code, client_secret }
+        GH-->>Auth: Return GitHub access_token
+        Auth->>GH: GET /user (Fetch Profile & Primary Email)
+        GH-->>Auth: Return GitHub User Profile JSON
+        Auth->>DB: Find existing or register new User record
+        DB-->>Auth: Saved User Record
+        Auth->>Auth: Generate DevLink JWT Tokens
+        Auth-->>Web: Return JWT Tokens & User Session
     end
-
-    Frontend->>Frontend: Store Token securely & Set Auth Context
+    Web->>Redis: Cache Active Session Metadata
 ```
 
 ---
 
-## 5. Database Interaction
+## 2. Request Lifecycle Pipeline
 
-DevLink utilizes PostgreSQL as its primary transactional database with SQLAlchemy ORM for schema definition and query management.
-
-* **Migrations**: Managed via Alembic for version-controlled database schema changes.
-* **Connection Pooling**: SQLAlchemy async engines utilize connection pooling for high throughput.
-* **Caching Layer**: Redis caches frequent queries (such as user profiles, matching metadata, and active socket sessions) to minimize database hit frequency.
-
-```mermaid
-erDiagram
-    USERS ||--o{ PROJECTS : creates
-    USERS ||--o{ APPLICATIONS : submits
-    USERS ||--o{ BOOKMARKS : saves
-    USERS ||--o{ MESSAGES : sends
-    PROJECTS ||--o{ APPLICATIONS : receives
-    PROJECTS ||--o{ ISSUES : tracks
-    PROJECTS ||--o{ BOOKMARKS : receives
-```
-
----
-
-## 6. Background Jobs & Real-Time Processing
-
-Complex operations and notifications run outside the synchronous HTTP request/response cycle.
-
-* **Background Task Queue**: Celery workers powered by Redis as a message broker handle asynchronous tasks like sending emails, processing uploaded resumes/portfolios, and periodic GitHub repository syncing.
-* **Real-time WebSockets**: Async WebSocket handlers manage instant messaging, typing indicators, online state, and immediate notification dispatching.
+Every incoming HTTP request traverses a series of security, rate limiting, and validation middleware layers before reaching business services and returning a response.
 
 ```mermaid
 graph TD
-    Client[Client App] -->|HTTP Request| API[FastAPI Server]
-    API -->|Dispatch Task| RedisBroker[(Redis Queue)]
-    RedisBroker -->|Consume| CeleryWorker[Celery Worker]
-    CeleryWorker -->|Process & Notify| DB[(PostgreSQL)]
-    CeleryWorker -->|Pub/Sub Notification| WS[WebSocket Manager]
-    WS -->|Realtime Update| Client
+    Client[Client Browser / Application] -->|HTTP POST/GET Request| Ingress[Nginx Ingress / Reverse Proxy]
+    
+    subgraph Middleware Pipeline
+        Ingress --> Middleware1[RequestID Middleware: Tag X-Request-ID]
+        Middleware1 --> Middleware2[Security Headers Middleware: CSP, HSTS, X-Frame]
+        Middleware2 --> Middleware3[Activity Tracking Middleware: Log Client IP & Path]
+        Middleware3 --> Middleware4[SlowAPI Rate Limiter: Check Rate Limits]
+        Middleware4 --> Middleware5[CORS Middleware: Validate Origin & Headers]
+    end
+
+    subgraph API Execution & Serialization
+        Middleware5 -->|Valid Request| Router[FastAPI APIRouter Route Handler]
+        Router --> Pydantic[Pydantic Schema Validation]
+        Pydantic -->|Validation Error 422| ErrResponse[Return 422 Unprocessable Entity]
+        Pydantic -->|Valid Payload| Service[Business Logic Service Layer]
+        
+        Service -->|Query Cache| Redis[(Redis Cache)]
+        Redis -->|Cache Hit| Service
+        
+        Service -->|DB Query| ORM[SQLAlchemy Async Engine]
+        ORM --> DB[(PostgreSQL Database)]
+        DB --> ORM
+        ORM --> Service
+
+        Service --> TaskQueue[Async Event Bus / Celery Worker]
+    end
+
+    Service -->|Success JSON| HTTP200[HTTP 200/201 JSON Response]
+    HTTP200 --> Client
 ```
 
 ---
 
-## 7. External Services Integration
+## 3. Component Architecture
 
-DevLink integrates with third-party APIs to provide rich user profiles and AI features:
+DevLink is structured into decoupled frontend presentation modules and modular backend domain routers/services.
 
-1. **GitHub API**: Fetch user repositories, commit statistics, open-source activity, and contribution graphs.
-2. **OpenAI API / LLM Providers**: Power smart teammate matching, automated bio summaries, project compatibility scoring, and skill extraction.
-3. **Cloud Object Storage (S3 / GCS)**: Store user avatars, uploaded resumes, and project assets securely.
+```mermaid
+graph TB
+    subgraph Frontend Application Layer React 19 / TypeScript
+        UI[Pages & Layout Components]
+        Routes[TanStack Router / App Routes]
+        Contexts[Sidebar, Auth & Theme Contexts]
+        
+        subgraph Feature Components
+            ProfileComp[Profile & Teammate Cards]
+            ProjectComp[Project Marketplace & Filters]
+            ChatComp[WebSocket Direct Messenger]
+            SearchComp[Global Search & Suggestions]
+        end
+
+        Query[TanStack React Query Cache]
+        APIClient[Axios / Fetch API Client Layer]
+        
+        UI --> Routes
+        Routes --> Feature Components
+        Feature Components --> Contexts
+        Feature Components --> Query
+        Query --> APIClient
+    end
+
+    subgraph Backend Application Layer FastAPI / Python
+        APIClient -->|REST & WebSockets| APIGateway[FastAPI Application Gateway]
+
+        subgraph Router Modules
+            AuthRouter[app/routers/auth.py]
+            UserRouter[app/routers/users.py]
+            ProjRouter[app/routers/projects.py]
+            MsgRouter[app/routers/messages.py]
+            RecRouter[app/routers/recommendations.py]
+            WSRouter[app/routers/websockets.py]
+        end
+
+        subgraph Core Business Services
+            AuthService[Authentication & Password Hash Service]
+            MatchService[Teammate Matching Engine]
+            WSService[WebSocket Connection Manager]
+            QualityService[Repo Quality Scoring Service]
+        end
+
+        APIGateway --> Router Modules
+        AuthRouter --> AuthService
+        UserRouter --> QualityService
+        ProjRouter --> MatchService
+        RecRouter --> MatchService
+        WSRouter --> WSService
+        MsgRouter --> WSService
+    end
+
+    subgraph Infrastructure Layer
+        AuthService --> DB[(PostgreSQL)]
+        MatchService --> Redis[(Redis)]
+        WSService --> Redis
+    end
+```
 
 ---
 
-## 8. Navigation & Document Links
+## 4. Database Entity Relationship Diagram (ERD)
 
+The PostgreSQL relational schema models users, projects, applications, direct messages, bookmarks, and activity feeds.
+
+```mermaid
+erDiagram
+    USERS {
+        uuid id PK
+        string email UK
+        string username UK
+        string password_hash
+        string full_name
+        string headline
+        text bio
+        string avatar_url
+        string github_username
+        jsonb skills
+        jsonb social_links
+        timestamp created_at
+    }
+
+    PROJECTS {
+        uuid id PK
+        uuid owner_id FK
+        string title
+        string tagline
+        text description
+        string category
+        jsonb tech_stack
+        jsonb open_roles
+        string repository_url
+        int stars_count
+        timestamp created_at
+    }
+
+    APPLICATIONS {
+        uuid id PK
+        uuid project_id FK
+        uuid applicant_id FK
+        string role_applied
+        text cover_note
+        string status
+        timestamp created_at
+    }
+
+    MESSAGES {
+        uuid id PK
+        uuid conversation_id FK
+        uuid sender_id FK
+        text content
+        boolean read_status
+        timestamp created_at
+    }
+
+    CONVERSATIONS {
+        uuid id PK
+        uuid participant_a FK
+        uuid participant_b FK
+        timestamp updated_at
+    }
+
+    BOOKMARKS {
+        uuid id PK
+        uuid user_id FK
+        uuid project_id FK
+        timestamp created_at
+    }
+
+    BUILDER_FLARES {
+        uuid id PK
+        uuid user_id FK
+        string title
+        text content
+        jsonb tags
+        timestamp created_at
+    }
+
+    FOLLOWERS {
+        uuid id PK
+        uuid follower_id FK
+        uuid following_id FK
+        timestamp created_at
+    }
+
+    USERS ||--o{ PROJECTS : "creates and owns"
+    USERS ||--o{ APPLICATIONS : "submits"
+    PROJECTS ||--o{ APPLICATIONS : "receives"
+    USERS ||--o{ BOOKMARKS : "saves"
+    PROJECTS ||--o{ BOOKMARKS : "bookmarked by"
+    USERS ||--o{ MESSAGES : "sends"
+    CONVERSATIONS ||--o{ MESSAGES : "contains"
+    USERS ||--o{ CONVERSATIONS : "participates in"
+    USERS ||--o{ BUILDER_FLARES : "posts"
+    USERS ||--o{ FOLLOWERS : "follows / followed by"
+```
+
+---
+
+## 5. Deployment Architecture Topology
+
+Production deployment topology using containerized microservices behind a high-availability reverse proxy and managed cloud infrastructure.
+
+```mermaid
+graph TB
+    subgraph Internet & Edge Security
+        User[End Users / Developers]
+        Cloudflare[Cloudflare CDN & DDoS Protection]
+    end
+
+    subgraph Cloud Infrastructure VPC
+        subgraph Public Subnet
+            Ingress[Nginx Ingress Controller SSL/TLS Termination]
+        end
+
+        subgraph Container Orchestration Cluster Docker / K8s
+            FrontendPod[Frontend Container React 19 / Vite Node Server]
+            BackendPod1[FastAPI Backend Container Replica 1]
+            BackendPod2[FastAPI Backend Container Replica 2]
+            WorkerPod[Celery Background Task Worker]
+        end
+
+        subgraph Private Database Subnet
+            PostgresMaster[(Managed PostgreSQL Primary)]
+            PostgresReplica[(Managed PostgreSQL Read Replica)]
+            RedisCluster[(Redis Sentinel Cluster Cache & Broker)]
+        end
+
+        subgraph Cloud Storage
+            S3[Cloud Object Storage Avatars & Assets]
+        end
+    end
+
+    User --> Cloudflare
+    Cloudflare --> Ingress
+    Ingress -->|Static / SSR| FrontendPod
+    Ingress -->|API & WebSocket| BackendPod1
+    Ingress -->|API & WebSocket| BackendPod2
+
+    BackendPod1 --> PostgresMaster
+    BackendPod2 --> PostgresMaster
+    BackendPod1 --> RedisCluster
+    BackendPod2 --> RedisCluster
+    
+    BackendPod1 --> WorkerPod
+    WorkerPod --> PostgresMaster
+    WorkerPod --> RedisCluster
+    WorkerPod --> S3
+    BackendPod1 --> S3
+    PostgresMaster -.->|Replication| PostgresReplica
+```
+
+---
+
+## 🔗 Related Documentation
+
+* [API Reference](api.md)
+* [Development Setup](development.md)
 * [Deployment Guide](deployment.md)
-* [Development Guide](development.md)
 * [Coding Standards](coding-standards.md)
-* [Root README](../README.md)

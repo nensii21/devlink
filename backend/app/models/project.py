@@ -68,7 +68,7 @@ class Project(Base):
         index=True,
     )
 
-    owner = relationship("User", backref="projects")
+    owner = relationship("User", foreign_keys=[owner_id], backref="projects")
 
     # ----------------------------------------------------------
     # Basic Information

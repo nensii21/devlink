@@ -201,3 +201,21 @@ class UserMessage(BaseModel):
 class UsernameAvailabilityResponse(BaseModel):
     available: bool
     message: str
+
+
+# ==========================================================
+# Profile Completion Response
+# ==========================================================
+
+
+class ProfileCompletionResponse(BaseModel):
+    completion: int = Field(
+        ...,
+        ge=0,
+        le=100,
+        description="Profile completion percentage (0-100)",
+    )
+    missing: list[str] = Field(
+        ...,
+        description="List of missing profile factors",
+    )

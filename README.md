@@ -85,7 +85,8 @@ DevLink is an open-source developer collaboration platform. It helps developers 
 | Bookmarks & Saved Searches | Save projects and store custom search queries |
 | Notifications | Real-time event notifications delivered via WebSockets |
 
----
+```text
+                    Browser
 
 ## Tech Stack
 
@@ -341,7 +342,7 @@ git push origin feat/your-feature
 
 Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 
----
+Nensi Patel
 
 ## Acknowledgements
 

@@ -29,14 +29,13 @@ export const authApi = {
     tokenStore.set(res.access_token, res.refresh_token);
     return res;
   },
-  async logout() {
+async logout() {
     try {
-      await api.post<void>("/api/auth/logout");
+      await api.post<void>("/api/auth/logout", { refresh_token: tokenStore.getRefresh() });
     } finally {
       tokenStore.clear();
     }
-  },
-  me: () => api.get<AuthUser>("/api/auth/me"),
+  },  me: () => api.get<AuthUser>("/api/auth/me"),
   forgotPassword: (email: string) =>
     api.post<{ ok: true }>("/api/auth/forgot-password", { email }, { auth: false }),
   resetPassword: (token: string, password: string) =>

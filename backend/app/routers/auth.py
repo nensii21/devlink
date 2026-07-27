@@ -35,8 +35,8 @@ from app.schemas.auth import (
     RegisterRequest,
     GitHubLoginRequest,
     RefreshTokenRequest,
-    LogoutResponse,
-    CurrentUserResponse,
+    LogoutRequest,
+    LogoutResponse,    CurrentUserResponse,
     ChangePasswordRequest,
     ForgotPasswordResponse,
     ResetPasswordRequest,
@@ -277,10 +277,9 @@ def refresh(
             detail="Invalid refresh token.",
         )
 
-    auth_service = AuthService(db)
+auth_service = AuthService(db)
 
-    return auth_service.refresh_token(token_payload["sub"])
-
+    return auth_service.refresh_token(payload.refresh_token)
 
 # ==========================================================
 # Logout
@@ -295,14 +294,36 @@ def refresh(
 @limiter.limit("10/minute")
 def logout(
     request: Request,
+    payload: LogoutRequest,
     user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_database),
 ):
 
     auth_service = AuthService(db)
 
-    return auth_service.logout(user_id)
+    return auth_service.logout(user_id, payload.refresh_token)
 
+
+# ==========================================================
+# Logout From All Devices (bonus)
+# ==========================================================
+
+
+@router.post(
+    "/logout-all",
+    response_model=LogoutResponse,
+    summary="Logout from all devices",
+)
+@limiter.limit("10/minute")
+def logout_all(
+    request: Request,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_database),
+):
+
+    auth_service = AuthService(db)
+
+    return auth_service.logout_all_devices(user_id)
 
 from app.schemas.auth import (  # noqa: E402
     ChangePasswordRequest,

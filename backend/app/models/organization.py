@@ -185,6 +185,7 @@ class Organization(Base):
 
     owner = relationship(
         "User",
+        foreign_keys=[owner_id],
         backref="organizations",
     )
 

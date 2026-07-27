@@ -246,3 +246,89 @@ def test_non_owner_cannot_toggle_settings():
         resp = client.patch(f"/organizations/{org_id}/{action}", headers=other_headers)
         assert resp.status_code == 403
         assert "permission denied" in resp.json()["detail"].lower()
+
+
+def test_auto_slug_generation_and_lookup():
+    client = TestClient(app)
+    owner_id, owner_token = _register_and_login(client, "slugowner@x.com", "slugowner")
+    headers = {"Authorization": f"Bearer {owner_token}"}
+
+    # Create org without providing slug
+    res = client.post(
+        "/organizations/",
+        json={
+            "name": "DevLink Labs",
+            "organization_type": "startup",
+        },
+        headers=headers,
+    )
+    assert res.status_code == 201
+    data = res.json()
+    assert data["slug"] == "devlink-labs"
+
+    # Lookup by generated slug
+    lookup_res = client.get("/organizations/slug/devlink-labs")
+    assert lookup_res.status_code == 200
+    assert lookup_res.json()["id"] == data["id"]
+    assert lookup_res.json()["name"] == "DevLink Labs"
+
+
+def test_slug_collision_handling():
+    client = TestClient(app)
+    owner_id, owner_token = _register_and_login(client, "colowner@x.com", "colowner")
+    headers = {"Authorization": f"Bearer {owner_token}"}
+
+    # Create 3 organizations with names that generate colliding base slugs
+    res1 = client.post(
+        "/organizations/",
+        json={"name": "DevLink Labs", "organization_type": "startup"},
+        headers=headers,
+    )
+    res2 = client.post(
+        "/organizations/",
+        json={"name": "DevLink-Labs", "organization_type": "company"},
+        headers=headers,
+    )
+    res3 = client.post(
+        "/organizations/",
+        json={"name": "DevLink _ Labs", "organization_type": "community"},
+        headers=headers,
+    )
+
+    assert res1.status_code == 201
+    assert res2.status_code == 201
+    assert res3.status_code == 201
+
+    assert res1.json()["slug"] == "devlink-labs"
+    assert res2.json()["slug"] == "devlink-labs-1"
+    assert res3.json()["slug"] == "devlink-labs-2"
+
+
+def test_check_slug_availability():
+    client = TestClient(app)
+    owner_id, owner_token = _register_and_login(
+        client, "checkowner@x.com", "checkowner"
+    )
+    headers = {"Authorization": f"Bearer {owner_token}"}
+
+    # Available check before creation
+    check_before = client.get("/organizations/check-slug/unique-org-slug")
+    assert check_before.status_code == 200
+    assert check_before.json() == {"slug": "unique-org-slug", "available": True}
+
+    # Create org with custom slug
+    res = client.post(
+        "/organizations/",
+        json={
+            "name": "Unique Org",
+            "slug": "unique-org-slug",
+            "organization_type": "startup",
+        },
+        headers=headers,
+    )
+    assert res.status_code == 201
+
+    # Check availability after creation
+    check_after = client.get("/organizations/check-slug/unique-org-slug")
+    assert check_after.status_code == 200
+    assert check_after.json() == {"slug": "unique-org-slug", "available": False}

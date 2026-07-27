@@ -440,7 +440,7 @@ def invite_user(
 )
 def restore_project_soft_delete(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -476,7 +476,7 @@ def restore_project_soft_delete(
 )
 def hard_delete_project(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 

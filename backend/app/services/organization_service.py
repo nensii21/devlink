@@ -15,6 +15,7 @@ from app.schemas.organization import (
     OrganizationUpdate,
 )
 from app.services.activity_service import ActivityService
+from app.utils.validators import slugify
 
 
 class OrganizationService:
@@ -23,16 +24,53 @@ class OrganizationService:
     """
 
     @staticmethod
+    def generate_unique_slug(
+        db: Session,
+        name: str,
+        exclude_org_id: uuid.UUID | None = None,
+    ) -> str:
+        """
+        Generate a unique, human-readable slug from organization name or text.
+        Handles collisions by appending numeric increments (-1, -2, etc.).
+        """
+        base_slug = slugify(name)
+        if not base_slug:
+            base_slug = "organization"
+
+        slug = base_slug
+        counter = 1
+
+        while True:
+            stmt = select(Organization).where(
+                Organization.slug == slug,
+                Organization.deleted_at.is_(None),
+            )
+            if exclude_org_id:
+                stmt = stmt.where(Organization.id != exclude_org_id)
+
+            existing = db.scalar(stmt)
+            if not existing:
+                return slug
+
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+
+    @staticmethod
     def create_organization(
         db: Session,
         owner_id: uuid.UUID,
         organization: OrganizationCreate,
     ) -> Organization:
 
+        if organization.slug and organization.slug.strip():
+            slug = OrganizationService.generate_unique_slug(db, organization.slug)
+        else:
+            slug = OrganizationService.generate_unique_slug(db, organization.name)
+
         db_organization = Organization(
             owner_id=owner_id,
             name=organization.name,
-            slug=organization.slug,
+            slug=slug,
             description=organization.description,
             organization_type=organization.organization_type,
             website=organization.website,
@@ -174,6 +212,11 @@ class OrganizationService:
     ) -> Organization:
 
         data = organization.model_dump(exclude_unset=True)
+
+        if "slug" in data and data["slug"]:
+            data["slug"] = OrganizationService.generate_unique_slug(
+                db, data["slug"], exclude_org_id=db_organization.id
+            )
 
         for key, value in data.items():
             setattr(db_organization, key, value)

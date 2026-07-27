@@ -16,6 +16,7 @@ from app.schemas.organization import (
     OrganizationCreate,
     OrganizationResponse,
     OrganizationUpdate,
+    SlugCheckResponse,
 )
 from app.services.organization_service import OrganizationService
 
@@ -35,17 +36,25 @@ def create_organization(
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
-
-    if OrganizationService.get_by_slug(db, organization.slug):
-        raise HTTPException(
-            status_code=400,
-            detail="Organization slug already exists",
-        )
-
     return OrganizationService.create_organization(
         db=db,
         owner_id=current_user.id,
         organization=organization,
+    )
+
+
+@router.get(
+    "/check-slug/{slug}",
+    response_model=SlugCheckResponse,
+)
+def check_slug_availability(
+    slug: str,
+    db: Session = Depends(get_database),
+):
+    existing = OrganizationService.get_by_slug(db, slug)
+    return SlugCheckResponse(
+        slug=slug,
+        available=existing is None,
     )
 
 
@@ -318,8 +327,6 @@ def disable_hiring(
 )
 def delete_organization(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),
     current_user: User = Depends(require_org_permission("org:delete")),
 ):
@@ -348,7 +355,7 @@ def delete_organization(
 )
 def restore_organization_soft_delete(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -386,7 +393,7 @@ def restore_organization_soft_delete(
 )
 def hard_delete_organization(
     organization_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
