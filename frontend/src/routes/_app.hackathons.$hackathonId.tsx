@@ -1,26 +1,22 @@
 import { useState } from "react";
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { hackathonsService } from "@/services";
-import { Card, TagChip, EmptyState, Skeleton } from "@/components/shared/primitives";
-import {
-  ArrowLeft,
-  Trophy,
-  Users2,
-  Clock,
-  Calendar,
-  Award,
-  GitBranch,
-  ExternalLink,
-} from "lucide-react";
+import { Card, TagChip, Skeleton } from "@/components/shared/primitives";
+import { Trophy, Users2, Calendar, ExternalLink, CheckCircle2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BackButton } from "@/components/shared/BackButton";
+import { RegisterDialog } from "@/components/hackathons/RegisterDialog";
+import { TeamsTab } from "@/components/hackathons/TeamsTab";
+import { SubmissionsTab } from "@/components/hackathons/SubmissionsTab";
+import { LeaderboardTab } from "@/components/hackathons/LeaderboardTab";
+import { cn } from "@/lib/utils";
 
 type Tab = "overview" | "teams" | "submissions" | "leaderboard";
 
-function getTabFromURL(): Tab {
-  const params = new URLSearchParams(window.location.search);
-  const tab = params.get("tab");
+function getInitialTab(): Tab {
+  if (typeof window === "undefined") return "overview";
+  const tab = new URLSearchParams(window.location.search).get("tab");
   if (tab === "overview" || tab === "teams" || tab === "submissions" || tab === "leaderboard")
     return tab;
   return "overview";
@@ -38,23 +34,36 @@ export const Route = createFileRoute("/_app/hackathons/$hackathonId")({
 
 function HackathonDetail() {
   const { hackathonId } = Route.useParams();
+  const queryClient = useQueryClient();
+  const [tab, setTab] = useState<Tab>(getInitialTab);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [registered, setRegistered] = useState(() => hackathonsService.isRegistered(hackathonId));
+
   const { data: hackathon, isLoading } = useQuery({
     queryKey: ["hackathon", hackathonId],
     queryFn: () => hackathonsService.get(hackathonId),
   });
+
   const { data: teams = [] } = useQuery({
     queryKey: ["hackathon-teams", hackathonId],
     queryFn: () => hackathonsService.getTeams(hackathonId),
     enabled: !!hackathonId,
   });
-  const [tab, setTab] = useState<Tab>(getTabFromURL);
 
-  const handleTabChange = (value: string) => {
+  function handleTabChange(value: string) {
     setTab(value as Tab);
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", value);
-    window.history.replaceState({}, "", url.toString());
-  };
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", value);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }
+
+  function handleRegistered() {
+    setRegistered(true);
+    setRegisterOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["hackathon", hackathonId] });
+  }
 
   if (isLoading) {
     return (
@@ -88,26 +97,35 @@ function HackathonDetail() {
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
+  const canRegister =
+    !registered && hackathon.status !== "completed" && hackathon.status !== "cancelled";
+
   return (
     <div className="space-y-4">
       <BackButton to="/hackathons" label="Back to hackathons" />
 
       <Card className="p-4">
         <div className="flex flex-wrap items-start gap-5">
-          <span className="grid h-24 w-24 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
-            <Trophy size={32} />
+          <span className="grid h-24 w-24 shrink-0 place-items-center rounded-full bg-muted text-4xl">
+            🏆
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h1 className="text-[22px] font-bold text-foreground">{hackathon.name}</h1>
               <TagChip
-                className={
-                  hackathon.status === "completed"
-                    ? "text-muted-foreground border-border bg-muted"
-                    : "text-primary border-primary/30 bg-primary/10"
-                }
+                className={cn(
+                  hackathon.status === "registration_open"
+                    ? "border-success/30 bg-success/10 text-success"
+                    : hackathon.status === "in_progress"
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : hackathon.status === "judging"
+                        ? "border-warning/30 bg-warning/10 text-warning"
+                        : hackathon.status === "completed"
+                          ? "border-success/30 bg-success/10 text-success"
+                          : "border-border bg-muted text-muted-foreground",
+                )}
               >
-                {hackathon.status.replace("_", " ")}
+                {hackathon.status.replace(/_/g, " ")}
               </TagChip>
             </div>
             {hackathon.theme && (
@@ -123,16 +141,35 @@ function HackathonDetail() {
                 <Users2 size={12} /> {hackathon.min_team_size}–{hackathon.max_team_size} per team
               </span>
               {hackathon.prize && (
-                <TagChip className="text-warning border-warning/30 bg-warning/10">
+                <TagChip className="border-warning/30 bg-warning/10 text-warning">
                   {hackathon.prize}
                 </TagChip>
               )}
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90">
-              Register
-            </button>
+            {registered ? (
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-[13px] font-semibold text-success">
+                <CheckCircle2 size={14} /> Registered
+              </span>
+            ) : canRegister ? (
+              <button
+                onClick={() => setRegisterOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Register
+              </button>
+            ) : null}
+            {hackathon.website_url && (
+              <a
+                href={hackathon.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-[13px] font-medium text-foreground hover:bg-muted"
+              >
+                <ExternalLink size={13} /> Website
+              </a>
+            )}
           </div>
         </div>
       </Card>
@@ -141,7 +178,7 @@ function HackathonDetail() {
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Status</p>
           <p className="mt-2 text-[24px] font-bold capitalize text-foreground">
-            {hackathon.status.replace("_", " ")}
+            {hackathon.status.replace(/_/g, " ")}
           </p>
         </Card>
         <Card className="p-4">
@@ -159,7 +196,14 @@ function HackathonDetail() {
       <Tabs value={tab} onValueChange={handleTabChange}>
         <TabsList className="overflow-x-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="teams">Teams</TabsTrigger>
+          <TabsTrigger value="teams">
+            Teams
+            {teams.length > 0 && (
+              <span className="ml-1.5 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                {teams.length}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
         </TabsList>
@@ -186,67 +230,25 @@ function HackathonDetail() {
         </TabsContent>
 
         <TabsContent value="teams">
-          {teams.length === 0 ? (
-            <Card className="p-8">
-              <EmptyState
-                title="No teams yet"
-                desc="Be the first to create a team for this hackathon."
-                action={<Users2 size={20} className="text-muted-foreground" />}
-              />
-            </Card>
-          ) : (
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {teams.map((team) => (
-                <Card key={team.id} interactive className="p-4">
-                  <div className="flex items-start gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-muted text-xl">
-                      <Users2 size={16} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[14px] font-semibold text-foreground">
-                        {team.name}
-                      </p>
-                      {team.description && (
-                        <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
-                          {team.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      <Users2 size={12} /> {team.member_count} members
-                    </span>
-                    <button className="rounded-md border border-border px-2 py-1 text-[11px] font-medium hover:bg-muted">
-                      Join
-                    </button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
+          <TeamsTab hackathonId={hackathonId} maxTeamSize={hackathon.max_team_size} />
         </TabsContent>
 
         <TabsContent value="submissions">
-          <Card className="p-8">
-            <EmptyState
-              title="No submissions yet"
-              desc="Submissions will appear here once teams start shipping."
-              action={<GitBranch size={20} className="text-muted-foreground" />}
-            />
-          </Card>
+          <SubmissionsTab hackathonId={hackathonId} teams={teams} />
         </TabsContent>
 
         <TabsContent value="leaderboard">
-          <Card className="p-8">
-            <EmptyState
-              title="No scores yet"
-              desc="The leaderboard will be populated after judging begins."
-              action={<Award size={20} className="text-muted-foreground" />}
-            />
-          </Card>
+          <LeaderboardTab hackathonId={hackathonId} />
         </TabsContent>
       </Tabs>
+
+      <RegisterDialog
+        hackathonId={hackathonId}
+        hackathonName={hackathon.name}
+        open={registerOpen}
+        onOpenChange={setRegisterOpen}
+        onRegistered={handleRegistered}
+      />
     </div>
   );
 }

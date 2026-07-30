@@ -7,6 +7,7 @@
 // switch to the real endpoints automatically.
 
 import * as seed from "@/mocks/seed";
+import { hackathonStore } from "@/mocks/hackathonStore";
 import {
   isBackendConfigured,
   projectsApi,
@@ -215,23 +216,57 @@ export const notificationsService = {
 };
 
 export const hackathonsService = {
-  list: () => withFallback(() => hackathonsApi.list(), seed.hackathons),
+  list: () =>
+    isBackendConfigured()
+      ? hackathonsApi.list().catch(() => hackathonStore.getAll())
+      : mock(hackathonStore.getAll()),
+
   get: (id: string) =>
-    withFallback(() => hackathonsApi.get(id), seed.hackathons.find((h) => h.id === id) ?? null),
-  create: (body: Partial<Hackathon>) => withFallback(() => hackathonsApi.create(body), null),
+    isBackendConfigured()
+      ? hackathonsApi.get(id).catch(() => hackathonStore.getById(id))
+      : mock(hackathonStore.getById(id)),
+
+  create: (body: Partial<Hackathon>) =>
+    isBackendConfigured()
+      ? hackathonsApi.create(body).catch(() => hackathonStore.create(body))
+      : hackathonStore.create(body),
+
   update: (id: string, body: Partial<Hackathon>) =>
     withFallback(() => hackathonsApi.update(id, body), null),
+
   delete: (id: string) => withFallback(() => hackathonsApi.delete(id), undefined),
+
   register: (id: string, body?: { motivation?: string }) =>
-    withFallback(() => hackathonsApi.register(id, body), undefined),
+    isBackendConfigured() ? hackathonsApi.register(id, body) : hackathonStore.register(id),
+
   cancelRegistration: (id: string) =>
-    withFallback(() => hackathonsApi.cancelRegistration(id), undefined),
-  getTeams: (id: string) => withFallback(() => hackathonsApi.getTeams(id), []),
+    isBackendConfigured()
+      ? hackathonsApi.cancelRegistration(id)
+      : hackathonStore.cancelRegistration(id),
+
+  isRegistered: (id: string) => !isBackendConfigured() && hackathonStore.isRegistered(id),
+
+  getTeams: (id: string) =>
+    isBackendConfigured()
+      ? hackathonsApi.getTeams(id).catch(() => hackathonStore.getTeams(id))
+      : mock(hackathonStore.getTeams(id)),
+
   createTeam: (id: string, body: { name: string; description?: string }) =>
-    withFallback(() => hackathonsApi.createTeam(id, body), null),
-  joinTeam: (teamId: string) => withFallback(() => hackathonsApi.joinTeam(teamId), undefined),
-  leaveTeam: (teamId: string) => withFallback(() => hackathonsApi.leaveTeam(teamId), undefined),
-  getSubmissions: (id: string) => withFallback(() => hackathonsApi.getSubmissions(id), []),
+    isBackendConfigured()
+      ? hackathonsApi.createTeam(id, body)
+      : hackathonStore.createTeam(id, body),
+
+  joinTeam: (teamId: string) =>
+    isBackendConfigured() ? hackathonsApi.joinTeam(teamId) : hackathonStore.joinTeam(teamId),
+
+  leaveTeam: (teamId: string) =>
+    isBackendConfigured() ? hackathonsApi.leaveTeam(teamId) : hackathonStore.leaveTeam(teamId),
+
+  getSubmissions: (id: string) =>
+    isBackendConfigured()
+      ? hackathonsApi.getSubmissions(id).catch(() => hackathonStore.getSubmissions(id))
+      : mock(hackathonStore.getSubmissions(id)),
+
   createSubmission: (
     id: string,
     body: {
@@ -241,8 +276,15 @@ export const hackathonsService = {
       repo_url?: string;
       demo_url?: string;
     },
-  ) => withFallback(() => hackathonsApi.createSubmission(id, body), null),
-  getLeaderboard: (id: string) => withFallback(() => hackathonsApi.getLeaderboard(id), []),
+  ) =>
+    isBackendConfigured()
+      ? hackathonsApi.createSubmission(id, body)
+      : hackathonStore.createSubmission(id, body),
+
+  getLeaderboard: (id: string) =>
+    isBackendConfigured()
+      ? hackathonsApi.getLeaderboard(id).catch(() => hackathonStore.getLeaderboard(id))
+      : mock(hackathonStore.getLeaderboard(id)),
 };
 
 export const techStackService = {
@@ -294,6 +336,9 @@ export type {
   Conversation,
   Notification,
   Hackathon,
+  HackathonTeam,
+  HackathonSubmission,
+  HackathonLeaderboardEntry,
   Deadline,
 } from "@/mocks/seed";
 

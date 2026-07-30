@@ -1,11 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import {
-  LayoutDashboard,
-  Users2,
-  MessageSquare,
-  Bell,
-} from "lucide-react";
+import { LayoutDashboard, Users2, MessageSquare, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -61,8 +56,7 @@ export function BottomNavigation() {
       )}
     >
       {NAV_ITEMS.map((item) => {
-        const isActive =
-          pathname === item.to || pathname.startsWith(item.to + "/");
+        const isActive = pathname === item.to || pathname.startsWith(item.to + "/");
         const Icon = item.icon;
 
         return (
@@ -93,10 +87,7 @@ export function BottomNavigation() {
               <Icon
                 size={22}
                 strokeWidth={isActive ? 2.25 : 1.75}
-                className={cn(
-                  "transition-transform duration-200",
-                  isActive && "scale-110",
-                )}
+                className={cn("transition-transform duration-200", isActive && "scale-110")}
               />
               {item.badge !== undefined && item.badge > 0 && (
                 <span

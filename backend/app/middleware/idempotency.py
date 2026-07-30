@@ -89,12 +89,18 @@ class IdempotentRoute(APIRoute):
                 # Only cache successful or client-error responses, not 500s
                 if hasattr(response, "body") and response.status_code < 500:
                     body_bytes = getattr(response, "body", b"")
-                    body_str = body_bytes.decode("utf-8") if isinstance(body_bytes, bytes) else str(body_bytes)
+                    body_str = (
+                        body_bytes.decode("utf-8")
+                        if isinstance(body_bytes, bytes)
+                        else str(body_bytes)
+                    )
                     cache_payload = {
                         "status_code": response.status_code,
                         "headers": dict(response.headers),
                         "body": body_str,
-                        "media_type": getattr(response, "media_type", "application/json"),
+                        "media_type": getattr(
+                            response, "media_type", "application/json"
+                        ),
                     }
                     redis_client.setex(
                         cache_key, 86400, json.dumps(cache_payload)

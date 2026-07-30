@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { searchApi } from "@/api/modules/search";
+import { searchApi, searchHistoryStorage } from "@/api/modules/search";
 import { useDebounce } from "@/hooks/useDebounce";
 import type {
   SearchAutocompleteResponse,
   SearchCategory,
+  SearchHistoryItem,
   SearchResponse,
 } from "@/api/modules/search";
 
@@ -27,6 +28,8 @@ export interface GlobalSearchState {
   suggestions: SearchAutocompleteResponse | null;
   /** Full search results (only populated when query is non-empty). */
   results: SearchResponse | null;
+  /** Recent search history items */
+  recentSearches: SearchHistoryItem[];
 }
 
 export interface UseGlobalSearchOptions {
@@ -49,6 +52,12 @@ export interface UseGlobalSearchReturn extends GlobalSearchState {
   clear: () => void;
   /** Manually re-trigger a search with the current state. */
   refresh: () => void;
+  /** Delete a specific history item by ID. */
+  removeHistoryItem: (id: string) => void;
+  /** Clear all local search history. */
+  clearHistory: () => void;
+  /** Manually record a query into history. */
+  saveToHistory: (queryToSave?: string) => void;
 }
 
 // ---------------------------------------------------------------------
@@ -64,14 +73,43 @@ export function useGlobalSearch(options: UseGlobalSearchOptions = {}): UseGlobal
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<SearchAutocompleteResponse | null>(null);
   const [results, setResults] = useState<SearchResponse | null>(null);
+  const [recentSearches, setRecentSearches] = useState<SearchHistoryItem[]>([]);
 
   const debouncedQuery = useDebounce(query, debounceMs);
 
+  // Load history on initial mount
+  useEffect(() => {
+    setRecentSearches(searchHistoryStorage.get());
+  }, []);
+
   // Track the latest request so stale responses don't overwrite newer state.
-  // Two separate counters because the full-search and autocomplete effects
-  // run independently and should not invalidate each other's responses.
   const searchRequestIdRef = useRef(0);
   const autocompleteRequestIdRef = useRef(0);
+
+  // -------------------------------------------------------------------
+  // History Helpers
+  // -------------------------------------------------------------------
+
+  const saveToHistory = useCallback(
+    (queryToSave?: string) => {
+      const q = queryToSave ?? debouncedQuery;
+      if (q.trim().length >= minQueryLength) {
+        const updated = searchHistoryStorage.add(q, category ?? "all");
+        setRecentSearches(updated);
+      }
+    },
+    [debouncedQuery, category, minQueryLength],
+  );
+
+  const removeHistoryItem = useCallback((id: string) => {
+    const updated = searchHistoryStorage.remove(id);
+    setRecentSearches(updated);
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    searchHistoryStorage.clear();
+    setRecentSearches([]);
+  }, []);
 
   // -------------------------------------------------------------------
   // Full search effect — fires when debouncedQuery or category changes.
@@ -90,6 +128,9 @@ export function useGlobalSearch(options: UseGlobalSearchOptions = {}): UseGlobal
     setLoading(true);
     setError(null);
 
+    // Save search query into history on successful execution
+    saveToHistory(trimmed);
+
     searchApi
       .all({ q: trimmed, category: category ?? undefined, limit })
       .then((res) => {
@@ -107,7 +148,7 @@ export function useGlobalSearch(options: UseGlobalSearchOptions = {}): UseGlobal
         if (searchRequestIdRef.current !== requestId) return;
         setLoading(false);
       });
-  }, [debouncedQuery, category, limit, minQueryLength]);
+  }, [debouncedQuery, category, limit, minQueryLength, saveToHistory]);
 
   // -------------------------------------------------------------------
   // Autocomplete effect — fires on debouncedQuery only (not category).
@@ -162,9 +203,6 @@ export function useGlobalSearch(options: UseGlobalSearchOptions = {}): UseGlobal
   }, []);
 
   const refresh = useCallback(() => {
-    // Re-trigger the full-search effect by toggling the query state.
-    // Setting the same value via setQuery would be a no-op, so we bump
-    // a hidden counter by re-using setCategory with the same value.
     setCategory((c) => c);
   }, []);
 
@@ -176,9 +214,13 @@ export function useGlobalSearch(options: UseGlobalSearchOptions = {}): UseGlobal
     error,
     suggestions,
     results,
+    recentSearches,
     setQuery,
     setCategory,
     clear,
     refresh,
+    removeHistoryItem,
+    clearHistory,
+    saveToHistory,
   };
 }

@@ -189,7 +189,9 @@ class ConnectionManager:
                 if (now - last_act).total_seconds() > timeout_seconds:
                     self.presence_states[user_id] = "away"
                     await self.broadcast_to_all(
-                        _event("presence.status_changed", user_id=user_id, status="away")
+                        _event(
+                            "presence.status_changed", user_id=user_id, status="away"
+                        )
                     )
 
     # ── Message delivery ─────────────────────────────────────────────────
@@ -212,7 +214,9 @@ class ConnectionManager:
         for user_id in members:
             await self.send_personal_message(message, user_id)
 
-    async def broadcast_to_all(self, message: dict, exclude_user_id: Optional[str] = None) -> None:
+    async def broadcast_to_all(
+        self, message: dict, exclude_user_id: Optional[str] = None
+    ) -> None:
         """Broadcast ``message`` to every connected user (use sparingly)."""
         for user_id in list(self.active_connections.keys()):
             if user_id == exclude_user_id:

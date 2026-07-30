@@ -29,6 +29,11 @@ export const authApi = {
     tokenStore.set(res.access_token, res.refresh_token);
     return res;
   },
+  async githubLogin(code: string) {
+    const res = await api.post<AuthResponse>("/api/auth/github", { code }, { auth: false });
+    tokenStore.set(res.access_token, res.refresh_token);
+    return res;
+  },
   async logout() {
     try {
       await api.post<void>("/api/auth/logout", { refresh_token: tokenStore.getRefresh() });

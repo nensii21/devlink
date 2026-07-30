@@ -15,8 +15,6 @@ from app.schemas.project import ProjectCreate
 from app.services.project_service import ProjectService
 
 
-
-
 def _create_user(db, email: str, username: str) -> User:
     user = User(
         email=email,

@@ -130,7 +130,10 @@ def test_upload_api_endpoint(client: TestClient, register_and_login):
     # using client.get
     fetch_main = client.get(data["url"])
     assert fetch_main.status_code == 200
-    assert fetch_main.headers["content-type"] in ("image/webp", "application/octet-stream")
+    assert fetch_main.headers["content-type"] in (
+        "image/webp",
+        "application/octet-stream",
+    )
 
     fetch_thumb = client.get(data["thumbnail_url"])
     assert fetch_thumb.status_code == 200

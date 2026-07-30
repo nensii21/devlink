@@ -1,5 +1,15 @@
 import { Card } from "@/components/shared/primitives";
-import { Folder, Mail, MessageCircle, Share2, Users2, TrendingUp, TrendingDown, Minus, type LucideIcon } from "lucide-react";
+import {
+  Folder,
+  Mail,
+  MessageCircle,
+  Share2,
+  Users2,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  type LucideIcon,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { stats } from "@/mocks/seed";
 import { cn } from "@/lib/utils";
@@ -35,19 +45,24 @@ export function StatsRow() {
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.03, duration: 0.2 }}
+            className="h-full"
           >
             <Card
               interactive
-              className="flex flex-col gap-3 rounded-xl p-5 transition-all duration-200 border-border/60 hover:border-border bg-card shadow-sm"
+              className="flex flex-col h-full gap-3 rounded-2xl p-4 transition-all duration-200 border-border/60 hover:border-border hover:shadow-md bg-card shadow-sm"
             >
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground p-2 rounded-lg bg-muted/30">
+                <span className="text-muted-foreground p-1.5 rounded-lg bg-muted/30">
                   <Icon size={16} />
                 </span>
                 <span
                   className={cn(
                     "flex items-center gap-1 text-[11px] font-semibold tracking-wider",
-                    trend.positive === true ? "text-success" : trend.positive === false ? "text-destructive" : "text-muted-foreground"
+                    trend.positive === true
+                      ? "text-success"
+                      : trend.positive === false
+                        ? "text-destructive"
+                        : "text-muted-foreground",
                   )}
                 >
                   {trend.positive === true && <TrendingUp size={12} />}
@@ -57,12 +72,10 @@ export function StatsRow() {
                 </span>
               </div>
               <div className="mt-1">
-                <p className="text-2xl font-semibold tracking-tight text-foreground">
+                <p className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
                   {s.value}
                 </p>
-                <p className="mt-1 text-[13px] font-medium text-muted-foreground">
-                  {s.label}
-                </p>
+                <p className="mt-0.5 text-xs font-medium text-muted-foreground">{s.label}</p>
               </div>
             </Card>
           </motion.div>

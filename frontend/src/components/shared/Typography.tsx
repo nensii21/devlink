@@ -103,11 +103,7 @@ export function TypoSection({
 }: PolymorphicProps<"h2" | "h3" | "h4" | "div">) {
   return (
     <Tag
-      className={cn(
-        "font-semibold leading-snug text-foreground",
-        "text-xl sm:text-2xl",
-        className,
-      )}
+      className={cn("font-semibold leading-snug text-foreground", "text-xl sm:text-2xl", className)}
       {...props}
     >
       {children}

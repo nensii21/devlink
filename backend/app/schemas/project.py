@@ -6,9 +6,6 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-# pyrefly: ignore [missing-import]
-from pydantic import BaseModel, ConfigDict
-
 from app.models.project import ProjectStage, ProjectVisibility
 
 # ==========================================================
@@ -23,9 +20,8 @@ class ProjectBase(BaseModel):
         max_length=200,
     )
 
-    slug: str = Field(
-        ...,
-        min_length=1,
+    slug: Optional[str] = Field(
+        default=None,
         max_length=200,
     )
 
@@ -44,41 +40,14 @@ class ProjectBase(BaseModel):
 
     tech_stack: Optional[str] = None
 
-    repository_url: Optional[HttpUrl] = None
-    website_url: Optional[HttpUrl] = None
-    demo_url: Optional[HttpUrl] = None
-
-    team_size: int = 1
-    max_team_size: int = 5
-    hiring: bool = True
-
-    logo_url: Optional[HttpUrl] = None
-    banner_url: Optional[HttpUrl] = None
-
-
-# ==========================================================
-# Create Project
-# ==========================================================
-class ProjectBase(BaseModel):
-    title: str
-    slug: str
-    tagline: Optional[str] = None
-    description: str
-    stage: ProjectStage = ProjectStage.IDEA
-    visibility: ProjectVisibility = ProjectVisibility.PUBLIC
-    tech_stack: Optional[str] = None
-    language: Optional[str] = None
-    experience: Optional[str] = None
-    is_remote: bool = False
-    is_paid: bool = False
-    is_open_source: bool = False
-    tags: Optional[list[str]] = None
     repository_url: Optional[str] = None
     website_url: Optional[str] = None
     demo_url: Optional[str] = None
+
     team_size: int = 1
     max_team_size: int = 5
     hiring: bool = True
+
     logo_url: Optional[str] = None
     banner_url: Optional[str] = None
 
@@ -90,6 +59,11 @@ class ProjectBase(BaseModel):
 
     scheduled_publish_at: Optional[datetime] = None
     is_published: bool = True
+
+
+# ==========================================================
+# Create Project
+# ==========================================================
 
 
 class ProjectCreate(ProjectBase):
@@ -109,32 +83,6 @@ class ProjectUpdate(BaseModel):
     stage: Optional[ProjectStage] = None
     visibility: Optional[ProjectVisibility] = None
     tech_stack: Optional[str] = None
-    repository_url: Optional[HttpUrl] = None
-    website_url: Optional[HttpUrl] = None
-    demo_url: Optional[HttpUrl] = None
-    team_size: Optional[int] = None
-    max_team_size: Optional[int] = None
-    hiring: Optional[bool] = None
-    logo_url: Optional[HttpUrl] = None
-    banner_url: Optional[HttpUrl] = None
-
-
-# ==========================================================
-# Project Response
-# ==========================================================
-
-
-class ProjectResponse(ProjectBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-
-    language: Optional[str] = None
-    experience: Optional[str] = None
-    is_remote: Optional[bool] = None
-    is_paid: Optional[bool] = None
-    is_open_source: Optional[bool] = None
-    tags: Optional[list[str]] = None
     repository_url: Optional[str] = None
     website_url: Optional[str] = None
     demo_url: Optional[str] = None
@@ -152,6 +100,11 @@ class ProjectResponse(ProjectBase):
 
     scheduled_publish_at: Optional[datetime] = None
     is_published: Optional[bool] = None
+
+
+# ==========================================================
+# Project Response
+# ==========================================================
 
 
 class SimilarProjectWarning(BaseModel):
@@ -180,23 +133,20 @@ class ProjectResponse(ProjectBase):
     id: uuid.UUID
     owner_id: uuid.UUID
 
-    stars: int
-    views: int
-    applications_count: int
+    stars: int = 0
+    views: int = 0
+    applications_count: int = 0
 
-    is_featured: bool
-    is_archived: bool
+    is_featured: bool = False
+    is_archived: bool = False
 
     created_at: datetime
     updated_at: datetime
 
     deleted_at: Optional[datetime] = None
     deleted_by_id: Optional[uuid.UUID] = None
-    scheduled_publish_at: Optional[datetime]
-    is_published: bool
-
-    created_at: datetime
-    updated_at: datetime
+    scheduled_publish_at: Optional[datetime] = None
+    is_published: bool = True
 
 
 class ProjectDraftCreate(ProjectBase):

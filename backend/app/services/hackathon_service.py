@@ -401,24 +401,31 @@ class HackathonService:
             select(
                 HackathonTeam.id,
                 HackathonTeam.name,
-                sqlfunc.sum(HackathonScore.score).label("total_score"),
-                sqlfunc.count(HackathonScore.id).label("score_count"),
+                HackathonSubmission.title.label("submission_title"),
+                sqlfunc.avg(HackathonScore.score).label("avg_score"),
+                sqlfunc.count(HackathonScore.id).label("judge_count"),
             )
             .join(HackathonSubmission, HackathonSubmission.team_id == HackathonTeam.id)
-            .join(HackathonScore, HackathonScore.submission_id == HackathonSubmission.id)
+            .join(
+                HackathonScore, HackathonScore.submission_id == HackathonSubmission.id
+            )
             .where(HackathonTeam.hackathon_id == hackathon_id)
-            .group_by(HackathonTeam.id, HackathonTeam.name)
-            .order_by(sqlfunc.sum(HackathonScore.score).desc())
+            .group_by(HackathonTeam.id, HackathonTeam.name, HackathonSubmission.title)
+            .order_by(sqlfunc.avg(HackathonScore.score).desc())
         )
 
         results = db.execute(stmt).all()
 
         return [
             {
+                "rank": idx + 1,
                 "team_id": str(row.id),
                 "team_name": row.name,
-                "total_score": row.total_score,
-                "score_count": row.score_count,
+                "submission_title": row.submission_title or "",
+                "avg_score": (
+                    round(float(row.avg_score), 1) if row.avg_score is not None else 0.0
+                ),
+                "judge_count": row.judge_count,
             }
-            for row in results
+            for idx, row in enumerate(results)
         ]

@@ -187,9 +187,6 @@ def logout(
     return auth_service.logout(user_id, refresh_token_str=refresh_token_str)
 
 
-
-
-
 import httpx  # noqa: E402
 from app.schemas.auth import GitHubLoginRequest  # noqa: E402
 

@@ -177,12 +177,20 @@ def _render_html_dashboard(data: dict) -> str:
         badge_bg = (
             "#D1FAE5"
             if srv_status == "healthy"
-            else ("#FEF3C7" if srv_status in ("unconfigured", "disabled", "no_workers") else "#FEE2E2")
+            else (
+                "#FEF3C7"
+                if srv_status in ("unconfigured", "disabled", "no_workers")
+                else "#FEE2E2"
+            )
         )
         badge_text = (
             "#065F46"
             if srv_status == "healthy"
-            else ("#92400E" if srv_status in ("unconfigured", "disabled", "no_workers") else "#991B1B")
+            else (
+                "#92400E"
+                if srv_status in ("unconfigured", "disabled", "no_workers")
+                else "#991B1B"
+            )
         )
 
         details = ""
@@ -300,11 +308,17 @@ async def health_dashboard(
         },
     }
 
-    wants_html = format == "html" or (accept and "text/html" in accept and "application/json" not in accept)
+    wants_html = format == "html" or (
+        accept and "text/html" in accept and "application/json" not in accept
+    )
     if wants_html:
         return HTMLResponse(content=_render_html_dashboard(data), status_code=200)
 
-    http_status_code = status.HTTP_200_OK if system_status in ("healthy", "degraded") else status.HTTP_503_SERVICE_UNAVAILABLE
+    http_status_code = (
+        status.HTTP_200_OK
+        if system_status in ("healthy", "degraded")
+        else status.HTTP_503_SERVICE_UNAVAILABLE
+    )
     return JSONResponse(status_code=http_status_code, content=data)
 
 

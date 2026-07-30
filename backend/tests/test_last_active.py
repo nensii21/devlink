@@ -25,8 +25,6 @@ from app.schemas.auth import CurrentUserResponse  # noqa: E402
 from app.schemas.user import CurrentUser, UserResponse  # noqa: E402
 
 
-
-
 @pytest.fixture()
 def db():
     session = TestingSessionLocal()

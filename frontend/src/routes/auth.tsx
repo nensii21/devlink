@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Eye, EyeOff, Github } from "lucide-react";
 import { APP_LOGO } from "@/lib/logo";
 import { useForm } from "react-hook-form";
@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { LoadingButton } from "@/components/shared/LoadingButton";
-
+import { authApi } from "@/api/modules/auth";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -53,6 +53,17 @@ function AuthScreen() {
   const err = "mt-1 text-[12px] text-destructive";
   const lbl = "block text-[13px] font-semibold text-foreground mb-1";
 
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("code");
+    if (!code) return;
+    authApi
+      .githubLogin(code)
+      .then(() => {
+        toast.success("Signed in with GitHub");
+        navigate({ to: "/dashboard" });
+      })
+      .catch(() => toast.error("GitHub sign-in failed"));
+  }, [navigate]);
   const onSubmit = useCallback(async () => {
     if (submitting) return;
     setSubmitting(true);
@@ -73,9 +84,20 @@ function AuthScreen() {
       </Link>
 
       <div className="w-full max-w-[500px] rounded-md border border-border bg-surface px-8 py-6">
-        <button className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
+        <button
+          type="button"
+          onClick={() => {
+            const params = new URLSearchParams({
+              client_id: import.meta.env.VITE_GITHUB_CLIENT_ID ?? "",
+              redirect_uri: window.location.origin + "/auth",
+              scope: "read:user user:email",
+            });
+            window.location.href = `https://github.com/login/oauth/authorize?${params}`;
+          }}
+          className="mb-3 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted"
+        >
           <Github size={16} /> Continue with GitHub
-        </button>
+        </button>{" "}
         <button className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface px-3 py-[8px] text-[14px] font-medium text-foreground hover:bg-muted">
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
             <path
@@ -97,13 +119,11 @@ function AuthScreen() {
           </svg>
           Continue with Google
         </button>
-
         <div className="mb-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
           <span className="text-[12px] text-muted-foreground">Or</span>
           <div className="h-px flex-1 bg-border" />
         </div>
-
         {mode === "signin" ? (
           <form onSubmit={signInForm.handleSubmit(onSubmit)} noValidate>
             <div className="mb-4">
@@ -236,7 +256,6 @@ function AuthScreen() {
             </LoadingButton>
           </form>
         )}
-
         <p className="mt-2 text-center text-[13px] text-muted-foreground">
           {mode === "signin" ? (
             <>

@@ -1,9 +1,12 @@
 import { api } from "../client";
 
+export type BookmarkTargetType = "project" | "flare";
+
 export interface BookmarkResponse {
   id: string;
   user_id: string;
-  project_id: string;
+  target_type: BookmarkTargetType;
+  target_id: string;
   created_at: string;
 }
 
@@ -18,12 +21,14 @@ export interface BookmarkCountResponse {
 export const bookmarksApi = {
   list: () => api.get<BookmarkResponse[]>("/bookmarks/"),
 
-  check: (projectId: string) => api.get<BookmarkCheckResponse>(`/bookmarks/check/${projectId}`),
+  check: (targetType: BookmarkTargetType, targetId: string) =>
+    api.get<BookmarkCheckResponse>(`/bookmarks/check/${targetType}/${targetId}`),
 
-  count: (projectId: string) =>
-    api.get<BookmarkCountResponse>(`/bookmarks/project/${projectId}/count`),
+  count: (targetType: BookmarkTargetType, targetId: string) =>
+    api.get<BookmarkCountResponse>(`/bookmarks/${targetType}/${targetId}/count`),
 
-  add: (projectId: string) => api.post<BookmarkResponse>(`/bookmarks/project/${projectId}`),
+  add: (targetType: BookmarkTargetType, targetId: string) =>
+    api.post<BookmarkResponse>(`/bookmarks/${targetType}/${targetId}`),
 
   remove: (bookmarkId: string) => api.delete<void>(`/bookmarks/${bookmarkId}`),
 };

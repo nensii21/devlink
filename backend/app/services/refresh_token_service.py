@@ -93,8 +93,6 @@ class RefreshTokenService:
         db.refresh(token)
         return token
 
-
-
     @staticmethod
     def get_active_sessions(
         db: Session,

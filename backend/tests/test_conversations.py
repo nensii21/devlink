@@ -17,8 +17,6 @@ from app.schemas.conversation import ConversationCreate
 from app.services.conversation_service import ConversationService
 
 
-
-
 def _create_user(db, email: str, username: str) -> User:
     user = User(
         email=email,

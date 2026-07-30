@@ -10,14 +10,7 @@
  * - Toggles `.dark` class on `document.documentElement`
  */
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
 
 export type Theme = "light" | "dark" | "system";
 

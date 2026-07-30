@@ -12,7 +12,6 @@ from app.models.hackathon_registration import RegistrationStatus
 from app.models.hackathon_submission import SubmissionStatus
 from app.models.hackathon_team import TeamMemberRole
 
-
 # ==============================================================
 # Hackathon
 # ==============================================================
@@ -203,7 +202,9 @@ class HackathonScoreResponse(HackathonScoreBase):
 
 
 class HackathonLeaderboardEntry(BaseModel):
+    rank: int = 0
     team_id: str
     team_name: str
-    total_score: int | None = None
-    score_count: int = 0
+    submission_title: str = ""
+    avg_score: float = 0.0
+    judge_count: int = 0

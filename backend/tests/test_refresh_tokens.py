@@ -15,7 +15,6 @@ from app.models.refresh_token import RefreshToken
 from tests.conftest import TestingSessionLocal
 
 
-
 def _register_user(client: TestClient, email: str, username: str):
     return client.post(
         "/api/auth/register",

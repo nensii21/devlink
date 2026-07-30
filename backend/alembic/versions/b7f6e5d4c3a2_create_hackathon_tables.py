@@ -40,7 +40,15 @@ def upgrade() -> None:
         sa.Column("website_url", sa.String(length=500), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("draft", "registration_open", "in_progress", "judging", "completed", "cancelled", name="hackathonstatus"),
+            sa.Enum(
+                "draft",
+                "registration_open",
+                "in_progress",
+                "judging",
+                "completed",
+                "cancelled",
+                name="hackathonstatus",
+            ),
             server_default="draft",
             nullable=False,
         ),
@@ -60,9 +68,15 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["created_by"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_hackathons_created_by"), "hackathons", ["created_by"], unique=False)
-    op.create_index(op.f("ix_hackathons_status"), "hackathons", ["status"], unique=False)
-    op.create_index(op.f("ix_hackathons_created_at"), "hackathons", ["created_at"], unique=False)
+    op.create_index(
+        op.f("ix_hackathons_created_by"), "hackathons", ["created_by"], unique=False
+    )
+    op.create_index(
+        op.f("ix_hackathons_status"), "hackathons", ["status"], unique=False
+    )
+    op.create_index(
+        op.f("ix_hackathons_created_at"), "hackathons", ["created_at"], unique=False
+    )
 
     # hackathon_teams
     op.create_table(
@@ -85,12 +99,24 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["created_by"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_hackathon_teams_hackathon_id"), "hackathon_teams", ["hackathon_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_teams_created_by"), "hackathon_teams", ["created_by"], unique=False)
+    op.create_index(
+        op.f("ix_hackathon_teams_hackathon_id"),
+        "hackathon_teams",
+        ["hackathon_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_teams_created_by"),
+        "hackathon_teams",
+        ["created_by"],
+        unique=False,
+    )
 
     # hackathon_team_members
     op.create_table(
@@ -117,13 +143,25 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["team_id"], ["hackathon_teams.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["team_id"], ["hackathon_teams.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("team_id", "user_id", name="uq_hackathon_team_member"),
     )
-    op.create_index(op.f("ix_hackathon_team_members_team_id"), "hackathon_team_members", ["team_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_team_members_user_id"), "hackathon_team_members", ["user_id"], unique=False)
+    op.create_index(
+        op.f("ix_hackathon_team_members_team_id"),
+        "hackathon_team_members",
+        ["team_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_team_members_user_id"),
+        "hackathon_team_members",
+        ["user_id"],
+        unique=False,
+    )
 
     # hackathon_registrations
     op.create_table(
@@ -134,7 +172,13 @@ def upgrade() -> None:
         sa.Column("team_id", sa.UUID(), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("pending", "confirmed", "cancelled", "waitlisted", name="registrationstatus"),
+            sa.Enum(
+                "pending",
+                "confirmed",
+                "cancelled",
+                "waitlisted",
+                name="registrationstatus",
+            ),
             server_default="pending",
             nullable=False,
         ),
@@ -152,16 +196,42 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["team_id"], ["hackathon_teams.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(
+            ["team_id"], ["hackathon_teams.id"], ondelete="SET NULL"
+        ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("hackathon_id", "user_id", name="uq_hackathon_registration"),
+        sa.UniqueConstraint(
+            "hackathon_id", "user_id", name="uq_hackathon_registration"
+        ),
     )
-    op.create_index(op.f("ix_hackathon_registrations_hackathon_id"), "hackathon_registrations", ["hackathon_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_registrations_user_id"), "hackathon_registrations", ["user_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_registrations_status"), "hackathon_registrations", ["status"], unique=False)
-    op.create_index(op.f("ix_hackathon_registrations_created_at"), "hackathon_registrations", ["created_at"], unique=False)
+    op.create_index(
+        op.f("ix_hackathon_registrations_hackathon_id"),
+        "hackathon_registrations",
+        ["hackathon_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_registrations_user_id"),
+        "hackathon_registrations",
+        ["user_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_registrations_status"),
+        "hackathon_registrations",
+        ["status"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_registrations_created_at"),
+        "hackathon_registrations",
+        ["created_at"],
+        unique=False,
+    )
 
     # hackathon_submissions
     op.create_table(
@@ -176,7 +246,14 @@ def upgrade() -> None:
         sa.Column("demo_url", sa.String(length=500), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("draft", "submitted", "in_review", "accepted", "rejected", name="submissionstatus"),
+            sa.Enum(
+                "draft",
+                "submitted",
+                "in_review",
+                "accepted",
+                "rejected",
+                name="submissionstatus",
+            ),
             server_default="draft",
             nullable=False,
         ),
@@ -192,14 +269,33 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["team_id"], ["hackathon_teams.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["team_id"], ["hackathon_teams.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["submitted_by"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_hackathon_submissions_hackathon_id"), "hackathon_submissions", ["hackathon_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_submissions_team_id"), "hackathon_submissions", ["team_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_submissions_status"), "hackathon_submissions", ["status"], unique=False)
+    op.create_index(
+        op.f("ix_hackathon_submissions_hackathon_id"),
+        "hackathon_submissions",
+        ["hackathon_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_submissions_team_id"),
+        "hackathon_submissions",
+        ["team_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_submissions_status"),
+        "hackathon_submissions",
+        ["status"],
+        unique=False,
+    )
 
     # hackathon_judges
     op.create_table(
@@ -213,13 +309,25 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["hackathon_id"], ["hackathons.id"], ondelete="CASCADE"
+        ),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("hackathon_id", "user_id", name="uq_hackathon_judge"),
     )
-    op.create_index(op.f("ix_hackathon_judges_hackathon_id"), "hackathon_judges", ["hackathon_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_judges_user_id"), "hackathon_judges", ["user_id"], unique=False)
+    op.create_index(
+        op.f("ix_hackathon_judges_hackathon_id"),
+        "hackathon_judges",
+        ["hackathon_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_judges_user_id"),
+        "hackathon_judges",
+        ["user_id"],
+        unique=False,
+    )
 
     # hackathon_scores
     op.create_table(
@@ -241,13 +349,27 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["submission_id"], ["hackathon_submissions.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["judge_id"], ["hackathon_judges.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["submission_id"], ["hackathon_submissions.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["judge_id"], ["hackathon_judges.id"], ondelete="CASCADE"
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("submission_id", "judge_id", name="uq_hackathon_score"),
     )
-    op.create_index(op.f("ix_hackathon_scores_submission_id"), "hackathon_scores", ["submission_id"], unique=False)
-    op.create_index(op.f("ix_hackathon_scores_judge_id"), "hackathon_scores", ["judge_id"], unique=False)
+    op.create_index(
+        op.f("ix_hackathon_scores_submission_id"),
+        "hackathon_scores",
+        ["submission_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_hackathon_scores_judge_id"),
+        "hackathon_scores",
+        ["judge_id"],
+        unique=False,
+    )
 
     # ### end Alembic commands ###
 
@@ -257,28 +379,53 @@ def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
 
     op.drop_index(op.f("ix_hackathon_scores_judge_id"), table_name="hackathon_scores")
-    op.drop_index(op.f("ix_hackathon_scores_submission_id"), table_name="hackathon_scores")
+    op.drop_index(
+        op.f("ix_hackathon_scores_submission_id"), table_name="hackathon_scores"
+    )
     op.drop_table("hackathon_scores")
     op.execute("DROP TYPE IF EXISTS submissionstatus")
 
     op.drop_index(op.f("ix_hackathon_judges_user_id"), table_name="hackathon_judges")
-    op.drop_index(op.f("ix_hackathon_judges_hackathon_id"), table_name="hackathon_judges")
+    op.drop_index(
+        op.f("ix_hackathon_judges_hackathon_id"), table_name="hackathon_judges"
+    )
     op.drop_table("hackathon_judges")
 
-    op.drop_index(op.f("ix_hackathon_submissions_status"), table_name="hackathon_submissions")
-    op.drop_index(op.f("ix_hackathon_submissions_team_id"), table_name="hackathon_submissions")
-    op.drop_index(op.f("ix_hackathon_submissions_hackathon_id"), table_name="hackathon_submissions")
+    op.drop_index(
+        op.f("ix_hackathon_submissions_status"), table_name="hackathon_submissions"
+    )
+    op.drop_index(
+        op.f("ix_hackathon_submissions_team_id"), table_name="hackathon_submissions"
+    )
+    op.drop_index(
+        op.f("ix_hackathon_submissions_hackathon_id"),
+        table_name="hackathon_submissions",
+    )
     op.drop_table("hackathon_submissions")
 
-    op.drop_index(op.f("ix_hackathon_registrations_created_at"), table_name="hackathon_registrations")
-    op.drop_index(op.f("ix_hackathon_registrations_status"), table_name="hackathon_registrations")
-    op.drop_index(op.f("ix_hackathon_registrations_user_id"), table_name="hackathon_registrations")
-    op.drop_index(op.f("ix_hackathon_registrations_hackathon_id"), table_name="hackathon_registrations")
+    op.drop_index(
+        op.f("ix_hackathon_registrations_created_at"),
+        table_name="hackathon_registrations",
+    )
+    op.drop_index(
+        op.f("ix_hackathon_registrations_status"), table_name="hackathon_registrations"
+    )
+    op.drop_index(
+        op.f("ix_hackathon_registrations_user_id"), table_name="hackathon_registrations"
+    )
+    op.drop_index(
+        op.f("ix_hackathon_registrations_hackathon_id"),
+        table_name="hackathon_registrations",
+    )
     op.drop_table("hackathon_registrations")
     op.execute("DROP TYPE IF EXISTS registrationstatus")
 
-    op.drop_index(op.f("ix_hackathon_team_members_user_id"), table_name="hackathon_team_members")
-    op.drop_index(op.f("ix_hackathon_team_members_team_id"), table_name="hackathon_team_members")
+    op.drop_index(
+        op.f("ix_hackathon_team_members_user_id"), table_name="hackathon_team_members"
+    )
+    op.drop_index(
+        op.f("ix_hackathon_team_members_team_id"), table_name="hackathon_team_members"
+    )
     op.drop_table("hackathon_team_members")
     op.execute("DROP TYPE IF EXISTS teammemberrole")
 

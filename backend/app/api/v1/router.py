@@ -55,19 +55,35 @@ api_v1_router.include_router(users.router, prefix="/users", tags=["Users"])
 api_v1_router.include_router(blocks.router, prefix="/blocks", tags=["User Blocks"])
 api_v1_router.include_router(export.router, prefix="/users", tags=["Export"])
 api_v1_router.include_router(projects.router, prefix="/projects", tags=["Projects"])
-api_v1_router.include_router(builder_flares.router, prefix="/flare", tags=["Builder's Flare"])
+api_v1_router.include_router(
+    builder_flares.router, prefix="/flare", tags=["Builder's Flare"]
+)
 api_v1_router.include_router(messages.router, prefix="/messages", tags=["Messages"])
-api_v1_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
+api_v1_router.include_router(
+    notifications.router, prefix="/notifications", tags=["Notifications"]
+)
 api_v1_router.include_router(followers.router, prefix="/followers", tags=["Followers"])
 api_v1_router.include_router(bookmarks.router)
 api_v1_router.include_router(bookmark_collections.router)
 api_v1_router.include_router(activities.router)
 api_v1_router.include_router(conversations.router)
 api_v1_router.include_router(issues.router, prefix="/issues", tags=["Issues"])
-api_v1_router.include_router(profile_summary.router, prefix="/profile-summary", tags=["Profile Summary"])
-api_v1_router.include_router(conversation_starters.router, prefix="/conversation-starters", tags=["Conversation Starters"])
-api_v1_router.include_router(project_tags.router, prefix="/project-tags", tags=["Project Tags"])
-api_v1_router.include_router(contributor_matching.router, prefix="/contributor-matching", tags=["Contributor Matching"])
+api_v1_router.include_router(
+    profile_summary.router, prefix="/profile-summary", tags=["Profile Summary"]
+)
+api_v1_router.include_router(
+    conversation_starters.router,
+    prefix="/conversation-starters",
+    tags=["Conversation Starters"],
+)
+api_v1_router.include_router(
+    project_tags.router, prefix="/project-tags", tags=["Project Tags"]
+)
+api_v1_router.include_router(
+    contributor_matching.router,
+    prefix="/contributor-matching",
+    tags=["Contributor Matching"],
+)
 api_v1_router.include_router(repositories.router)
 api_v1_router.include_router(organizations.router)
 api_v1_router.include_router(applications.router)
@@ -78,4 +94,6 @@ api_v1_router.include_router(repository_quality.router, tags=["Repository Qualit
 api_v1_router.include_router(health.router)
 api_v1_router.include_router(search.router, prefix="/search", tags=["Search"])
 api_v1_router.include_router(saved_searches.router)
-api_v1_router.include_router(hackathons.router, prefix="/hackathons", tags=["Hackathons"])
+api_v1_router.include_router(
+    hackathons.router, prefix="/hackathons", tags=["Hackathons"]
+)

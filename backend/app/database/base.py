@@ -8,6 +8,3 @@ class Base(DeclarativeBase):
     """
 
     pass
-
-
-# Import all models so SQLAlchemy registers them

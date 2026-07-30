@@ -14,9 +14,6 @@ from app.models.project import Project, ProjectStage, ProjectVisibility
 from app.models.skill import Skill
 from app.models.user import User
 
-
-
-
 # ---------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------

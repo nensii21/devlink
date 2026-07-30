@@ -18,8 +18,6 @@ from app.main import app
 from app.models.user import User
 
 
-
-
 def create_unverified_user(db, email="test@example.com", username="testuser"):
     user = User(
         first_name="Test",

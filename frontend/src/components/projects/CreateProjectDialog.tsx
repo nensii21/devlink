@@ -83,14 +83,14 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="w-[calc(100%-1.5rem)] sm:max-w-lg p-4 sm:p-6 max-h-[90dvh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>New Project</DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">New Project</DialogTitle>
         </DialogHeader>
 
         {warnings.length > 0 ? (
-          <div className="space-y-4">
-            <div className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning/10 p-3">
+          <div className="space-y-4 overflow-y-auto pr-1">
+            <div className="flex items-start gap-2.5 rounded-md border border-warning/40 bg-warning/10 p-3">
               <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
               <div className="space-y-1">
                 <p className="text-[13px] font-semibold text-foreground">
@@ -102,7 +102,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               </div>
             </div>
 
-            <ul className="space-y-2">
+            <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
               {warnings.map((w) => (
                 <li
                   key={w.id}
@@ -125,9 +125,10 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               ))}
             </ul>
 
-            <div className="flex justify-end gap-2 pt-1">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2 border-t border-border sm:border-0">
               <Button
                 variant="outline"
+                className="w-full sm:w-auto"
                 onClick={() => {
                   setWarnings([]);
                   setPendingData(null);
@@ -135,19 +136,22 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               >
                 Go back
               </Button>
-              <Button onClick={proceedAnyway} disabled={submitting}>
+              <Button onClick={proceedAnyway} disabled={submitting} className="w-full sm:w-auto">
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : "Create anyway"}
               </Button>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-3.5 sm:space-y-4 overflow-y-auto pr-1"
+          >
             <div className="space-y-1.5">
               <Label className="text-[12px] text-muted-foreground">Title</Label>
               <Input
                 {...register("title")}
                 placeholder="My awesome project"
-                className="bg-surface"
+                className="bg-surface text-sm sm:text-[13px]"
               />
               {errors.title && (
                 <p className="text-[11px] text-destructive">{errors.title.message}</p>
@@ -159,7 +163,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               <Input
                 {...register("tagline")}
                 placeholder="One-liner (optional)"
-                className="bg-surface"
+                className="bg-surface text-sm sm:text-[13px]"
               />
             </div>
 
@@ -168,8 +172,8 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               <Textarea
                 {...register("description")}
                 placeholder="What are you building?"
-                rows={4}
-                className="bg-surface"
+                rows={3}
+                className="bg-surface text-sm sm:text-[13px] min-h-[80px]"
               />
               {errors.description && (
                 <p className="text-[11px] text-destructive">{errors.description.message}</p>
@@ -181,7 +185,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
                 <Label className="text-[12px] text-muted-foreground">Stage</Label>
                 <select
                   {...register("stage")}
-                  className="w-full rounded-md border border-border bg-surface px-3 py-2 text-[13px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm sm:text-[13px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="idea">Idea</option>
                   <option value="in_development">In Development</option>
@@ -201,7 +205,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
                   min={1}
                   max={100}
                   placeholder="5"
-                  className="bg-surface"
+                  className="bg-surface text-sm sm:text-[13px]"
                 />
                 {errors.max_team_size && (
                   <p className="text-[11px] text-destructive">{errors.max_team_size.message}</p>
@@ -214,7 +218,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               <Input
                 {...register("tech_stack")}
                 placeholder="React, FastAPI, PostgreSQL…"
-                className="bg-surface"
+                className="bg-surface text-sm sm:text-[13px]"
               />
             </div>
 
@@ -224,7 +228,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
                 <Input
                   {...register("repository_url")}
                   placeholder="https://github.com/…"
-                  className="bg-surface"
+                  className="bg-surface text-sm sm:text-[13px]"
                 />
                 {errors.repository_url && (
                   <p className="text-[11px] text-destructive">{errors.repository_url.message}</p>
@@ -232,18 +236,27 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[12px] text-muted-foreground">Demo URL</Label>
-                <Input {...register("demo_url")} placeholder="https://…" className="bg-surface" />
+                <Input
+                  {...register("demo_url")}
+                  placeholder="https://…"
+                  className="bg-surface text-sm sm:text-[13px]"
+                />
                 {errors.demo_url && (
                   <p className="text-[11px] text-destructive">{errors.demo_url.message}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-1">
-              <Button type="button" variant="outline" onClick={handleClose}>
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2 border-t border-border sm:border-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                className="w-full sm:w-auto"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : "Create project"}
               </Button>
             </div>

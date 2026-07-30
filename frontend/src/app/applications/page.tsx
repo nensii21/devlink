@@ -8,7 +8,7 @@ import { ApplicationStatusBadge } from "@/components/applications/ApplicationSta
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useWithdrawApplication } from "@/hooks/useApplications";
+//import { useWithdrawApplication } from "@/hooks/useApplications";
 
 import {
   Pagination,

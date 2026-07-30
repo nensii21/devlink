@@ -105,6 +105,14 @@ function SettingsPage() {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
+  // Avatar & Banner state
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(currentUser.avatar);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(
+    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=400&fit=crop&auto=format",
+  );
+
   const handleConfirmDelete = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     window.location.href = "/";

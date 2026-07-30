@@ -18,9 +18,7 @@ export function SidebarItem({ label, to, icon, badge, forceCollapsed }: SidebarI
 
   const collapsed = forceCollapsed ?? isCollapsed;
   const active =
-    pathname === to ||
-    pathname.startsWith(to.split("?")[0] + "/") ||
-    (pathname === to.split("?")[0]);
+    pathname === to || pathname.startsWith(to.split("?")[0] + "/") || pathname === to.split("?")[0];
 
   if (collapsed) {
     return (

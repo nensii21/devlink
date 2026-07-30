@@ -1,5 +1,7 @@
 import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-router";
 import { Card, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
+import { UserAvatar } from "@/components/user-avatar";
+import { ImageCropUploadModal } from "@/components/shared/ImageCropUploadModal";
 import { builders, currentUser, projects, type Builder, type UserRole } from "@/mocks/seed";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -17,9 +19,12 @@ import {
   Pencil,
   RotateCw,
   BadgeCheck,
+  Camera,
 } from "lucide-react";
 import { copyText } from "@/lib/clipboard";
 import { ReportUserModal } from "@/components/shared/ReportUserModal";
+import SkillsCard from "@/components/profile/SkillsCard";
+import ExperienceCard from "@/components/profile/ExperienceCard";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -131,6 +136,13 @@ function ProfilePage() {
     : builders.find((x) => x.handle === username);
   if (!b) throw notFound();
 
+  // Profile banner & avatar state
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(
+    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=400&fit=crop&auto=format",
+  );
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(b.avatar);
+
   // Profile summary state
   const [summary, setSummary] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -216,10 +228,44 @@ function ProfilePage() {
         </Card>
       )}
 
-      <Card className="p-6">
-        <div className="flex flex-wrap items-start gap-5">
-          <Avatar src={b.avatar} alt={b.name} size={96} online={b.online} />
-          <div className="min-w-0 flex-1">
+      {/* Profile Card with Cover Banner & Avatar */}
+      <Card className="overflow-hidden p-0">
+        {/* Cover Banner */}
+        <div className="group relative h-44 w-full overflow-hidden bg-muted">
+          {bannerUrl ? (
+            <img src={bannerUrl} alt="Profile banner" className="h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-r from-primary/30 to-purple-500/30" />
+          )}
+
+          {me && (
+            <button
+              type="button"
+              onClick={() => setIsBannerModalOpen(true)}
+              className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-md bg-black/60 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm transition-all hover:bg-black/80 cursor-pointer"
+            >
+              <Camera size={14} />
+              Edit cover banner
+            </button>
+          )}
+        </div>
+
+        <div className="p-6 pt-0">
+          <div className="flex flex-wrap items-start gap-5 -mt-12">
+            <UserAvatar
+              src={avatarUrl}
+              name={b.name}
+              size="2xl"
+              status={b.online}
+              verified={b.verified}
+              editable={me}
+              onImageUpload={(url) => {
+                setAvatarUrl(url);
+                toast.success("Avatar updated!");
+              }}
+              className="ring-4 ring-card shadow-lg"
+            />
+            <div className="min-w-0 flex-1 pt-12 sm:pt-4">
             <h1 className="text-[22px] font-bold text-foreground flex items-center gap-2">
               {b.name}
               {b.verified && (
@@ -231,6 +277,23 @@ function ProfilePage() {
             </p>
             <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>
             <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
+              <div>
+                <span className="font-semibold">{b.followers ?? 0}</span>
+                <span className="m-1 text-muted-foreground">Followers</span>
+
+              </div>
+              <div>
+                <span className="font-semibold">{b.following ?? 0}</span>
+                <span className="m-1 text-muted-foreground">Following</span>
+
+              </div>
+              <div>
+                <span className="font-semibold">{b.contributions?? 0}</span>
+                <span className="ml-1 text-muted-foreground">Contributions</span>
+
+              </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
               <span className="inline-flex items-center gap-1">
                 <MapPin size={12} /> {b.country}
               </span>
@@ -258,7 +321,8 @@ function ProfilePage() {
             </button>
           )}
         </div>
-      </Card>
+      </div>
+    </Card>
 
       {/* AI Profile Summary Section */}
       <Card className="p-4">
@@ -383,14 +447,28 @@ function ProfilePage() {
 
       <div className="grid gap-4 lg:grid-cols-3 items-start">
         <div className="flex flex-col gap-4">
-          <Card className="p-4">
+          {/* <Card className="p-4">
             <p className="text-[13px] font-semibold text-foreground">Skills</p>
             <div className="mt-3 flex flex-wrap gap-1">
               {b.skills.map((s) => (
                 <TagChip key={s}>{s}</TagChip>
               ))}
             </div>
-          </Card>
+          </Card> */}
+          <SkillsCard skills={b.profileSkills ?? []} />
+          <ExperienceCard role={b.role} company={b.company} experienceLevel={b.experienceLevel} />
+
+          {b.pinnedProjects?.length ? (
+            <Card className="p-4">
+              <p className="text-[13px] font-semibold text-foreground">Pinned Projects</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {b.pinnedProjects.map((project) => (
+                  <TagChip key={project}>{project}</TagChip>
+                ))}
+              </div>
+            </Card>
+          ):null }
+
           {b.badges && b.badges.length > 0 && (
             <Card className="p-4">
               <p className="text-[13px] font-semibold text-foreground">Badges</p>
@@ -433,6 +511,19 @@ function ProfilePage() {
           onClose={() => setIsReportModalOpen(false)}
           userId={b.id || ""}
           username={b.handle}
+        />
+      )}
+
+      {me && (
+        <ImageCropUploadModal
+          isOpen={isBannerModalOpen}
+          onClose={() => setIsBannerModalOpen(false)}
+          onUploadSuccess={(url) => {
+            setBannerUrl(url);
+            toast.success("Cover banner updated!");
+          }}
+          mode="banner"
+          title="Upload Cover Banner"
         />
       )}
     </div>

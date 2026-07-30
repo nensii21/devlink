@@ -40,6 +40,12 @@ from app.core.security import hash_password
 from app.services.user_service import UserService
 from app.core.cache import cached
 from app.utils.validators import validate_username
+from app.utils.uploads import (
+    validate_resume_upload,
+    save_resume_upload,
+    validate_image_upload,
+    save_image_upload,
+)
 
 router = APIRouter(
     tags=["Users"],
@@ -329,6 +335,38 @@ async def upload_resume(
     full_resume_url = str(request.base_url).rstrip("/") + resume_url
 
     return UserService.update_resume_url(db, current_user, full_resume_url)
+
+
+@router.post(
+    "/me/avatar",
+    response_model=UserResponse,
+    summary="Upload and optimize user profile avatar",
+)
+async def upload_avatar(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    contents = await file.read()
+    try:
+        validate_image_upload(file.filename, file.content_type, len(contents))
+        saved = save_image_upload(
+            contents=contents,
+            filename=file.filename,
+            subfolder="avatars",
+            user_id=current_user.id,
+            max_dimensions=(400, 400),
+            thumb_dimensions=(150, 150),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    full_avatar_url = str(request.base_url).rstrip("/") + str(saved["image_url"])
+    return UserService.update_profile_image(db, current_user, full_avatar_url)
 
 
 @router.delete(

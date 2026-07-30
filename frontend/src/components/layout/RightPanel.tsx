@@ -2,7 +2,10 @@ import { Sparkles, Calendar, Activity } from "lucide-react";
 
 export function RightPanel() {
   return (
-    <aside className="sticky top-0 h-screen hidden xl:flex flex-col border-l border-border bg-surface w-[300px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" aria-label="Activity panel">
+    <aside
+      className="sticky top-0 h-screen hidden xl:flex flex-col border-l border-border bg-surface w-[300px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      aria-label="Activity panel"
+    >
       <div className="p-5 flex flex-col gap-6">
         {/* Workspace Status */}
         <section>

@@ -1,7 +1,8 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 const schema = {
@@ -10,6 +11,7 @@ const schema = {
     ...defaultSchema.attributes,
     code: [...(defaultSchema.attributes?.code ?? []), "className"],
     input: [...(defaultSchema.attributes?.input ?? []), "type", "checked", "disabled"],
+    a: [...(defaultSchema.attributes?.a ?? []), "data-mention"],
   },
 };
 
@@ -18,7 +20,18 @@ export interface MarkdownProps {
   className?: string;
 }
 
+/** Regex to transform raw @username occurrences into markdown links */
+function parseMentions(text: string): string {
+  if (!text) return "";
+  // Match @username (alphanumeric, underscores, hyphens) not inside existing URLs or code blocks
+  return text.replace(/(^|[^a-zA-Z0-9_/@])@([a-zA-Z0-9_-]+)/g, (match, prefix, username) => {
+    return `${prefix}[@${username}](/builders/${username})`;
+  });
+}
+
 export const Markdown = memo(function Markdown({ content, className }: MarkdownProps) {
+  const processedContent = useMemo(() => parseMentions(content ?? ""), [content]);
+
   if (!content?.trim()) return null;
 
   return (
@@ -32,14 +45,37 @@ export const Markdown = memo(function Markdown({ content, className }: MarkdownP
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeSanitize, schema]]}
         components={{
-          a: ({ node, ...props }) => (
-            <a
-              {...props}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline underline-offset-2 hover:opacity-80"
-            />
-          ),
+          a: ({ node, href = "", children, ...props }) => {
+            const isMention =
+              href.startsWith("/builders/") &&
+              typeof children === "string" &&
+              children.startsWith("@");
+
+            if (isMention) {
+              const username = href.replace("/builders/", "");
+              return (
+                <Link
+                  to="/builders/$builderId"
+                  params={{ builderId: username }}
+                  className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-0.5 text-[12px] font-semibold text-primary hover:bg-primary/20 transition-colors"
+                >
+                  {children}
+                </Link>
+              );
+            }
+
+            return (
+              <a
+                {...props}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80"
+              >
+                {children}
+              </a>
+            );
+          },
           img: ({ node, ...props }) => (
             <img
               {...props}
@@ -120,12 +156,12 @@ export const Markdown = memo(function Markdown({ content, className }: MarkdownP
           pre: ({ node, ...props }) => (
             <pre
               {...props}
-              className="my-2 overflow-x-auto rounded-md border border border-border bg-muted p-3 text-[12px]"
+              className="my-2 overflow-x-auto rounded-md border border-border bg-muted p-3 text-[12px]"
             />
           ),
         }}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );

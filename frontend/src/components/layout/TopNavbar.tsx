@@ -88,6 +88,7 @@ export function TopNavbar() {
     <header className="sticky top-0 z-20 flex h-[72px] items-center gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur">
       {/* Hamburger: visible on tablet only (md to lg). Mobile uses BottomNavigation instead. */}
       <button
+        type="button"
         onClick={toggleMobile}
         aria-label="Open navigation menu"
         className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border text-muted-foreground hover:bg-muted md:grid lg:hidden hidden"
@@ -96,6 +97,7 @@ export function TopNavbar() {
       </button>
 
       <button
+        type="button"
         onClick={toggleSidebar}
         aria-label="Toggle sidebar"
         className="hidden lg:grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border text-muted-foreground hover:bg-muted"
@@ -119,10 +121,19 @@ export function TopNavbar() {
           onFocus={() => {
             if (query.trim()) setShowSuggestions(true);
           }}
+          aria-label="Search developers, projects, skills and posts"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={showSuggestions && !!normalizedQuery}
+          aria-controls="search-suggestions"
           className="w-full rounded-md border border-border bg-surface py-[7px] pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
         {showSuggestions && normalizedQuery && (
-          <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-md border border-border bg-surface p-2 shadow-lg">
+          <div
+            id="search-suggestions"
+            role="listbox"
+            className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-md border border-border bg-surface p-2 shadow-lg"
+          >
             {hasSuggestions ? (
               <div className="space-y-3">
                 {developerSuggestions.length > 0 && (
@@ -272,10 +283,18 @@ export function TopNavbar() {
       </div>
 
       <div className="hidden items-center gap-2 md:flex">
-        <button className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-[7px] text-[13px] font-medium text-foreground transition-colors hover:bg-muted">
+        <button
+          type="button"
+          aria-label="AI Assistant"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-[7px] text-[13px] font-medium text-foreground transition-colors hover:bg-muted"
+        >
           <Sparkles size={14} className="text-primary" /> AI Assistant
         </button>
-        <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-[7px] text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+        <button
+          type="button"
+          aria-label="Create"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-[7px] text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        >
           <Plus size={14} /> Create
         </button>
       </div>
@@ -291,7 +310,7 @@ export function TopNavbar() {
           {isDark ? <Sun size={16} /> : <Moon size={16} />}
         </button>
         <NotificationCenter />
-        <IconButton to="/messages" count={3}>
+        <IconButton to="/messages" count={3} ariaLabel="Messages">
           <MessageSquare size={16} />
         </IconButton>
       </div>
@@ -299,6 +318,7 @@ export function TopNavbar() {
       <Link
         to="/profile/$username"
         params={{ username: currentUser.handle }}
+        aria-label="View profile"
         className="ml-1 flex items-center gap-2 rounded-md p-1 hover:bg-muted"
       >
         <Avatar src={currentUser.avatar} alt={currentUser.name} name={currentUser.name} size={32} />
@@ -320,14 +340,17 @@ function IconButton({
   children,
   count,
   to,
+  ariaLabel,
 }: {
   children: React.ReactNode;
   count?: number;
   to: string;
+  ariaLabel: string;
 }) {
   return (
     <Link
       to={to}
+      aria-label={ariaLabel}
       className="relative grid h-9 w-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       {children}

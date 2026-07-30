@@ -173,8 +173,5 @@ class Hackathon(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<Hackathon("
-            f"name='{self.name}', "
-            f"status='{self.status.value}'"
-            f")>"
+            f"<Hackathon(" f"name='{self.name}', " f"status='{self.status.value}'" f")>"
         )

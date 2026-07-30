@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { bookmarksApi, type BookmarkResponse } from "@/api/modules/bookmarks";
+import {
+  bookmarksApi,
+  type BookmarkResponse,
+  type BookmarkTargetType,
+} from "@/api/modules/bookmarks";
 
 const BOOKMARKS_KEY = ["user-bookmarks"] as const;
 
@@ -11,13 +15,14 @@ export interface BookmarkStatus {
 
 function deriveStatus(
   bookmarks: BookmarkResponse[] | undefined,
-  projectId: string,
+  targetType: BookmarkTargetType,
+  targetId: string,
 ): BookmarkStatus {
-  const match = bookmarks?.find((b) => b.project_id === projectId);
+  const match = bookmarks?.find((b) => b.target_type === targetType && b.target_id === targetId);
   return { bookmarked: !!match, bookmarkId: match?.id ?? null };
 }
 
-export function useBookmarkStatus(projectId: string) {
+export function useBookmarkStatus(targetType: BookmarkTargetType, targetId: string) {
   const { data: bookmarks, ...rest } = useQuery({
     queryKey: BOOKMARKS_KEY,
     queryFn: () => bookmarksApi.list(),
@@ -25,30 +30,30 @@ export function useBookmarkStatus(projectId: string) {
 
   return {
     ...rest,
-    data: deriveStatus(bookmarks, projectId),
+    data: deriveStatus(bookmarks, targetType, targetId),
   };
 }
 
-export function useBookmarkCount(projectId: string) {
+export function useBookmarkCount(targetType: BookmarkTargetType, targetId: string) {
   return useQuery({
-    queryKey: [...BOOKMARKS_KEY, "count", projectId],
-    queryFn: () => bookmarksApi.count(projectId),
+    queryKey: [...BOOKMARKS_KEY, "count", targetType, targetId],
+    queryFn: () => bookmarksApi.count(targetType, targetId),
   });
 }
 
-export function useToggleBookmark(projectId: string) {
+export function useToggleBookmark(targetType: BookmarkTargetType, targetId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
       const bookmarks = queryClient.getQueryData<BookmarkResponse[]>(BOOKMARKS_KEY);
-      const status = deriveStatus(bookmarks, projectId);
+      const status = deriveStatus(bookmarks, targetType, targetId);
 
       if (status.bookmarked && status.bookmarkId) {
         await bookmarksApi.remove(status.bookmarkId);
         return false;
       }
-      await bookmarksApi.add(projectId);
+      await bookmarksApi.add(targetType, targetId);
       return true;
     },
 
@@ -56,17 +61,18 @@ export function useToggleBookmark(projectId: string) {
       await queryClient.cancelQueries({ queryKey: BOOKMARKS_KEY });
 
       const previous = queryClient.getQueryData<BookmarkResponse[]>(BOOKMARKS_KEY);
-      const status = deriveStatus(previous, projectId);
+      const status = deriveStatus(previous, targetType, targetId);
 
       if (status.bookmarked && status.bookmarkId) {
         queryClient.setQueryData<BookmarkResponse[]>(BOOKMARKS_KEY, (old) =>
-          old?.filter((b) => b.project_id !== projectId),
+          old?.filter((b) => !(b.target_type === targetType && b.target_id === targetId)),
         );
       } else {
         const optimistic: BookmarkResponse = {
-          id: `optimistic-${projectId}`,
+          id: `optimistic-${targetType}-${targetId}`,
           user_id: "",
-          project_id: projectId,
+          target_type: targetType,
+          target_id: targetId,
           created_at: new Date().toISOString(),
         };
         queryClient.setQueryData<BookmarkResponse[]>(BOOKMARKS_KEY, (old) => [

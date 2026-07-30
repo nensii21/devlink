@@ -21,8 +21,6 @@ from sqlalchemy.pool import StaticPool
 # Register models
 
 
-
-
 def _register_and_login(
     client: TestClient, email: str, username: str
 ) -> tuple[str, str]:

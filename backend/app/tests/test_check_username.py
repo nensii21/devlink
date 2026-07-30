@@ -11,8 +11,6 @@ from app.main import app
 from app.models.user import User
 
 
-
-
 def create_test_user(db, username):
     user = User(
         first_name="Test",

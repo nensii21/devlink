@@ -22,7 +22,9 @@ class MediaStorageManager:
         # Validate file size
         max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
         if len(file_contents) > max_bytes:
-            raise ValueError(f"File size exceeds maximum limit of {settings.MAX_UPLOAD_SIZE_MB}MB.")
+            raise ValueError(
+                f"File size exceeds maximum limit of {settings.MAX_UPLOAD_SIZE_MB}MB."
+            )
 
         # Validate file extension and mimetype
         ext = os.path.splitext(filename.lower())[1]

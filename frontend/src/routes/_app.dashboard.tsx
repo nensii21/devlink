@@ -29,29 +29,33 @@ export const Route = createFileRoute("/_app/dashboard")({
 
 function Dashboard() {
   return (
-    <div className="mx-auto flex max-w-[1400px] w-full flex-col gap-6 pb-12 pt-2 px-2 sm:px-4">
+    <div className="mx-auto flex max-w-[1536px] w-full flex-col gap-6 pb-12 pt-4 px-4 sm:px-6">
       <GreetingHero />
+
       <StatsRow />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 flex flex-col gap-6">
+      {/* Main Grid Grouping */}
+      <div className="grid gap-6 lg:grid-cols-12 items-start">
+        {/* Left/Main Column - 8 cols */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
           <SuggestedBuilders />
+          <TrendingProjects />
           <div className="grid gap-6 sm:grid-cols-2">
             <BuilderRequests />
             <InviteRequests />
           </div>
-          <TrendingProjects />
           <div className="grid gap-6 sm:grid-cols-2">
             <MessagesPreview />
-            <NotificationsFeed />
+            <RecentActivity />
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        {/* Right Sidebar - 4 cols */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
           <QuickActions />
           <AIRecommendations />
           <UpcomingDeadlines />
-          <RecentActivity />
+          <NotificationsFeed />
         </div>
       </div>
     </div>

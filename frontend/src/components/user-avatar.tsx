@@ -1,7 +1,8 @@
 import * as React from "react";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Camera } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials, cn } from "@/lib/utils";
+import { ImageCropUploadModal } from "@/components/shared/ImageCropUploadModal";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -31,6 +32,10 @@ export interface UserAvatarProps extends React.HTMLAttributes<HTMLSpanElement> {
   verified?: boolean;
   /** Override the initials derived from `name`. */
   initials?: string;
+  /** Allow clicking avatar to open Crop & Upload Modal. */
+  editable?: boolean;
+  /** Callback when a new avatar image is cropped and uploaded. */
+  onImageUpload?: (url: string) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -112,12 +117,20 @@ const UserAvatar = React.forwardRef<HTMLSpanElement, UserAvatarProps>(
       status,
       verified = false,
       initials: initialsOverride,
+      editable = false,
+      onImageUpload,
       className,
       ...props
     },
     ref,
   ) => {
     const s = sizeMap[size];
+    const [isCropModalOpen, setIsCropModalOpen] = React.useState(false);
+    const [currentSrc, setCurrentSrc] = React.useState<string | null | undefined>(src);
+
+    React.useEffect(() => {
+      setCurrentSrc(src);
+    }, [src]);
 
     // Normalise the `status` prop
     const resolvedStatus: OnlineStatus | undefined =
@@ -126,48 +139,87 @@ const UserAvatar = React.forwardRef<HTMLSpanElement, UserAvatarProps>(
     const displayInitials = initialsOverride ?? getInitials(name);
     const ariaLabel = alt ?? (name ? `${name}${verified ? ", verified" : ""}` : "User avatar");
 
+    const handleUploadSuccess = (newUrl: string) => {
+      setCurrentSrc(newUrl);
+      if (onImageUpload) {
+        onImageUpload(newUrl);
+      }
+    };
+
     return (
-      <span ref={ref} className={cn("relative inline-flex shrink-0", className)} {...props}>
-        {/* Base avatar */}
-        <Avatar className={s.avatar}>
-          {src ? (
-            <img src={src} alt={ariaLabel} className="aspect-square h-full w-full object-cover" />
-          ) : (
-            <AvatarFallback
-              className={cn(s.text, "select-none bg-muted font-medium text-muted-foreground")}
-              aria-label={ariaLabel}
-            >
-              {displayInitials}
-            </AvatarFallback>
+      <>
+        <span
+          ref={ref}
+          className={cn(
+            "relative inline-flex shrink-0",
+            editable && "group cursor-pointer",
+            className,
           )}
-        </Avatar>
-
-        {/* Online status indicator dot */}
-        {resolvedStatus ? (
-          <span
-            role="status"
-            aria-label={`Status: ${resolvedStatus}`}
-            className={cn(
-              "absolute bottom-0 right-0 rounded-full ring-2 ring-background",
-              s.indicator,
-              statusColorMap[resolvedStatus],
+          onClick={editable ? () => setIsCropModalOpen(true) : undefined}
+          {...props}
+        >
+          {/* Base avatar */}
+          <Avatar className={cn(s.avatar, "relative overflow-hidden")}>
+            {currentSrc ? (
+              <img
+                src={currentSrc}
+                alt={ariaLabel}
+                className="aspect-square h-full w-full object-cover"
+              />
+            ) : (
+              <AvatarFallback
+                className={cn(s.text, "select-none bg-muted font-medium text-muted-foreground")}
+                aria-label={ariaLabel}
+              >
+                {displayInitials}
+              </AvatarFallback>
             )}
+
+            {/* Editable camera overlay */}
+            {editable && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                <Camera className="text-white" size={size === "xs" || size === "sm" ? 12 : 18} />
+              </div>
+            )}
+          </Avatar>
+
+          {/* Online status indicator dot */}
+          {resolvedStatus ? (
+            <span
+              role="status"
+              aria-label={`Status: ${resolvedStatus}`}
+              className={cn(
+                "absolute bottom-0 right-0 rounded-full ring-2 ring-background",
+                s.indicator,
+                statusColorMap[resolvedStatus],
+              )}
+            />
+          ) : null}
+
+          {/* Verification badge */}
+          {verified ? (
+            <span
+              aria-label="Verified"
+              className={cn(
+                "absolute -right-0.5 -top-0.5 inline-flex items-center justify-center rounded-full bg-background text-primary",
+                s.badge,
+              )}
+            >
+              <BadgeCheck size={s.badgeIcon} className="fill-primary text-primary-foreground" />
+            </span>
+          ) : null}
+        </span>
+
+        {editable && (
+          <ImageCropUploadModal
+            isOpen={isCropModalOpen}
+            onClose={() => setIsCropModalOpen(false)}
+            onUploadSuccess={handleUploadSuccess}
+            mode="avatar"
+            title="Upload Avatar Image"
           />
-        ) : null}
-
-        {/* Verification badge */}
-        {verified ? (
-          <span
-            aria-label="Verified"
-            className={cn(
-              "absolute -right-0.5 -top-0.5 inline-flex items-center justify-center rounded-full bg-background text-primary",
-              s.badge,
-            )}
-          >
-            <BadgeCheck size={s.badgeIcon} className="fill-primary text-primary-foreground" />
-          </span>
-        ) : null}
-      </span>
+        )}
+      </>
     );
   },
 );

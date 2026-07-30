@@ -1,5 +1,12 @@
 import { api } from "../client";
-import type { Hackathon, HackathonTeam } from "@/mocks/seed";
+import type {
+  Hackathon,
+  HackathonTeam,
+  HackathonSubmission,
+  HackathonLeaderboardEntry,
+} from "@/mocks/seed";
+
+export type { HackathonSubmission, HackathonLeaderboardEntry };
 
 export const hackathonsApi = {
   list: () => api.get<Hackathon[]>("/api/hackathons"),
@@ -16,7 +23,8 @@ export const hackathonsApi = {
     api.post<HackathonTeam>(`/api/hackathons/${id}/teams`, body),
   joinTeam: (teamId: string) => api.post<void>(`/api/hackathons/teams/${teamId}/join`),
   leaveTeam: (teamId: string) => api.delete<void>(`/api/hackathons/teams/${teamId}/leave`),
-  getSubmissions: (id: string) => api.get(`/api/hackathons/${id}/submissions`),
+  getSubmissions: (id: string) =>
+    api.get<HackathonSubmission[]>(`/api/hackathons/${id}/submissions`),
   createSubmission: (
     id: string,
     body: {
@@ -26,6 +34,7 @@ export const hackathonsApi = {
       repo_url?: string;
       demo_url?: string;
     },
-  ) => api.post(`/api/hackathons/${id}/submissions`, body),
-  getLeaderboard: (id: string) => api.get(`/api/hackathons/${id}/leaderboard`),
+  ) => api.post<HackathonSubmission>(`/api/hackathons/${id}/submissions`, body),
+  getLeaderboard: (id: string) =>
+    api.get<HackathonLeaderboardEntry[]>(`/api/hackathons/${id}/leaderboard`),
 };

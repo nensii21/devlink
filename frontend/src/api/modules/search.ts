@@ -15,6 +15,20 @@ export const SEARCH_CATEGORIES: readonly SearchCategory[] = [
 ] as const;
 
 // ---------------------------------------------------------------------
+// Search History models
+// ---------------------------------------------------------------------
+
+export interface SearchHistoryItem {
+  id: string;
+  query: string;
+  category?: SearchCategory | "all";
+  timestamp: number;
+}
+
+const STORAGE_KEY = "devlink_recent_searches";
+const MAX_HISTORY_ITEMS = 10;
+
+// ---------------------------------------------------------------------
 // Suggestion (lightweight autocomplete) models
 // ---------------------------------------------------------------------
 
@@ -147,6 +161,64 @@ export interface SearchResults {
 }
 
 // ---------------------------------------------------------------------
+// Local Search History Utility Helpers
+// ---------------------------------------------------------------------
+
+export const searchHistoryStorage = {
+  get: (): SearchHistoryItem[] => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  add: (query: string, category?: SearchCategory | "all"): SearchHistoryItem[] => {
+    const trimmed = query.trim();
+    if (!trimmed) return searchHistoryStorage.get();
+
+    const current = searchHistoryStorage.get();
+    const filtered = current.filter((item) => item.query.toLowerCase() !== trimmed.toLowerCase());
+
+    const newItem: SearchHistoryItem = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      query: trimmed,
+      category: category || "all",
+      timestamp: Date.now(),
+    };
+
+    const updated = [newItem, ...filtered].slice(0, MAX_HISTORY_ITEMS);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // Ignore write errors (quota/incognito)
+    }
+    return updated;
+  },
+
+  remove: (id: string): SearchHistoryItem[] => {
+    const current = searchHistoryStorage.get();
+    const updated = current.filter((item) => item.id !== id);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch {
+      // Ignore write errors
+    }
+    return updated;
+  },
+
+  clear: (): void => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Ignore clear errors
+    }
+  },
+};
+
+// ---------------------------------------------------------------------
 // API
 // ---------------------------------------------------------------------
 
@@ -174,4 +246,7 @@ export const searchApi = {
   /** Flat list of suggestion strings for keyboard-navigable dropdowns. */
   suggestions: (q: string, limit = 8) =>
     api.get<string[]>("/api/search/suggestions", { query: { q, limit } }),
+  /** Optional API endpoint for backend-persisted search history */
+  getHistory: () => api.get<SearchHistoryItem[]>("/api/search/history"),
+  clearHistory: () => api.delete<{ success: boolean }>("/api/search/history"),
 };

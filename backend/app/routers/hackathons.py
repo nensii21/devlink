@@ -282,7 +282,9 @@ def cancel_registration(
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
-    db_registration = HackathonService.get_registration(db, hackathon_id, current_user.id)
+    db_registration = HackathonService.get_registration(
+        db, hackathon_id, current_user.id
+    )
 
     if db_registration is None:
         raise HTTPException(

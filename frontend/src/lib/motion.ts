@@ -133,7 +133,11 @@ export const notificationVariantsReduced: Variants = {
  * <motion.div whileHover={hoverElevation.whileHover} whileTap={hoverElevation.whileTap}>
  */
 export const hoverElevation = {
-  whileHover: { y: -2, scale: 1.01, transition: { duration: DURATION.fast, ease: EASE.decelerate } },
+  whileHover: {
+    y: -2,
+    scale: 1.01,
+    transition: { duration: DURATION.fast, ease: EASE.decelerate },
+  },
   whileTap: { y: 0, scale: 0.98, transition: { duration: DURATION.fast, ease: EASE.accelerate } },
 };
 

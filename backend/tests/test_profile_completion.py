@@ -14,8 +14,6 @@ from app.models.skill import Skill
 from app.models.user_skill import UserSkill
 
 
-
-
 def _register_and_login(
     client: TestClient, email: str, username: str
 ) -> tuple[str, str]:

@@ -44,12 +44,7 @@ export function FAB({ to = "/flares", ariaLabel = "Create a new post", onClick }
 
   if (onClick) {
     return (
-      <button
-        type="button"
-        aria-label={ariaLabel}
-        onClick={onClick}
-        className={baseClasses}
-      >
+      <button type="button" aria-label={ariaLabel} onClick={onClick} className={baseClasses}>
         {content}
       </button>
     );

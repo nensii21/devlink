@@ -25,7 +25,9 @@ def privacy_users(db: Session):
         linkedin_url="https://linkedin.com/in/privacyowner",
         website="https://privacyowner.dev",
         portfolio_url="https://portfolio.privacyowner.dev",
-        availability=[{"day": "Monday", "start_time": "09:00:00", "end_time": "17:00:00"}],
+        availability=[
+            {"day": "Monday", "start_time": "09:00:00", "end_time": "17:00:00"}
+        ],
         is_active=True,
     )
     user2 = User(
@@ -125,11 +127,17 @@ def test_privacy_filtering_follower_vs_stranger(client: TestClient, privacy_user
         "resume": "private",
         "availability": "followers",
     }
-    client.put("/api/users/me/privacy", json=update_payload, headers={"Authorization": f"Bearer {owner_token}"})
+    client.put(
+        "/api/users/me/privacy",
+        json=update_payload,
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
 
     # Stranger views profile
     stranger_token = create_access_token(str(stranger_user.id))
-    res_stranger = client.get(f"/api/users/{owner.id}", headers={"Authorization": f"Bearer {stranger_token}"})
+    res_stranger = client.get(
+        f"/api/users/{owner.id}", headers={"Authorization": f"Bearer {stranger_token}"}
+    )
     assert res_stranger.status_code == 200
     data_stranger = res_stranger.json()
     assert data_stranger["github_url"] is None  # followers only
@@ -138,7 +146,9 @@ def test_privacy_filtering_follower_vs_stranger(client: TestClient, privacy_user
 
     # Follower views profile
     follower_token = create_access_token(str(follower_user.id))
-    res_follower = client.get(f"/api/users/{owner.id}", headers={"Authorization": f"Bearer {follower_token}"})
+    res_follower = client.get(
+        f"/api/users/{owner.id}", headers={"Authorization": f"Bearer {follower_token}"}
+    )
     assert res_follower.status_code == 200
     data_follower = res_follower.json()
     assert data_follower["github_url"] == "https://github.com/privacyowner"
@@ -158,10 +168,16 @@ def test_privacy_self_access(client: TestClient, privacy_users):
         "social_links": "private",
         "availability": "private",
     }
-    client.put("/api/users/me/privacy", json=update_payload, headers={"Authorization": f"Bearer {owner_token}"})
+    client.put(
+        "/api/users/me/privacy",
+        json=update_payload,
+        headers={"Authorization": f"Bearer {owner_token}"},
+    )
 
     # Owner views own profile
-    res = client.get(f"/api/users/{owner.id}", headers={"Authorization": f"Bearer {owner_token}"})
+    res = client.get(
+        f"/api/users/{owner.id}", headers={"Authorization": f"Bearer {owner_token}"}
+    )
     assert res.status_code == 200
     data = res.json()
     assert data["public_email"] == "privacy_owner@example.com"

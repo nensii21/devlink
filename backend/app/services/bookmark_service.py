@@ -5,24 +5,27 @@ import uuid
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
-from app.models.bookmark import Bookmark
+from app.models.bookmark import Bookmark, BookmarkTargetType
 
 
 class BookmarkService:
     """
-    Business logic for project bookmarks.
+    Business logic for bookmarks (projects, builder flares, and future
+    content types) via a polymorphic target_type/target_id pair.
     """
 
     @staticmethod
     def create_bookmark(
         db: Session,
         user_id: uuid.UUID,
-        project_id: uuid.UUID,
+        target_type: BookmarkTargetType,
+        target_id: uuid.UUID,
     ) -> Bookmark:
 
         bookmark = Bookmark(
             user_id=user_id,
-            project_id=project_id,
+            target_type=target_type,
+            target_id=target_id,
         )
 
         db.add(bookmark)
@@ -40,16 +43,18 @@ class BookmarkService:
         return db.get(Bookmark, bookmark_id)
 
     @staticmethod
-    def get_user_project_bookmark(
+    def get_user_target_bookmark(
         db: Session,
         user_id: uuid.UUID,
-        project_id: uuid.UUID,
+        target_type: BookmarkTargetType,
+        target_id: uuid.UUID,
     ) -> Bookmark | None:
 
         stmt = select(Bookmark).where(
             and_(
                 Bookmark.user_id == user_id,
-                Bookmark.project_id == project_id,
+                Bookmark.target_type == target_type,
+                Bookmark.target_id == target_id,
             )
         )
 
@@ -70,12 +75,18 @@ class BookmarkService:
         return list(db.scalars(stmt))
 
     @staticmethod
-    def list_project_bookmarks(
+    def list_target_bookmarks(
         db: Session,
-        project_id: uuid.UUID,
+        target_type: BookmarkTargetType,
+        target_id: uuid.UUID,
     ) -> list[Bookmark]:
 
-        stmt = select(Bookmark).where(Bookmark.project_id == project_id)
+        stmt = select(Bookmark).where(
+            and_(
+                Bookmark.target_type == target_type,
+                Bookmark.target_id == target_id,
+            )
+        )
 
         return list(db.scalars(stmt))
 
@@ -83,13 +94,15 @@ class BookmarkService:
     def is_bookmarked(
         db: Session,
         user_id: uuid.UUID,
-        project_id: uuid.UUID,
+        target_type: BookmarkTargetType,
+        target_id: uuid.UUID,
     ) -> bool:
 
         stmt = select(Bookmark).where(
             and_(
                 Bookmark.user_id == user_id,
-                Bookmark.project_id == project_id,
+                Bookmark.target_type == target_type,
+                Bookmark.target_id == target_id,
             )
         )
 
@@ -98,10 +111,16 @@ class BookmarkService:
     @staticmethod
     def bookmark_count(
         db: Session,
-        project_id: uuid.UUID,
+        target_type: BookmarkTargetType,
+        target_id: uuid.UUID,
     ) -> int:
 
-        stmt = select(Bookmark).where(Bookmark.project_id == project_id)
+        stmt = select(Bookmark).where(
+            and_(
+                Bookmark.target_type == target_type,
+                Bookmark.target_id == target_id,
+            )
+        )
 
         return len(list(db.scalars(stmt)))
 

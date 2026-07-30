@@ -39,8 +39,6 @@ from app.services.message_service import MessageService
 from app.services.notification_service import NotificationService
 
 
-
-
 def create_test_user(db, email, username):
     user = User(
         first_name="Test",
@@ -159,7 +157,9 @@ def test_application_notifications(db):
     db.refresh(flare)
 
     # Applicant submits application
-    app_create = ApplicationCreate(project_id=project.id, flare_id=flare.id, message="I want to join")
+    app_create = ApplicationCreate(
+        project_id=project.id, flare_id=flare.id, message="I want to join"
+    )
     application = ApplicationService.create_application(
         db,
         applicant_id=applicant.id,
@@ -180,7 +180,9 @@ def test_application_notifications(db):
     db.commit()
 
     applicant2 = create_test_user(db, "applicant2@example.com", "applicant2")
-    app_create2 = ApplicationCreate(project_id=project.id, flare_id=flare.id, message="I also want to join")
+    app_create2 = ApplicationCreate(
+        project_id=project.id, flare_id=flare.id, message="I also want to join"
+    )
     application2 = ApplicationService.create_application(
         db,
         applicant_id=applicant2.id,

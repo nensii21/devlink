@@ -15,9 +15,6 @@ from app.dependencies import get_database
 from app.main import app
 from app.models.user import User
 
-
-
-
 # ==================== Helper ====================
 
 

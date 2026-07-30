@@ -16,11 +16,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
-import {
-  listContainerVariants,
-  listItemVariants,
-  listItemVariantsReduced,
-} from "@/lib/motion";
+import { listContainerVariants, listItemVariants, listItemVariantsReduced } from "@/lib/motion";
 
 interface AnimatedListProps {
   children: ReactNode;
