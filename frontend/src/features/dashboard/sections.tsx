@@ -1,6 +1,5 @@
 import { ActivityFeed } from "@/components/activity/ActivityFeed";
-import { Card, SectionHeader, TagChip, Avatar } from "@/components/shared/primitives";
-import { useQuery } from "@tanstack/react-query";
+import { Card, SectionHeader, TagChip, Avatar, ListRowsSkeleton } from "@/components/shared/primitives";import { useQuery } from "@tanstack/react-query";
 import {
   activitiesService,
   dashboardService,
@@ -31,8 +30,7 @@ import { containerVariants, cardEntrance, cardHover } from "@/lib/animations";
 
 export function RecentActivity() {
   return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
-      <div className="px-5 pt-5 pb-2 font-semibold flex items-center gap-2 text-sm">
+<Card className="hover:shadow-md transition-shadow duration-200 flex flex-col h-full">      <div className="px-5 pt-5 pb-2 font-semibold flex items-center gap-2 text-sm">
         Recent Activity
       </div>
       <div className="flex-1 overflow-hidden">
@@ -46,15 +44,14 @@ export function RecentActivity() {
 }
 
 export function BuilderRequests() {
-  const { data = [] } = useQuery({
+const { data = [], isLoading } = useQuery({
     queryKey: ["builder-requests"],
     queryFn: dashboardService.builderRequests,
-  });
-  return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="Builder Requests" action="View All" />
-      <ul className="divide-y divide-border/40">
-        {data.slice(0, 3).map((r) => (
+  });  return (
+<Card className="hover:shadow-md transition-shadow duration-200">      <SectionHeader title="Builder Requests" action="View All" />
+{isLoading && <ListRowsSkeleton rows={3} />}
+      {!isLoading && (
+      <ul className="divide-y divide-border/40">        {data.slice(0, 3).map((r) => (
           <li key={r.id} className="px-5 py-4 transition-colors hover:bg-muted/20">
             <div className="flex items-start gap-3">
               <Avatar src={r.builder.avatar} alt={r.builder.name} size={40} />
@@ -82,19 +79,17 @@ export function BuilderRequests() {
             </div>
           </li>
         ))}
-      </ul>
-    </Card>
-  );
+</ul>
+      )}
+    </Card>  );
 }
 
 export function InviteRequests() {
-  const { data = [] } = useQuery({
+const { data = [], isLoading } = useQuery({
     queryKey: ["invite-requests"],
     queryFn: dashboardService.inviteRequests,
-  });
-  return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="Invite Requests" action="View All" />
+  });  return (
+<Card className="hover:shadow-md transition-shadow duration-200">      <SectionHeader title="Invite Requests" action="View All" />
       <ul className="divide-y divide-border/40">
         {data.slice(0, 3).map((r) => (
           <li
@@ -128,11 +123,11 @@ export function SuggestedBuilders() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="Suggested Builders" action="View All" actionTo="/builders" />
+<Card className="hover:shadow-md transition-shadow duration-200">      <SectionHeader title="Suggested Builders" action="View All" actionTo="/builders" />
+{isLoading && <ListRowsSkeleton rows={3} />}
+      {!isLoading && (
       <motion.div
-        className="grid grid-cols-1 gap-4 p-5 pt-2 sm:grid-cols-2 lg:grid-cols-3"
-        variants={containerVariants}
+        className="grid grid-cols-1 gap-4 p-5 pt-2 sm:grid-cols-2 lg:grid-cols-3"        variants={containerVariants}
         initial={prefersReducedMotion ? undefined : "hidden"}
         animate={prefersReducedMotion ? undefined : "visible"}
       >
@@ -144,8 +139,7 @@ export function SuggestedBuilders() {
               key={b.id}
               variants={prefersReducedMotion ? undefined : cardEntrance}
               custom={i}
-              className="flex flex-col h-full rounded-2xl border border-border/60 bg-surface p-5 hover:border-border hover:shadow-sm transition-all"
-            >
+className="flex flex-col h-full rounded-3xl border border-border/40 bg-surface p-5 hover:border-border hover:shadow-sm transition-all"            >
               <div className="flex items-start justify-between gap-2">
                 <Avatar
                   src={b.avatar}
@@ -185,16 +179,15 @@ export function SuggestedBuilders() {
             </motion.div>
           );
         })}
-      </motion.div>
-    </Card>
-  );
+</motion.div>
+      )}
+    </Card>  );
 }
 
 export function TrendingProjects() {
   const { data = [] } = useQuery({ queryKey: ["trending"], queryFn: projectsService.trending });
   return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="Trending Projects" action="View All" actionTo="/projects" />
+<Card className="hover:shadow-md transition-shadow duration-200">      <SectionHeader title="Trending Projects" action="View All" actionTo="/projects" />
       <ul className="divide-y divide-border/40">
         {data.slice(0, 4).map((p) => (
           <li
@@ -225,8 +218,7 @@ export function TrendingProjects() {
 
 export function AIRecommendations() {
   return (
-    <Card className="relative overflow-hidden border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="AI Insights" />
+<Card className="relative overflow-hidden hover:shadow-md transition-shadow duration-200">      <SectionHeader title="AI Insights" />
       <div className="space-y-4 px-5 pb-5">
         <p className="text-sm text-foreground leading-relaxed">
           You need a <span className="font-semibold">Backend Developer</span> for your project{" "}
@@ -273,8 +265,7 @@ export function MessagesPreview() {
     queryFn: messagesService.conversations,
   });
   return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="Messages" action="View All" actionTo="/messages" />
+<Card className="hover:shadow-md transition-shadow duration-200">      <SectionHeader title="Messages" action="View All" actionTo="/messages" />
       <ul className="divide-y divide-border/40">
         {data.slice(0, 4).map((c) => (
           <li key={c.id}>
@@ -321,14 +312,13 @@ export function QuickActions() {
     },
   ];
   return (
-    <Card className="border-border/60 bg-transparent shadow-none border-none">
-      <div className="grid grid-cols-2 gap-4">
+<Card className="bg-transparent shadow-none border-none">      
+  <div className="grid grid-cols-2 gap-4">
         {actions.map((a) => (
           <Link
             key={a.label}
             to={a.to}
-            className="group flex flex-col items-start gap-4 rounded-2xl border border-border/60 bg-card p-5 transition-all hover:border-border hover:shadow-md hover:-translate-y-0.5"
-          >
+className="group flex flex-col items-start gap-4 rounded-3xl border border-border/40 bg-card p-5 transition-all hover:border-border hover:shadow-md hover:-translate-y-0.5"          >
             <span className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
               <a.icon size={20} />
             </span>
@@ -348,8 +338,7 @@ export function UpcomingDeadlines() {
     info: "text-info font-medium",
   } as const;
   return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="Deadlines" action="Calendar" />
+<Card className="hover:shadow-md transition-shadow duration-200">      <SectionHeader title="Deadlines" action="Calendar" />
       <ul className="divide-y divide-border/40">
         {data.slice(0, 3).map((d) => (
           <li
@@ -377,8 +366,7 @@ export function NotificationsFeed() {
     queryFn: notificationsService.list,
   });
   return (
-    <Card className="border-border/60 rounded-2xl bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <SectionHeader title="Notifications" action="View All" actionTo="/notifications" />
+<Card className="hover:shadow-md transition-shadow duration-200">      <SectionHeader title="Notifications" action="View All" actionTo="/notifications" />
       <ul className="divide-y divide-border/40">
         {data.slice(0, 4).map((n) => (
           <li

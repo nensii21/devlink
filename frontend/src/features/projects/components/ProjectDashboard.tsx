@@ -203,9 +203,8 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
 
   if (error || !d) {
     return (
-      <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-red-500/20 bg-red-500/5">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-3" />
-        <h3 className="text-lg font-bold text-foreground">Workspace Locked</h3>
+<Card className="flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-destructive/20 bg-destructive/5">
+        <AlertCircle className="h-12 w-12 text-destructive mb-3" />        <h3 className="text-lg font-bold text-foreground">Workspace Locked</h3>
         <p className="text-sm text-muted-foreground mt-1 max-w-sm">
           You must be an active project team member to access this private workspace dashboard.
         </p>
@@ -222,13 +221,10 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "project_milestone":
-        return <Flag className="h-4 w-4 text-emerald-500" />;
-      case "project_announcement":
-        return <Bell className="h-4 w-4 text-indigo-500" />;
-      case "project_created":
+return <Flag className="h-4 w-4 text-success" />;      case "project_announcement":
+return <Bell className="h-4 w-4 text-info" />;      case "project_created":
       case "project_updated":
-        return <TrendingUp className="h-4 w-4 text-sky-500" />;
-      default:
+return <TrendingUp className="h-4 w-4 text-primary" />;      default:
         return <Activity className="h-4 w-4 text-muted-foreground" />;
     }
   };
@@ -241,8 +237,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <h2 className="text-xl font-bold text-foreground">Team Workspace Dashboard</h2>
+<span className="inline-flex h-2 w-2 rounded-full bg-success animate-pulse" />              <h2 className="text-xl font-bold text-foreground">Team Workspace Dashboard</h2>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Centralized project status, announcements, and milestones.
@@ -340,8 +335,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                           })
                         }
                         disabled={!hasWriteAccess || toggleMilestoneMutation.isPending}
-                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer disabled:opacity-50"
-                      />
+className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer disabled:opacity-50"                      />
                       <div className="min-w-0 flex-1">
                         <p
                           className={cn(

@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/useTheme";
-
+import { AnimatedBackground } from "@/components/shared/AnimatedBackground";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -166,9 +166,9 @@ function Landing() {
         )}
       </AnimatePresence>
 
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-24 text-center">
-          <motion.div
+<section className="relative overflow-hidden border-b border-border">
+        <AnimatedBackground />
+        <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-24 text-center">          <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -201,9 +201,14 @@ function Landing() {
         </div>
       </section>
 
-      <section id="features" className="border-b border-border">
-        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
-          {[
+<section id="features" className="border-b border-border">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto grid max-w-6xl gap-4 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-4"
+        >          {[
             {
               icon: Sparkles,
               title: "AI matches",
@@ -231,20 +236,24 @@ function Landing() {
               </span>
               <p className="mt-3 text-[15px] font-semibold text-foreground">{f.title}</p>
               <p className="mt-1 text-[13px] text-muted-foreground">{f.desc}</p>
-            </div>
+</div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       <section
-        id="pricing"
-        className="border-b border-border py-24 relative overflow-hidden bg-gradient-to-b from-background via-surface/30 to-background"
+        id="pricing"        className="border-b border-border py-24 relative overflow-hidden bg-gradient-to-b from-background via-surface/30 to-background"
       >
         {/* Subtle decorative background blur */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 relative z-10">
-          <div className="text-center max-w-2xl mx-auto">
+<motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto max-w-5xl px-4 sm:px-6 relative z-10"
+        >          <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Simple, transparent pricing
             </h2>
@@ -501,13 +510,12 @@ function Landing() {
                   </AnimatePresence>
                 </div>
               ))}
-            </div>
+</div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      <footer className="border-t border-border bg-surface py-3">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-2 sm:flex-row sm:text-left">
+      <footer className="border-t border-border bg-surface py-3">        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-2 sm:flex-row sm:text-left">
           <div className="flex items-center gap-2">
             <img src={APP_LOGO} alt="Devlink Logo" className="h-12 w-12 rounded" />
             <span className="text-[20px] font-bold text-foreground ">DevLink</span>
