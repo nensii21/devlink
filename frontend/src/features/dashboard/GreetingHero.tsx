@@ -9,8 +9,7 @@ export function GreetingHero() {
   const first = currentUser.name.split(" ")[0];
 
   return (
-    <Card className="flex flex-col gap-4 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between rounded-2xl bg-card border-border/60">
-      <div className="min-w-0 flex-1">
+<Card className="flex flex-col gap-5 p-5 sm:p-6 sm:flex-row sm:items-center sm:justify-between">      <div className="min-w-0 flex-1">
         <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
           {greeting}, {first}
         </h1>
@@ -27,8 +26,7 @@ export function GreetingHero() {
         </div>
       </div>
 
-      <div className="flex flex-row gap-3 sm:w-auto shrink-0 overflow-x-auto pb-1 sm:pb-0 hide-scrollbar">
-        <MiniStat icon={<TrendingUp size={14} />} label="Progress" value="75%" progress={75} />
+<div className="grid grid-cols-3 gap-3 sm:flex sm:w-auto sm:flex-row sm:shrink-0">        <MiniStat icon={<TrendingUp size={14} />} label="Progress" value="75%" progress={75} />
         <MiniStat icon={<Flame size={14} />} label="Streak" value="12d" />
         <MiniStat icon={<Sparkles size={14} />} label="AI Score" value="96" />
       </div>
@@ -48,8 +46,7 @@ function MiniStat({
   progress?: number;
 }) {
   return (
-    <div className="flex flex-col justify-between gap-1.5 rounded-xl border border-border/50 bg-muted/20 p-3 min-w-[120px] sm:min-w-[130px] shrink-0">
-      <div className="flex items-center gap-1.5 text-muted-foreground">
+<div className="flex flex-col justify-between gap-1.5 rounded-xl border border-border/50 bg-muted/20 p-3 sm:min-w-[130px] sm:shrink-0"><div className="flex items-center gap-1.5 text-muted-foreground">
         {icon}
         <p className="text-[10px] font-medium uppercase tracking-wider truncate">{label}</p>
       </div>

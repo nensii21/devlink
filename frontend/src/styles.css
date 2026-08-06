@@ -183,8 +183,7 @@
  * All hex values live here; components use semantic classes only.
  */
 :root {
-  --radius: 0.5rem;
-
+--radius: 0.75rem;
   /* Neutrals — GitHub-like light */
   --background: #f6f8fa;
   --surface: #ffffff;
@@ -197,8 +196,7 @@
   --popover: #ffffff;
   --popover-foreground: #1f2328;
 
-  --border: #d0d7de;
-  --input: #d0d7de;
+--border: #dde3e9;  --input: #d0d7de;
   --ring: #05b7d7;
 
   /* Brand — cyan from AuthScreen */
