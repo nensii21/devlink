@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import uuid
+import hmac
+import hashlib
+import json
 import httpx
 import structlog
 from datetime import datetime, timezone, timedelta
@@ -34,6 +37,23 @@ def calculate_backoff_delay(
 class WebhookService:
 
     @classmethod
+    def generate_signature(cls, payload: Dict[str, Any] | str, secret: str) -> str:
+        """
+        Generates an HMAC-SHA256 signature for webhook payload verification.
+        """
+        if isinstance(payload, dict):
+            payload_bytes = json.dumps(payload, sort_keys=True).encode("utf-8")
+        else:
+            payload_bytes = str(payload).encode("utf-8")
+        
+        signature = hmac.new(
+            secret.encode("utf-8"),
+            payload_bytes,
+            hashlib.sha256
+        ).hexdigest()
+        return f"sha256={signature}"
+
+    @classmethod
     def dispatch_webhook(
         cls,
         db: Session,
@@ -41,14 +61,21 @@ class WebhookService:
         target_url: str,
         payload: Dict[str, Any],
         headers: Optional[Dict[str, Any]] = None,
+        secret: Optional[str] = None,
         max_retries: int = 5,
     ) -> WebhookDelivery:
+        # Include signature header if a shared secret is provided
+        req_headers = headers or {}
+        if secret:
+            sig = cls.generate_signature(payload, secret)
+            req_headers["X-DevLink-Signature"] = sig
+
         delivery = WebhookDelivery(
             id=uuid.uuid4(),
             event_type=event_type,
             target_url=target_url,
             payload=payload,
-            headers=headers or {},
+            headers=req_headers,
             status=WebhookDeliveryStatus.PENDING,
             attempts=0,
             max_retries=max_retries,
@@ -106,25 +133,22 @@ class WebhookService:
             db.commit()
             return True
 
-        # Failed delivery attempt
+        # Failed delivery attempt -> schedule retry or move to DLQ
         if delivery.attempts < delivery.max_retries:
             delivery.status = WebhookDeliveryStatus.FAILED
             delay_seconds = calculate_backoff_delay(delivery.attempts)
             delivery.next_retry_at = now + timedelta(seconds=delay_seconds)
             db.commit()
         else:
-            # Exhausted max retries -> Move to Dead Letter Queue (DLQ)
             delivery.status = WebhookDeliveryStatus.EXHAUSTED
             delivery.next_retry_at = None
             db.commit()
-
             cls._move_to_dlq(db, delivery)
 
         return False
 
     @classmethod
     def _move_to_dlq(cls, db: Session, delivery: WebhookDelivery) -> WebhookDeadLetterQueue:
-        # Check if already exists in DLQ
         existing = db.scalar(
             select(WebhookDeadLetterQueue).where(WebhookDeadLetterQueue.delivery_id == delivery.id)
         )
@@ -262,7 +286,6 @@ class WebhookService:
             db.add(delivery)
             db.commit()
 
-        # Execute replay attempt
         is_success = cls._execute_delivery(db, delivery)
 
         now = datetime.now(timezone.utc)
@@ -341,3 +364,4 @@ class WebhookService:
             "replayed_count": replayed_count,
             "delivery_success_rate": round(success_rate, 2),
         }
+    
