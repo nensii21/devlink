@@ -1,9 +1,13 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database, get_current_user_optional, get_current_user
-from app.schemas.search import SearchAutocompleteResponse
+from app.dependencies import get_database, get_current_user_optional, get_current_user, get_optional_current_user
+from app.schemas.search import (
+    SearchAutocompleteResponse,
+    SearchRequest,
+    SearchResponse,
+)
 from app.schemas.search_index import (
     SearchIndexedResponse,
     SearchAnalyticsMetric,
@@ -12,14 +16,28 @@ from app.schemas.search_index import (
 from app.services.search_service import SearchService
 from app.services.search_index_service import SearchIndexService
 from app.services.search_analytics_service import SearchAnalyticsService
-from app.dependencies import get_current_user, get_optional_current_user
 from app.models.user import User, UserRole
 import time
 import uuid
 from pydantic import BaseModel
-from fastapi import HTTPException
 
 router = APIRouter()
+
+
+@router.post(
+    "/semantic",
+    response_model=SearchResponse,
+    summary="Semantic vector search with keyword fallback",
+)
+async def semantic_search(
+    payload: SearchRequest,
+    db: Session = Depends(get_database),
+):
+    """
+    Execute semantic vector search across projects, profiles, discussions, and skills,
+    with an automatic fallback mechanism to standard keyword search.
+    """
+    return await SearchService.search(db=db, request=payload)
 
 
 @router.get("", summary="Full multi-category search")
@@ -34,29 +52,29 @@ def full_search(
     """Full-text paginated search across Users, Projects, Organizations, Skills, and Tags."""
     start_time = time.time()
 
-    results = SearchService.search(
+    results = SearchService.search_legacy_full(  # or SearchService.search depending on your base wrapper
         db=db,
         q=q,
         category=category,
         page=page,
         limit=limit,
-    )
+    ) if hasattr(SearchService, "search_legacy_full") else SearchService.search_full(db=db, q=q, category=category, page=page, limit=limit) if hasattr(SearchService, "search_full") else SearchService.search(db=db, q=q, category=category, page=page, limit=limit)
 
     latency_ms = (time.time() - start_time) * 1000
 
     # Calculate total results returned in this page
     total_results = 0
-    if category:
-        # results is a dictionary with a single key for the category
-        for v in results.values():
-            total_results += len(v)
-    else:
-        for k, v in results.items():
-            if isinstance(v, list):
-                total_results += len(v)
+    if isinstance(results, dict):
+        if category:
+            for v in results.values():
+                if isinstance(v, list):
+                    total_results += len(v)
+        else:
+            for k, v in results.items():
+                if isinstance(v, list):
+                    total_results += len(v)
 
     if q.strip():
-        # Log the search asynchronously ideally, but we do it synchronously here
         SearchAnalyticsService.log_search(
             db=db,
             query=q,
@@ -153,7 +171,6 @@ def track_click(
     user: Optional[User] = Depends(get_optional_current_user),
 ):
     """Track which entity a user clicked from their search results."""
-    # Find the most recent search query for this user/session with this query string
     from sqlalchemy import select
     from app.models.search_analytics import SearchQueryLog
 
@@ -202,7 +219,7 @@ def run_search_benchmark(
 
 
 @router.get(
-    "/analytics",
+    "/analytics/dashboard",
     summary="Get search analytics dashboard metrics",
 )
 def get_analytics_dashboard(
@@ -214,4 +231,3 @@ def get_analytics_dashboard(
         raise HTTPException(status_code=403, detail="Admin only")
 
     return SearchAnalyticsService.get_dashboard_metrics(db, days=days)
-

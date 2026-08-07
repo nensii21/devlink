@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict
-from typing import List, Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import List, Optional, Dict, Any
 import uuid
 
 
@@ -109,3 +109,26 @@ class SearchCounts(BaseModel):
     skills: int = 0
     tags: int = 0
     total: int = 0
+
+
+# --- Semantic Search Models ---
+
+class SearchRequest(BaseModel):
+    query: str = Field(..., min_length=1, description="Search query string")
+    types: Optional[List[str]] = Field(
+        default=["projects", "profiles", "discussions", "skills"],
+        description="Types of entities to search across"
+    )
+    limit: int = Field(default=10, ge=1, le=50)
+
+
+class SearchResponse(BaseModel):
+    query: str
+    users: List[SearchResultUser] = []
+    projects: List[SearchResultProject] = []
+    organizations: List[SearchResultOrganization] = []
+    skills: List[SearchResultSkill] = []
+    tags: List[SearchResultTag] = []
+    counts: SearchCounts = Field(default_factory=SearchCounts)
+    search_method: str = Field(..., description="Either 'semantic' or 'keyword_fallback'")
+    
