@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
@@ -7,8 +6,6 @@ export const Route = createFileRoute("/_app/admin/maintenance")({
   component: AdminMaintenance,
 });
 
-interface MaintenanceWindowRow {
-  id: string | number;
 interface MaintenanceWindow {
   id: string;
   start_time: string;
@@ -18,7 +15,6 @@ interface MaintenanceWindow {
 }
 
 function AdminMaintenance() {
-  const [windows, setWindows] = useState<MaintenanceWindowRow[]>([]);
   const [windows, setWindows] = useState<MaintenanceWindow[]>([]);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -26,22 +22,19 @@ function AdminMaintenance() {
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    fetchWindows();
+  }, []);
+
   const fetchWindows = async () => {
     try {
-      // The API client resolves to the parsed body, not an axios response.
-      setWindows(await api.get<MaintenanceWindowRow[]>("/api/maintenance"));
-    } catch (error) {
-      const res = await api.get<any>("/api/maintenance");
-      setWindows(res.data || res);
-    } catch (error: any) {
+      const res = await api.get<unknown>("/api/maintenance");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setWindows(((res as { data?: any })?.data || res) as any);
+    } catch (error: unknown) {
       console.error("Failed to fetch maintenance windows", error);
     }
   };
-
-  useEffect(() => {
-    void fetchWindows();
-    // fetchWindows closes over nothing that changes between renders.
-  }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +48,8 @@ function AdminMaintenance() {
       };
       await api.post("/api/maintenance", payload);
       alert("Maintenance window scheduled");
-      void fetchWindows();
-    } catch (error) {
       fetchWindows();
-    } catch (error: any) {
+    } catch (error: unknown) {
       alert("Failed to schedule maintenance");
       console.error(error);
     } finally {
@@ -70,10 +61,8 @@ function AdminMaintenance() {
     if (!confirm("Are you sure you want to delete this maintenance window?")) return;
     try {
       await api.delete(`/api/maintenance/${id}`);
-      void fetchWindows();
-    } catch (error) {
       fetchWindows();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to delete window", error);
     }
   };

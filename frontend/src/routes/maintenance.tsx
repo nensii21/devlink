@@ -1,63 +1,26 @@
-// @ts-nocheck
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
-import { ApiError } from "@/api/client";
 import { ApiError } from "@/api";
 
 export const Route = createFileRoute("/maintenance")({
   component: MaintenancePage,
 });
 
-interface MaintenanceWindow {
-  message: string;
-  end_time: string;
-}
-
-/**
- * A 503 from the maintenance middleware carries the window in its body. The
- * shape is not guaranteed by anything the client can see, so it is narrowed
- * rather than asserted.
- */
-function maintenanceFromErrorPayload(payload: unknown): MaintenanceWindow | null {
-  if (typeof payload !== "object" || payload === null) return null;
-  const maintenance = (payload as { maintenance?: unknown }).maintenance;
-  if (typeof maintenance !== "object" || maintenance === null) return null;
-
-  const { message, end_time: endTime } = maintenance as Record<string, unknown>;
-  if (typeof message !== "string" || typeof endTime !== "string") return null;
-
-  return { message, end_time: endTime };
-}
-
 function MaintenancePage() {
-  const [maintenance, setMaintenance] = useState<MaintenanceWindow | null>(null);
+  const [maintenance, setMaintenance] = useState<{ message: string; end_time: string } | null>(
+    null,
+  );
   const [timeLeft, setTimeLeft] = useState<string>("");
 
   useEffect(() => {
+    // Try to get maintenance info from local storage or an unauthenticated endpoint
     const checkMaintenance = async () => {
       try {
-        // The API client returns the parsed body directly; there is no
-        // axios-style `.data` wrapper around it.
-        setMaintenance(await api.get<MaintenanceWindow>("/api/maintenance/active"));
-      } catch (error) {
-        if (!(error instanceof ApiError)) return;
-
-        // 404 means there is no active window, so the user landed here by
-        // accident (or the window ended while the page was open).
-        if (error.status === 404) {
-          window.location.href = "/";
-          return;
-        }
-
-        // 503 is the maintenance middleware itself answering, and it includes
-        // the window we were trying to fetch.
-        if (error.status === 503) {
-          setMaintenance(maintenanceFromErrorPayload(error.payload));
-        const res = await api.get<any>("/api/maintenance/active");
-        setMaintenance(res.data || res);
-      } catch (e: any) {
-
+        const res = await api.get<unknown>("/api/maintenance/active");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setMaintenance(((res as { data?: any })?.data || res) as any);
+      } catch (e: unknown) {
         // If 404, there is no active maintenance. We could redirect to home.
         const status = e instanceof ApiError ? e.status : undefined;
         if (status === 404) {
@@ -72,7 +35,7 @@ function MaintenancePage() {
         }
       }
     };
-    void checkMaintenance();
+    checkMaintenance();
   }, []);
 
   useEffect(() => {

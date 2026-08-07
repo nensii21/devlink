@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createFileRoute, Outlet, useRouterState, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -21,7 +20,7 @@ import { useProjectFilters } from "@/hooks/useProjectFilters";
 import { cn } from "@/lib/utils";
 import { getRecentlyViewedProjectIds } from "@/lib/recentlyViewedProjects";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
-import { FilterDrawer, FilterSection, type FilterValue } from "@/components/ui/filter-drawer";
+import { FilterDrawer, FilterSection } from "@/components/ui/filter-drawer";
 
 export const projectSearchSchema = z.object({
   page: z.number().catch(1).optional(),
@@ -43,30 +42,6 @@ export const projectSearchSchema = z.object({
   opensource: z.boolean().optional(),
   create: z.boolean().optional(),
 });
-
-/**
- * The filter drawer speaks in strings because it renders radio-style chips;
- * the search schema speaks in booleans. These two helpers are the translation,
- * and they keep "unset" distinct from "explicitly false" in both directions —
- * collapsing those was why an unset "Paid" filter used to read as "Unpaid".
- */
-function booleanToChoice(value: boolean | undefined): string {
-  if (value === undefined) return "";
-  return value ? "true" : "false";
-}
-
-function choiceToBoolean(value: FilterValue): boolean | undefined {
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-}
-
-/** Normalise a drawer value into the string array the search schema stores. */
-function toStringList(value: FilterValue): string[] {
-  if (Array.isArray(value)) return value.filter(Boolean);
-  if (typeof value === "string" && value !== "") return [value];
-  return [];
-}
 
 export const Route = createFileRoute("/_app/projects")({
   head: () => ({
@@ -351,17 +326,6 @@ function ProjectsPage() {
           values={{
             language: filters.language ?? [],
             experience: filters.experience?.[0] ?? "",
-            remote: booleanToChoice(filters.remote),
-            paid: booleanToChoice(filters.paid),
-            opensource: booleanToChoice(filters.opensource),
-          }}
-          onApply={(newValues) => {
-            setFilters({
-              language: toStringList(newValues.language),
-              experience: toStringList(newValues.experience),
-              remote: choiceToBoolean(newValues.remote),
-              paid: choiceToBoolean(newValues.paid),
-              opensource: choiceToBoolean(newValues.opensource),
             remote: filters.remote === undefined ? "" : String(filters.remote),
             paid: filters.paid === undefined ? "" : String(filters.paid),
             opensource: filters.opensource === undefined ? "" : String(filters.opensource),
@@ -383,32 +347,6 @@ function ProjectsPage() {
               remote: boolOrUndefined(newValues.remote),
               paid: boolOrUndefined(newValues.paid),
               opensource: boolOrUndefined(newValues.opensource),
-            });
-          }}
-          initialFilters={{
-            language: filters.language ? filters.language : [],
-            experience: filters.experience,
-            remote: filters.remote ? "true" : "false",
-            paid: filters.paid ? "true" : "false",
-            opensource: filters.opensource ? "true" : "false",
-          }}
-
-          onApply={(newValues) => {
-            // const selectedLangs = Array.isArray(newValues.language)
-            // ? newValues.language.join(",")
-            // : newValues.language;
-            setFilters({
-              ...filters,
-              language: Array.isArray(newValues.language)
-                ? newValues.language
-                : newValues.language
-                  ? [newValues.language]
-                  : undefined,
-              experience: newValues.experience || "",
-              remote: newValues.remote || "",
-              paid: newValues.paid || "",
-              openSource: newValues.opensource || "",
-              techStack: techStack || "",
             });
           }}
           onReset={clearFilters}

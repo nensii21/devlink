@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -7,7 +6,7 @@ import { toast } from "sonner";
 
 export interface OAuthProviderItem {
   provider: string;
-  is_linked: booleanean;
+  is_linked: boolean;
   provider_user_id?: string | null;
 }
 

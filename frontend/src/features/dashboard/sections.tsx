@@ -23,6 +23,7 @@ import {
   Trophy,
   ArrowRight,
   Sparkles,
+  UserPlus,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
@@ -298,43 +299,44 @@ export function MessagesPreview() {
 }
 
 export function QuickActions() {
-  const actions = [
-    {
-      icon: FolderPlus,
-      label: "New Project",
-      to: "/projects" as const,
-    },
-    {
-      icon: Users2,
-      label: "Find Builder",
-      to: "/builders" as const,
-    },
-    {
-      icon: Flame,
-      label: "Create Flare",
-      to: "/flares" as const,
-    },
-    {
-      icon: Trophy,
-      label: "Hackathons",
-      to: "/hackathons" as const,
-    },
-  ];
+  const { data = [] } = useQuery({
+    queryKey: ["quick-actions"],
+    queryFn: dashboardService.quickActions,
+  });
+
+  const getIcon = (name: string) => {
+    switch (name) {
+      case "FolderPlus":
+        return FolderPlus;
+      case "Users2":
+        return Users2;
+      case "Flame":
+        return Flame;
+      case "UserPlus":
+        return UserPlus;
+      default:
+        return FolderPlus;
+    }
+  };
+
   return (
     <Card className="border-border/60 bg-transparent shadow-none border-none">
       <div className="grid grid-cols-2 gap-4">
-        {actions.map((a) => (
-          <Link
-            key={a.label}
-            to={a.to}
-            className="group flex flex-col items-start gap-4 rounded-2xl border border-border/60 bg-card p-5 transition-all hover:border-border hover:shadow-md hover:-translate-y-0.5"
-          >
-            <span className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-              <a.icon size={20} />
-            </span>
-            <span className="text-sm font-semibold text-foreground">{a.label}</span>
-          </Link>
-        ))}
+        {data.map((a) => {
+          const Icon = getIcon(a.iconName);
+          return (
+            <Link
+              key={a.label}
+              to={a.to}
+              className="group flex flex-col items-start gap-4 rounded-2xl border border-border/60 bg-card p-5 transition-all hover:border-border hover:shadow-md hover:-translate-y-0.5"
+            >
+              <span className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <Icon size={20} />
+              </span>
+              <span className="text-sm font-semibold text-foreground">{a.label}</span>
+            </Link>
+          );
+        })}
       </div>
     </Card>
   );

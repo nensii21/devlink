@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import * as React from "react";
@@ -173,7 +172,6 @@ export function FilterDrawer({
           />
           <input
             type="text"
-            value={asText(draftValues[section.id])}
             value={(draftValues[section.id] as string) || ""}
             onChange={(e) => handleTextChange(section.id, e.target.value)}
             placeholder={section.placeholder || `Search ${section.title.toLowerCase()}...`}
@@ -187,7 +185,6 @@ export function FilterDrawer({
     if (type === "select") {
       return (
         <select
-          value={asText(draftValues[section.id])}
           value={(draftValues[section.id] as string) || ""}
           onChange={(e) => handleTextChange(section.id, e.target.value)}
           className="mt-2 w-full rounded-md border border-border bg-surface px-3 py-1.5 text-[13px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
@@ -207,7 +204,6 @@ export function FilterDrawer({
       const min = section.min ?? 0;
       const max = section.max ?? 100;
       const step = section.step ?? 1;
-      const val = asNumber(draftValues[section.id], min);
       const val = (draftValues[section.id] as number) ?? min;
 
       return (

@@ -306,7 +306,7 @@ function ProjectDetail() {
             />
           </Card>
 
-          <ProjectTimeline className="mt-6" />
+          <ProjectTimeline className="mt-6 lg:col-span-3" />
         </div>
       )}
       {tab === "members" && (
