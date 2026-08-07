@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { ApiError } from "@/api/client";
-import { ApiError } from "@/api";
 
 export const Route = createFileRoute("/maintenance")({
   component: MaintenancePage,
@@ -53,22 +52,10 @@ function MaintenancePage() {
         // 503 is the maintenance middleware itself answering, and it includes
         // the window we were trying to fetch.
         if (error.status === 503) {
-          setMaintenance(maintenanceFromErrorPayload(error.payload));
-        const res = await api.get<any>("/api/maintenance/active");
-        setMaintenance(res.data || res);
-      } catch (e: any) {
-
-        // If 404, there is no active maintenance. We could redirect to home.
-        const status = e instanceof ApiError ? e.status : undefined;
-        if (status === 404) {
-          window.location.href = "/";
-        } else if (status === 503) {
-          // The middleware caught it and returned 503 with data
-          const payload =
-            e instanceof ApiError
-              ? (e.payload as { maintenance?: { message: string; end_time: string } } | null)
-              : null;
-          if (payload?.maintenance) setMaintenance(payload.maintenance);
+          const payload = error.payload as { maintenance?: { message: string; end_time: string } } | null;
+          if (payload?.maintenance) {
+            setMaintenance(payload.maintenance);
+          }
         }
       }
     };

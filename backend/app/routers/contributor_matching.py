@@ -13,6 +13,8 @@ from app.schemas.contributor_match import (
     ContributorMatchRequest,
     ContributorMatchResponse,
     MatchedContributor,
+    SkillGapAnalysisRequest,
+    SkillGapAnalysisResponse,
 )
 from app.services.contributor_matching_service import ContributorMatchingService
 
@@ -78,4 +80,47 @@ def match_contributors(
         project_title=project.title,
         matches=matched_contributors,
         generated_at=datetime.now(timezone.utc).isoformat(),
+    )
+
+
+@router.post(
+    "/skill-gap",
+    response_model=SkillGapAnalysisResponse,
+)
+@limiter.limit(MATCHING_RATE_LIMIT)
+def analyze_skill_gap(
+    request: Request,
+    body: SkillGapAnalysisRequest,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Analyze skill gap between a user and a project.
+
+    Compares user skills with project requirements to output match percentage,
+    matching skills, missing skills, and recommended learning topics.
+    """
+    target_user_id = body.user_id or current_user.id
+
+    project = db.get(Project, body.project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    user = db.get(User, target_user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    result = ContributorMatchingService.analyze_skill_gap(
+        db=db,
+        project_id=body.project_id,
+        user_id=target_user_id,
+    )
+
+    return SkillGapAnalysisResponse(
+        project_id=project.id,
+        user_id=user.id,
+        match_percentage=result.match_percentage,
+        matching_skills=result.matching_skills,
+        missing_skills=result.missing_skills,
+        recommended_learning_topics=result.recommended_learning_topics,
     )

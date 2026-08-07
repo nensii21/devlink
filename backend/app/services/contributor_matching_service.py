@@ -39,19 +39,30 @@ class MatchResult:
     matching_skills: list[str]
 
 
+@dataclass
+class SkillGapResult:
+    project_id: str
+    user_id: str
+    match_percentage: float
+    matching_skills: list[str]
+    missing_skills: list[str]
+    recommended_learning_topics: list[str]
+
+
 class ContributorMatchingService:
     """
-    AI-powered contributor matching for projects.
+    AI-powered contributor matching for projects and skill gap analysis.
 
     Analyzes project requirements and user profiles to recommend
-    the best contributors based on skills, activity, and availability.
+    the best contributors based on skills, activity, and availability,
+    and performs skill gap analysis.
     """
 
     @staticmethod
     def _get_client():
         """Get OpenAI client."""
         try:
-            from openai import OpenAI
+            from openai import OpenAI # type: ignore
 
             return OpenAI(api_key=settings.OPENAI_API_KEY)
         except ImportError:
@@ -109,20 +120,17 @@ Hiring: {project.hiring}"""
         db: Session, project_id, limit: int
     ) -> list[ContributorProfile]:
         """Get candidate user profiles for matching."""
-        # Get users who are open to work and not the project owner
         project = db.get(Project, project_id)
         if not project:
             return []
 
         from app.models.project_member import ProjectMember
 
-        # Get existing project members to exclude them
         member_stmt = select(ProjectMember.user_id).where(
             ProjectMember.project_id == project_id
         )
         existing_members = set(db.scalars(member_stmt).all())
 
-        # Get candidates: open to work users, excluding project owner and members
         stmt = (
             select(User)
             .where(User.open_to_work == True)
@@ -137,7 +145,6 @@ Hiring: {project.hiring}"""
             if user.id in existing_members:
                 continue
 
-            # Get user skills
             skill_stmt = (
                 select(UserSkill)
                 .options(selectinload(UserSkill.skill))
@@ -206,14 +213,6 @@ Example: [{{"user_id": "uuid", "match_score": 0.85, "match_reason": "Strong Pyth
     ) -> list[MatchResult]:
         """
         Find matching contributors for a project using AI.
-
-        Args:
-            db: Database session
-            project_id: Project UUID
-            limit: Maximum number of matches to return
-
-        Returns:
-            List of MatchResult with user_id, score, reason, and skills
         """
         project = db.get(Project, project_id)
         if not project:
@@ -229,7 +228,6 @@ Example: [{{"user_id": "uuid", "match_score": 0.85, "match_reason": "Strong Pyth
             return []
 
         try:
-            # Gather context
             project_skills = ContributorMatchingService._get_project_skills(
                 db, project_id
             )
@@ -270,7 +268,6 @@ Example: [{{"user_id": "uuid", "match_score": 0.85, "match_reason": "Strong Pyth
 
             content = response.choices[0].message.content.strip()
 
-            # Remove markdown code blocks if present
             if content.startswith("```"):
                 content = content.split("\n", 1)[1]
                 if content.endswith("```"):
@@ -311,3 +308,114 @@ Example: [{{"user_id": "uuid", "match_score": 0.85, "match_reason": "Strong Pyth
         except Exception as e:
             logger.error(f"Failed to match contributors: {e}")
             return []
+
+    @staticmethod
+    def analyze_skill_gap(
+        db: Session,
+        project_id,
+        user_id,
+    ) -> SkillGapResult:
+        """
+        Compare a user's skills against project requirements and identify missing skills,
+        match percentage, and recommended learning topics.
+        """
+        default_result = SkillGapResult(
+            project_id=str(project_id),
+            user_id=str(user_id),
+            match_percentage=0.0,
+            matching_skills=[],
+            missing_skills=[],
+            recommended_learning_topics=[],
+        )
+
+        project = db.get(Project, project_id)
+        user = db.get(User, user_id)
+        if not project or not user:
+            return default_result
+
+        project_skills = ContributorMatchingService._get_project_skills(db, project_id)
+        
+        # Get user skills
+        skill_stmt = (
+            select(UserSkill)
+            .options(selectinload(UserSkill.skill))
+            .where(UserSkill.user_id == user_id)
+        )
+        user_skills_records = db.scalars(skill_stmt).all()
+        user_skills = [us.skill.name for us in user_skills_records if us.skill]
+
+        if not settings.OPENAI_API_KEY:
+            # Fallback algorithmic comparison if OpenAI API key is missing
+            p_set = {s.lower() for s in project_skills}
+            u_set = {s.lower() for s in user_skills}
+            matching = [s for s in project_skills if s.lower() in u_set]
+            missing = [s for s in project_skills if s.lower() not in u_set]
+            match_pct = (len(matching) / len(project_skills) * 100.0) if project_skills else 100.0
+            return SkillGapResult(
+                project_id=str(project_id),
+                user_id=str(user_id),
+                match_percentage=round(match_pct, 1),
+                matching_skills=matching,
+                missing_skills=missing,
+                recommended_learning_topics=missing,
+            )
+
+        client = ContributorMatchingService._get_client()
+        if not client:
+            return default_result
+
+        try:
+            prompt = f"""Analyze the skill gap between a user and a project.
+
+Project Requirements:
+Title: {project.title}
+Tech Stack: {project.tech_stack or 'N/A'}
+Required Skills: {', '.join(project_skills) if project_skills else 'None specified'}
+
+User Skills:
+{', '.join(user_skills) if user_skills else 'None specified'}
+
+Provide an analysis in JSON format with the following keys:
+- match_percentage: float between 0.0 and 100.0 representing skill match percentage
+- matching_skills: array of strings of project required skills the user possesses
+- missing_skills: array of strings of project required skills the user lacks
+- recommended_learning_topics: array of strings for learning topics to bridge the gap
+
+Return only valid JSON, no markdown."""
+
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a technical mentor and career coach performing skill gap analysis. Return only valid JSON.",
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    },
+                ],
+                temperature=0.3,
+                max_tokens=600,
+            )
+
+            content = response.choices[0].message.content.strip()
+            if content.startswith("```"):
+                content = content.split("\n", 1)[1]
+                if content.endswith("```"):
+                    content = content[:-3]
+                content = content.strip()
+
+            data = json.loads(content)
+            return SkillGapResult(
+                project_id=str(project_id),
+                user_id=str(user_id),
+                match_percentage=float(data.get("match_percentage", 0.0)),
+                matching_skills=data.get("matching_skills", []),
+                missing_skills=data.get("missing_skills", []),
+                recommended_learning_topics=data.get("recommended_learning_topics", []),
+            )
+        except Exception as e:
+            logger.error(f"Failed to perform skill gap analysis: {e}")
+            return default_result
+        
