@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { projectSearchSchema } from "@/routes/_app.projects";
+import { projectSearchSchema } from "@/routes-hold/_app.projects";
 import { z } from "zod";
 
 export type FilterState = z.infer<typeof projectSearchSchema>;

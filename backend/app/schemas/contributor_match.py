@@ -29,3 +29,18 @@ class ContributorMatchResponse(BaseModel):
     project_title: str
     matches: list[MatchedContributor]
     generated_at: str
+
+
+class SkillGapAnalysisRequest(BaseModel):
+    project_id: uuid.UUID
+    user_id: Optional[uuid.UUID] = None
+
+
+class SkillGapAnalysisResponse(BaseModel):
+    project_id: uuid.UUID
+    user_id: uuid.UUID
+    match_percentage: float
+    matching_skills: list[str]
+    missing_skills: list[str]
+    recommended_learning_topics: list[str]
+    
