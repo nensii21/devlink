@@ -4,12 +4,26 @@ import uuid
 from io import BytesIO
 from typing import Optional
 
-import boto3
-from botocore.exceptions import ClientError
+import boto3 # type: ignore
+from botocore.exceptions import ClientError # type: ignore
 from fastapi import UploadFile, HTTPException, status
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+def scan_file_for_malware(contents: bytes, filename: str) -> None:
+    """
+    Malware scanning hook for uploaded files.
+    Raises ValueError / HTTPException if malicious code or disallowed signatures are found.
+    """
+    if not contents:
+        raise ValueError("Uploaded file payload is empty.")
+    
+    # Basic script/executable signature verification hook
+    suspicious_signatures = [b"<?php", b"<script", b"MZ", b"\x7fELF"]
+    for sig in suspicious_signatures:
+        if contents.startswith(sig):
+            raise ValueError(f"Security violation: Prohibited file signature detected in {filename}.")
 
 class CloudStorageService:
     def __init__(self):
@@ -50,8 +64,7 @@ class CloudStorageService:
                 detail=f"File type {file.content_type} is not allowed. Allowed types: {settings.ALLOWED_IMAGE_TYPES}",
             )
         
-        # File size is often validated stream-side in FastAPI, but if we need strict validation:
-        # We can check file.size if provided, or rely on nginx/fastapi middleware for MAX_UPLOAD_SIZE_MB
+        # File size strict boundary validation
         if file.size and file.size > settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -65,15 +78,33 @@ class CloudStorageService:
         """
         self._validate_file(file)
 
+        # Read file contents securely for validation and malware scanning
+        try:
+            file_bytes = file.file.read()
+        except Exception as e:
+            logger.error(f"Failed to read upload stream: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to read uploaded file contents.",
+            )
+
+        # Execute malware scan hook prior to storage commit
+        try:
+            scan_file_for_malware(file_bytes, file.filename or "unknown")
+        except ValueError as ve:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(ve),
+            )
+
         if self.provider == "local":
-            # For local fallback if needed (e.g. testing without mocks)
             os.makedirs(os.path.join(settings.UPLOAD_DIR, directory), exist_ok=True)
             ext = os.path.splitext(file.filename)[1] if file.filename else ""
             filename = f"{uuid.uuid4().hex}{ext}"
             file_path = os.path.join(settings.UPLOAD_DIR, directory, filename)
             
             with open(file_path, "wb") as buffer:
-                buffer.write(file.file.read())
+                buffer.write(file_bytes)
             
             return f"{directory}/{filename}"
 
@@ -83,13 +114,12 @@ class CloudStorageService:
                 detail="Cloud storage client is not properly initialized.",
             )
 
-        # Generate unique filename
+        # Generate unique secure filename to prevent traversal/collisions
         ext = os.path.splitext(file.filename)[1] if file.filename else ""
         filename = f"{uuid.uuid4().hex}{ext}"
         object_name = f"{directory}/{filename}"
 
         try:
-            file_bytes = file.file.read()
             self.client.put_object(
                 Bucket=self.bucket_name,
                 Key=object_name,
