@@ -662,8 +662,8 @@ function Landing() {
       <footer className="border-t border-border bg-surface py-3">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-2 sm:flex-row sm:text-left">
           <div className="flex items-center gap-2">
-            <img src={APP_LOGO} alt="Devlink Logo" className="h-12 w-12 rounded" />
-            <span className="text-[20px] font-bold text-foreground ">DevLink</span>
+            <img src={APP_LOGO} alt="DevLink logo" className="h-12 w-12 rounded" />
+            <span className="text-[20px] font-bold text-foreground">DevLink</span>
             <span className="text-[11px] text-muted-foreground opacity-70">
               © {new Date().getFullYear()}
             </span>
@@ -678,9 +678,10 @@ function Landing() {
               <a
                 key={item.label}
                 href={item.href}
+                aria-label={item.label}
                 target={item.href.startsWith("http") ? "_blank" : undefined}
                 rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="hover:text-primary hover:underline"
+                className="transition-colors hover:text-primary hover:underline"
               >
                 {item.label}
               </a>
