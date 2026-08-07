@@ -17,8 +17,7 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center justify-between px-5 pt-4 pb-3.5", className)}>
-      <h3 className="text-[14px] font-bold tracking-tight text-foreground flex items-center gap-2">
+<div className={cn("flex items-center justify-between px-6 pt-5 pb-4", className)}>      <h3 className="text-[14px] font-bold tracking-tight text-foreground flex items-center gap-2">
         <span className="inline-block h-2 w-2 rounded-full bg-primary/80" />
         {title}
       </h3>
@@ -53,8 +52,7 @@ export function Card({
   return (
     <As
       className={cn(
-        "rounded-2xl border border-border/70 bg-card shadow-xs transition-all duration-200",
-        interactive && "hover-lift hover:border-primary/40 hover:shadow-card",
+"rounded-3xl border border-border/40 bg-card shadow-sm transition-all duration-200",        interactive && "hover-lift hover:border-primary/40 hover:shadow-card",
         className,
       )}
     >

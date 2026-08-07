@@ -49,8 +49,7 @@ export function StatsRow() {
           >
             <Card
               interactive
-              className="flex flex-col h-full gap-3 rounded-2xl p-4 transition-all duration-200 border-border/60 hover:border-border hover:shadow-md bg-card shadow-sm"
-            >
+className="flex flex-col h-full gap-3 p-4 transition-all duration-200 hover:border-border hover:shadow-md"            >
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground p-1.5 rounded-lg bg-muted/30">
                   <Icon size={16} />
