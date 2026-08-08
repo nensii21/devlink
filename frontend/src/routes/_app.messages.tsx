@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { messagesService } from "@/services";
 import { Card, Avatar, EmptyState } from "@/components/shared/primitives";
@@ -19,6 +19,12 @@ function MessagesIndex() {
     queryKey: ["conversations"],
     queryFn: messagesService.conversations,
   });
+
+  const isConversationActive = useMatch({
+    from: "/_app/messages/$conversationId",
+    shouldThrow: false,
+  });
+
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
       <Card className="lg:h-[calc(100vh-8rem)] lg:overflow-y-auto">
@@ -57,12 +63,16 @@ function MessagesIndex() {
           </ul>
         )}
       </Card>
-      <Card className="flex items-center justify-center p-8">
-        <EmptyState
-          title="Select a conversation"
-          desc="Choose a chat on the left or search builders to start a new conversation."
-        />
-      </Card>
+      {isConversationActive ? (
+        <Outlet />
+      ) : (
+        <Card className="flex items-center justify-center p-8">
+          <EmptyState
+            title="Select a conversation"
+            desc="Choose a chat on the left or search builders to start a new conversation."
+          />
+        </Card>
+      )}
     </div>
   );
 }

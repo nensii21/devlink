@@ -70,6 +70,7 @@ from .user_skill import UserSkill as UserSkill
 from .workspace_api_token import WorkspaceApiToken as WorkspaceApiToken
 from .milestone import Milestone as Milestone
 from .announcement import Announcement as Announcement
+from .message_draft import MessageDraft  # noqa: F401
 from .user_report import UserReport
 from .user_skill import UserSkill
 from .verification_request import VerificationRequest  # noqa: F401
@@ -84,5 +85,6 @@ from .request_log import RequestLog  # noqa: F401
 from .background_job import BackgroundJob, JobStatus
 from .badge import Badge, UserBadge  # noqa: F401
 from .centralized_analytics import CentralizedAnalyticsEvent, AnalyticsEventType  # noqa: F401
+from .global_announcement import GlobalAnnouncement, AnnouncementSeverity, TargetAudience  # noqa: F401
 from .post import Post  # noqa: F401
 

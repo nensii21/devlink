@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   Bell,
   MessageSquare,
@@ -22,6 +21,7 @@ import { Avatar } from "@/components/shared/primitives";
 import { currentUser, builders, projects, flares } from "@/mocks/seed";
 import { useTheme } from "@/hooks/useTheme";
 import { NotificationCenter } from "@/components/shared/NotificationCenter";
+import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -95,7 +95,7 @@ export function TopNavbar() {
           <button className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-[7px] text-[13px] font-medium text-foreground transition-colors hover:bg-muted">
             <Sparkles size={14} className="text-primary" /> AI Assistant
           </button>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-[7px] text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer">
@@ -109,9 +109,7 @@ export function TopNavbar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/flares">
-                  New Flare
-                </Link>
+                <Link to="/flares">New Flare</Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() => {
@@ -123,9 +121,7 @@ export function TopNavbar() {
                 Invite Builder
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/organizations">
-                  Organization
-                </Link>
+                <Link to="/organizations">Organization</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/hackathons" search={{ create: true }}>
@@ -170,7 +166,9 @@ export function TopNavbar() {
                 <BadgeCheck
                   className={cn(
                     "h-3 w-3 shrink-0",
-                    currentUser.premium ? "text-amber-500 fill-amber-500/10 animate-pulse" : "text-primary"
+                    currentUser.premium
+                      ? "text-amber-500 fill-amber-500/10 animate-pulse"
+                      : "text-primary",
                   )}
                   aria-label={currentUser.premium ? "Premium Verified User" : "Verified User"}
                 />

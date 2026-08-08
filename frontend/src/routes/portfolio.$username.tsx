@@ -1,6 +1,7 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { analyticsApi } from "@/api/modules/analytics";
 import React, { useState, useEffect } from "react";
+import type { Builder } from "@/mocks/seed";
 import {
   MapPin,
   Calendar,
@@ -313,7 +314,7 @@ function PortfolioPage() {
             <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">{b.bio}</p>
             <div className="flex justify-center md:justify-start items-center gap-2 pt-2">
               <a
-                href={b.githubUrl || "https://github.com"}
+                href={(b as Builder).githubUrl || "https://github.com"}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => {
@@ -594,7 +595,7 @@ function PortfolioPage() {
           </div>
           <div className="flex justify-center md:justify-start items-center gap-3 pt-2 font-sans text-xs">
             <a
-              href={b.githubUrl || "https://github.com"}
+              href={(b as Builder).githubUrl || "https://github.com"}
               target="_blank"
               rel="noreferrer"
               onClick={() => {
