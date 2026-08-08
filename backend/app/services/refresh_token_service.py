@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.refresh_token import RefreshToken
+from app.utils.time import utcnow
 
 
 class RefreshTokenService:
@@ -57,7 +58,7 @@ class RefreshTokenService:
     ) -> RefreshToken:
 
         db_token.is_revoked = True
-        db_token.revoked_at = datetime.utcnow()
+        db_token.revoked_at = utcnow()
 
         db.flush()
         db.refresh(db_token)
@@ -98,7 +99,7 @@ class RefreshTokenService:
         db: Session,
         user_id: uuid.UUID,
     ) -> list[RefreshToken]:
-        now = datetime.now(timezone.utc)
+        now = utcnow()
         stmt = (
             select(RefreshToken)
             .where(
@@ -132,7 +133,7 @@ class RefreshTokenService:
         if not session or session.is_revoked:
             return False
         session.is_revoked = True
-        session.revoked_at = datetime.now(timezone.utc)
+        session.revoked_at = utcnow()
         db.flush()
         return True
 
@@ -142,7 +143,7 @@ class RefreshTokenService:
         user_id: uuid.UUID,
         current_session_id: uuid.UUID | None = None,
     ) -> int:
-        now = datetime.now(timezone.utc)
+        now = utcnow()
         stmt = select(RefreshToken).where(
             RefreshToken.user_id == user_id,
             RefreshToken.is_revoked == False,  # noqa: E712
@@ -169,7 +170,7 @@ class RefreshTokenService:
             RefreshToken.is_revoked.is_(False),
         )
         tokens = list(db.scalars(stmt))
-        now = datetime.now(timezone.utc)
+        now = utcnow()
         for token in tokens:
             token.is_revoked = True
             token.revoked_at = now

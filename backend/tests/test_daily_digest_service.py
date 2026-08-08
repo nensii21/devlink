@@ -94,3 +94,45 @@ def test_daily_digest_contains_project_invitation(db):
     assert len(digest.project_invitations) == 1
     assert digest.project_invitations[0].title == "Invite"
     assert digest.messages == []
+
+
+def test_daily_digest_handles_timezone_aware_created_at(db):
+    """Regression: the digest crashed on Postgres for as long as it ran.
+
+    `Notification.created_at` is declared `DateTime(timezone=True)`, so
+    Postgres hands back an aware value. The cutoff was built with
+    `datetime.utcnow()`, which is naive, and the comparison between the two
+    raised:
+
+        TypeError: can't compare offset-naive and offset-aware datetimes
+
+    The existing tests never caught it because SQLite returns naive datetimes,
+    so both sides happened to match. This test forces the aware case.
+    """
+    from datetime import datetime, timedelta, timezone
+
+    user = _create_user(db, "aware@example.com", "awareuser")
+
+    notification = NotificationService.create_notification(
+        db=db,
+        recipient_id=user.id,
+        sender_id=None,
+        notification=NotificationCreate(
+            recipient_id=user.id,
+            type=NotificationType.PROJECT_INVITE,
+            title="Aware invite",
+            message="Join project",
+        ),
+    )
+
+    # What Postgres would have returned all along.
+    notification.created_at = datetime.now(timezone.utc) - timedelta(hours=1)
+    db.flush()
+
+    digest = DailyDigestService.generate_daily_digest(
+        db=db,
+        recipient_id=user.id,
+    )
+
+    assert len(digest.project_invitations) == 1
+    assert digest.project_invitations[0].title == "Aware invite"

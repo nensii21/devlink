@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,6 +14,7 @@ from app.schemas.daily_digest import (
     DigestProject,
 )
 from app.services.notification_service import NotificationService
+from app.utils.time import ensure_utc, utcnow
 
 
 class DailyDigestService:
@@ -28,7 +29,7 @@ class DailyDigestService:
         db: Session,
         recipient_id: uuid.UUID,
     ) -> DailyDigestResponse:
-        since = datetime.utcnow() - timedelta(days=1)
+        since = utcnow() - timedelta(days=1)
 
         project_stmt = (
             select(Project)
@@ -43,10 +44,15 @@ class DailyDigestService:
             recipient_id=recipient_id,
         )
 
+        # created_at comes back aware from Postgres but naive from SQLite, and
+        # rows written before the naive/aware cleanup are naive either way.
+        # Normalising here keeps this comparison from raising
+        # `TypeError: can't compare offset-naive and offset-aware datetimes`,
+        # which is what it did on Postgres for as long as `since` was naive.
         notifications = [
             notification
             for notification in all_notifications
-            if notification.created_at >= since
+            if ensure_utc(notification.created_at) >= since
         ]
 
         project_invitations: list[Notification] = []
@@ -105,7 +111,7 @@ class DailyDigestService:
         ]
 
         return DailyDigestResponse(
-            generated_at=datetime.now(UTC),
+            generated_at=utcnow(),
             new_projects=serialized_projects,
             project_invitations=serialized_invitations,
             messages=serialized_messages,

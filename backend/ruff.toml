@@ -1,0 +1,20 @@
+# Ruff configuration for the backend.
+#
+# Deliberately minimal: `extend-select` adds to Ruff's default rule set rather
+# than replacing it, so this changes nothing about how existing code is linted
+# beyond the two rules below.
+#
+# DTZ003 / DTZ004 catch `datetime.utcnow()` and `datetime.utcfromtimestamp()`.
+# Both return *naive* datetimes, and every timestamp column in this app is
+# declared `DateTime(timezone=True)`. Mixing the two raises
+# `TypeError: can't compare offset-naive and offset-aware datetimes`, or -- worse,
+# because it is silent -- stores the wrong instant when the database session is
+# not UTC. Both functions are also deprecated as of Python 3.12.
+#
+# Use `app.utils.time.utcnow()` instead.
+#
+# The rest of the flake8-datetimez rules (DTZ001, DTZ005) are not enabled: the
+# tests construct naive datetimes on purpose to exercise `ensure_utc()`.
+
+[lint]
+extend-select = ["DTZ003", "DTZ004"]

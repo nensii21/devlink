@@ -190,6 +190,45 @@ def test_read_healthcheck():
 
 ---
 
+## 6. Dates and Times
+
+Every timestamp column in the app is declared `DateTime(timezone=True)`, so
+every value written to one must be **timezone-aware UTC**.
+
+Use the helpers in `app/utils/time.py`:
+
+```python
+from app.utils.time import ensure_utc, is_expired, utcnow
+
+token.revoked_at = utcnow()                     # aware, UTC
+cutoff = utcnow() - timedelta(days=1)
+if is_expired(token.expires_at):                # tolerates naive input
+    ...
+```
+
+Never use `datetime.utcnow()` or `datetime.utcfromtimestamp()`. Both return a
+**naive** datetime, and both are deprecated as of Python 3.12. Mixing naive and
+aware values fails in two ways:
+
+```python
+datetime.utcnow() < notification.created_at
+# TypeError: can't compare offset-naive and offset-aware datetimes
+```
+
+and, more dangerously, silently: writing a naive datetime into a `TIMESTAMP
+WITH TIME ZONE` column makes the driver interpret it in the session time zone
+rather than UTC, so the stored instant is wrong with nothing raised.
+
+`ruff` enforces this — `DTZ003` and `DTZ004` are enabled in `backend/ruff.toml`
+— and `tests/test_utc_time.py` fails the build if either call reappears
+anywhere under `app/`.
+
+When you read a datetime whose tzinfo you cannot guarantee — an older row, an
+external API, a client payload — normalise it with `ensure_utc()` before
+comparing or serialising it.
+
+---
+
 ## Related Documentation
 
 - [Architecture Documentation](architecture.md)

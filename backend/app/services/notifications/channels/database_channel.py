@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -11,6 +10,7 @@ from app.models.notification import (
     NotificationChannel as DBChannel,
 )
 from app.services.notifications.channels.base import NotificationChannel
+from app.utils.time import utcnow
 
 
 class DatabaseChannel(NotificationChannel):
@@ -46,7 +46,7 @@ class DatabaseChannel(NotificationChannel):
         if existing:
             existing.message = message
             existing.title = title
-            existing.created_at = datetime.utcnow()
+            existing.created_at = utcnow()
             existing.metadata_info = metadata_info
             existing.action_url = action_url
             existing.image_url = image_url
@@ -67,7 +67,7 @@ class DatabaseChannel(NotificationChannel):
             action_url=action_url,
             image_url=image_url,
             metadata_info=metadata_info,
-            sent_at=datetime.utcnow(),
+            sent_at=utcnow(),
         )
 
         db.add(db_notification)
