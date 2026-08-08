@@ -79,8 +79,7 @@ export function ProjectInsightsCard({
         >
           <Sparkles size={11} className={cn(mutation.isPending && "animate-pulse text-primary")} />
           AI Insights
-          {!mutation.isPending &&
-            (expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}
+          {!mutation.isPending && (expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}
         </button>
 
         {mutation.isPending && (
@@ -154,9 +153,9 @@ export function ProjectInsightsCard({
                 ? "Hide"
                 : "Show"
               : "Generate"}
-          {!mutation.isPending && insights && (
-            expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />
-          )}
+          {!mutation.isPending &&
+            insights &&
+            (expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />)}
         </button>
       </div>
 
@@ -169,9 +168,7 @@ export function ProjectInsightsCard({
       )}
 
       {mutation.isError && (
-        <p className="mt-2 text-[11px] text-destructive">
-          Failed to generate insights. Try again.
-        </p>
+        <p className="mt-2 text-[11px] text-destructive">Failed to generate insights. Try again.</p>
       )}
 
       {expanded && insights && (
