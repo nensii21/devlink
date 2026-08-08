@@ -1,4 +1,6 @@
 from __future__ import annotations
+from datetime import datetime, timezone
+from app.core.tracing import get_request_id
 
 import json
 from typing import Any, Callable, Dict, List, Optional
@@ -25,30 +27,13 @@ class RequestValidationMiddleware(BaseHTTPMiddleware):
         except ValidationError as exc:
             return format_validation_error_response(exc.errors())
 
-
 def format_validation_error_response(errors: List[Dict[str, Any]]) -> JSONResponse:
-    """
-    Normalizes Pydantic / FastAPI validation errors into standardized JSON format:
-    {
-      "error": {
-        "code": "VALIDATION_ERROR",
-        "message": "Request validation failed",
-        "details": [
-          {
-            "field": "query.page",
-            "message": "Input should be a valid integer",
-            "type": "int_parsing"
-          }
-        ]
-      }
-    }
-    """
     formatted_details = []
 
     for err in errors:
         loc_parts = [str(part) for part in err.get("loc", []) if str(part) != "body"]
         field_name = ".".join(loc_parts) if loc_parts else "request"
-        
+
         formatted_details.append({
             "field": field_name,
             "message": err.get("msg", "Invalid value provided"),
@@ -59,13 +44,14 @@ def format_validation_error_response(errors: List[Dict[str, Any]]) -> JSONRespon
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
             "error": {
-                "code": "VALIDATION_ERROR",
+                "error_code": "VALIDATION_ERROR",
                 "message": "Request validation failed",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "request_id": get_request_id() or "unknown",
                 "details": formatted_details,
             }
         },
     )
-
 
 # Reusable Validation Utility Functions
 def validate_query_param(value: Any, param_name: str, min_val: Optional[int] = None, max_val: Optional[int] = None):

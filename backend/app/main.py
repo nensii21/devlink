@@ -300,7 +300,7 @@ async def custom_offline_docs():
 
         <div class="section">
             <h2>🚀 Image Optimization Endpoints</h2>
-            
+
             <div class="endpoint">
                 <span class="method post">POST</span>
                 <span class="path">/api/v1/users/me/avatar</span>
@@ -371,7 +371,9 @@ app.add_middleware(SlowAPIMiddleware)
 # ------------------------------------------------------------------
 # Security Middleware
 # ------------------------------------------------------------------
+from app.middleware.request_id import RequestIDMiddleware
 
+app.add_middleware(RequestIDMiddleware)
 app.add_middleware(StructuredLoggingMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 

@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 import re
 from typing import Any, Dict
+from datetime import datetime, timezone
+from app.core.tracing import get_request_id
 
 from fastapi import Request, status
 from fastapi.exceptions import HTTPException, RequestValidationError
@@ -48,30 +50,28 @@ def generate_error_code(status_code: int, message: str | None) -> str:
 
     return "_".join(words).upper()
 
-
 def format_error_response(
     code: str,
     message: str,
     details: Any = None,
+    request: Request | None = None,
 ) -> Dict[str, Any]:
     """
-    Build standardized JSON response payload:
-    {
-        "error": {
-            "code": "PROJECT_NOT_FOUND",
-            "message": "Project not found."
-        }
-    }
+    Build standardized JSON response payload.
     """
+    request_id = getattr(request.state, "request_id", None) if request else None
+    request_id = request_id or get_request_id() or "unknown"
+
     error_dict: Dict[str, Any] = {
-        "code": code,
+        "error_code": code,
         "message": message,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "request_id": request_id,
     }
     if details is not None:
         error_dict["details"] = details
 
     return {"error": error_dict}
-
 
 async def http_exception_handler(
     request: Request,
@@ -176,6 +176,7 @@ async def global_exception_handler(
     payload = format_error_response(
         code="INTERNAL_SERVER_ERROR",
         message="An unexpected internal server error occurred.",
+        request=request,
     )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -192,16 +193,16 @@ async def integrity_error_handler(
     """
     # Extract the error detail from the exception
     detail = str(exc.orig) if exc.orig else str(exc)
-    
+
     # Generic message, but try to find the specific field if possible
     message = "A record with this information already exists."
-    
+
     # PostgreSQL duplicate key error usually looks like:
     # duplicate key value violates unique constraint "ix_users_email"
     # DETAIL:  Key (email)=(test@example.com) already exists.
     if "already exists" in detail.lower() or "unique constraint" in detail.lower():
         message = "This record already exists. Please use a unique value."
-        
+
         # Try to extract the field name from the detail
         # e.g., Key (username)=(admin) already exists.
         match = re.search(r"Key \((.*?)\)=", detail)
