@@ -440,37 +440,108 @@ function Landing() {
       </section>
 
       <section id="features" className="border-b border-border">
-        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:px-6">
           {[
             {
               icon: Sparkles,
-              title: "AI matches",
-              desc: "Rank teammates by skill, availability and past work.",
+              title: "AI Matching",
+              desc: "Smart teammate recommendations based on skills, availability and past work.",
             },
             {
               icon: Users2,
-              title: "Builder profiles",
-              desc: "One profile, everywhere. Skills, stack, contributions.",
+              title: "Builder Profiles",
+              desc: "Unified profiles with skills, repos and contribution highlights.",
             },
             {
               icon: MessageSquare,
-              title: "Real-time chat",
-              desc: "Threaded conversations with your team, in-app.",
+              title: "Real-time Chat",
+              desc: "Threaded, low-latency messaging integrated with project workspaces.",
             },
             {
               icon: Trophy,
               title: "Hackathons",
-              desc: "Discover jams, form teams, ship in a weekend.",
+              desc: "Find events, form teams and ship prototypes together.",
+            },
+            {
+              icon: LayoutDashboard,
+              title: "Dashboard & Insights",
+              desc: "Project health, activity and quick metrics to stay on track.",
+            },
+            {
+              icon: Zap,
+              title: "AI Recommendations",
+              desc: "Personalized suggestions for projects, tasks and teammates.",
+            },
+            {
+              icon: Star,
+              title: "Tag Suggestions",
+              desc: "Auto-generate helpful tags and labels for issues and projects.",
+            },
+            {
+              icon: Clock,
+              title: "Issue Difficulty",
+              desc: "Estimate effort and time-to-complete to prioritize work.",
             },
           ].map((f) => (
-            <div key={f.title} className="rounded-md border border-border bg-card p-5">
-              <span className="grid h-9 w-9 place-items-center rounded-md bg-primary-soft text-primary">
-                <f.icon size={16} />
+            <div
+              key={f.title}
+              className="rounded-md border border-border bg-card p-5 transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-soft text-primary">
+                <f.icon size={18} />
               </span>
               <p className="mt-3 text-[15px] font-semibold text-foreground">{f.title}</p>
               <p className="mt-1 text-[13px] text-muted-foreground">{f.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ===== AI FEATURES SECTION ===== */}
+      <section id="ai-features" className="border-b border-border py-16 bg-gradient-to-b from-background to-surface/10">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">AI Features</h2>
+            <p className="mt-4 text-muted-foreground text-[15px]">Powerful AI tools to speed up collaboration, streamline triage, and enrich profiles.</p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              {
+                icon: Bot,
+                title: "AI Builder Matching",
+                desc: "Match with collaborators by skills, availability and contribution history.",
+              },
+              {
+                icon: User,
+                title: "AI Profile Summary",
+                desc: "Auto-generate a concise professional summary from your repos and activity.",
+              },
+              {
+                icon: Clock,
+                title: "Issue Difficulty Estimator",
+                desc: "Estimate issue effort and time-to-complete to prioritize backlog planning.",
+              },
+              {
+                icon: MessageCircle,
+                title: "AI Tag Generator",
+                desc: "Automatically suggest tags and labels for issues and projects for better discoverability.",
+              },
+              {
+                icon: ArrowUpRight,
+                title: "AI Recommendations",
+                desc: "Personalized suggestions for projects, teammates and next steps.",
+              },
+            ].map((f) => (
+              <div key={f.title} className="rounded-md border border-border bg-card p-5 flex flex-col items-start">
+                <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-soft text-primary">
+                  <f.icon size={18} />
+                </span>
+                <p className="mt-3 text-[15px] font-semibold text-foreground">{f.title}</p>
+                <p className="mt-1 text-[13px] text-muted-foreground">{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
