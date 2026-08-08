@@ -25,18 +25,55 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ShareProfileButton } from "@/components/shared/ShareProfileButton";
 import { builders, currentUser, projects as allProjects, flares as allFlares } from "@/mocks/seed";
 
 export const Route = createFileRoute("/portfolio/$username")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `@${params.username}'s Public Portfolio — DevLink` },
-      {
-        name: "description",
-        content: `Browse projects, skills, and get in touch with @${params.username}.`,
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    const me = params.username === currentUser.handle;
+    const b =
+      builders.find((x) => x.handle === params.username) ||
+      (me
+        ? {
+            id: "me",
+            name: currentUser.name,
+            handle: currentUser.handle,
+            role: "Developer",
+            avatar: currentUser.avatar,
+            country: "India",
+            yearsExp: 3,
+            matchScore: 96,
+            skills: ["React", "Next.js", "TypeScript", "Node.js", "Python", "TailwindCSS"],
+            online: true,
+            bio: "Product engineer. Ships fast, sleeps sometimes. Love crafting delightful UX.",
+          }
+        : null);
+
+    if (!b) throw notFound();
+    return { builder: b };
+  },
+  head: ({ loaderData, params }) => {
+    const b = loaderData?.builder;
+    const title = b
+      ? `${b.name} (@${b.handle}) | DevLink Portfolio`
+      : `@${params.username}'s Public Portfolio — DevLink`;
+    const desc = b?.bio || `Browse projects, skills, and get in touch with @${params.username}.`;
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        ...(b?.avatar ? [{ property: "og:image", content: b.avatar }] : []),
+        { property: "og:type", content: "profile" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+        ...(b?.avatar ? [{ name: "twitter:image", content: b.avatar }] : []),
+      ],
+    };
+  },
   component: PortfolioPage,
 });
 
@@ -195,12 +232,6 @@ function PortfolioPage() {
   const handleSaveDefault = () => {
     localStorage.setItem(`devlink-portfolio-prefs-${username}`, JSON.stringify(prefs));
     toast.success("Theme preferences saved as your personal default!");
-  };
-
-  const handleCopyLink = () => {
-    const url = `${window.location.origin}/portfolio/${username}?theme=${prefs.theme}&accent=${prefs.accent}&projects=${prefs.showProjects}&flares=${prefs.showFlares}&contact=${prefs.showContact}`;
-    navigator.clipboard.writeText(url);
-    toast.success("Customized portfolio link copied to clipboard!");
   };
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -1502,12 +1533,17 @@ function PortfolioPage() {
                 >
                   Save as Default Template
                 </button>
-                <button
-                  onClick={handleCopyLink}
-                  className="w-full border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold py-2.5 rounded-lg text-xs transition-all cursor-pointer"
-                >
-                  Copy Shareable URL
-                </button>
+                <ShareProfileButton
+                  profileName={b.name}
+                  profileHandle={b.handle}
+                  profileBio={b.bio}
+                  profileUrl={
+                    typeof window !== "undefined"
+                      ? `${window.location.origin}/portfolio/${username}?theme=${prefs.theme}&accent=${prefs.accent}&projects=${prefs.showProjects}&flares=${prefs.showFlares}&contact=${prefs.showContact}`
+                      : undefined
+                  }
+                  className="w-full border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold py-2.5 rounded-lg text-xs transition-all cursor-pointer bg-transparent flex items-center justify-center h-auto"
+                />
                 <button
                   onClick={() => {
                     setCustomizerOpen(false);

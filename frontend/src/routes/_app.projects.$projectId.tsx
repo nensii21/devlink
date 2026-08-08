@@ -35,20 +35,49 @@ import { ProjectTimeline } from "@/components/project/ProjectTimeline";
 import { ProjectInsightsCard } from "@/components/projects/ProjectInsightsCard";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.projectId} — DevLink` },
-      { name: "description", content: "Project details, members, activity and repositories." },
-    ],
-  }),
+  loader: async ({ params }) => {
+    try {
+      const project = await projectsService.get(params.projectId);
+      if (!project) throw notFound();
+      return { project };
+    } catch (e) {
+      throw notFound();
+    }
+  },
+  head: ({ loaderData, params }) => {
+    const p = loaderData?.project;
+    return {
+      meta: [
+        { title: `${p ? p.name : params.projectId} — DevLink` },
+        {
+          name: "description",
+          content: p?.description || "Project details, members, activity and repositories.",
+        },
+        { property: "og:title", content: `${p ? p.name : params.projectId} | DevLink Project` },
+        {
+          property: "og:description",
+          content: p?.description || "Check out this project on DevLink.",
+        },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: `${p ? p.name : params.projectId} | DevLink Project` },
+        {
+          name: "twitter:description",
+          content: p?.description || "Check out this project on DevLink.",
+        },
+      ],
+    };
+  },
   component: ProjectDetail,
 });
 
 function ProjectDetail() {
   const { projectId } = Route.useParams();
+  const loaderData = Route.useLoaderData();
   const { data: p, isLoading } = useQuery({
     queryKey: ["project", projectId],
     queryFn: () => projectsService.get(projectId),
+    initialData: loaderData?.project,
   });
   const [tab, setTab] = useState<
     "overview" | "workspace" | "members" | "activity" | "repos" | "dashboard"
