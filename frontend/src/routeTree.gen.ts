@@ -21,6 +21,7 @@ import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppRepositoryQualityRouteImport } from './routes/_app.repository-quality'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
+import { Route as AppProfileAnalyticsRouteImport } from './routes/_app.profile-analytics'
 import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppMessagesRouteImport } from './routes/_app.messages'
@@ -108,6 +109,11 @@ const AppRepositoryQualityRoute = AppRepositoryQualityRouteImport.update({
 const AppProjectsRoute = AppProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileAnalyticsRoute = AppProfileAnalyticsRouteImport.update({
+  id: '/profile-analytics',
+  path: '/profile-analytics',
   getParentRoute: () => AppRoute,
 } as any)
 const AppOrganizationsRoute = AppOrganizationsRouteImport.update({
@@ -281,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AppMessagesRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
   '/organizations': typeof AppOrganizationsRouteWithChildren
+  '/profile-analytics': typeof AppProfileAnalyticsRoute
   '/projects': typeof AppProjectsRouteWithChildren
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
@@ -322,6 +329,7 @@ export interface FileRoutesByTo {
   '/hackathons': typeof AppHackathonsRouteWithChildren
   '/messages': typeof AppMessagesRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
+  '/profile-analytics': typeof AppProfileAnalyticsRoute
   '/projects': typeof AppProjectsRouteWithChildren
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
@@ -366,6 +374,7 @@ export interface FileRoutesById {
   '/_app/messages': typeof AppMessagesRouteWithChildren
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/organizations': typeof AppOrganizationsRouteWithChildren
+  '/_app/profile-analytics': typeof AppProfileAnalyticsRoute
   '/_app/projects': typeof AppProjectsRouteWithChildren
   '/_app/repository-quality': typeof AppRepositoryQualityRoute
   '/_app/search': typeof AppSearchRoute
@@ -410,6 +419,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/notifications'
     | '/organizations'
+    | '/profile-analytics'
     | '/projects'
     | '/repository-quality'
     | '/search'
@@ -451,6 +461,7 @@ export interface FileRouteTypes {
     | '/hackathons'
     | '/messages'
     | '/notifications'
+    | '/profile-analytics'
     | '/projects'
     | '/repository-quality'
     | '/search'
@@ -494,6 +505,7 @@ export interface FileRouteTypes {
     | '/_app/messages'
     | '/_app/notifications'
     | '/_app/organizations'
+    | '/_app/profile-analytics'
     | '/_app/projects'
     | '/_app/repository-quality'
     | '/_app/search'
@@ -612,6 +624,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof AppProjectsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profile-analytics': {
+      id: '/_app/profile-analytics'
+      path: '/profile-analytics'
+      fullPath: '/profile-analytics'
+      preLoaderRoute: typeof AppProfileAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/organizations': {
@@ -942,6 +961,7 @@ interface AppRouteChildren {
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppOrganizationsRoute: typeof AppOrganizationsRouteWithChildren
+  AppProfileAnalyticsRoute: typeof AppProfileAnalyticsRoute
   AppProjectsRoute: typeof AppProjectsRouteWithChildren
   AppRepositoryQualityRoute: typeof AppRepositoryQualityRoute
   AppSearchRoute: typeof AppSearchRoute
@@ -963,6 +983,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMessagesRoute: AppMessagesRouteWithChildren,
   AppNotificationsRoute: AppNotificationsRoute,
   AppOrganizationsRoute: AppOrganizationsRouteWithChildren,
+  AppProfileAnalyticsRoute: AppProfileAnalyticsRoute,
   AppProjectsRoute: AppProjectsRouteWithChildren,
   AppRepositoryQualityRoute: AppRepositoryQualityRoute,
   AppSearchRoute: AppSearchRoute,

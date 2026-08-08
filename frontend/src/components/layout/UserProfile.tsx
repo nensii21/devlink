@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { LogOut, BadgeCheck } from "lucide-react";
 import { Avatar } from "@/components/shared/primitives";
+import { cn } from "@/lib/utils";
 import { currentUser } from "@/mocks/seed";
 import { useSidebar } from "@/hooks/useSidebar";
 

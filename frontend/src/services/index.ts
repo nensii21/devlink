@@ -32,7 +32,7 @@ import type {
   IssueUpdateInput,
   TechStackResponse,
 } from "@/api";
-import type { Hackathon, Flare } from "@/mocks/seed";
+import type { Hackathon, Flare, Message } from "@/mocks/seed";
 
 const delay = 120;
 const mock = <T>(v: T): Promise<T> => new Promise((r) => setTimeout(() => r(v), delay));
@@ -210,7 +210,7 @@ export const messagesService = {
     return withFallback(
       async () => {
         const msgs = await messagesApi.thread(id);
-        return msgs.map((m: any) => ({
+        return msgs.map((m: any): Message => ({
           id: m.id,
           from: m.sender_id === currentUser?.id ? "me" : m.sender_id,
           text: m.content ?? "",

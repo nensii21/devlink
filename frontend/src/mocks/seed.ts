@@ -39,6 +39,7 @@ export interface Builder {
   lastActiveAt: string | null;
   publicEmail?: string;
   verified?: boolean;
+  premium?: boolean;
   pinnedProjects?: string[];
   contributions?: number;
   followers?: number;
