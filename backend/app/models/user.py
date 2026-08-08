@@ -89,6 +89,12 @@ class User(Base):
         nullable=True,
     )
 
+    reputation_score: Mapped[int] = mapped_column(
+        default=0,
+        index=True,
+        nullable=False,
+    )
+
     # ------------------------------------------------------------------
     # Profile
     # ------------------------------------------------------------------

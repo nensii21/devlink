@@ -32,6 +32,7 @@ from .project_member import ProjectMember  # noqa: F401
 from .project_version import ProjectVersion  # noqa: F401
 from .project_skill import ProjectSkill  # noqa: F401
 from .refresh_token import RefreshToken  # noqa: F401
+from .reputation import ReputationLog  # noqa: F401
 from .repository import Repository  # noqa: F401
 from .skill import Skill  # noqa: F401
 from .user import User  # noqa: F401
