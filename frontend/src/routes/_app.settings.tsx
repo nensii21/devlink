@@ -7,6 +7,7 @@ import { ImageCropUploadModal } from "@/components/shared/ImageCropUploadModal";
 import { DeleteAccountModal } from "@/components/settings/DeleteAccountModal";
 import { OAuthAccountsSection } from "@/components/settings/OAuthAccountsSection";
 import { MFASection } from "@/features/settings/components/MFASection";
+import { UserSessionsActivity } from "@/components/settings/UserSessionsActivity";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -556,49 +557,7 @@ function SettingsPage() {
 
                 <Separator />
 
-                <div className="space-y-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Active sessions
-                  </h3>
-                  <div className="rounded-lg border border-border p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                          <Shield size={16} className="text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Current session</p>
-                          <p className="text-xs text-muted-foreground">
-                            Chrome on Windows - Active now
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded">
-                        Active
-                      </span>
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                          <Shield size={16} className="text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Mobile session</p>
-                          <p className="text-xs text-muted-foreground">
-                            DevLink App on iOS - 2 days ago
-                          </p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground">
-                        Revoke
-                      </Button>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Revoke all sessions
-                  </Button>
-                </div>
+                <UserSessionsActivity />
               </div>
             )}
 
