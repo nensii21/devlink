@@ -39,6 +39,7 @@ export interface Builder {
   lastActiveAt: string | null;
   publicEmail?: string;
   verified?: boolean;
+  premium?: boolean;
   pinnedProjects?: string[];
   contributions?: number;
   followers?: number;
@@ -216,6 +217,15 @@ export const builders: Builder[] = [
     yearsExp: 3,
     matchScore: 92,
     skills: ["React", "Next.js", "TypeScript"],
+    profileSkills: [
+      { name: "TypeScript", level: "Expert", category: "Languages", yearsOfExperience: 4 },
+      { name: "React", level: "Expert", category: "Frameworks", yearsOfExperience: 4 },
+      { name: "Next.js", level: "Advanced", category: "Frameworks", yearsOfExperience: 3 },
+      { name: "PostgreSQL", level: "Intermediate", category: "Databases", yearsOfExperience: 2 },
+      { name: "AWS", level: "Intermediate", category: "Cloud", yearsOfExperience: 2 },
+      { name: "Docker", level: "Advanced", category: "DevOps", yearsOfExperience: 3 },
+      { name: "Tailwind CSS", level: "Expert", category: "Design", yearsOfExperience: 4 },
+    ],
     badges: ["Top Contributor", "Social Butterfly"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
@@ -849,6 +859,15 @@ export const currentUser = {
   avatar: AV("Nancy"),
   premium: true,
   verified: true,
+  profileSkills: [
+    { name: "TypeScript", level: "Expert", category: "Languages", yearsOfExperience: 4 },
+    { name: "React", level: "Expert", category: "Frameworks", yearsOfExperience: 4 },
+    { name: "Python", level: "Advanced", category: "Languages", yearsOfExperience: 3 },
+    { name: "FastAPI", level: "Advanced", category: "Frameworks", yearsOfExperience: 3 },
+    { name: "PostgreSQL", level: "Intermediate", category: "Databases", yearsOfExperience: 2 },
+    { name: "AWS", level: "Intermediate", category: "Cloud", yearsOfExperience: 2 },
+    { name: "Docker", level: "Advanced", category: "DevOps", yearsOfExperience: 3 },
+  ],
 };
 
 export const stats = [

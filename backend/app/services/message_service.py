@@ -69,6 +69,18 @@ class MessageService:
 
         db.add(db_message)
         db.flush()
+
+        # Delete any existing draft for this user and conversation
+        from app.models.message_draft import MessageDraft
+        from sqlalchemy import delete
+        db.execute(
+            delete(MessageDraft).where(
+                MessageDraft.user_id == sender_id,
+                MessageDraft.conversation_id == conversation_id,
+            )
+        )
+        db.flush()
+
         db.refresh(db_message)
 
         # Trigger notifications for conversation members
