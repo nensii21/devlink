@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 export { api, ApiError, API_BASE_URL, isBackendConfigured } from "./client";
 export { tokenStore } from "./tokens";
 export { ws } from "./ws";
-export type { WsEvent } from "./ws";
+export type { CollabEvent as WsEvent } from "./ws";
 
 export { authApi } from "./modules/auth";
 export { usersApi } from "./modules/users";

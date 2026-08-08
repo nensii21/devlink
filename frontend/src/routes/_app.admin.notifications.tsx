@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
@@ -42,7 +41,6 @@ function AdminNotificationsPage() {
     // The API client already resolves to the parsed body. Reading `.data` off
     // it handed React Query `undefined`, so every tile rendered its `|| 0`
     // fallback no matter what the server said.
-    queryFn: () => api.get<NotificationDeliveryStats>("/admin/notifications/stats"),
     queryFn: async () => {
       return api.get<{
         total: number;
@@ -55,7 +53,6 @@ function AdminNotificationsPage() {
 
   const { data: failed, isLoading: failedLoading } = useQuery({
     queryKey: ["admin-notification-failed"],
-    queryFn: () => api.get<FailedNotification[]>("/admin/notifications/failed"),
     queryFn: async () => {
       return api.get<FailedNotification[]>("/admin/notifications/failed");
     },

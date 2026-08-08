@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { Sparkles, Loader2, ChevronDown, ChevronUp, Check } from "lucide-react";
 import { cn } from "@/lib/utils";

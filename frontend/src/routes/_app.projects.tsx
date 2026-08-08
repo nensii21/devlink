@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createFileRoute, Outlet, useRouterState, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -372,32 +371,6 @@ function ProjectsPage() {
               remote: boolOrUndefined(newValues.remote),
               paid: boolOrUndefined(newValues.paid),
               opensource: boolOrUndefined(newValues.opensource),
-            });
-          }}
-          initialFilters={{
-            language: filters.language ? filters.language : [],
-            experience: filters.experience,
-            remote: filters.remote ? "true" : "false",
-            paid: filters.paid ? "true" : "false",
-            opensource: filters.opensource ? "true" : "false",
-          }}
-
-          onApply={(newValues) => {
-            // const selectedLangs = Array.isArray(newValues.language)
-            // ? newValues.language.join(",")
-            // : newValues.language;
-            setFilters({
-              ...filters,
-              language: Array.isArray(newValues.language)
-                ? newValues.language
-                : newValues.language
-                  ? [newValues.language]
-                  : undefined,
-              experience: newValues.experience || "",
-              remote: newValues.remote || "",
-              paid: newValues.paid || "",
-              openSource: newValues.opensource || "",
-              techStack: techStack || "",
             });
           }}
           onReset={clearFilters}

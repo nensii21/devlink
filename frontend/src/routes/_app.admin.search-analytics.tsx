@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
@@ -84,8 +83,8 @@ function SearchAnalyticsDashboard() {
               {data.top_keywords?.map((item: KeywordCount, idx: number) => (
                 <tr key={idx} className="border-b">
                   <td className="p-3 text-gray-500">#{idx + 1}</td>
-                  <td className="p-3 font-medium">{item.keyword}</td>
-                  <td className="p-3">{item.count}</td>
+                  <td className="p-3 font-medium">{item?.keyword}</td>
+                  <td className="p-3">{item?.count}</td>
                 </tr>
               ))}
             </tbody>

@@ -96,6 +96,12 @@ export const projectsService = {
       () => projectsApi.trending(),
       [...seed.projects].sort((a, b) => b.stars - a.stars).slice(0, 5),
     ),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createDraft: (body: any) => withFallback(() => projectsApi.createDraft(body as any), {} as any),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateDraft: (id: string, body: any) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    withFallback(() => projectsApi.updateDraft(id, body as any), {} as any),
 };
 
 export const buildersService = {
@@ -144,6 +150,13 @@ export const dashboardService = {
         ((await analyticsApi.dashboard()).deadlines as unknown as typeof seed.deadlines) ??
         seed.deadlines,
       seed.deadlines,
+    ),
+  quickActions: () =>
+    withFallback<typeof seed.quickActions>(
+      async () =>
+        ((await analyticsApi.dashboard()).quickActions as unknown as typeof seed.quickActions) ??
+        seed.quickActions,
+      seed.quickActions,
     ),
 };
 
@@ -367,6 +380,7 @@ export type {
   HackathonSubmission,
   HackathonLeaderboardEntry,
   Deadline,
+  QuickAction,
 } from "@/mocks/seed";
 
 const COLLECTIONS_STORAGE_KEY = "devlink-collections";

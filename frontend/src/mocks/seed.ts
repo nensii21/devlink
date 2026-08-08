@@ -1,11 +1,16 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 // Realistic seed data for DevLink — used by all mock services.
 // Replace mock services with an HTTP client later; shapes are stable.
 
 export type ID = string;
 
 export type UserRole = "Developer" | "Founder" | "Designer" | "AI Engineer" | "Mentor";
+
+export interface ProfileSkill {
+  name: string;
+  level?: string;
+  category?: string;
+  yearsOfExperience?: number;
+}
 
 export interface Skill {
   name: string;
@@ -378,12 +383,6 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 4,
     stars: 24,
-    forks: 12,
-    progress: 75,
-    status: "active",
-    icon: "🤖",
-    language: "JavaScript",
-    difficulty: "intermediate",
     views: 1042,
     forks: 12,
     progress: 75,
@@ -407,12 +406,6 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 6,
     stars: 18,
-    forks: 8,
-    progress: 40,
-    status: "active",
-    icon: "✨",
-    language: "Python",
-    difficulty: "advanced",
     views: 890,
     forks: 8,
     progress: 40,
@@ -436,12 +429,6 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 3,
     stars: 16,
-    forks: 6,
-    progress: 60,
-    status: "active",
-    icon: "🚀",
-    language: "Go",
-    difficulty: "advanced",
     views: 521,
     forks: 6,
     progress: 60,
@@ -464,12 +451,6 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 5,
     stars: 14,
-    forks: 7,
-    progress: 25,
-    status: "planning",
-    icon: "🪙",
-    language: "TypeScript",
-    difficulty: "advanced",
     views: 310,
     forks: 7,
     progress: 25,
@@ -493,12 +474,6 @@ export const projects: Project[] = [
     owner: "Nancy Patel",
     members: 2,
     stars: 12,
-    forks: 5,
-    progress: 90,
-    status: "active",
-    icon: "🧩",
-    language: "TypeScript",
-    difficulty: "beginner",
     views: 180,
     forks: 5,
     progress: 90,
@@ -521,12 +496,6 @@ export const projects: Project[] = [
     owner: "Community",
     members: 8,
     stars: 240,
-    forks: 96,
-    progress: 100,
-    status: "shipped",
-    icon: "📇",
-    language: "JavaScript",
-    difficulty: "intermediate",
     views: 5040,
     forks: 96,
     progress: 100,
@@ -856,3 +825,18 @@ export const stats = [
   { key: "hackathons", label: "Hackathons", value: 4, icon: "trophy", tint: "warning" },
   { key: "ai", label: "AI Match Score", value: "96%", icon: "sparkles", tint: "primary" },
 ] as const;
+
+export interface QuickAction {
+  id: ID;
+  iconName: string;
+  label: string;
+  to: string;
+}
+
+export const quickActions: QuickAction[] = [
+  { id: "qa1", iconName: "FolderPlus", label: "Continue current project", to: "/projects/p1" },
+  { id: "qa2", iconName: "Users2", label: "Review applications", to: "/projects" },
+  { id: "qa3", iconName: "Flame", label: "Publish flare", to: "/flares" },
+  { id: "qa4", iconName: "UserPlus", label: "Invite recommended builder", to: "/builders" },
+];
+

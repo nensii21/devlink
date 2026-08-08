@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -31,7 +30,8 @@ export default function MyApplicationsPage() {
     queryFn: () => getMyApplications(),
   });
 
-  const withdrawMutation = useWithdrawApplication();
+  // const withdrawMutation = useWithdrawApplication();
+  const withdrawMutation = {} as any;
 
   const apps = useMemo(() => {
     const list = data ?? [];

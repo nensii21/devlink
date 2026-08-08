@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 import { useQuery } from "@tanstack/react-query";
 import { teamMatchService } from "@/services";
 import type { MatchWeights, MatchResult } from "@/matching/types";

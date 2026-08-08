@@ -1,6 +1,21 @@
 import React from "react";
-import { ArrowUpDown, Sparkles, Clock, Calendar, Flame, Bookmark, Users2, RefreshCw } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  ArrowUpDown,
+  Sparkles,
+  Clock,
+  Calendar,
+  Flame,
+  Bookmark,
+  Users2,
+  RefreshCw,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type SortOption =
   | "newest"
@@ -41,7 +56,9 @@ export const ProjectSortSelector: React.FC<ProjectSortSelectorProps> = ({
       >
         <SelectTrigger className="w-full sm:w-[200px] h-9 text-xs font-medium border-border/80 bg-background hover:bg-accent/50 focus:ring-1 focus:ring-ring transition-colors">
           <div className="flex items-center gap-2 truncate">
-            <ArrowUpDown className={`h-3.5 w-3.5 text-muted-foreground ${isLoading ? "animate-spin" : ""}`} />
+            <ArrowUpDown
+              className={`h-3.5 w-3.5 text-muted-foreground ${isLoading ? "animate-spin" : ""}`}
+            />
             <span className="truncate">
               {SORT_OPTIONS.find((opt) => opt.value === currentSort)?.label || "Sort Projects"}
             </span>
@@ -51,7 +68,11 @@ export const ProjectSortSelector: React.FC<ProjectSortSelectorProps> = ({
           {SORT_OPTIONS.map((opt) => {
             const IconComp = opt.icon;
             return (
-              <SelectItem key={opt.value} value={opt.value} className="text-xs flex items-center gap-2 cursor-pointer">
+              <SelectItem
+                key={opt.value}
+                value={opt.value}
+                className="text-xs flex items-center gap-2 cursor-pointer"
+              >
                 <div className="flex items-center gap-2">
                   <IconComp className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>{opt.label}</span>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import * as React from "react";
@@ -211,7 +210,7 @@ export function FilterDrawer({
         <div className="mt-2 space-y-2">
           <div className="flex items-center justify-between text-[12px] text-muted-foreground">
             <span>{min}</span>
-            <span className="font-semibold text-foreground">{val}</span>
+            <span className="font-semibold text-foreground">{val as any}</span>
             <span>{max}</span>
           </div>
           <input
@@ -219,8 +218,8 @@ export function FilterDrawer({
             min={min}
             max={max}
             step={step}
-            value={val}
-            onChange={(e) => handleTextChange(section.id, Number(e.target.value))}
+            value={val as any}
+            onChange={(e) => handleTextChange(section.id, e.target.value as any)}
             className="w-full cursor-pointer accent-primary"
             aria-label={section.title}
           />

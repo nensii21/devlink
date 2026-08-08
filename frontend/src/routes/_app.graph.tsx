@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
@@ -181,13 +180,13 @@ function GraphView() {
         attributionPosition="bottom-right"
       >
         <MiniMap
-          nodeStrokeColor={(n) => {
+          nodeStrokeColor={(n: any) => {
             if (n.data?.type === "project") return "#3b82f6";
             if (n.data?.type === "user") return "#10b981";
             if (n.data?.type === "skill") return "#f59e0b";
             return "#6366f1";
           }}
-          nodeColor={(n) => {
+          nodeColor={(n: any) => {
             if (n.data?.type === "project") return "#3b82f6";
             if (n.data?.type === "user") return "#10b981";
             if (n.data?.type === "skill") return "#f59e0b";

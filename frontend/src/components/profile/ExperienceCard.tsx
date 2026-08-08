@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 import { Card } from "@/components/shared/primitives";
 import { BriefcaseBusiness, BadgeCheck } from "lucide-react";
 
@@ -37,7 +35,9 @@ export function ExperienceCard({
   onFieldChange,
 }: ExperienceCardProps) {
   const fallbackEntries =
-    role || company || experienceLevel ? [{ title: role, company, experienceLevel }] : [];
+    role || company || experienceLevel
+      ? [{ title: role, company, experienceLevel, period: null, description: null }]
+      : [];
   const experienceEntries = (
     entries?.filter((entry) => Boolean(entry.title || entry.company || entry.experienceLevel)) ?? []
   ).length
