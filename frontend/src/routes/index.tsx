@@ -474,6 +474,54 @@ function Landing() {
         </div>
       </section>
 
+      {/* ===== AI FEATURES SECTION ===== */}
+      <section id="ai-features" className="border-b border-border py-16 bg-gradient-to-b from-background to-surface/10">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">AI Features</h2>
+            <p className="mt-4 text-muted-foreground text-[15px]">Powerful AI tools to speed up collaboration, streamline triage, and enrich profiles.</p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              {
+                icon: Bot,
+                title: "AI Builder Matching",
+                desc: "Match with collaborators by skills, availability and contribution history.",
+              },
+              {
+                icon: User,
+                title: "AI Profile Summary",
+                desc: "Auto-generate a concise professional summary from your repos and activity.",
+              },
+              {
+                icon: Clock,
+                title: "Issue Difficulty Estimator",
+                desc: "Estimate issue effort and time-to-complete to prioritize backlog planning.",
+              },
+              {
+                icon: MessageCircle,
+                title: "AI Tag Generator",
+                desc: "Automatically suggest tags and labels for issues and projects for better discoverability.",
+              },
+              {
+                icon: ArrowUpRight,
+                title: "AI Recommendations",
+                desc: "Personalized suggestions for projects, teammates and next steps.",
+              },
+            ].map((f) => (
+              <div key={f.title} className="rounded-md border border-border bg-card p-5 flex flex-col items-start">
+                <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-soft text-primary">
+                  <f.icon size={18} />
+                </span>
+                <p className="mt-3 text-[15px] font-semibold text-foreground">{f.title}</p>
+                <p className="mt-1 text-[13px] text-muted-foreground">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== PRODUCT SHOWCASE SECTION ===== */}
       <section
         id="showcase"
