@@ -51,6 +51,17 @@ export { conversationStartersApi } from "./modules/conversationStarters";
 export type { ConversationStarterResponse } from "./modules/conversationStarters";
 export { projectTagsApi } from "./modules/projectTags";
 export type { ProjectTagResponse } from "./modules/projectTags";
+
+export { projectCommentsApi } from "./modules/projectComments";
+export type {
+  CommentAuthor,
+  ProjectComment,
+  ProjectCommentThread,
+  ProjectCommentList,
+  ListCommentsParams,
+  CreateCommentPayload,
+  UpdateCommentPayload,
+} from "./modules/projectComments";
 export { teamMatchApi } from "./modules/teamMatch";
 export { contributorMatchingApi } from "./modules/contributorMatching";
 export type { ContributorMatchResponse, MatchedContributor } from "./modules/contributorMatching";
