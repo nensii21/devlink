@@ -12,6 +12,10 @@ env/
 # Python cache
 __pycache__/
 *.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.cache/
 
 # Node locks & build artifacts
 dist/
@@ -21,10 +25,27 @@ dist-ssr/
 .tanstack/
 
 # Environment files
-.env
-.env.local
-.env.development
-.env.production
+#
+# The leading **/ matters. A bare `.env` only matches the repository root, and
+# `backend/.env` was tracked for months underneath a rule that looked like it
+# covered it. Anything ending in .env or starting with .env is ignored at any
+# depth -- except the .example templates, which are meant to be committed.
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+
+# Local test databases and dumps
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+*.dump
+
+# Coverage output
+.coverage
+coverage.xml
+htmlcov/
 
 # IDE & Editor files
 .vscode/
@@ -32,8 +53,20 @@ dist-ssr/
 *.swp
 *.swo
 .DS_Store
+Thumbs.db
 
 # Runtime artifacts
 backend/logs/
+*.log
+docker-data/
 
-backend/logs/devlink.log
+# One-off developer scratch files.
+#
+# The repository accumulated a dozen of these -- single-use codemods from past
+# merge cleanups, plus a 39 KB dump of a GitHub API response. They are dead
+# code that linters, test collection, and CodeQL all still walk.
+fix.py
+fix_*.py
+patch_*.py
+resolve_merge.py
+pr[0-9]*.json

@@ -31,6 +31,13 @@ cd backend
 cp .env.example .env
 ```
 
+> **Your `.env` is yours alone.** It is ignored by git and must never be
+> committed — it holds the `SECRET_KEY` that signs JWTs along with your database
+> and Redis credentials. Add new settings to `.env.example` (with the value left
+> blank or set to a placeholder) so other contributors know they exist. CI fails
+> any PR that tracks a `.env`; see
+> [Secrets and Environment Files](security.md#secrets-and-environment-files).
+
 Key backend configuration parameters:
 
 ```ini

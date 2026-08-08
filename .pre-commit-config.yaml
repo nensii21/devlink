@@ -10,6 +10,30 @@ repos:
       # more than once: the backend stopped importing and the frontend stopped
       # building, and both went unnoticed because CI was already red.
       - id: check-merge-conflict
+      # backend/.env was committed with a live SECRET_KEY and stayed tracked for
+      # months, because .gitignore has no effect on a file git already knows
+      # about. This catches the next one at the point it is first added.
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: no-env-files
+        name: refuse to commit environment files
+        entry: >-
+          Environment files carry real credentials. Commit the matching
+          .env.example instead. If this file is already tracked, untrack it with
+          `git rm --cached <file>` -- adding it to .gitignore is not enough.
+        language: fail
+        files: (^|/)\.env(\..+)?$
+        exclude: \.example$
+
+      - id: no-scratch-files
+        name: refuse to commit developer scratch files
+        entry: >-
+          Single-use codemods and API-response dumps do not belong in the
+          repository -- linters, test collection and CodeQL all walk them.
+        language: fail
+        files: (^|/)(fix|fix_.*|patch_.*|resolve_merge)\.py$|(^|/)pr[0-9]+\.json$
 
   - repo: https://github.com/psf/black
     rev: 24.2.0

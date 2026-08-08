@@ -107,3 +107,82 @@ DevLink evaluates all authentication attempts (both successful and failed) in re
 
 - **Security Alert Notification**: Immediately generates an urgent in-app/email security alert to the user detailing the login attempt, client IP, device info, and triggered detection signals.
 - **Immutable Audit Logging**: Records an immutable audit log entry (`AuditAction.SUSPICIOUS_LOGIN_ATTEMPT`) with full request context metadata for security auditing.
+
+## Secrets and Environment Files
+
+### Never commit a `.env`
+
+`backend/.env.example` and `frontend/.env.example` are the templates and belong
+in the repository. The `.env` files themselves do not — they carry real
+credentials, and once one is committed it is in the history permanently.
+
+Adding a path to `.gitignore` **does not untrack a file git already knows
+about**. `backend/.env` sat in the index for months underneath a `.gitignore`
+that listed `.env` and looked like it covered the case. If you find a tracked
+environment file:
+
+```bash
+git rm --cached backend/.env     # untracks it, keeps your local copy
+git commit -m "chore: untrack backend/.env"
+```
+
+Two things enforce this now:
+
+- `.github/workflows/tracked-files.yml` fails any PR that tracks a `.env` (at
+  any depth, `.example` excluded), a developer scratch script, or a file named
+  `gitignore` without its leading dot. It inspects the index directly, because
+  that is the thing `.gitignore` cannot fix.
+- `.pre-commit-config.yaml` refuses the commit locally, and `detect-private-key`
+  catches a key pasted into any file.
+
+### What was in the tracked `backend/.env`
+
+For the record, since "a committed .env" sounds worse than this one was. The
+`SECRET_KEY` in it was the placeholder
+`CHANGE_THIS_TO_A_LONG_RANDOM_SECRET_KEY_AT_LEAST_64_CHARACTERS`, and every API
+key and OAuth secret was an empty string. **No rotation was required.**
+
+The one real credential was a developer's local Postgres password inside
+`DATABASE_URL`. Local-only, but people reuse passwords, so it is worth changing.
+
+The other consequence was quieter and affected everyone: pydantic-settings
+loads `backend/.env` automatically, so a tracked one overrides `config.py` on
+every machine and in CI. `SEARCH_RATE_LIMIT` read `60/minute` repository-wide
+while the declared default was `30/minute`, and a test asserted the former.
+
+### Rotating a leaked `SECRET_KEY`
+
+If a **real** `SECRET_KEY` is ever committed, this is the procedure.
+
+`SECRET_KEY` signs JWTs (`app/core/config.py`). Anyone who can read a leaked
+value can mint tokens that every deployment still running it will accept.
+Removing the file from `HEAD` does not help — the value stays in the history,
+and in every clone and fork. **Rotation is the fix; untracking only stops it
+recurring.**
+
+For each environment, in order:
+
+1. Generate a new value:
+
+   ```bash
+   python -c "import secrets; print(secrets.token_urlsafe(64))"
+   ```
+
+   It must be at least 32 characters — `Settings.SECRET_KEY` enforces that.
+
+2. Set `SECRET_KEY` in that environment's secret store. Never in a tracked file.
+
+3. Restart the backend. Every access and refresh token signed with the old key
+   stops verifying, so **all users are signed out**. Plan it accordingly.
+
+4. Consider clearing the `refresh_tokens` table. The rows are already useless
+   after the key changes; removing them keeps the active-session views honest.
+
+Rotate the other credentials that shared the file — `DATABASE_URL`,
+`REDIS_URL`, and any OAuth client secrets — on the same pass. They were exposed
+by the same commit.
+
+### Reporting
+
+Do not open a public issue for a suspected key leak. Follow the process in
+[SECURITY.md](../SECURITY.md).

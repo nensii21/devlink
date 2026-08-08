@@ -1,0 +1,113 @@
+name: Tracked Files
+
+# `.gitignore` does not apply to files git already tracks. `backend/.env` sat in
+# the index for months underneath a rule that read as if it covered it, along
+# with a dozen single-use scratch scripts and a 39 KB dump of a GitHub API
+# response.
+#
+# Adding the ignore rule alone would not have caught any of that, so this
+# workflow checks the index directly.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  tracked-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if a secret-bearing or scratch file is tracked
+        run: |
+          set -uo pipefail
+
+          # git ls-files only lists tracked files, which keeps node_modules and
+          # build output out of the picture without an exclude list.
+          #
+          # Anything ending in .env or starting with .env, at any depth. The
+          # .example templates are meant to be committed and are excluded.
+          secrets=$(
+            git ls-files \
+              | grep -E '(^|/)\.env(\..+)?$' \
+              | grep -vE '\.example$' \
+              || true
+          )
+
+          # Single-use codemods and API-response dumps.
+          scratch=$(
+            git ls-files \
+              | grep -E '(^|/)(fix|fix_[^/]*|patch_[^/]*|resolve_merge)\.py$|(^|/)pr[0-9]+\.json$' \
+              || true
+          )
+
+          # A .gitignore missing its leading dot does nothing at all, and the
+          # one in backend/ went unnoticed for exactly that reason.
+          misnamed=$(git ls-files | grep -E '(^|/)gitignore$' || true)
+
+          status=0
+
+          if [ -n "$secrets" ]; then
+            echo "::error::Environment files are tracked. These carry real"
+            echo "credentials and must never be committed -- commit the"
+            echo ".env.example template instead."
+            echo "$secrets" | sed 's/^/    /'
+            echo
+            echo "  To fix:  git rm --cached <file>   (keeps your local copy)"
+            echo
+            status=1
+          fi
+
+          if [ -n "$scratch" ]; then
+            echo "::error::Developer scratch files are tracked. These are"
+            echo "single-use scripts and API dumps; linters, test collection"
+            echo "and CodeQL all still walk them."
+            echo "$scratch" | sed 's/^/    /'
+            echo
+            status=1
+          fi
+
+          if [ -n "$misnamed" ]; then
+            echo "::error::A file named 'gitignore' is tracked. Without the"
+            echo "leading dot git ignores nothing -- rename it to .gitignore"
+            echo "or fold its rules into the one at the repository root."
+            echo "$misnamed" | sed 's/^/    /'
+            echo
+            status=1
+          fi
+
+          if [ "$status" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "No tracked environment files or scratch artifacts."
+
+      # A rule that does not do what it looks like it does is worse than no
+      # rule, which is the whole story of `backend/.env`.
+      - name: Verify the ignore rules actually match
+        run: |
+          set -uo pipefail
+          status=0
+
+          for path in .env backend/.env frontend/.env backend/.env.local; do
+            if ! git check-ignore -q "$path"; then
+              echo "::error::$path is NOT ignored by .gitignore"
+              status=1
+            fi
+          done
+
+          # The templates have to stay committable.
+          for path in backend/.env.example frontend/.env.example; do
+            if git check-ignore -q "$path"; then
+              echo "::error::$path IS ignored but must remain tracked"
+              status=1
+            fi
+          done
+
+          if [ "$status" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "Ignore rules cover .env at every depth and spare the templates."
