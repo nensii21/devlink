@@ -383,7 +383,6 @@ def downgrade() -> None:
         op.f("ix_hackathon_scores_submission_id"), table_name="hackathon_scores"
     )
     op.drop_table("hackathon_scores")
-    op.execute("DROP TYPE IF EXISTS submissionstatus")
 
     op.drop_index(op.f("ix_hackathon_judges_user_id"), table_name="hackathon_judges")
     op.drop_index(
@@ -402,6 +401,11 @@ def downgrade() -> None:
         table_name="hackathon_submissions",
     )
     op.drop_table("hackathon_submissions")
+    # Dropped here rather than next to hackathon_scores: submissionstatus is the
+    # status column of hackathon_submissions, so dropping the type while that
+    # table still exists fails with
+    # `cannot drop type submissionstatus because other objects depend on it`.
+    op.execute("DROP TYPE IF EXISTS submissionstatus")
 
     op.drop_index(
         op.f("ix_hackathon_registrations_created_at"),

@@ -4,6 +4,31 @@ Revision ID: d87970cbb1e6
 Revises: 7a9e8f1d2c3b
 Create Date: 2026-07-20 16:43:20.665761
 
+This revision and e1d173dca5be were authored on parallel branches off
+7a9e8f1d2c3b, and they disagree about the shape of `activities`:
+
+  * e1d173dca5be (an autogenerate sweep) creates indexes on
+    activities.application_id, builder_flare_id, organization_id, project_id
+    and repository_id.
+  * this revision drops those five columns and replaces them with the generic
+    target_id / target_type pair.
+
+Nothing recorded an order between them, so the topological sort picked one --
+and both orders failed:
+
+  * this revision first  -> e1d173dca5be dies with
+    `column "application_id" does not exist`
+  * e1d173dca5be first   -> this revision dies with
+    `relation "ix_activities_created_at" already exists`
+
+which is why `alembic upgrade heads` has never completed on a fresh database.
+
+`depends_on` below pins the working order: the index sweep runs first, then
+this refactor drops the columns (Postgres drops a column's indexes with it, so
+the five stale indexes go away on their own). The only remaining collision was
+ix_activities_created_at, on a column that survives the refactor; it is now
+created once, by e1d173dca5be, and dropped by that revision's downgrade.
+
 """
 
 from typing import Sequence, Union
@@ -16,7 +41,9 @@ from sqlalchemy.dialects import postgresql
 revision: str = "d87970cbb1e6"
 down_revision: Union[str, Sequence[str], None] = "7a9e8f1d2c3b"
 branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+# Not a parent -- the two revisions stay on their own branches -- but this
+# revision must not run until the index sweep on the sibling branch has.
+depends_on: Union[str, Sequence[str], None] = ("e1d173dca5be",)
 
 
 def upgrade() -> None:
@@ -63,9 +90,9 @@ def upgrade() -> None:
     op.create_index(
         op.f("ix_activities_target_type"), "activities", ["target_type"], unique=False
     )
-    op.create_index(
-        op.f("ix_activities_created_at"), "activities", ["created_at"], unique=False
-    )
+    # ix_activities_created_at is created by e1d173dca5be, which `depends_on`
+    # guarantees has already run. Creating it again here raised
+    # `relation "ix_activities_created_at" already exists`.
     op.create_index(
         "ix_activities_type_created",
         "activities",
@@ -90,7 +117,8 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Drop indexes
     op.drop_index("ix_activities_type_created", table_name="activities")
-    op.drop_index(op.f("ix_activities_created_at"), table_name="activities")
+    # ix_activities_created_at belongs to e1d173dca5be, which downgrades after
+    # this revision and drops it there.
     op.drop_index(op.f("ix_activities_target_type"), table_name="activities")
     op.drop_index(op.f("ix_activities_target_id"), table_name="activities")
     op.drop_index(op.f("ix_activities_activity_type"), table_name="activities")

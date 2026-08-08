@@ -207,12 +207,24 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_audit_logs_action"), table_name="audit_logs")
     op.drop_index(op.f("ix_applications_status"), table_name="applications")
     op.drop_index(op.f("ix_applications_created_at"), table_name="applications")
-    op.drop_index(op.f("ix_activities_repository_id"), table_name="activities")
-    op.drop_index(op.f("ix_activities_project_id"), table_name="activities")
-    op.drop_index(op.f("ix_activities_organization_id"), table_name="activities")
+    # These five sit on columns that d87970cbb1e6 removes, and Postgres drops a
+    # column's indexes along with the column -- so by the time this downgrade
+    # runs they are usually already gone and a plain DROP INDEX raises
+    # `index "ix_activities_repository_id" does not exist`.
+    #
+    # Whether they are still present depends on how far the sibling branch was
+    # applied, so the drops are written to tolerate either state.
+    for stale_activity_index in (
+        "ix_activities_repository_id",
+        "ix_activities_project_id",
+        "ix_activities_organization_id",
+        "ix_activities_builder_flare_id",
+        "ix_activities_application_id",
+    ):
+        op.execute(f"DROP INDEX IF EXISTS {stale_activity_index}")
+
+    # created_at survives the refactor, so this one is a plain drop.
     op.drop_index(op.f("ix_activities_created_at"), table_name="activities")
-    op.drop_index(op.f("ix_activities_builder_flare_id"), table_name="activities")
-    op.drop_index(op.f("ix_activities_application_id"), table_name="activities")
     op.drop_index(
         op.f("ix_organization_members_user_id"), table_name="organization_members"
     )

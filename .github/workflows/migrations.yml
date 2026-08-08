@@ -1,0 +1,107 @@
+name: Migrations
+
+# The revision graph broke twice without a single test going red, because the
+# test suite builds its schema with `Base.metadata.create_all` and never runs a
+# migration. This workflow is the piece that was missing: it checks the shape of
+# the graph, and then actually runs the whole chain against a real Postgres.
+
+on:
+  pull_request:
+    paths:
+      - "backend/alembic/**"
+      - "backend/app/models/**"
+      - "backend/scripts/check_migration_graph.py"
+      - ".github/workflows/migrations.yml"
+  push:
+    branches: [main]
+
+jobs:
+  graph:
+    name: Revision graph
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Cheap and needs no services, so it runs first and gives the clearest
+      # error message when someone forgets to rebase their revision.
+      - name: Check for a single head and a single base
+        run: python -m scripts.check_migration_graph --verbose
+
+  upgrade:
+    name: Upgrade and downgrade
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: devlink
+          POSTGRES_PASSWORD: devlink
+          POSTGRES_DB: devlink_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U devlink"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://devlink:devlink@127.0.0.1:5432/devlink_ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # The headline check. Two parallel branches disagreed about the shape of
+      # `activities` and this step failed on both possible orderings.
+      - name: Upgrade a fresh database to head
+        run: alembic upgrade head
+
+      - name: Confirm the schema is not empty
+        run: |
+          python - <<'PY'
+          import os
+          from sqlalchemy import create_engine, inspect
+
+          engine = create_engine(os.environ["DATABASE_URL"])
+          tables = inspect(engine).get_table_names()
+
+          print(f"{len(tables)} tables after upgrade")
+          assert "users" in tables, "users table missing after upgrade"
+          assert "projects" in tables, "projects table missing after upgrade"
+          assert len(tables) > 20, f"suspiciously few tables: {sorted(tables)}"
+          PY
+
+      - name: Downgrade back to base
+        run: alembic downgrade base

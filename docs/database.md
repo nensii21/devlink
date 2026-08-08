@@ -1,5 +1,9 @@
 # Database Documentation
 
+This page describes the schema. For writing and running Alembic revisions —
+including the rebase rule that keeps the graph to a single head — see
+[Working with Database Migrations](./migrations.md).
+
 ## Entity-Relationship Diagram
 ```mermaid
 erDiagram
