@@ -4,31 +4,33 @@ from typing import Any, Dict, Optional
 from jose import JWTError, jwt
 import bcrypt
 
-_original_hashpw = bcrypt.hashpw
+# bcrypt refuses passwords longer than 72 bytes. passlib does not truncate for
+# us, so the call is wrapped to do it.
+#
+# This block was duplicated -- the identical patch appeared twice, presumably
+# from a bad merge -- and the second copy captured the *already patched*
+# function as its `_original_hashpw`. `_patched_hashpw` therefore called
+# itself, and every password hash died with:
+#
+#     RecursionError: maximum recursion depth exceeded
+#
+# which took registration and login with it. Nothing caught it because
+# tests/conftest.py replaces pwd_context with a mock before the suite runs, so
+# bcrypt is never exercised there.
+#
+# `_ALREADY_PATCHED` makes reapplying the patch a no-op, so a re-import or a
+# future duplicate cannot recreate the loop.
+if not getattr(bcrypt.hashpw, "_devlink_patched", False):
+    _original_hashpw = bcrypt.hashpw
 
+    def _patched_hashpw(password, salt):
+        if len(password) > 72:
+            return _original_hashpw(password[:72], salt)
+        return _original_hashpw(password, salt)
 
-def _patched_hashpw(password, salt):
-    if len(password) > 72:
-        return _original_hashpw(password[:72], salt)
-    return _original_hashpw(password, salt)
+    _patched_hashpw._devlink_patched = True
+    bcrypt.hashpw = _patched_hashpw
 
-
-bcrypt.hashpw = _patched_hashpw
-from passlib.context import CryptContext
-
-from app.core.config import settings
-import bcrypt
-
-_original_hashpw = bcrypt.hashpw
-
-
-def _patched_hashpw(password, salt):
-    if len(password) > 72:
-        return _original_hashpw(password[:72], salt)
-    return _original_hashpw(password, salt)
-
-
-bcrypt.hashpw = _patched_hashpw
 from passlib.context import CryptContext  # noqa: E402
 
 from app.core.config import settings  # noqa: E402

@@ -123,6 +123,54 @@ npm run dev
 ```
 *The DevLink web application will launch at `http://localhost:5173`.*
 
+#### Step 4: Seed Demo Data (recommended)
+
+A freshly migrated database is empty, which means every screen renders its
+empty state: the dashboard has nothing to show, search returns nothing, and
+messaging needs two users and a conversation before it does anything at all.
+
+```bash
+cd devlink/backend
+python -m scripts.seed_database
+```
+
+That populates users, skills, projects, memberships, builder flares,
+applications, conversations with messages, notifications, and bookmarks. Then
+sign in with any demo account:
+
+| Account | Role |
+| --- | --- |
+| `admin@example.com` | superuser — admin routes are reachable |
+| `aditialmeida@example.com` | regular user |
+
+The password for every demo account is `DevlinkDemo!2026`, and the script
+prints it at the end of a run.
+
+**Options**
+
+| Flag | Effect |
+| --- | --- |
+| `--users N`, `--projects N` | Control how much data is generated |
+| `--reset` | Delete previously seeded rows first, then re-seed |
+| `--dry-run` | Report what would be written and roll back |
+| `--quiet` | Only print the summary |
+| `--force` | Required if `ENVIRONMENT` is `production` |
+
+Two things worth knowing:
+
+- **Re-running is safe.** Rows are matched on a natural key and updated rather
+  than duplicated, so `python -m scripts.seed_database` twice leaves the same
+  database as running it once.
+- **The output is deterministic.** The same flags produce the same users,
+  projects, and IDs on every machine, so a screenshot in a pull request means
+  the same thing to the reviewer as it did to you.
+
+`--reset` only removes rows the seeder created — they are tagged with a `[demo]`
+marker — so anything you made by hand while testing survives.
+
+> The script refuses to run when `ENVIRONMENT=production`, because it writes
+> accounts whose password is published in this document.
+
 ---
 
 ### Option B: Docker Compose Setup
