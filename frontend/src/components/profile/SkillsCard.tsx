@@ -26,6 +26,16 @@ function normalizeLevel(level?: string): (typeof levelOrder)[number] {
   return match ?? "Intermediate";
 }
 
+const SKILL_CATEGORIES = [
+  "Languages",
+  "Frameworks",
+  "Databases",
+  "Cloud",
+  "DevOps",
+  "AI/ML",
+  "Design",
+] as const;
+
 export function SkillsCard({
   skills,
   editable = false,
@@ -35,12 +45,12 @@ export function SkillsCard({
   onAddSkill,
   onRemoveSkill,
 }: SkillsCardProps) {
-  const groupedSkills = levelOrder
-    .map((level) => ({
-      level,
-      items: skills.filter((skill) => normalizeLevel(skill.level) === level),
-    }))
-    .filter((group) => group.items.length > 0);
+  const categoriesList = SKILL_CATEGORIES;
+
+  const groupedByCategory = categoriesList.map((cat) => ({
+    category: cat,
+    items: skills.filter((s) => (s.category || "Languages").toLowerCase() === cat.toLowerCase()),
+  }));
 
   if (editable) {
     return (
@@ -51,8 +61,10 @@ export function SkillsCard({
               <Sparkles size={16} />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-foreground">Skills</h2>
-              <p className="text-xs text-muted-foreground">Add and organize your skills</p>
+              <h2 className="text-sm font-semibold text-foreground">Developer Skill Matrix</h2>
+              <p className="text-xs text-muted-foreground">
+                Manage your skills across 7 core technical categories
+              </p>
             </div>
           </div>
           <button
@@ -60,17 +72,15 @@ export function SkillsCard({
             onClick={onAddSkill}
             className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
           >
-            <Plus size={12} /> Add
+            <Plus size={12} /> Add Skill
           </button>
         </div>
 
         <div className="mt-4 space-y-3">
           {formValues.length === 0 ? (
-            <EmptyState
-              title="No skills added"
-              desc="Add your skills to help others discover your expertise."
-              illustration="empty-box"
-            />
+            <p className="text-xs text-muted-foreground italic">
+              No skills added. Click "Add Skill" to build your matrix.
+            </p>
           ) : null}
           {formValues.map((skill, index) => (
             <div
@@ -80,18 +90,18 @@ export function SkillsCard({
               <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_auto]">
                 <label className="text-sm">
                   <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                    Skill
+                    Skill Name
                   </span>
                   <input
                     value={skill.name}
                     onChange={(event) => onSkillChange?.(index, "name", event.target.value)}
                     className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none ring-0 focus:border-primary"
-                    placeholder="e.g. React"
+                    placeholder="e.g. TypeScript"
                   />
                 </label>
                 <label className="text-sm">
                   <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                    Level
+                    Proficiency
                   </span>
                   <select
                     value={skill.level ?? "Intermediate"}
@@ -107,7 +117,7 @@ export function SkillsCard({
                 </label>
                 <label className="text-sm">
                   <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                    Years
+                    Years Exp.
                   </span>
                   <input
                     type="number"
@@ -131,12 +141,17 @@ export function SkillsCard({
                 <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                   Category
                 </span>
-                <input
-                  value={skill.category ?? "general"}
+                <select
+                  value={skill.category ?? "Languages"}
                   onChange={(event) => onSkillChange?.(index, "category", event.target.value)}
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none ring-0 focus:border-primary"
-                  placeholder="frontend, backend, devops"
-                />
+                >
+                  {SKILL_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </label>
               {skillErrors?.[`${index}`] ? (
                 <p className="mt-2 text-xs text-red-500">{skillErrors[`${index}`]}</p>
@@ -152,43 +167,57 @@ export function SkillsCard({
   }
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center gap-2">
-        <div className="rounded-full bg-primary/10 p-2 text-primary">
-          <Sparkles size={16} />
-        </div>
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">Skills</h2>
-          <p className="text-xs text-muted-foreground">Grouped by experience level</p>
+    <Card className="p-5 w-full">
+      <div className="flex items-center justify-between pb-3 border-b border-border">
+        <div className="flex items-center gap-2.5">
+          <div className="rounded-lg bg-primary/10 p-2 text-primary">
+            <Sparkles size={18} />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-foreground">Developer Skill Matrix</h2>
+            <p className="text-xs text-muted-foreground">
+              Categorized technical expertise and proficiency
+            </p>
+          </div>
         </div>
       </div>
 
-      {groupedSkills.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">No skills added yet.</p>
-      ) : (
-        <div className="mt-4 space-y-4">
-          {groupedSkills.map((group) => (
-            <div key={group.level}>
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                {group.level}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {group.items.map((skill) => (
-                  <TagChip
-                    key={`${group.level}-${skill.name}`}
-                    className="rounded-full px-2.5 py-1 text-[12px] text-foreground"
-                  >
-                    {skill.name}
-                    {typeof skill.yearsOfExperience === "number"
-                      ? ` · ${skill.yearsOfExperience}y`
-                      : ""}
-                  </TagChip>
-                ))}
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {groupedByCategory.map(({ category, items }) => (
+          <div
+            key={category}
+            className="rounded-lg border border-border bg-muted/20 p-3.5 flex flex-col justify-between space-y-2 hover:border-primary/30 transition-colors"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2 pb-1 border-b border-border/40">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                  {category}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-medium rounded bg-muted px-1.5 py-0.5">
+                  {items.length} {items.length === 1 ? "skill" : "skills"}
+                </span>
               </div>
+              {items.length === 0 ? (
+                <p className="text-xs text-muted-foreground/60 italic py-1">No skills added</p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {items.map((skill) => (
+                    <span
+                      key={`${category}-${skill.name}`}
+                      className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground shadow-sm"
+                    >
+                      <span>{skill.name}</span>
+                      <span className="text-[10px] font-normal text-muted-foreground bg-muted/60 px-1 py-0.2 rounded">
+                        {skill.level || "Intermediate"}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </Card>
   );
 }

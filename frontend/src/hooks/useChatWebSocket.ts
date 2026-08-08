@@ -70,7 +70,13 @@ export function useChatWebSocket(
       };
 
       return () => {
-        ws.send(JSON.stringify({ type: "chat.leave", conversation_id: conversationId }));
+        if (ws.readyState === WebSocket.OPEN) {
+          try {
+            ws.send(JSON.stringify({ type: "chat.leave", conversation_id: conversationId }));
+          } catch {
+            // Ignore send errors during cleanup
+          }
+        }
         ws.close();
       };
     } catch {

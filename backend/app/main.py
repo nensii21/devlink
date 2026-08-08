@@ -72,6 +72,8 @@ from app.routers import (
     saved_searches,
     media,
     maintenance,
+    message_drafts,
+    global_announcements,
     posts,
 )
 
@@ -514,9 +516,11 @@ from app.routers import (
     verification,
     websockets,
     graph,
+    skill_matrix,
 )
 
 # Router inclusions
+app.include_router(skill_matrix.router, prefix="/api", tags=["Skill Matrix"])
 
 
 app.include_router(media.router, prefix="/api", tags=["Media"])
@@ -527,6 +531,7 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 from app.routers import mfa
 
 app.include_router(mfa.router, prefix="/api")
+app.include_router(global_announcements.router, prefix="/api", tags=["Global Announcements"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(blocks.router, prefix="/api/blocks", tags=["User Blocks"])
 app.include_router(export.router, prefix="/api/users", tags=["Export"])
@@ -551,6 +556,7 @@ app.include_router(calendar_router.router, prefix="/api", tags=["Calendar"])
 app.include_router(analytics.router, prefix="/api", tags=["Analytics"])
 app.include_router(builder_flares.router, prefix="/api/flare", tags=["Builder's Flare"])
 app.include_router(messages.router, prefix="/api/messages", tags=["Messages"])
+app.include_router(message_drafts.router, prefix="/api", tags=["Message Drafts"])
 app.include_router(
     notifications.router, prefix="/api/notifications", tags=["Notifications"]
 )
