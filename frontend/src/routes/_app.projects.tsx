@@ -3,7 +3,7 @@ import { createFileRoute, Outlet, useRouterState, Link } from "@tanstack/react-r
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { projectsService } from "@/services";
-import { Card, TagChip, SectionHeader } from "@/components/shared/primitives";
+import { Card, TagChip, SectionHeader, Skeleton } from "@/components/shared/primitives";
 import {
   Pagination,
   PaginationContent,
@@ -407,7 +407,39 @@ function ProjectsPage() {
       {isLoading ? (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="h-40 animate-pulse" />
+            <Card key={i} className="p-4 flex flex-col justify-between h-[190px]">
+              <div>
+                <div className="flex items-start gap-3">
+                  <Skeleton className="h-10 w-10 shrink-0 rounded-md animate-pulse" />
+                  <div className="min-w-0 flex-1 space-y-1.5 pt-0.5">
+                    <Skeleton className="h-4 w-2/3 animate-pulse" />
+                    <Skeleton className="h-3 w-5/6 animate-pulse" />
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-1">
+                  <Skeleton className="h-5 w-14 rounded-full animate-pulse" />
+                  <Skeleton className="h-5 w-16 rounded-full animate-pulse" />
+                  <Skeleton className="h-5 w-12 rounded-full animate-pulse" />
+                </div>
+              </div>
+              <div>
+                <div className="mt-2 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-3 w-10 animate-pulse" />
+                    <Skeleton className="h-3 w-8 animate-pulse" />
+                  </div>
+                  <Skeleton className="h-1 w-full rounded-full animate-pulse" />
+                </div>
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="flex gap-4">
+                    <Skeleton className="h-3.5 w-6 animate-pulse" />
+                    <Skeleton className="h-3.5 w-6 animate-pulse" />
+                    <Skeleton className="h-3.5 w-6 animate-pulse" />
+                  </div>
+                  <Skeleton className="h-5 w-20 rounded-md animate-pulse" />
+                </div>
+              </div>
+            </Card>
           ))}
         </div>
       ) : filtered.length === 0 ? (

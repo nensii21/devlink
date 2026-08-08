@@ -26,7 +26,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { toast } from "sonner";
-import { builders, currentUser, projects as allProjects, flares as allFlares } from "@/mocks/seed";
+import { builders, currentUser, projects as allProjects, flares as allFlares, Builder } from "@/mocks/seed";
 
 export const Route = createFileRoute("/portfolio/$username")({
   head: ({ params }) => ({
@@ -106,9 +106,7 @@ function PortfolioPage() {
   const { username } = Route.useParams();
   const me = username === currentUser.handle;
 
-  // Find builder details
-  const b =
-    builders.find((x) => x.handle === username) ||
+  const foundBuilder = builders.find((x) => x.handle === username) ||
     (me
       ? {
           id: "me",
@@ -125,7 +123,8 @@ function PortfolioPage() {
         }
       : null);
 
-  if (!b) throw notFound();
+  if (!foundBuilder) throw notFound();
+  const b = foundBuilder as Builder;
 
   // Get matching projects and flares
   const userProjects = allProjects.filter((p) => p.owner === b.name || p.owner === b.handle);

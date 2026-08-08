@@ -358,7 +358,7 @@ function Thread() {
             </div>
           )}
 
-          {data.map((m) => (
+          {data.map((m: any) => (
             <div
               key={m.id}
               className={cn("flex", m.from === "me" ? "justify-end" : "justify-start")}

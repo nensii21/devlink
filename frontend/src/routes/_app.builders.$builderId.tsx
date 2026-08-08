@@ -53,7 +53,7 @@ function BuilderProfile() {
   const relatedProjectId = builderProjects[0]?.id ?? allProjects[0]?.id ?? "";
   const { data: match } = useTeamMatch(builderId, relatedProjectId);
 
-  if (isLoading) return <Card className="h-96 animate-pulse" />;
+
 
   const handleTabChange = (value: string) => {
     setTab(value as Tab);

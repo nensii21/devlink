@@ -18,6 +18,7 @@ import {
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useSidebar } from "@/hooks/useSidebar";
 import { Avatar } from "@/components/shared/primitives";
+import { cn } from "@/lib/utils";
 
 import { currentUser, builders, projects, flares } from "@/mocks/seed";
 import { useTheme } from "@/hooks/useTheme";

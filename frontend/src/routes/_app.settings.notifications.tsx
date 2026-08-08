@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_app/settings/notifications")({
   component: NotificationSettingsPage,
@@ -86,7 +87,35 @@ function NotificationSettingsPage() {
     updateMutation.mutate(newData);
   };
 
-  if (isLoading) return <div className="p-6">Loading notification preferences...</div>;
+  if (isLoading) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto p-6">
+        <div>
+          <Skeleton className="h-8 w-64 animate-pulse" />
+          <Skeleton className="mt-2 h-4 w-96 animate-pulse" />
+        </div>
+        <div className="grid gap-6">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-36 animate-pulse" />
+              <Skeleton className="mt-1.5 h-4 w-72 animate-pulse" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center justify-between border-b border-border/40 pb-4 last:border-0 last:pb-0">
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-4 w-28 animate-pulse" />
+                    <Skeleton className="h-3 w-48 animate-pulse" />
+                  </div>
+                  <Skeleton className="h-6 w-11 rounded-full animate-pulse" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-6">

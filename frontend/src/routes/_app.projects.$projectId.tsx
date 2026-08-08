@@ -115,7 +115,67 @@ function ProjectDetail() {
     window.setTimeout(() => setCopied(false), 2000);
   };
 
-  if (isLoading) return <Card className="h-96 animate-pulse" />;
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <BackButton to="/projects" label="Back to projects" />
+        
+        {/* Header Card Skeleton */}
+        <Card className="p-5">
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-14 w-14 shrink-0 rounded-md animate-pulse" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-6 w-1/3 animate-pulse" />
+              <Skeleton className="h-4 w-2/3 animate-pulse" />
+              <div className="mt-3 flex gap-1.5">
+                <Skeleton className="h-5 w-16 rounded-full animate-pulse" />
+                <Skeleton className="h-5 w-20 rounded-full animate-pulse" />
+                <Skeleton className="h-5 w-14 rounded-full animate-pulse" />
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-3">
+              <Skeleton className="h-8 w-24 rounded-md animate-pulse" />
+              <Skeleton className="h-8 w-8 rounded-md animate-pulse" />
+              <Skeleton className="h-8 w-8 rounded-md animate-pulse" />
+              <div className="hidden gap-4 sm:flex">
+                <Skeleton className="h-4 w-10 animate-pulse" />
+                <Skeleton className="h-4 w-10 animate-pulse" />
+                <Skeleton className="h-4 w-10 animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Tabs Row Skeleton */}
+        <div className="flex items-center gap-1 border-b border-border pb-px">
+          <Skeleton className="h-8 w-20 rounded-t-md animate-pulse" />
+          <Skeleton className="h-8 w-24 rounded-t-md animate-pulse" />
+          <Skeleton className="h-8 w-20 rounded-t-md animate-pulse" />
+          <Skeleton className="h-8 w-20 rounded-t-md animate-pulse" />
+          <Skeleton className="h-8 w-16 rounded-t-md animate-pulse" />
+        </div>
+
+        {/* Tab Content Area Skeleton */}
+        <div className="grid gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-8 space-y-4">
+            <Card className="p-5 space-y-3">
+              <Skeleton className="h-5 w-32 animate-pulse" />
+              <Skeleton className="h-4 w-full animate-pulse" />
+              <Skeleton className="h-4 w-full animate-pulse" />
+              <Skeleton className="h-4 w-3/4 animate-pulse" />
+            </Card>
+          </div>
+          <div className="lg:col-span-4 space-y-4">
+            <Card className="p-5 space-y-3">
+              <Skeleton className="h-5 w-28 animate-pulse" />
+              <Skeleton className="h-10 w-full animate-pulse" />
+              <Skeleton className="h-10 w-full animate-pulse" />
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!p) throw notFound();
 
   const tabs = dashboard
