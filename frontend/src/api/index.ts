@@ -84,3 +84,9 @@ export type {
   RoleGap,
   RiskAlert,
 } from "./modules/projectInsights";
+export { projectTemplatesApi } from "./modules/projectTemplates";
+export type {
+  ProjectTemplate,
+  ProjectTemplateListResponse,
+  ProjectTemplateCreateInput,
+} from "./modules/projectTemplates";

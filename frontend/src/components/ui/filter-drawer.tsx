@@ -204,7 +204,6 @@ export function FilterDrawer({
     if (type === "range") {
       const min = section.min ?? 0;
       const max = section.max ?? 100;
-      const step = section.step ?? 1;
       const val = asNumber(draftValues[section.id], min);
 
       return (

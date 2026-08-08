@@ -55,19 +55,19 @@ export function ProjectFilters() {
 
   const handleLanguageChange = (lang: string, checked: boolean) => {
     const current = filters.language || [];
-    const next = checked ? [...current, lang] : current.filter((l) => l !== lang);
+    const next = checked ? [...current, lang] : current.filter((l: string) => l !== lang);
     setFilters({ language: next });
   };
 
   const handleExperienceChange = (exp: string, checked: boolean) => {
     const current = filters.experience || [];
-    const next = checked ? [...current, exp] : current.filter((e) => e !== exp);
+    const next = checked ? [...current, exp] : current.filter((e: string) => e !== exp);
     setFilters({ experience: next });
   };
 
   const handleTechToggle = (tech: string) => {
     const current = filters.tech || [];
-    const next = current.includes(tech) ? current.filter((t) => t !== tech) : [...current, tech];
+    const next = current.includes(tech) ? current.filter((t: string) => t !== tech) : [...current, tech];
     setFilters({ tech: next });
   };
 
@@ -216,7 +216,7 @@ export function ProjectFilters() {
               </PopoverContent>
             </Popover>
             <div className="flex flex-wrap gap-1">
-              {(filters.tech || []).map((t) => (
+              {(filters.tech || []).map((t: string) => (
                 <Badge
                   key={t}
                   variant="secondary"

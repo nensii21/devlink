@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
+import { Route as AppTemplatesRouteImport } from './routes/_app.templates'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppRepositoryQualityRouteImport } from './routes/_app.repository-quality'
@@ -89,6 +90,11 @@ const PortfolioUsernameRoute = PortfolioUsernameRouteImport.update({
   id: '/portfolio/$username',
   path: '/portfolio/$username',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppTemplatesRoute = AppTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
@@ -285,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRouteWithChildren
+  '/templates': typeof AppTemplatesRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/admin/api-request-analytics': typeof AppAdminApiRequestAnalyticsRoute
   '/admin/audit-logs': typeof AppAdminAuditLogsRoute
@@ -326,6 +333,7 @@ export interface FileRoutesByTo {
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRouteWithChildren
+  '/templates': typeof AppTemplatesRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/admin/api-request-analytics': typeof AppAdminApiRequestAnalyticsRoute
   '/admin/audit-logs': typeof AppAdminAuditLogsRoute
@@ -370,6 +378,7 @@ export interface FileRoutesById {
   '/_app/repository-quality': typeof AppRepositoryQualityRoute
   '/_app/search': typeof AppSearchRoute
   '/_app/settings': typeof AppSettingsRouteWithChildren
+  '/_app/templates': typeof AppTemplatesRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/_app/admin/api-request-analytics': typeof AppAdminApiRequestAnalyticsRoute
   '/_app/admin/audit-logs': typeof AppAdminAuditLogsRoute
@@ -414,6 +423,7 @@ export interface FileRouteTypes {
     | '/repository-quality'
     | '/search'
     | '/settings'
+    | '/templates'
     | '/portfolio/$username'
     | '/admin/api-request-analytics'
     | '/admin/audit-logs'
@@ -455,6 +465,7 @@ export interface FileRouteTypes {
     | '/repository-quality'
     | '/search'
     | '/settings'
+    | '/templates'
     | '/portfolio/$username'
     | '/admin/api-request-analytics'
     | '/admin/audit-logs'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
     | '/_app/repository-quality'
     | '/_app/search'
     | '/_app/settings'
+    | '/_app/templates'
     | '/portfolio/$username'
     | '/_app/admin/api-request-analytics'
     | '/_app/admin/audit-logs'
@@ -585,6 +597,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/portfolio/$username'
       preLoaderRoute: typeof PortfolioUsernameRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/templates': {
+      id: '/_app/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof AppTemplatesRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/settings': {
       id: '/_app/settings'
@@ -946,6 +965,7 @@ interface AppRouteChildren {
   AppRepositoryQualityRoute: typeof AppRepositoryQualityRoute
   AppSearchRoute: typeof AppSearchRoute
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
+  AppTemplatesRoute: typeof AppTemplatesRoute
   AppProfileUsernameRoute: typeof AppProfileUsernameRoute
 }
 
@@ -967,6 +987,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppRepositoryQualityRoute: AppRepositoryQualityRoute,
   AppSearchRoute: AppSearchRoute,
   AppSettingsRoute: AppSettingsRouteWithChildren,
+  AppTemplatesRoute: AppTemplatesRoute,
   AppProfileUsernameRoute: AppProfileUsernameRoute,
 }
 
