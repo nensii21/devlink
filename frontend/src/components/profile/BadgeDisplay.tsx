@@ -73,7 +73,9 @@ export const BadgeDisplay: React.FC<BadgeDisplayProps> = ({ userBadges, allBadge
               >
                 <IconComp className="h-5 w-5" />
               </div>
-              <span className="text-xs font-semibold line-clamp-1 text-foreground">{badge.name}</span>
+              <span className="text-xs font-semibold line-clamp-1 text-foreground">
+                {badge.name}
+              </span>
               <span className="text-[10px] text-muted-foreground mt-0.5">{badge.points} pts</span>
             </div>
           );

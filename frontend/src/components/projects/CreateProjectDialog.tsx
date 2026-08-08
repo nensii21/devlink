@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TechStackSuggest } from "./TechStackSuggest";
+import { ProjectTemplateSelect } from "./ProjectTemplateSelect";
 
 interface Props {
   open: boolean;
@@ -24,6 +25,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
   const [warnings, setWarnings] = useState<SimilarProjectWarning[]>([]);
   const [pendingData, setPendingData] = useState<CreateProjectFormData | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | undefined>();
 
   const {
     register,
@@ -52,6 +54,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
     reset();
     setWarnings([]);
     setPendingData(null);
+    setSelectedTemplateId(undefined);
     onOpenChange(false);
   }
 
@@ -161,6 +164,19 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-3.5 sm:space-y-4 overflow-y-auto pr-1"
           >
+            <div className="pb-2 mb-2 border-b border-border/50">
+              <ProjectTemplateSelect
+                selectedTemplateId={selectedTemplateId}
+                onTemplateIdChange={setSelectedTemplateId}
+                onSelect={(fields) => {
+                  if (fields.description) setValue("description", fields.description, { shouldValidate: true });
+                  if (fields.stage) setValue("stage", fields.stage as any, { shouldValidate: true });
+                  if (fields.max_team_size) setValue("max_team_size", fields.max_team_size, { shouldValidate: true });
+                  if (fields.tech_stack) setValue("tech_stack", fields.tech_stack, { shouldValidate: true });
+                }}
+              />
+            </div>
+
             <div className="space-y-1.5">
               <Label className="text-[12px] text-muted-foreground">Title</Label>
               <Input

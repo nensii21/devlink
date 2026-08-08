@@ -105,12 +105,12 @@ export function EmptyState({
   action?: ReactNode;
   className?: string;
   illustration?:
-  | "empty-box"
-  | "no-results"
-  | "no-messages"
-  | "no-notifications"
-  | "no-bookmarks"
-  | "no-projects";
+    | "empty-box"
+    | "no-results"
+    | "no-messages"
+    | "no-notifications"
+    | "no-bookmarks"
+    | "no-projects";
 }) {
   const isComponent =
     typeof Icon === "function" ||
@@ -153,14 +153,7 @@ export function NoProjectsEmptyState({
   desc?: string;
   action?: ReactNode;
 }) {
-  return (
-    <EmptyState
-      title={title}
-      desc={desc}
-      action={action}
-      illustration="no-projects"
-    />
-  );
+  return <EmptyState title={title} desc={desc} action={action} illustration="no-projects" />;
 }
 
 export function NoNotificationsEmptyState({
@@ -170,13 +163,7 @@ export function NoNotificationsEmptyState({
   title?: string;
   desc?: string;
 }) {
-  return (
-    <EmptyState
-      title={title}
-      desc={desc}
-      illustration="no-notifications"
-    />
-  );
+  return <EmptyState title={title} desc={desc} illustration="no-notifications" />;
 }
 
 export function NoMessagesEmptyState({
@@ -188,14 +175,7 @@ export function NoMessagesEmptyState({
   desc?: string;
   action?: ReactNode;
 }) {
-  return (
-    <EmptyState
-      title={title}
-      desc={desc}
-      action={action}
-      illustration="no-messages"
-    />
-  );
+  return <EmptyState title={title} desc={desc} action={action} illustration="no-messages" />;
 }
 
 export function NoConnectionsEmptyState({
@@ -219,14 +199,7 @@ export function NoSearchResultsEmptyState({
   desc?: string;
   action?: ReactNode;
 }) {
-  return (
-    <EmptyState
-      title={title}
-      desc={desc}
-      action={action}
-      illustration="no-results"
-    />
-  );
+  return <EmptyState title={title} desc={desc} action={action} illustration="no-results" />;
 }
 
 function EmptyIllustration({ variant }: { variant: string }) {
