@@ -61,3 +61,27 @@ def upgrade_subscription(
     db.commit()
     db.refresh(sub)
     return sub
+
+@router.post("/cancel", response_model=SubscriptionResponse)
+def cancel_subscription(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_database),
+):
+    stmt = select(UserSubscription).where(UserSubscription.user_id == current_user.id)
+    sub = db.scalar(stmt)
+    now = datetime.now(timezone.utc)
+    
+    if not sub:
+        sub = UserSubscription(user_id=current_user.id)
+        db.add(sub)
+        
+    sub.tier = "free"
+    sub.status = "canceled"
+    sub.updated_at = now
+    sub.current_period_end = None
+    sub.payment_method_brand = None
+    sub.payment_method_last4 = None
+        
+    db.commit()
+    db.refresh(sub)
+    return sub

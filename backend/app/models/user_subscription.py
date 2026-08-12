@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import String, Boolean, DateTime, ForeignKey, Enum
@@ -13,6 +13,9 @@ class UserSubscription(Base):
     tier: Mapped[str] = mapped_column(String(50), default="free")
     status: Mapped[str] = mapped_column(String(50), default="active")
     current_period_end: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    payment_method_brand: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    payment_method_last4: Mapped[Optional[str]] = mapped_column(String(4), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

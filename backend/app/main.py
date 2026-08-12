@@ -568,6 +568,8 @@ app.include_router(calendar_router.router, prefix="/api", tags=["Calendar"])
 
 from app.routers import subscriptions
 app.include_router(subscriptions.router)
+from app.routers import payments
+app.include_router(payments.router, prefix="/api", tags=["Payments"])
 app.include_router(analytics.router, prefix="/api", tags=["Analytics"])
 from app.routers import project_releases
 

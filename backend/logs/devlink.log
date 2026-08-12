@@ -100105,3 +100105,7 @@ sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in
 [2m2026-08-12T20:20:33.166346Z[0m [[32m[1minfo     [0m] [1m[cached since 1.187s ago] ('9836d6b4-b07b-4115-b8e2-10106d798736', 'GET', '/applications/me', 404, 21.88, '8ff63231-ba42-4444-b0de-5fc6a20e2a97', 0, '2026-08-12 20:20:33.165782')[0m [[0m[1m[34msqlalchemy.engine.Engine[0m][0m
 [2m2026-08-12T20:20:33.167688Z[0m [[32m[1minfo     [0m] [1mROLLBACK                      [0m [[0m[1m[34msqlalchemy.engine.Engine[0m][0m
 [2m2026-08-12T20:20:33.171737Z[0m [[32m[1minfo     [0m] [1mHTTP Request: GET http://testserver/applications/me "HTTP/1.1 404 Not Found"[0m [[0m[1m[34mhttpx[0m][0m
+[2m2026-08-12T20:33:31.852526Z[0m [[32m[1mdebug    [0m] [1mloaded lazy attr 'SafeConfigParser': <class 'configparser.ConfigParser'>[0m [[0m[1m[34mpasslib.utils.compat[0m][0m
+[2m2026-08-12T20:33:31.853705Z[0m [[32m[1mdebug    [0m] [1mloaded lazy attr 'NativeStringIO': <class '_io.StringIO'>[0m [[0m[1m[34mpasslib.utils.compat[0m][0m
+[2m2026-08-12T20:33:31.854028Z[0m [[32m[1mdebug    [0m] [1mloaded lazy attr 'BytesIO': <class '_io.BytesIO'>[0m [[0m[1m[34mpasslib.utils.compat[0m][0m
+[2m2026-08-12T20:33:31.857261Z[0m [[32m[1mdebug    [0m] [1mregistered 'bcrypt' handler: <class 'passlib.handlers.bcrypt.bcrypt'>[0m [[0m[1m[34mpasslib.registry[0m][0m

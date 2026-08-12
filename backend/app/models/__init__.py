@@ -76,6 +76,7 @@ from .message_draft import MessageDraft  # noqa: F401
 from .user_report import UserReport  # noqa: F401
 from .user_skill import UserSkill  # noqa: F401
 from .user_subscription import UserSubscription  # noqa: F401
+from .payment_history import PaymentHistory  # noqa: F401
 from .verification_request import VerificationRequest  # noqa: F401
 from .maintenance import MaintenanceWindow
 from .search_analytics import SearchQueryLog, SearchClickLog
