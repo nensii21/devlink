@@ -19,11 +19,10 @@ export function SectionHeader({
 }) {
   return (
     <div className={cn("flex items-center justify-between px-5 pt-4 pb-3.5", className)}>
-      <TypoSection>
-<div className={cn("flex items-center justify-between px-6 pt-5 pb-4", className)}>      <h3 className="text-[14px] font-bold tracking-tight text-foreground flex items-center gap-2">
+      <h3 className="text-[14px] font-bold tracking-tight text-foreground flex items-center gap-2">
         <span className="inline-block h-2 w-2 rounded-full bg-primary/80" />
         {title}
-      </TypoSection>
+      </h3>
       {action &&
         (actionTo ? (
           <Link
