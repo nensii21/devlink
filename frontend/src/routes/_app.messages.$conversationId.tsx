@@ -16,6 +16,8 @@ import {
   Code,
   Clock,
   X,
+  Check,
+  CheckCheck,
 } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
@@ -95,6 +97,12 @@ function Thread() {
       (msg: unknown) => {
         queryClient.invalidateQueries({ queryKey: ["thread", conversationId] });
         queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      },
+      [queryClient, conversationId],
+    ),
+    useCallback(
+      (msg: unknown) => {
+        queryClient.invalidateQueries({ queryKey: ["thread", conversationId] });
       },
       [queryClient, conversationId],
     ),
@@ -416,14 +424,25 @@ function Thread() {
 
               {m.text && <p className="whitespace-pre-wrap">{m.text}</p>}
 
-              <p
-                className={cn(
-                  "mt-1 text-[10px] text-right",
-                  m.from === "me" ? "text-primary-foreground/70" : "text-muted-foreground",
-                )}
-              >
-                {m.at}
-              </p>
+                <div
+                  className={cn(
+                    "mt-1 flex items-center justify-end gap-1 text-[10px]",
+                    m.from === "me" ? "text-primary-foreground/70" : "text-muted-foreground",
+                  )}
+                >
+                  <span>{m.at}</span>
+                  {m.from === "me" && (
+                    <span className="inline-flex">
+                      {m.read_at ? (
+                        <CheckCheck className="w-3 h-3 text-blue-400" />
+                      ) : m.delivered_at ? (
+                        <CheckCheck className="w-3 h-3 opacity-70" />
+                      ) : (
+                        <Check className="w-3 h-3 opacity-70" />
+                      )}
+                    </span>
+                  )}
+                </div>
             </div>
           </div>
         ))}

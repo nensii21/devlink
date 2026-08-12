@@ -51,6 +51,7 @@ class MessageResponse(MessageBase):
     edited_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
     read_at: Optional[datetime] = None
+    delivered_at: Optional[datetime] = None
 
 
 class BulkReadRequest(BaseModel):
@@ -61,4 +62,10 @@ class BulkReadRequest(BaseModel):
 class BulkReadResponse(BaseModel):
     updated_count: int
     read_at: datetime
+
+
+class BulkDeliveredResponse(BaseModel):
+    updated_count: int
+    delivered_at: datetime
+
 

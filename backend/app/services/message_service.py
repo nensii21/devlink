@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import time
 import uuid
 from app.utils.time import utcnow
@@ -346,7 +347,10 @@ class MessageService:
             )
 
         if db_message.read_at is None:
-            db_message.read_at = utcnow()
+            read_time = utcnow()
+            db_message.read_at = read_time
+            if db_message.delivered_at is None:
+                db_message.delivered_at = read_time
             db.flush()
             db.refresh(db_message)
 
@@ -384,6 +388,17 @@ class MessageService:
             )
             .values(read_at=read_time)
         )
+        # Also ensure delivered_at is set for these messages if it wasn't
+        db.execute(
+            update(Message)
+            .where(
+                Message.id.in_(message_ids),
+                Message.conversation_id.in_(user_conv_ids),
+                Message.delivered_at.is_(None),
+                Message.sender_id != user_id,
+            )
+            .values(delivered_at=read_time)
+        )
         db.flush()
         return result.rowcount, read_time
 
@@ -417,6 +432,117 @@ class MessageService:
             )
             .values(read_at=read_time)
         )
+        db.execute(
+            update(Message)
+            .where(
+                Message.conversation_id == conversation_id,
+                Message.delivered_at.is_(None),
+                Message.sender_id != user_id,
+            )
+            .values(delivered_at=read_time)
+        )
         db.flush()
         return result.rowcount, read_time
+
+    @staticmethod
+    def mark_as_delivered(
+        db: Session,
+        message_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> Message:
+        """Mark a single message as delivered to user_id."""
+        db_message = db.get(Message, message_id)
+        if not db_message:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Message not found",
+            )
+
+        # Ensure user is a member of the conversation
+        is_member = db.scalar(
+            select(func.count(ConversationMember.id)).where(
+                ConversationMember.conversation_id == db_message.conversation_id,
+                ConversationMember.user_id == user_id,
+            )
+        )
+        if not is_member:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this conversation",
+            )
+
+        if db_message.delivered_at is None:
+            db_message.delivered_at = utcnow()
+            db.flush()
+            db.refresh(db_message)
+
+        return db_message
+
+    @staticmethod
+    def bulk_mark_as_delivered(
+        db: Session,
+        message_ids: list[uuid.UUID],
+        user_id: uuid.UUID,
+    ) -> tuple[int, datetime]:
+        """Mark multiple messages as delivered to user_id."""
+        if not message_ids:
+            return 0, utcnow()
+
+        # Find conversations the user belongs to
+        user_conv_ids = db.scalars(
+            select(ConversationMember.conversation_id).where(
+                ConversationMember.user_id == user_id
+            )
+        ).all()
+
+        if not user_conv_ids:
+            return 0, utcnow()
+
+        delivered_time = utcnow()
+        from sqlalchemy import update
+        result = db.execute(
+            update(Message)
+            .where(
+                Message.id.in_(message_ids),
+                Message.conversation_id.in_(user_conv_ids),
+                Message.delivered_at.is_(None),
+                Message.sender_id != user_id,
+            )
+            .values(delivered_at=delivered_time)
+        )
+        db.flush()
+        return result.rowcount, delivered_time
+
+    @staticmethod
+    def mark_conversation_as_delivered(
+        db: Session,
+        conversation_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> tuple[int, datetime]:
+        """Mark all undelivered messages in a conversation as delivered to user_id."""
+        is_member = db.scalar(
+            select(func.count(ConversationMember.id)).where(
+                ConversationMember.conversation_id == conversation_id,
+                ConversationMember.user_id == user_id,
+            )
+        )
+        if not is_member:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this conversation",
+            )
+
+        delivered_time = utcnow()
+        from sqlalchemy import update
+        result = db.execute(
+            update(Message)
+            .where(
+                Message.conversation_id == conversation_id,
+                Message.delivered_at.is_(None),
+                Message.sender_id != user_id,
+            )
+            .values(delivered_at=delivered_time)
+        )
+        db.flush()
+        return result.rowcount, delivered_time
 

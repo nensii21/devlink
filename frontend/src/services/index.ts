@@ -255,6 +255,8 @@ export const messagesService = {
           attachment_name?: string;
           attachment_size?: number;
           mime_type?: string;
+          delivered_at?: string;
+          read_at?: string;
         }): seed.Message => ({
           id: m.id,
           from: m.sender_id === currentUser?.id ? "me" : (m.sender_id ?? "me"),
@@ -269,6 +271,8 @@ export const messagesService = {
           attachment_url: m.attachment_url,
           attachment_name: m.attachment_name,
           attachment_size: m.attachment_size,
+          delivered_at: m.delivered_at,
+          read_at: m.read_at,
         }));
       },
       seed.messages[id] ?? [],

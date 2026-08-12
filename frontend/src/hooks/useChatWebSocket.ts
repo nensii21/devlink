@@ -11,6 +11,7 @@ export function useChatWebSocket(
   conversationId: string,
   currentUserId: string,
   onNewMessage: (msg: unknown) => void,
+  onStatusUpdate?: (msg: unknown) => void,
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
@@ -58,6 +59,13 @@ export function useChatWebSocket(
                   return newSet;
                 });
               }, 3000);
+            }
+          } else if (
+            (msg.type === "chat.message_delivered" || msg.type === "chat.message_read") &&
+            msg.conversation_id === conversationId
+          ) {
+            if (onStatusUpdate) {
+              onStatusUpdate(msg);
             }
           }
         } catch {

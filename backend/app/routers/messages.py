@@ -16,6 +16,7 @@ from app.models.user import User
 from app.schemas.message import (
     BulkReadRequest,
     BulkReadResponse,
+    BulkDeliveredResponse,
     MessageCreate,
     MessageResponse,
     MessageUpdate,
@@ -413,4 +414,76 @@ def mark_conversation_as_read(
         user_id=current_user.id,
     )
     return BulkReadResponse(updated_count=count, read_at=read_at)
+
+
+@router.patch(
+    "/{message_id}/delivered",
+    response_model=MessageResponse,
+)
+@limiter.limit(MESSAGE_LIMIT)
+def mark_message_as_delivered(
+    request: Request,
+    message_id: uuid.UUID,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Mark a single message as delivered to the current user."""
+    return MessageService.mark_as_delivered(
+        db=db,
+        message_id=message_id,
+        user_id=current_user.id,
+    )
+
+
+@router.post(
+    "/delivered/bulk",
+    response_model=BulkDeliveredResponse,
+)
+@limiter.limit(MESSAGE_LIMIT)
+def bulk_mark_delivered(
+    request: Request,
+    body: BulkReadRequest,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Bulk mark messages or an entire conversation as delivered to the current user."""
+    if body.conversation_id:
+        count, delivered_at = MessageService.mark_conversation_as_delivered(
+            db=db,
+            conversation_id=body.conversation_id,
+            user_id=current_user.id,
+        )
+    elif body.message_ids:
+        count, delivered_at = MessageService.bulk_mark_as_delivered(
+            db=db,
+            message_ids=body.message_ids,
+            user_id=current_user.id,
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Must provide either message_ids or conversation_id",
+        )
+
+    return BulkDeliveredResponse(updated_count=count, delivered_at=delivered_at)
+
+
+@router.post(
+    "/conversation/{conversation_id}/delivered",
+    response_model=BulkDeliveredResponse,
+)
+@limiter.limit(MESSAGE_LIMIT)
+def mark_conversation_as_delivered(
+    request: Request,
+    conversation_id: uuid.UUID,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Mark all undelivered messages in a conversation as delivered to the current user."""
+    count, delivered_at = MessageService.mark_conversation_as_delivered(
+        db=db,
+        conversation_id=conversation_id,
+        user_id=current_user.id,
+    )
+    return BulkDeliveredResponse(updated_count=count, delivered_at=delivered_at)
 
