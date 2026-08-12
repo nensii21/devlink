@@ -863,4 +863,3 @@ export const quickActions: QuickAction[] = [
   { id: "qa3", iconName: "Flame", label: "Publish flare", to: "/flares" },
   { id: "qa4", iconName: "UserPlus", label: "Invite recommended builder", to: "/builders" },
 ];
-

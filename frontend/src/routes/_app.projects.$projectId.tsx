@@ -109,7 +109,7 @@ function ProjectDetail() {
     queryKey: ["myApplications"],
     queryFn: getMyApplications,
   });
-  const projectApplication = myApps?.find(a => a.project_id === projectId);
+  const projectApplication = myApps?.find((a) => a.project_id === projectId);
   const withdrawMutation = useWithdrawApplication();
 
   // Tag generator state
@@ -160,7 +160,7 @@ function ProjectDetail() {
     return (
       <div className="space-y-4">
         <BackButton to="/projects" label="Back to projects" />
-        
+
         {/* Header Card Skeleton */}
         <Card className="p-5">
           <div className="flex items-start gap-4">
@@ -392,9 +392,7 @@ function ProjectDetail() {
                         ))}
                       </div>
                       <div className="flex items-center justify-between">
-                        <TypoCaption as="p">
-                          {selectedTags.length} tags selected
-                        </TypoCaption>
+                        <TypoCaption as="p">{selectedTags.length} tags selected</TypoCaption>
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => tagMutation.mutate()}

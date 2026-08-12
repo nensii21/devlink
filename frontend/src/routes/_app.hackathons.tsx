@@ -60,9 +60,7 @@ function HackathonsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <TypoHeading as="h1">Hackathons</TypoHeading>
-          <TypoCaption as="p">
-            Join a jam, build a team, ship something new.
-          </TypoCaption>
+          <TypoCaption as="p">Join a jam, build a team, ship something new.</TypoCaption>
         </div>
         <button
           onClick={() => setCreateOpen(true)}
@@ -127,9 +125,7 @@ function HackathonsPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[14px] font-semibold text-foreground">{h.name}</p>
-                    <TypoCaption as="p">
-                      {h.description}
-                    </TypoCaption>
+                    <TypoCaption as="p">{h.description}</TypoCaption>
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-1">

@@ -16,9 +16,7 @@ export function GreetingHero() {
           <TypoHeading as="h1">
             {greeting}, {first}! 👋
           </TypoHeading>
-          <TypoCaption as="p">
-            Here's what's happening with your workspace today.
-          </TypoCaption>
+          <TypoCaption as="p">Here's what's happening with your workspace today.</TypoCaption>
         </div>
 
         {/* Inline Stats Badges Row */}
@@ -64,12 +62,54 @@ export function GreetingHero() {
         className="shrink-0 hidden md:block select-none"
       >
         {/* Laptop screen background */}
-        <rect x="25" y="15" width="130" height="85" rx="6" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="2" />
+        <rect
+          x="25"
+          y="15"
+          width="130"
+          height="85"
+          rx="6"
+          fill="#F8FAFC"
+          stroke="#E2E8F0"
+          strokeWidth="2"
+        />
         <rect x="29" y="19" width="122" height="73" rx="4" fill="#FFFFFF" />
         {/* Laptop screen interior mocks */}
-        <rect x="35" y="25" width="30" height="20" rx="3" fill="#06B6D4" fillOpacity="0.08" stroke="#06B6D4" strokeWidth="1" strokeOpacity="0.2" />
-        <rect x="70" y="25" width="30" height="20" rx="3" fill="#6366F1" fillOpacity="0.08" stroke="#6366F1" strokeWidth="1" strokeOpacity="0.2" />
-        <rect x="105" y="25" width="38" height="20" rx="3" fill="#10B981" fillOpacity="0.08" stroke="#10B981" strokeWidth="1" strokeOpacity="0.2" />
+        <rect
+          x="35"
+          y="25"
+          width="30"
+          height="20"
+          rx="3"
+          fill="#06B6D4"
+          fillOpacity="0.08"
+          stroke="#06B6D4"
+          strokeWidth="1"
+          strokeOpacity="0.2"
+        />
+        <rect
+          x="70"
+          y="25"
+          width="30"
+          height="20"
+          rx="3"
+          fill="#6366F1"
+          fillOpacity="0.08"
+          stroke="#6366F1"
+          strokeWidth="1"
+          strokeOpacity="0.2"
+        />
+        <rect
+          x="105"
+          y="25"
+          width="38"
+          height="20"
+          rx="3"
+          fill="#10B981"
+          fillOpacity="0.08"
+          stroke="#10B981"
+          strokeWidth="1"
+          strokeOpacity="0.2"
+        />
         <rect x="35" y="52" width="60" height="32" rx="3" fill="#F1F5F9" />
         <rect x="40" y="58" width="40" height="4" rx="2" fill="#CBD5E1" />
         <rect x="40" y="66" width="50" height="4" rx="2" fill="#E2E8F0" />
@@ -78,14 +118,32 @@ export function GreetingHero() {
         <circle cx="122" cy="68" r="10" fill="#06B6D4" fillOpacity="0.1" />
 
         {/* Laptop Base */}
-        <path d="M10 100H170L165 106H15L10 100Z" fill="#E2E8F0" stroke="#CBD5E1" strokeWidth="1.5" />
+        <path
+          d="M10 100H170L165 106H15L10 100Z"
+          fill="#E2E8F0"
+          stroke="#CBD5E1"
+          strokeWidth="1.5"
+        />
         <rect x="75" y="100" width="30" height="3" rx="1.5" fill="#94A3B8" />
 
         {/* Table Line */}
-        <line x1="5" y1="120" x2="175" y2="120" stroke="#E2E8F0" strokeWidth="2" strokeLinecap="round" />
+        <line
+          x1="5"
+          y1="120"
+          x2="175"
+          y2="120"
+          stroke="#E2E8F0"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
 
         {/* Plant Pot */}
-        <path d="M152 120L150 110H162L160 120H152Z" fill="#E2E8F0" stroke="#CBD5E1" strokeWidth="1.5" />
+        <path
+          d="M152 120L150 110H162L160 120H152Z"
+          fill="#E2E8F0"
+          stroke="#CBD5E1"
+          strokeWidth="1.5"
+        />
         {/* Leaves */}
         <path d="M156 110C156 102 153 96 150 94C153 96 156 102 156 110Z" fill="#10B981" />
         <path d="M156 110C156 100 162 94 165 92C162 94 156 100 156 110Z" fill="#10B981" />

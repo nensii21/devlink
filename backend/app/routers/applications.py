@@ -38,6 +38,23 @@ def create_application(
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
+    from app.models.user_subscription import UserSubscription
+    from sqlalchemy import select, func
+    from app.models.application import Application
+
+    stmt = select(UserSubscription).where(UserSubscription.user_id == current_user.id)
+    sub = db.scalar(stmt)
+    is_pro = sub and sub.tier == "pro" and sub.status == "active"
+
+    if not is_pro:
+        # Check limit of 3
+        count_stmt = select(func.count(Application.id)).where(Application.applicant_id == current_user.id)
+        count = db.scalar(count_stmt) or 0
+        if count >= 3:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Free plan limit reached. Upgrade to Pro for unlimited project applications.",
+            )
 
     created = ApplicationService.create_application(
         db=db,

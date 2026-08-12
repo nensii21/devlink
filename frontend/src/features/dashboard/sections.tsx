@@ -55,9 +55,7 @@ export function CurrentProjects() {
       dueText: "Due in 18 days",
       iconText: "M",
       iconBg: "bg-violet-500/10 text-violet-500 border border-violet-500/20",
-      avatars: [
-        "https://api.dicebear.com/9.x/notionists-neutral/svg?seed=David",
-      ],
+      avatars: ["https://api.dicebear.com/9.x/notionists-neutral/svg?seed=David"],
       extraAvatars: 1,
     },
   ];
@@ -67,9 +65,17 @@ export function CurrentProjects() {
       <SectionHeader title="Current Projects" action="View All" actionTo="/projects" />
       <div className="flex-1 px-5 pb-5 pt-1 flex flex-col gap-4">
         {projectsList.map((p) => (
-          <div key={p.id} className="flex items-center justify-between gap-4 p-3 rounded-xl border border-border/40 hover:bg-muted/10 transition-colors">
+          <div
+            key={p.id}
+            className="flex items-center justify-between gap-4 p-3 rounded-xl border border-border/40 hover:bg-muted/10 transition-colors"
+          >
             <div className="flex items-center gap-3 min-w-0">
-              <div className={cn("flex items-center justify-center h-10 w-10 shrink-0 rounded-lg text-sm font-bold", p.iconBg)}>
+              <div
+                className={cn(
+                  "flex items-center justify-center h-10 w-10 shrink-0 rounded-lg text-sm font-bold",
+                  p.iconBg,
+                )}
+              >
                 {p.iconText}
               </div>
               <div className="min-w-0">
@@ -82,7 +88,10 @@ export function CurrentProjects() {
             <div className="flex items-center gap-4 shrink-0">
               <div className="hidden sm:flex flex-col items-end gap-1">
                 <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${p.progress}%` }} />
+                  <div
+                    className="h-full bg-primary rounded-full"
+                    style={{ width: `${p.progress}%` }}
+                  />
                 </div>
                 <TypoCaption>{p.progress}%</TypoCaption>
               </div>
@@ -90,7 +99,13 @@ export function CurrentProjects() {
               {/* Avatar stack */}
               <div className="flex -space-x-1.5 items-center shrink-0">
                 {p.avatars.map((av, idx) => (
-                  <Avatar key={idx} src={av} alt="Team" size={24} className="border border-card ring-1 ring-border/20" />
+                  <Avatar
+                    key={idx}
+                    src={av}
+                    alt="Team"
+                    size={24}
+                    className="border border-card ring-1 ring-border/20"
+                  />
                 ))}
                 {p.extraAvatars > 0 && (
                   <div className="flex items-center justify-center h-6 w-6 rounded-full bg-muted border border-card text-[9px] font-semibold text-muted-foreground ring-1 ring-border/20">
@@ -99,9 +114,7 @@ export function CurrentProjects() {
                 )}
               </div>
 
-              <TypoCaption>
-                {p.dueText}
-              </TypoCaption>
+              <TypoCaption>{p.dueText}</TypoCaption>
             </div>
           </div>
         ))}
@@ -146,14 +159,27 @@ export function AISuggestions() {
         {suggestions.map((s) => {
           const Icon = s.icon;
           return (
-            <div key={s.id} className="flex items-center justify-between gap-4 p-3.5 rounded-xl border border-border/40 hover:bg-muted/10 transition-colors">
+            <div
+              key={s.id}
+              className="flex items-center justify-between gap-4 p-3.5 rounded-xl border border-border/40 hover:bg-muted/10 transition-colors"
+            >
               <div className="flex items-center gap-3 min-w-0">
-                <div className={cn("flex items-center justify-center h-8 w-8 rounded-lg shrink-0", s.iconColor)}>
+                <div
+                  className={cn(
+                    "flex items-center justify-center h-8 w-8 rounded-lg shrink-0",
+                    s.iconColor,
+                  )}
+                >
                   <Icon size={16} />
                 </div>
                 <p className="text-xs font-semibold text-foreground truncate">{s.text}</p>
               </div>
-              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0", s.badgeClass)}>
+              <span
+                className={cn(
+                  "text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0",
+                  s.badgeClass,
+                )}
+              >
                 {s.badge}
               </span>
             </div>
@@ -203,9 +229,7 @@ export function QuickActions() {
 
   return (
     <Card className="border-border/60 rounded-2xl bg-card shadow-xs flex flex-col h-full">
-      <div className="px-5 pt-5 pb-2 font-semibold text-sm text-foreground">
-        Quick Actions
-      </div>
+      <div className="px-5 pt-5 pb-2 font-semibold text-sm text-foreground">Quick Actions</div>
       <div className="grid grid-cols-2 gap-3 p-4 pt-1 flex-1">
         {actions.map((act) => {
           const Icon = act.icon;
@@ -216,10 +240,15 @@ export function QuickActions() {
               className={cn(
                 "flex flex-col items-center justify-center gap-3 p-4 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs active:translate-y-0 text-center cursor-pointer",
                 act.bg,
-                act.border
+                act.border,
               )}
             >
-              <div className={cn("flex items-center justify-center h-10 w-10 rounded-xl bg-card shadow-2xs border border-border/20", act.color)}>
+              <div
+                className={cn(
+                  "flex items-center justify-center h-10 w-10 rounded-xl bg-card shadow-2xs border border-border/20",
+                  act.color,
+                )}
+              >
                 <Icon size={20} />
               </div>
               <span className="text-xs font-bold text-foreground">{act.label}</span>
@@ -318,8 +347,16 @@ export function Upcoming() {
         {upcomingList.map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border/40">
-              <div className={cn("flex items-center justify-center h-8 w-8 rounded-lg shrink-0", item.iconColor)}>
+            <div
+              key={item.id}
+              className="flex items-center gap-3 p-2.5 rounded-lg border border-border/40"
+            >
+              <div
+                className={cn(
+                  "flex items-center justify-center h-8 w-8 rounded-lg shrink-0",
+                  item.iconColor,
+                )}
+              >
                 <Icon size={16} />
               </div>
               <div className="min-w-0">
@@ -410,7 +447,12 @@ export function UpcomingEventsWidget() {
       <div className="px-5 pb-5 pt-1 flex flex-col gap-3.5">
         {events.map((e) => (
           <div key={e.id} className="flex items-center gap-3">
-            <div className={cn("flex items-center justify-center h-8 w-8 rounded-lg shrink-0", e.iconColor)}>
+            <div
+              className={cn(
+                "flex items-center justify-center h-8 w-8 rounded-lg shrink-0",
+                e.iconColor,
+              )}
+            >
               <Calendar size={16} />
             </div>
             <div className="min-w-0">
@@ -430,16 +472,14 @@ export function UpgradePlanCTA() {
     <Card className="border-border/60 rounded-2xl bg-blue-50/50 dark:bg-blue-950/10 shadow-xs p-5 relative overflow-hidden flex items-center gap-4">
       {/* Background radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(6,183,215,0.04),transparent_60%)] pointer-events-none" />
-      
+
       <div className="flex items-center justify-center h-12 w-12 rounded-xl shrink-0 bg-primary/10 text-primary relative z-10">
         <Rocket size={24} className="animate-bounce" />
       </div>
 
       <div className="min-w-0 flex-1 relative z-10">
         <TypoCard>Upgrade your plan</TypoCard>
-        <TypoCaption as="p">
-          Unlock premium features and boost your productivity.
-        </TypoCaption>
+        <TypoCaption as="p">Unlock premium features and boost your productivity.</TypoCaption>
         <Link
           to="/dashboard"
           className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline mt-2 cursor-pointer"

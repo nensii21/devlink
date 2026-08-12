@@ -269,10 +269,9 @@ export const messagesService = {
           attachment_url: m.attachment_url,
           attachment_name: m.attachment_name,
           attachment_size: m.attachment_size,
-        }));
-      },
-      seed.messages[id] ?? [],
-    );
+        }),
+      );
+    }, seed.messages[id] ?? []);
   },
   send: (
     conversationId: string,

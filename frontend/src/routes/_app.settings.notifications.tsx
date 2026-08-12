@@ -101,7 +101,10 @@ function NotificationSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between border-b border-border/40 pb-4 last:border-0 last:pb-0">
+                <div
+                  key={i}
+                  className="flex items-center justify-between border-b border-border/40 pb-4 last:border-0 last:pb-0"
+                >
                   <div className="space-y-1.5">
                     <Skeleton className="h-4 w-28 animate-pulse" />
                     <Skeleton className="h-3 w-48 animate-pulse" />
@@ -187,9 +190,7 @@ function NotificationSettingsPage() {
             <div className="flex items-center justify-between pb-4 border-b">
               <div className="space-y-0.5">
                 <Label className="text-base font-semibold">Messages</Label>
-                <TypoCaption as="p">
-                  Direct messages and active conversation alerts.
-                </TypoCaption>
+                <TypoCaption as="p">Direct messages and active conversation alerts.</TypoCaption>
               </div>
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2">
@@ -322,9 +323,7 @@ function NotificationSettingsPage() {
             <div className="flex items-center justify-between pb-4 border-b">
               <div className="space-y-0.5">
                 <Label className="text-base font-semibold">Role Changes</Label>
-                <TypoCaption as="p">
-                  When your permissions or roles are modified.
-                </TypoCaption>
+                <TypoCaption as="p">When your permissions or roles are modified.</TypoCaption>
               </div>
               <Switch
                 checked={formData.role_changes}
@@ -336,9 +335,7 @@ function NotificationSettingsPage() {
             <div className="flex items-center justify-between pb-4 border-b">
               <div className="space-y-0.5">
                 <Label className="text-base font-semibold">System Alerts</Label>
-                <TypoCaption as="p">
-                  Critical security and system notifications.
-                </TypoCaption>
+                <TypoCaption as="p">Critical security and system notifications.</TypoCaption>
               </div>
               <Switch
                 checked={formData.system_alerts}
@@ -351,9 +348,7 @@ function NotificationSettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-base font-semibold">Marketing & News</Label>
-                <TypoCaption as="p">
-                  Occasional updates about DevLink features.
-                </TypoCaption>
+                <TypoCaption as="p">Occasional updates about DevLink features.</TypoCaption>
               </div>
               <Switch
                 checked={formData.marketing_emails}

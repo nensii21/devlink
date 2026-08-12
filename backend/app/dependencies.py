@@ -222,6 +222,26 @@ def get_current_verified_user(
     return current_user
 
 
+def get_pro_user(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_database),
+) -> User:
+    """
+    Returns only users with an active Pro subscription.
+    """
+    from app.models.user_subscription import UserSubscription
+    from sqlalchemy import select
+    
+    stmt = select(UserSubscription).where(UserSubscription.user_id == current_user.id)
+    sub = db.scalar(stmt)
+    if not sub or sub.tier != "pro" or sub.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Requires a Pro subscription to access this feature.",
+        )
+    return current_user
+
+
 # ---------------------------------------------------------------------
 # Admin User
 # ---------------------------------------------------------------------

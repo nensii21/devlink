@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { uploadCurrentUserResume } from "@/services/profile";
 import { getProjectBuilderFlares } from "@/lib/api";
 import { useApplyToFlare } from "@/hooks/useApplications";
 import { toast } from "sonner";
-import { Upload, FileText, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, FileText, UploadCloud, X, Lock, AlertCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { currentUser } from "@/mocks/seed";
 
 export interface ApplyModalProps {
@@ -21,9 +28,10 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0); // Mock progress if needed
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isLimitReached, setIsLimitReached] = useState(false); // Mock progress if needed
 
   const { data: flares, isLoading: isLoadingFlares } = useQuery({
     queryKey: ["projectFlares", projectId],
@@ -42,6 +50,7 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
       setResumeFile(null);
       setIsUploading(false);
       setUploadProgress(0);
+      setIsLimitReached(false);
     }
   }, [isOpen]);
 
@@ -67,7 +76,7 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
 
     try {
       let finalResumeUrl = undefined;
-      
+
       if (resumeFile) {
         setIsUploading(true);
         // We do a simple mock progress or just await
@@ -88,7 +97,9 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
       onClose();
     } catch (err: any) {
       setIsUploading(false);
-      // useApplyToFlare already shows an error toast, but we can catch it here if we need to.
+      if (err?.response?.status === 403) {
+        setIsLimitReached(true);
+      }
     }
   };
 
@@ -99,9 +110,37 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
       <DialogContent className="max-w-md rounded-xl p-6 sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Apply to Project</DialogTitle>
+          <DialogDescription>
+            {isLimitReached
+              ? "Upgrade to Pro to apply."
+              : "Select the role you're applying for and provide your details."}
+          </DialogDescription>
         </DialogHeader>
 
-        {isLoadingFlares ? (
+        {isLimitReached ? (
+          <div className="space-y-6 py-4 text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+              <Lock className="h-8 w-8 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Free Plan Limit Reached</h3>
+              <p className="text-sm text-muted-foreground">
+                You've reached your free plan limit of 3 project applications. Upgrade to DevLink
+                Pro for unlimited applications.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button asChild className="w-full">
+                <Link to="/settings" search={{ tab: "billing" }}>
+                  Upgrade to Pro
+                </Link>
+              </Button>
+              <Button variant="ghost" onClick={onClose}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : isLoadingFlares ? (
           <div className="py-8 text-center text-sm text-muted-foreground">Loading roles...</div>
         ) : openRoles.length === 0 ? (
           <div className="py-8 text-center">
@@ -124,7 +163,9 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
                 onChange={(e) => setSelectedFlareId(e.target.value)}
                 className="w-full rounded-md border border-border bg-background p-2 text-sm text-foreground focus:border-primary focus:outline-none"
               >
-                <option value="" disabled>Select a role</option>
+                <option value="" disabled>
+                  Select a role
+                </option>
                 {openRoles.map((role) => (
                   <option key={role.id} value={role.id}>
                     {role.role} - {role.title}
@@ -192,11 +233,20 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
             </div>
 
             <div className="pt-4 flex items-center justify-end gap-2 border-t border-border mt-6">
-              <Button type="button" variant="ghost" onClick={onClose} disabled={isUploading || applyMutation.isPending}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                disabled={isUploading || applyMutation.isPending}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isUploading || applyMutation.isPending}>
-                {isUploading ? "Uploading Resume..." : applyMutation.isPending ? "Submitting..." : "Submit Application"}
+                {isUploading
+                  ? "Uploading Resume..."
+                  : applyMutation.isPending
+                    ? "Submitting..."
+                    : "Submit Application"}
               </Button>
             </div>
           </form>

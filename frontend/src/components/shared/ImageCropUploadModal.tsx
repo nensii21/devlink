@@ -305,7 +305,8 @@ export function ImageCropUploadModal({
                 <Upload size={24} />
               </div>
               <p className="mt-3 text-sm font-medium text-foreground">
-                Drag & drop your image here, or <span className="text-primary underline">browse</span>
+                Drag & drop your image here, or{" "}
+                <span className="text-primary underline">browse</span>
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Supports JPEG, PNG, WebP, GIF · Max {maxSizeMB}MB
@@ -319,13 +320,15 @@ export function ImageCropUploadModal({
                 className="hidden"
               />
             </div>
-            
+
             <div className="relative flex items-center py-2">
               <div className="flex-grow border-t border-border"></div>
-              <span className="shrink-0 px-4 text-xs text-muted-foreground uppercase tracking-wider">or</span>
+              <span className="shrink-0 px-4 text-xs text-muted-foreground uppercase tracking-wider">
+                or
+              </span>
               <div className="flex-grow border-t border-border"></div>
             </div>
-            
+
             <Button
               type="button"
               variant="outline"

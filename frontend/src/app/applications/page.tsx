@@ -84,9 +84,7 @@ export default function MyApplicationsPage() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <TypoHeading as="h1">My Applications</TypoHeading>
-          <TypoCaption as="p">
-            Track your status and withdraw pending applications.
-          </TypoCaption>
+          <TypoCaption as="p">Track your status and withdraw pending applications.</TypoCaption>
         </div>
 
         <div className="min-w-0 w-[280px] max-w-[280px]">

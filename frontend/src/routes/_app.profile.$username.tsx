@@ -582,9 +582,7 @@ function ProfilePage() {
                       <p className="truncate text-[13px] font-semibold text-foreground hover:text-primary transition-colors">
                         {p.name}
                       </p>
-                      <TypoCaption as="p">
-                        {p.stack.join(" · ")}
-                      </TypoCaption>
+                      <TypoCaption as="p">{p.stack.join(" · ")}</TypoCaption>
                     </div>
                   </Link>
                 </li>
@@ -598,14 +596,18 @@ function ProfilePage() {
             if (githubUrl) {
               try {
                 const url = new URL(githubUrl);
-                githubUsername = url.pathname.split('/').filter(Boolean).pop();
+                githubUsername = url.pathname.split("/").filter(Boolean).pop();
               } catch (e) {
                 // Ignore invalid URLs
               }
             }
-            
+
             if (githubUsername) {
-              return <div className="mt-4"><GitHubInsights username={githubUsername} /></div>;
+              return (
+                <div className="mt-4">
+                  <GitHubInsights username={githubUsername} />
+                </div>
+              );
             }
             return <ContributionHeatmap username={b.handle} className="mt-4" />;
           })()}

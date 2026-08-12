@@ -47,7 +47,10 @@ export const reputationApi = {
     return api.get<ReputationSummary>(`/api/reputation/user/${userId}`);
   },
 
-  getLeaderboard: async (params?: { skip?: number; limit?: number }): Promise<LeaderboardResponse> => {
+  getLeaderboard: async (params?: {
+    skip?: number;
+    limit?: number;
+  }): Promise<LeaderboardResponse> => {
     return api.get<LeaderboardResponse>("/api/reputation/leaderboard", { query: params });
   },
 

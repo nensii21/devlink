@@ -1,5 +1,12 @@
 import { Card } from "@/components/shared/primitives";
-import { Folder, Users2, MessageSquare, Sparkles, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import {
+  Folder,
+  Users2,
+  MessageSquare,
+  Sparkles,
+  ArrowUpRight,
+  ArrowDownRight,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { TypoCaption } from "@/components/shared/Typography";
 
@@ -62,7 +69,9 @@ export function StatsRow() {
             <Card className="flex flex-col h-full gap-3.5 rounded-2xl p-5 border-border/60 bg-card shadow-xs">
               <div className="flex items-center gap-4">
                 {/* Left Side: Circular Icon container */}
-                <div className={`flex items-center justify-center h-12 w-12 rounded-xl shrink-0 ${s.bgColor} ${s.iconColor}`}>
+                <div
+                  className={`flex items-center justify-center h-12 w-12 rounded-xl shrink-0 ${s.bgColor} ${s.iconColor}`}
+                >
                   <Icon size={20} />
                 </div>
                 {/* Right Side: Stack of value and label */}
@@ -70,15 +79,15 @@ export function StatsRow() {
                   <p className="text-2xl font-bold tracking-tight text-foreground leading-none">
                     {s.value}
                   </p>
-                  <TypoCaption as="p">
-                    {s.label}
-                  </TypoCaption>
+                  <TypoCaption as="p">{s.label}</TypoCaption>
                 </div>
               </div>
 
               {/* Bottom: Trend indicator */}
               <div className="flex items-center gap-1.5 pt-1.5 border-t border-border/40">
-                <span className={`inline-flex items-center text-[11px] font-semibold ${s.positive ? "text-success" : "text-destructive"}`}>
+                <span
+                  className={`inline-flex items-center text-[11px] font-semibold ${s.positive ? "text-success" : "text-destructive"}`}
+                >
                   {s.positive ? (
                     <ArrowUpRight size={14} className="mr-0.5" />
                   ) : (

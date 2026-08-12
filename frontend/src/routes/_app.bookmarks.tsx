@@ -221,9 +221,7 @@ function BookmarksPage() {
         {/* PROJECTS SECTION */}
         <section>
           <div className="mb-2 flex items-center justify-between">
-            <TypoCaption as="p">
-              Projects
-            </TypoCaption>
+            <TypoCaption as="p">Projects</TypoCaption>
           </div>
           {bookmarkedProjects.length === 0 ? (
             <EmptyState
@@ -247,9 +245,7 @@ function BookmarksPage() {
                             </p>
                             {p.difficulty && <ProjectDifficultyBadge difficulty={p.difficulty} />}
                           </div>
-                          <TypoCaption as="p">
-                            {p.description}
-                          </TypoCaption>
+                          <TypoCaption as="p">{p.description}</TypoCaption>
                         </div>
 
                         <Bookmark size={14} className="text-primary fill-primary" />
@@ -278,9 +274,7 @@ function BookmarksPage() {
 
         {/* FLARES SECTION */}
         <section>
-          <TypoCaption as="p">
-            Flares
-          </TypoCaption>
+          <TypoCaption as="p">Flares</TypoCaption>
           <div className="space-y-2">
             {flares.slice(0, 2).map((f) => (
               <Card key={f.id} className="p-4">

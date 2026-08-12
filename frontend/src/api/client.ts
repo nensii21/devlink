@@ -202,9 +202,10 @@ export async function request<T>(path: string, opts: RequestOptions = {}): Promi
   const res = await coreFetch(path, opts);
   const payload = await parseBody(res);
   if (!res.ok) {
-    const errorObj = typeof payload === "object" && payload && "error" in payload
-      ? (payload as any).error
-      : payload;
+    const errorObj =
+      typeof payload === "object" && payload && "error" in payload
+        ? (payload as any).error
+        : payload;
 
     const message =
       (errorObj && typeof errorObj === "object" && "message" in errorObj

@@ -565,6 +565,9 @@ from app.routers import project_time_logs
 app.include_router(project_time_logs.router, prefix="/api", tags=["Project Time Tracking"])
 from app.routers import calendar as calendar_router
 app.include_router(calendar_router.router, prefix="/api", tags=["Calendar"])
+
+from app.routers import subscriptions
+app.include_router(subscriptions.router)
 app.include_router(analytics.router, prefix="/api", tags=["Analytics"])
 from app.routers import project_releases
 

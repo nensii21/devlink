@@ -27,7 +27,11 @@ function getActivityIcon(type: string) {
 }
 
 export function ActivityTimeline({ userId }: ActivityTimelineProps) {
-  const { data: activities, isLoading, isError } = useQuery({
+  const {
+    data: activities,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["user-activities", userId],
     queryFn: () => activitiesService.user(userId),
   });
@@ -35,7 +39,7 @@ export function ActivityTimeline({ userId }: ActivityTimelineProps) {
   return (
     <Card className="p-4 mt-4">
       <p className="text-[13px] font-semibold text-foreground mb-4">Activity Timeline</p>
-      
+
       {isLoading && (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -50,16 +54,10 @@ export function ActivityTimeline({ userId }: ActivityTimelineProps) {
         </div>
       )}
 
-      {isError && (
-        <p className="text-[13px] text-destructive">
-          Failed to load recent activity.
-        </p>
-      )}
+      {isError && <p className="text-[13px] text-destructive">Failed to load recent activity.</p>}
 
       {!isLoading && !isError && activities?.length === 0 && (
-        <TypoCaption as="p">
-          No recent activity to show.
-        </TypoCaption>
+        <TypoCaption as="p">No recent activity to show.</TypoCaption>
       )}
 
       {!isLoading && !isError && activities && activities.length > 0 && (
@@ -70,14 +68,8 @@ export function ActivityTimeline({ userId }: ActivityTimelineProps) {
                 {getActivityIcon(activity.activity_type)}
               </span>
               <div className="flex flex-col">
-                <p className="text-[13px] font-medium text-foreground">
-                  {activity.title}
-                </p>
-                {activity.description && (
-                  <TypoCaption as="p">
-                    {activity.description}
-                  </TypoCaption>
-                )}
+                <p className="text-[13px] font-medium text-foreground">{activity.title}</p>
+                {activity.description && <TypoCaption as="p">{activity.description}</TypoCaption>}
                 <time className="text-[11px] text-muted-foreground mt-1">
                   {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                 </time>
