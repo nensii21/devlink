@@ -16,6 +16,7 @@ import {
   Code,
   Clock,
   X,
+  SmilePlus,
 } from "lucide-react";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
@@ -31,6 +32,82 @@ export const Route = createFileRoute("/_app/messages/$conversationId")({
   head: () => ({ meta: [{ title: "Chat — DevLink" }] }),
   component: Thread,
 });
+
+const EMOJIS = ["👍", "👎", "❤️", "😂", "🎉", "🚀", "👀"];
+
+function MessageReactions({
+  message,
+  currentUserId,
+  onAddReaction,
+  onRemoveReaction,
+}: {
+  message: any;
+  currentUserId: string;
+  onAddReaction: (emoji: string) => void;
+  onRemoveReaction: (emoji: string) => void;
+}) {
+  const [showPicker, setShowPicker] = useState(false);
+  const groupedReactions = message.reactions?.reduce((acc: any, curr: any) => {
+    if (!acc[curr.emoji]) acc[curr.emoji] = [];
+    acc[curr.emoji].push(curr);
+    return acc;
+  }, {}) || {};
+  const hasAnyReaction = Object.keys(groupedReactions).length > 0;
+
+  return (
+    <div className={cn("relative flex items-center gap-2", message.from === "me" ? "flex-row-reverse" : "flex-row")}>
+      <div className={cn("flex flex-wrap gap-1", hasAnyReaction ? "mt-1" : "")}>
+        {Object.entries(groupedReactions).map(([emoji, reactions]: [string, any]) => {
+          const hasReacted = reactions.some((r: any) => r.user_id === currentUserId);
+          return (
+            <button
+              key={emoji}
+              onClick={() => (hasReacted ? onRemoveReaction(emoji) : onAddReaction(emoji))}
+              className={cn(
+                "px-2 py-0.5 text-[10px] rounded-full border transition-colors flex items-center gap-1",
+                hasReacted
+                  ? "bg-primary/20 border-primary/30 text-primary-foreground"
+                  : "bg-surface border-border text-foreground hover:bg-muted"
+              )}
+            >
+              <span>{emoji}</span>
+              <span className="opacity-70">{reactions.length}</span>
+            </button>
+          );
+        })}
+      </div>
+      
+      {showPicker && (
+        <div className={cn(
+          "flex gap-1 p-1 bg-surface border border-border rounded-full shadow-sm absolute z-10 -top-8",
+          message.from === "me" ? "right-0" : "left-0"
+        )}>
+          {EMOJIS.map(emoji => (
+            <button
+              key={emoji}
+              onClick={() => {
+                onAddReaction(emoji);
+                setShowPicker(false);
+              }}
+              className="w-6 h-6 flex items-center justify-center hover:bg-muted rounded-full text-sm"
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={() => setShowPicker(!showPicker)}
+        className={cn(
+          "opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10"
+        )}
+      >
+        <SmilePlus size={14} className="text-muted-foreground hover:text-foreground" />
+      </button>
+    </div>
+  );
+}
 
 function Thread() {
   const { conversationId } = Route.useParams();
@@ -71,7 +148,24 @@ function Thread() {
     },
     onError: (err) => {
       if (conversationIdRef.current !== conversationId) return;
-      setStartersError(err instanceof Error ? err.message : "Failed to load suggestions");
+      console.error(err);
+      setStartersError("Failed to load conversation starters.");
+    },
+  });
+
+  const addReactionMutation = useMutation({
+    mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
+      messagesService.addReaction(messageId, emoji),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["thread", conversationId] });
+    },
+  });
+
+  const removeReactionMutation = useMutation({
+    mutationFn: ({ messageId, emoji }: { messageId: string; emoji: string }) =>
+      messagesService.removeReaction(messageId, emoji),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["thread", conversationId] });
     },
   });
 
@@ -95,6 +189,12 @@ function Thread() {
       (msg: unknown) => {
         queryClient.invalidateQueries({ queryKey: ["thread", conversationId] });
         queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      },
+      [queryClient, conversationId],
+    ),
+    useCallback(
+      (msg: unknown) => {
+        queryClient.invalidateQueries({ queryKey: ["thread", conversationId] });
       },
       [queryClient, conversationId],
     ),
@@ -330,15 +430,16 @@ function Thread() {
           </div>
         )}
         {data.map((m: any) => (
-          <div key={m.id} className={cn("flex", m.from === "me" ? "justify-end" : "justify-start")}>
-            <div
-              className={cn(
-                "max-w-[75%] rounded-md px-3 py-2 text-[13px] space-y-2",
-                m.from === "me"
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-surface text-foreground",
-              )}
-            >
+          <div key={m.id} className={cn("flex group", m.from === "me" ? "justify-end" : "justify-start")}>
+            <div className="flex flex-col relative max-w-[75%]">
+              <div
+                className={cn(
+                  "rounded-md px-3 py-2 text-[13px] space-y-2",
+                  m.from === "me"
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border bg-surface text-foreground",
+                )}
+              >
               {/* Clickable Image Attachment */}
               {m.attachment_url && m.type === "image" && (
                 <div className="rounded overflow-hidden max-w-sm border border-black/5 bg-black/5">
@@ -425,8 +526,15 @@ function Thread() {
                 {m.at}
               </p>
             </div>
+            <MessageReactions
+              message={m}
+              currentUserId={user?.id || ""}
+              onAddReaction={(emoji) => addReactionMutation.mutate({ messageId: m.id, emoji })}
+              onRemoveReaction={(emoji) => removeReactionMutation.mutate({ messageId: m.id, emoji })}
+            />
           </div>
-        ))}
+        </div>
+      ))}
 
         {themTyping && (
           <div className="flex justify-start">

@@ -136,6 +136,12 @@ class Message(Base):
         backref="replies",
     )
 
+    reactions = relationship(
+        "MessageReaction",
+        backref="message",
+        cascade="all, delete-orphan",
+    )
+
     # ==========================================================
     # Audit
     # ==========================================================

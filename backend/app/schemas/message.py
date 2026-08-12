@@ -38,6 +38,18 @@ class MessageUpdate(BaseModel):
     is_deleted: Optional[bool] = None
 
 
+class ReactionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    user_id: uuid.UUID
+    emoji: str
+    created_at: datetime
+
+
+class ReactionCreate(BaseModel):
+    emoji: str
+
+
 class MessageResponse(MessageBase):
     model_config = ConfigDict(from_attributes=True)
 
@@ -51,6 +63,7 @@ class MessageResponse(MessageBase):
     edited_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
     read_at: Optional[datetime] = None
+    reactions: list[ReactionResponse] = []
 
 
 class BulkReadRequest(BaseModel):

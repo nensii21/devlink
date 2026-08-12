@@ -408,6 +408,19 @@ async def websocket_collab(websocket: WebSocket, token: str = ""):
                         user_id=user_id,
                     ),
                 )
+            
+            elif msg_type in ("chat.reaction_added", "chat.reaction_removed") and data.get("conversation_id"):
+                conv_id = data["conversation_id"]
+                await manager.broadcast_to_room(
+                    conv_id,
+                    _event(
+                        msg_type,
+                        conversation_id=conv_id,
+                        user_id=user_id,
+                        message_id=data.get("message_id"),
+                        emoji=data.get("emoji"),
+                    ),
+                )
 
             # ── Project update ───────────────────────────────────────────
             elif msg_type == "project_update" and project_id:

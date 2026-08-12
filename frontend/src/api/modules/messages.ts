@@ -22,4 +22,8 @@ export const messagesApi = {
     return api.post<Message>("/api/messages", payload);
   },
   markRead: (conversationId: string) => api.post<void>(`/api/messages/${conversationId}/read`),
+  addReaction: (messageId: string, emoji: string) =>
+    api.post<any>(`/api/messages/${messageId}/reactions`, { emoji }),
+  removeReaction: (messageId: string, emoji: string) =>
+    api.delete<void>(`/api/messages/${messageId}/reactions/${emoji}`),
 };

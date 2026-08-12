@@ -11,6 +11,7 @@ export function useChatWebSocket(
   conversationId: string,
   currentUserId: string,
   onNewMessage: (msg: unknown) => void,
+  onReactionUpdate?: (msg: unknown) => void,
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
@@ -58,6 +59,10 @@ export function useChatWebSocket(
                   return newSet;
                 });
               }, 3000);
+            }
+          } else if (msg.type === "chat.reaction_added" || msg.type === "chat.reaction_removed") {
+            if (msg.conversation_id === conversationId && onReactionUpdate) {
+              onReactionUpdate(msg);
             }
           }
         } catch {

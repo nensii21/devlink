@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.models.conversation_member import ConversationMember
 from app.models.message import Message
+from app.models.message_reaction import MessageReaction
 from app.models.notification import NotificationType
 from app.models.user import User
 from app.schemas.message import (
@@ -120,8 +121,59 @@ class MessageService:
         db: Session,
         message_id: uuid.UUID,
     ) -> Message | None:
+        stmt = (
+            select(Message)
+            .options(selectinload(Message.sender))
+            .options(selectinload(Message.reactions))
+            .where(Message.id == message_id)
+        )
+        return db.scalar(stmt)
 
-        return db.get(Message, message_id)
+    @staticmethod
+    def add_reaction(
+        db: Session,
+        message_id: uuid.UUID,
+        user_id: uuid.UUID,
+        emoji: str,
+    ) -> MessageReaction:
+        """Add an emoji reaction to a message."""
+        # Check if reaction already exists
+        stmt = select(MessageReaction).where(
+            MessageReaction.message_id == message_id,
+            MessageReaction.user_id == user_id,
+            MessageReaction.emoji == emoji,
+        )
+        existing = db.scalar(stmt)
+        if existing:
+            return existing
+
+        reaction = MessageReaction(
+            message_id=message_id,
+            user_id=user_id,
+            emoji=emoji,
+        )
+        db.add(reaction)
+        db.commit()
+        db.refresh(reaction)
+        return reaction
+
+    @staticmethod
+    def remove_reaction(
+        db: Session,
+        message_id: uuid.UUID,
+        user_id: uuid.UUID,
+        emoji: str,
+    ) -> None:
+        """Remove an emoji reaction from a message."""
+        stmt = select(MessageReaction).where(
+            MessageReaction.message_id == message_id,
+            MessageReaction.user_id == user_id,
+            MessageReaction.emoji == emoji,
+        )
+        existing = db.scalar(stmt)
+        if existing:
+            db.delete(existing)
+            db.commit()
 
     @staticmethod
     def list_conversation_messages(
@@ -133,6 +185,7 @@ class MessageService:
         stmt = (
             select(Message)
             .options(selectinload(Message.sender))
+            .options(selectinload(Message.reactions))
             .where(Message.conversation_id == conversation_id)
             .order_by(Message.created_at.asc())
             .limit(limit)
@@ -149,6 +202,7 @@ class MessageService:
         stmt = (
             select(Message)
             .options(selectinload(Message.sender))
+            .options(selectinload(Message.reactions))
             .where(Message.sender_id == sender_id)
             .order_by(Message.created_at.desc())
         )
@@ -214,6 +268,7 @@ class MessageService:
         stmt = (
             select(Message)
             .options(selectinload(Message.sender))
+            .options(selectinload(Message.reactions))
             .where(
                 Message.conversation_id == conversation_id,
                 Message.content.ilike(f"%{keyword}%"),
