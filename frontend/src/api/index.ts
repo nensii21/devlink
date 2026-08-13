@@ -122,3 +122,5 @@ export type {
   ProjectTemplateListResponse,
   ProjectTemplateCreateInput,
 } from "./modules/projectTemplates";
+export { organizationsApi } from "./modules/organizations";
+export type { Organization, OrganizationUpdateInput } from "./modules/organizations";

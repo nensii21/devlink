@@ -3,6 +3,8 @@ import { OrganizationHeader } from "./OrganizationHeader";
 import { OrganizationApiTokens } from "./OrganizationApiTokens";
 import { OrganizationAuditLogs } from "./OrganizationAuditLogs";
 import { OrganizationMembers } from "./OrganizationMembers";
+import { OrganizationBranding } from "./OrganizationBranding";
+import { RequirePermission } from "./RequirePermission";
 import { TypoHeading } from "@/components/shared/Typography";
 
 interface OrganizationProfileProps {
@@ -23,16 +25,25 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
   orgId,
 }) => {
   const [activeTab, setActiveTab] = useState<
-    "about" | "members" | "team" | "projects" | "hiring" | "tokens" | "audit"
+    "about" | "members" | "team" | "projects" | "hiring" | "tokens" | "audit" | "branding"
   >("about");
+  const [branding, setBranding] = useState<{
+    logo_url?: string | null;
+    banner_url?: string | null;
+  }>({
+    logo_url: organizationData.logo_url,
+    banner_url: organizationData.banner_url,
+  });
+
+  const tabs = ["about", "members", "team", "projects", "hiring", "tokens", "audit"] as const;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <OrganizationHeader
         name={organizationData.name}
-        logoUrl={organizationData.logo_url}
-        bannerUrl={organizationData.banner_url}
+        logoUrl={branding.logo_url}
+        bannerUrl={branding.banner_url}
         location={organizationData.location}
         website={organizationData.website}
         isHiring={organizationData.hiring}
@@ -40,7 +51,7 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
 
       {/* Tabs */}
       <div className="flex border-b border-gray-800 mb-6 gap-6 overflow-x-auto">
-        {(["about", "members", "team", "projects", "hiring", "tokens", "audit"] as const).map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -53,6 +64,20 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
             {tab === "tokens" ? "API Tokens" : tab === "audit" ? "Audit Logs" : tab}
           </button>
         ))}
+
+        {/* Branding tab — only for members who can manage the org */}
+        <RequirePermission orgId={orgId} permission="organization:manage">
+          <button
+            onClick={() => setActiveTab("branding")}
+            className={`pb-3 text-sm font-medium capitalize border-b-2 transition-colors shrink-0 ${
+              activeTab === "branding"
+                ? "border-indigo-500 text-indigo-400"
+                : "border-transparent text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            Branding
+          </button>
+        </RequirePermission>
       </div>
 
       {/* Tab Content */}
@@ -66,9 +91,7 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
           </div>
         )}
 
-        {activeTab === "members" && (
-          <OrganizationMembers orgId={orgId} />
-        )}
+        {activeTab === "members" && <OrganizationMembers orgId={orgId} />}
 
         {activeTab === "team" && (
           <div>
@@ -104,6 +127,18 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
         {activeTab === "tokens" && <OrganizationApiTokens orgId={orgId} />}
 
         {activeTab === "audit" && <OrganizationAuditLogs orgId={orgId} />}
+
+        {activeTab === "branding" && (
+          <RequirePermission orgId={orgId} permission="organization:manage">
+            <OrganizationBranding
+              orgId={orgId}
+              name={organizationData.name}
+              logoUrl={branding.logo_url}
+              bannerUrl={branding.banner_url}
+              onChange={(updates) => setBranding((prev) => ({ ...prev, ...updates }))}
+            />
+          </RequirePermission>
+        )}
       </div>
     </div>
   );
