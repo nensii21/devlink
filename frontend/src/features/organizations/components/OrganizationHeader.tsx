@@ -3,8 +3,8 @@ import React from "react";
 
 interface OrganizationHeaderProps {
   name: string;
-  logoUrl?: string;
-  bannerUrl?: string;
+  logoUrl?: string | null;
+  bannerUrl?: string | null;
   location?: string;
   website?: string;
   isHiring: boolean;
