@@ -218,7 +218,7 @@ function ProjectDetail() {
     // project data is unavailable (backend offline / not found), render the
     // child outlet so sub-pages can display their own standalone content
     // instead of crashing the whole route tree.
-    return <Outlet />;  
+    return <Outlet />;
   }
 
   const tabs = dashboard

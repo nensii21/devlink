@@ -32,6 +32,11 @@ export interface ImageCropUploadModalProps {
   mode?: ImageCropMode;
   maxSizeMB?: number;
   title?: string;
+  /**
+   * When provided, the modal opens directly in the crop stage with this image
+   * preloaded — used to reposition/crop an already-uploaded cover or logo.
+   */
+  initialImageUrl?: string;
 }
 
 const MAX_FILE_SIZE_DEFAULT_MB = 5;
@@ -43,6 +48,7 @@ export function ImageCropUploadModal({
   mode = "avatar",
   maxSizeMB = MAX_FILE_SIZE_DEFAULT_MB,
   title,
+  initialImageUrl,
 }: ImageCropUploadModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -72,6 +78,32 @@ export function ImageCropUploadModal({
 
   // Reset state when modal opens/closes
   useEffect(() => {
+    if (isOpen && initialImageUrl) {
+      setError(null);
+      setIsCameraActive(false);
+      setIsUploading(false);
+      setUploadProgress(0);
+      setUploadComplete(false);
+      setSelectedFile(null);
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        imageRef.current = img;
+        setPreviewUrl(initialImageUrl);
+        setZoom(1.0);
+        setRotation(0);
+        setPanX(0);
+        setPanY(0);
+      };
+      img.onerror = () => {
+        setError("Failed to load the existing image. Please select a new file.");
+        setPreviewUrl(null);
+      };
+      img.src = initialImageUrl;
+      return;
+    }
+
     if (!isOpen) {
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -85,6 +117,7 @@ export function ImageCropUploadModal({
       setUploadProgress(0);
       setUploadComplete(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const validateAndLoadFile = (file: File) => {
@@ -305,7 +338,8 @@ export function ImageCropUploadModal({
                 <Upload size={24} />
               </div>
               <p className="mt-3 text-sm font-medium text-foreground">
-                Drag & drop your image here, or <span className="text-primary underline">browse</span>
+                Drag & drop your image here, or{" "}
+                <span className="text-primary underline">browse</span>
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Supports JPEG, PNG, WebP, GIF · Max {maxSizeMB}MB
@@ -319,13 +353,15 @@ export function ImageCropUploadModal({
                 className="hidden"
               />
             </div>
-            
+
             <div className="relative flex items-center py-2">
               <div className="flex-grow border-t border-border"></div>
-              <span className="shrink-0 px-4 text-xs text-muted-foreground uppercase tracking-wider">or</span>
+              <span className="shrink-0 px-4 text-xs text-muted-foreground uppercase tracking-wider">
+                or
+              </span>
               <div className="flex-grow border-t border-border"></div>
             </div>
-            
+
             <Button
               type="button"
               variant="outline"
@@ -475,7 +511,7 @@ export function ImageCropUploadModal({
             <Button
               type="button"
               onClick={handleUpload}
-              disabled={isUploading || !selectedFile}
+              disabled={isUploading}
               className="text-xs font-medium"
             >
               {isUploading ? "Uploading..." : "Crop & Save Image"}
