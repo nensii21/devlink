@@ -166,7 +166,10 @@ def get_project_analytics(
     "/{project_id}",
     response_model=ProjectResponse,
 )
-@cached(ttl=60, key_prefix="projects:get")
+# per_user=False: the response is the project itself, which is the same for
+# every viewer. `current_user` is used only for the view-count side effect
+# below, not to shape what is returned.
+@cached(ttl=60, key_prefix="projects:get", per_user=False)
 def get_project(
     request: Request,
     project_id: uuid.UUID,
@@ -204,7 +207,8 @@ def get_project(
     "/slug/{slug}",
     response_model=ProjectResponse,
 )
-@cached(ttl=60, key_prefix="projects:slug")
+# per_user=False: as above -- the project is the same for every viewer.
+@cached(ttl=60, key_prefix="projects:slug", per_user=False)
 def get_project_by_slug(
     request: Request,
     slug: str,
@@ -242,7 +246,9 @@ def get_project_by_slug(
     "/",
     response_model=list[ProjectResponse],
 )
-@cached(ttl=120, key_prefix="projects:list")
+# per_user=False: the listing is a pure function of the query parameters and
+# takes no `current_user`.
+@cached(ttl=120, key_prefix="projects:list", per_user=False)
 def list_projects(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),

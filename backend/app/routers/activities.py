@@ -71,7 +71,10 @@ def get_activity(
     "/",
     response_model=list[ActivityResponse],
 )
-@cached(ttl=60, key_prefix="feed")
+# per_user=False: the feed is built entirely from the query parameters and
+# takes no `current_user` at all, so every caller genuinely gets the same
+# response for the same filters.
+@cached(ttl=60, key_prefix="feed", per_user=False)
 def get_feed(    limit: int = Query(50, ge=1, le=100),
     cursor: datetime | None = Query(
         None, description="Cursor for pagination (created_at timestamp)"
