@@ -202,6 +202,33 @@ class Settings(BaseSettings):
     COMMENT_RATE_LIMIT: str = "30/minute"
     RECOMMENDATION_RATE_LIMIT: str = "20/minute"
 
+    #: Where the limiter keeps its counters. Empty means in-memory, which is
+    #: per worker process -- with N workers the effective limit is N times what
+    #: is configured, and every counter resets on deploy. Point this at Redis
+    #: in any deployment running more than one process.
+    #:
+    #: Left empty rather than defaulting to REDIS_URL so that a developer
+    #: without Redis running gets working limits rather than a boot failure.
+    RATE_LIMIT_STORAGE_URI: str = ""
+
+    #: Comma-separated CIDRs for the proxies in front of this application.
+    #: `X-Forwarded-For` is honoured only for requests whose immediate peer
+    #: falls inside one of these; from anywhere else the header is ignored,
+    #: because a client can send one and claim any address it likes.
+    #:
+    #: Empty by default: trusting nothing is the safe end of this setting, and
+    #: it matches the behaviour before the setting existed.
+    #:
+    #: Typical values -- Kubernetes ingress: the pod CIDR, e.g.
+    #: "10.42.0.0/16". Docker Compose: the bridge network, e.g.
+    #: "172.16.0.0/12". A single host proxy: "10.0.0.7".
+    TRUSTED_PROXY_CIDRS: str = ""
+
+    @property
+    def trusted_proxy_cidr_list(self) -> list[str]:
+        """`TRUSTED_PROXY_CIDRS` split into entries."""
+        return [part.strip() for part in self.TRUSTED_PROXY_CIDRS.split(",") if part.strip()]
+
     # ==========================================================
     # Request Tracing / Correlation IDs
     # ==========================================================

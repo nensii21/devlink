@@ -6,6 +6,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.core.client_address import client_address
+
 logger = structlog.get_logger("devlink.request")
 
 
@@ -36,11 +38,12 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
 
         start_time = time.perf_counter()
 
-        # Extract useful IP and User Agent
-        ip = request.client.host if request.client else None
-        forwarded_for = request.headers.get("x-forwarded-for")
-        if forwarded_for:
-            ip = forwarded_for.split(",")[0].strip()
+        # Extract useful IP and User Agent. This took the leftmost
+        # `X-Forwarded-For` entry, which is the one the client fully controls,
+        # so the logged IP was whatever the caller claimed. `client_address`
+        # believes the header only when the request came through a proxy we
+        # trust.
+        ip = client_address(request)
 
         user_agent = request.headers.get("user-agent")
 
