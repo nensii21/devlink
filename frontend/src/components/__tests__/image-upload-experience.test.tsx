@@ -13,6 +13,9 @@ beforeEach(() => {
     scale: vi.fn(),
     drawImage: vi.fn(),
     restore: vi.fn(),
+    beginPath: vi.fn(),
+    arc: vi.fn(),
+    clip: vi.fn(),
   }) as unknown as CanvasRenderingContext2D;
 
   HTMLCanvasElement.prototype.toBlob = vi.fn().mockImplementation((callback) => {
