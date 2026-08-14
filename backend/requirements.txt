@@ -77,7 +77,7 @@ httpx>=0.28.1
 # AI
 # ----------------------------
 
-openai>=1.99.0
+openai>=2.53.0
 
 # Optional
 anthropic>=0.60.0
