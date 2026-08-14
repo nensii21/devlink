@@ -64,8 +64,16 @@ def setup_teardown():
 
 def test_caching_decorator_ignores_dependencies():
     """
-    Test that the cached decorator ignores FastAPI dependencies like Session, Request, User
-    so that the cache key is stable across requests.
+    Test that the cached decorator ignores request plumbing like Session and
+    Request, so the cache key is stable across requests.
+
+    `current_user` is no longer in that category -- it is semantic input, and
+    excluding it meant one caller's response was served to another. It is now
+    part of the key, which is what the `:1:` segment below is.
+
+    The argument fingerprint is hashed rather than interpolated verbatim, so
+    this asserts that distinct arguments produce distinct keys rather than
+    looking for the argument's text inside the key.
     """
     response1 = client.get("/test/sync-cache?q=hello")
     assert response1.status_code == 200
@@ -75,11 +83,21 @@ def test_caching_decorator_ignores_dependencies():
     keys = list(cache_manager._l1_cache.keys())
     assert len(keys) == 1
 
-    # The key should NOT contain the memory address of MockSession
     key = keys[0]
+
+    # The key must not carry the session's repr -- a new MockSession per
+    # request would otherwise make every key unique and disable caching.
     assert "MockSession" not in key
-    assert "current_user" not in key
-    assert "hello" in key
+
+    # It is scoped to the endpoint and to the caller.
+    assert key.startswith("test:sync:sync_endpoint:1:")
+
+    # Repeating the same call reuses the entry; a different argument does not.
+    client.get("/test/sync-cache?q=hello")
+    assert len(cache_manager._l1_cache) == 1
+
+    client.get("/test/sync-cache?q=goodbye")
+    assert len(cache_manager._l1_cache) == 2
 
 
 def test_cache_hit():
