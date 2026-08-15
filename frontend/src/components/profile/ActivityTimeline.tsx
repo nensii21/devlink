@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { activitiesService } from "@/services";
 import { Card, Skeleton } from "@/components/shared/primitives";
 import { formatDistanceToNow } from "date-fns";
-import { UserPlus, Edit3, FolderPlus, Award, Clock } from "lucide-react";
+import { UserPlus, Edit3, FolderPlus, Award, Clock, MessageCircle, FileText, Github } from "lucide-react";
 import type { BackendActivity } from "@/services";
 import { TypoCaption } from "@/components/shared/Typography";
 
@@ -21,6 +21,14 @@ function getActivityIcon(type: string) {
       return <FolderPlus className="h-4 w-4 text-blue-500" />;
     case "badge_earned":
       return <Award className="h-4 w-4 text-amber-500" />;
+    case "comment_created":
+      return <MessageCircle className="h-4 w-4 text-indigo-500" />;
+    case "builder_flare_created":
+      return <FileText className="h-4 w-4 text-purple-500" />;
+    case "repository_connected":
+      return <Github className="h-4 w-4 text-gray-700" />;
+    case "followed_user":
+      return <UserPlus className="h-4 w-4 text-pink-500" />;
     default:
       return <Clock className="h-4 w-4 text-muted-foreground" />;
   }

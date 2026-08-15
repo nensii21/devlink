@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 import pytest
 from fastapi.testclient import TestClient
-from app.routers.websockets import manager, _event
+from app.routers.websockets import manager
 
 
 def _ws_url(client: TestClient, token: str) -> str:

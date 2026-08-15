@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_database
-from app.middleware.rate_limit import limiter
 from app.models.user import User
 from app.models.verification_request import VerificationRequest
 from app.schemas.verification import (

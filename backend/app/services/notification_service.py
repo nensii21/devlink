@@ -16,6 +16,7 @@ from app.schemas.notification import (
 )
 from app.core.cache import cached
 
+
 class NotificationService:
     """
     Business logic for notifications.
@@ -81,10 +82,7 @@ class NotificationService:
         sender_id: uuid.UUID | None,
         notification: NotificationCreate,
     ) -> Notification:
-        db_notification = Notification(
-            sender_id=sender_id,
-            **notification.model_dump()
-        )
+        db_notification = Notification(sender_id=sender_id, **notification.model_dump())
         db.add(db_notification)
         db.flush()
         db.refresh(db_notification)
@@ -225,6 +223,7 @@ class NotificationService:
     ) -> Notification:
         db_notification.delivered_at = utcnow()
         from app.models.notification import NotificationStatus
+
         db_notification.status = NotificationStatus.SENT
         db.flush()
         db.refresh(db_notification)
@@ -232,22 +231,48 @@ class NotificationService:
 
     @staticmethod
     def get_delivery_analytics(db: Session) -> dict:
-        total_sent = db.scalar(
-            select(func.count(Notification.id)).where(Notification.sent_at.isnot(None))
-        ) or 0
-        total_delivered = db.scalar(
-            select(func.count(Notification.id)).where(Notification.delivered_at.isnot(None))
-        ) or 0
-        total_read = db.scalar(
-            select(func.count(Notification.id)).where(Notification.read_at.isnot(None))
-        ) or 0
-        total_clicked = db.scalar(
-            select(func.count(Notification.id)).where(Notification.clicked_at.isnot(None))
-        ) or 0
+        total_sent = (
+            db.scalar(
+                select(func.count(Notification.id)).where(
+                    Notification.sent_at.isnot(None)
+                )
+            )
+            or 0
+        )
+        total_delivered = (
+            db.scalar(
+                select(func.count(Notification.id)).where(
+                    Notification.delivered_at.isnot(None)
+                )
+            )
+            or 0
+        )
+        total_read = (
+            db.scalar(
+                select(func.count(Notification.id)).where(
+                    Notification.read_at.isnot(None)
+                )
+            )
+            or 0
+        )
+        total_clicked = (
+            db.scalar(
+                select(func.count(Notification.id)).where(
+                    Notification.clicked_at.isnot(None)
+                )
+            )
+            or 0
+        )
         from app.models.notification import NotificationStatus
-        total_failed = db.scalar(
-            select(func.count(Notification.id)).where(Notification.status == NotificationStatus.FAILED)
-        ) or 0
+
+        total_failed = (
+            db.scalar(
+                select(func.count(Notification.id)).where(
+                    Notification.status == NotificationStatus.FAILED
+                )
+            )
+            or 0
+        )
 
         delivery_rate = (total_delivered / total_sent * 100) if total_sent > 0 else 0.0
         read_rate = (total_read / total_delivered * 100) if total_delivered > 0 else 0.0
@@ -302,13 +327,139 @@ class NotificationService:
         send_notification_task.delay(payload)
 
     @staticmethod
+    def create_project_invitation(
+        db: Session,
+        recipient_id: uuid.UUID,
+        actor_id: uuid.UUID,
+        project_id: uuid.UUID,
+        title: str = "New project invitation",
+        message: str = "You have been invited to join a project",
+        action_url: str | None = None,
+        image_url: str | None = None,
+    ) -> None:
+        from app.models.notification import NotificationType
+
+        NotificationService.enqueue(
+            db=db,
+            recipient_id=recipient_id,
+            sender_id=actor_id,
+            type=NotificationType.PROJECT_INVITE,
+            title=title,
+            message=message,
+            project_id=project_id,
+            action_url=action_url,
+            image_url=image_url,
+        )
+
+    @staticmethod
+    def create_message_notification(
+        db: Session,
+        recipient_id: uuid.UUID,
+        actor_id: uuid.UUID,
+        title: str = "New message",
+        message: str = "You received a new message",
+        conversation_id: uuid.UUID | None = None,
+        message_id: uuid.UUID | None = None,
+        action_url: str | None = None,
+        image_url: str | None = None,
+    ) -> None:
+        from app.models.notification import NotificationType
+
+        NotificationService.enqueue(
+            db=db,
+            recipient_id=recipient_id,
+            sender_id=actor_id,
+            type=NotificationType.MESSAGE,
+            title=title,
+            message=message,
+            conversation_id=conversation_id,
+            message_id=message_id,
+            action_url=action_url,
+            image_url=image_url,
+        )
+
+    @staticmethod
+    def create_follow_notification(
+        db: Session,
+        recipient_id: uuid.UUID,
+        actor_id: uuid.UUID,
+        title: str = "New follower",
+        message: str = "Someone started following you",
+        action_url: str | None = None,
+        image_url: str | None = None,
+    ) -> None:
+        from app.models.notification import NotificationType
+
+        NotificationService.enqueue(
+            db=db,
+            recipient_id=recipient_id,
+            sender_id=actor_id,
+            type=NotificationType.FOLLOW,
+            title=title,
+            message=message,
+            action_url=action_url,
+            image_url=image_url,
+        )
+
+    @staticmethod
+    def create_connection_notification(
+        db: Session,
+        recipient_id: uuid.UUID,
+        actor_id: uuid.UUID,
+        title: str = "New connection request",
+        message: str = "Someone wants to connect with you",
+        action_url: str | None = None,
+        image_url: str | None = None,
+    ) -> None:
+        from app.models.notification import NotificationType
+
+        NotificationService.enqueue(
+            db=db,
+            recipient_id=recipient_id,
+            sender_id=actor_id,
+            type=NotificationType.FOLLOW,
+            title=title,
+            message=message,
+            action_url=action_url,
+            image_url=image_url,
+        )
+
+    @staticmethod
+    def create_project_activity_notification(
+        db: Session,
+        recipient_id: uuid.UUID,
+        actor_id: uuid.UUID,
+        project_id: uuid.UUID,
+        title: str = "Project activity",
+        message: str = "There is new activity in your project",
+        action_url: str | None = None,
+        image_url: str | None = None,
+    ) -> None:
+        from app.models.notification import NotificationType
+
+        NotificationService.enqueue(
+            db=db,
+            recipient_id=recipient_id,
+            sender_id=actor_id,
+            type=NotificationType.PROJECT_UPDATE,
+            title=title,
+            message=message,
+            project_id=project_id,
+            action_url=action_url,
+            image_url=image_url,
+        )
+
+    @staticmethod
     def get_preferences(
         db: Session,
         user_id: uuid.UUID,
     ):
         from app.models.notification import NotificationPreference
+
         pref = db.scalar(
-            select(NotificationPreference).where(NotificationPreference.user_id == user_id)
+            select(NotificationPreference).where(
+                NotificationPreference.user_id == user_id
+            )
         )
         if not pref:
             now = utcnow()
@@ -345,7 +496,7 @@ class NotificationService:
         user_id: uuid.UUID,
         update_in: Any,
     ):
-        from app.models.notification import NotificationPreference
+
         pref = NotificationService.get_preferences(db, user_id)
         data = update_in.model_dump(exclude_unset=True)
 

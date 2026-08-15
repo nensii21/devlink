@@ -1,12 +1,15 @@
 from .config import settings
 from .logging import get_logger, logger
 from .security import (
+    InvalidTokenType,
+    TokenType,
     hash_password,
     verify_password,
     create_access_token,
     create_refresh_token,
     create_verification_token,
     is_verification_token,
+    decode_access_token,
     decode_token,
 )
 
@@ -20,5 +23,8 @@ __all__ = [
     "create_refresh_token",
     "create_verification_token",
     "is_verification_token",
+    "decode_access_token",
     "decode_token",
+    "InvalidTokenType",
+    "TokenType",
 ]

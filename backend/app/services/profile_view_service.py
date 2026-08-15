@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Optional, List, Tuple
+from typing import Optional, List
 from sqlalchemy import select, func, and_
 from sqlalchemy.orm import Session
 
@@ -30,15 +30,24 @@ class ProfileViewService:
 
         # Check viewer privacy preference or override
         viewer = db.get(User, viewer_id)
-        is_anonymous = is_anonymous_override if is_anonymous_override is not None else getattr(viewer, "hide_profile_views", False)
+        is_anonymous = (
+            is_anonymous_override
+            if is_anonymous_override is not None
+            else getattr(viewer, "hide_profile_views", False)
+        )
 
         # Check existing recent view entry for deduplication/refresh
-        stmt = select(ProfileView).where(
-            and_(
-                ProfileView.viewed_user_id == viewed_user_id,
-                ProfileView.viewer_id == viewer_id,
+        stmt = (
+            select(ProfileView)
+            .where(
+                and_(
+                    ProfileView.viewed_user_id == viewed_user_id,
+                    ProfileView.viewer_id == viewer_id,
+                )
             )
-        ).order_by(ProfileView.created_at.desc()).limit(1)
+            .order_by(ProfileView.created_at.desc())
+            .limit(1)
+        )
 
         existing_view = db.scalar(stmt)
 
@@ -74,8 +83,10 @@ class ProfileViewService:
         offset = (page - 1) * size
 
         # Total count query
-        count_stmt = select(func.count()).select_from(ProfileView).where(
-            ProfileView.viewed_user_id == user_id
+        count_stmt = (
+            select(func.count())
+            .select_from(ProfileView)
+            .where(ProfileView.viewed_user_id == user_id)
         )
         total = db.scalar(count_stmt) or 0
 
@@ -110,7 +121,8 @@ class ProfileViewService:
                     ProfileViewResponse(
                         id=view.id,
                         viewer_id=viewer.id,
-                        viewer_name=f"{viewer.first_name} {viewer.last_name}".strip() or viewer.username,
+                        viewer_name=f"{viewer.first_name} {viewer.last_name}".strip()
+                        or viewer.username,
                         viewer_username=viewer.username,
                         viewer_avatar=getattr(viewer, "avatar_url", None),
                         viewed_at=view.created_at,

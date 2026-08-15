@@ -1,13 +1,14 @@
 """
 API Router for Security Event Monitoring & Administrative Review (#613)
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_active_user, get_database
@@ -30,7 +31,10 @@ router = APIRouter(
 
 def require_admin(current_user: User = Depends(get_current_active_user)) -> User:
     """Ensure the caller has system admin privileges."""
-    if getattr(current_user, "system_role", None) != "admin" and getattr(current_user, "role", None) != "admin":
+    if (
+        getattr(current_user, "system_role", None) != "admin"
+        and getattr(current_user, "role", None) != "admin"
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required for Security Event Monitoring.",
@@ -50,15 +54,31 @@ def require_admin(current_user: User = Depends(get_current_active_user)) -> User
     include_in_schema=False,
 )
 def list_security_events(
-    event_type: Optional[SecurityEventType] = Query(None, description="Filter by event classification"),
-    severity: Optional[SecurityEventSeverity] = Query(None, description="Filter by severity level"),
-    alert_triggered: Optional[bool] = Query(None, description="Filter by alert triggered status"),
-    is_resolved: Optional[bool] = Query(None, description="Filter by resolution status"),
-    start_date: Optional[datetime] = Query(None, description="Filter events from date (ISO 8601)"),
-    end_date: Optional[datetime] = Query(None, description="Filter events to date (ISO 8601)"),
-    user_id: Optional[uuid.UUID] = Query(None, description="Filter by actor or target user ID"),
+    event_type: Optional[SecurityEventType] = Query(
+        None, description="Filter by event classification"
+    ),
+    severity: Optional[SecurityEventSeverity] = Query(
+        None, description="Filter by severity level"
+    ),
+    alert_triggered: Optional[bool] = Query(
+        None, description="Filter by alert triggered status"
+    ),
+    is_resolved: Optional[bool] = Query(
+        None, description="Filter by resolution status"
+    ),
+    start_date: Optional[datetime] = Query(
+        None, description="Filter events from date (ISO 8601)"
+    ),
+    end_date: Optional[datetime] = Query(
+        None, description="Filter events to date (ISO 8601)"
+    ),
+    user_id: Optional[uuid.UUID] = Query(
+        None, description="Filter by actor or target user ID"
+    ),
     ip_address: Optional[str] = Query(None, description="Filter by client IP address"),
-    search: Optional[str] = Query(None, description="Full-text search on description or IP"),
+    search: Optional[str] = Query(
+        None, description="Full-text search on description or IP"
+    ),
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(50, ge=1, le=500, description="Items per page"),
     db: Session = Depends(get_database),
@@ -153,7 +173,11 @@ def resolve_security_event(
     db: Session = Depends(get_database),
     current_user: User = Depends(require_admin),
 ) -> SecurityEventResponse:
-    notes = payload.resolution_notes if payload else "Acknowledged and resolved by administrator."
+    notes = (
+        payload.resolution_notes
+        if payload
+        else "Acknowledged and resolved by administrator."
+    )
     event = SecurityEventService.resolve_security_event(
         db, event_id=event_id, resolver_user=current_user, notes=notes
     )

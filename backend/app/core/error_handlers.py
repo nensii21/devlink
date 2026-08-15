@@ -50,6 +50,7 @@ def generate_error_code(status_code: int, message: str | None) -> str:
 
     return "_".join(words).upper()
 
+
 def format_error_response(
     code: str,
     message: str,
@@ -72,6 +73,7 @@ def format_error_response(
         error_dict["details"] = details
 
     return {"error": error_dict}
+
 
 async def http_exception_handler(
     request: Request,

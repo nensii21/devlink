@@ -20,4 +20,10 @@ export const usersApi = {
       reward_unlocked: boolean;
       reward_badge?: string;
     }>("/api/users/me/completion"),
+  getCollaborationStatus: () =>
+    api.get<{ user_id: string; status: string }>("/api/users/me/collaboration-status"),
+  setCollaborationStatus: (status: string) =>
+    api.put<{ user_id: string; status: string }>("/api/users/me/collaboration-status", undefined, {
+      query: { status_val: status },
+    }),
 };

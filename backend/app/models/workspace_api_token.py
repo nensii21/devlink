@@ -19,8 +19,7 @@ from app.database.base import Base
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.models.organization import Organization
-    from app.models.user import User
+    pass
 
 
 class WorkspaceApiToken(Base):

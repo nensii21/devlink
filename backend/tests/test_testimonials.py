@@ -4,6 +4,7 @@ Unit & integration tests for peer testimonials (#1044).
 The permission rules are the feature here, so most of these tests are about
 who may do what rather than about storage.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -72,7 +73,9 @@ class TestBodyValidation:
         # A one-line "great dev!" carries no information and dilutes the
         # testimonials that do.
         with pytest.raises(Exception):
-            CreatePayload(subject_id=uuid.uuid4(), relationship="mentor", body="Great dev!")
+            CreatePayload(
+                subject_id=uuid.uuid4(), relationship="mentor", body="Great dev!"
+            )
 
     def test_exactly_the_minimum_is_accepted(self):
         payload = CreatePayload(
@@ -94,12 +97,16 @@ class TestBodyValidation:
     def test_overlong_body_is_rejected(self):
         with pytest.raises(Exception):
             CreatePayload(
-                subject_id=uuid.uuid4(), relationship="client", body="x" * (MAX_BODY_LENGTH + 1)
+                subject_id=uuid.uuid4(),
+                relationship="client",
+                body="x" * (MAX_BODY_LENGTH + 1),
             )
 
     def test_unknown_relationship_is_rejected(self):
         with pytest.raises(Exception):
-            CreatePayload(subject_id=uuid.uuid4(), relationship="nemesis", body=GOOD_BODY)
+            CreatePayload(
+                subject_id=uuid.uuid4(), relationship="nemesis", body=GOOD_BODY
+            )
 
     def test_update_omits_unset_fields(self):
         assert UpdatePayload(body=GOOD_BODY).model_dump(exclude_unset=True) == {
@@ -126,7 +133,10 @@ class TestWriteGuards:
         author = _make_user("author")
         subject_id = uuid.uuid4()
 
-        with patch("app.services.testimonial_service.BlockService.is_blocked", return_value=True):
+        with patch(
+            "app.services.testimonial_service.BlockService.is_blocked",
+            return_value=True,
+        ):
             with pytest.raises(HTTPException) as exc:
                 TestimonialService.require_writable(db, author, subject_id)
         assert exc.value.status_code == 403
@@ -134,14 +144,19 @@ class TestWriteGuards:
     def test_unblocked_pair_is_allowed(self):
         db = MagicMock(spec=Session)
         author = _make_user("author")
-        with patch("app.services.testimonial_service.BlockService.is_blocked", return_value=False):
+        with patch(
+            "app.services.testimonial_service.BlockService.is_blocked",
+            return_value=False,
+        ):
             TestimonialService.require_writable(db, author, uuid.uuid4())
 
     def test_self_check_runs_before_the_block_lookup(self):
         # Writing about yourself is always wrong, block or no block.
         db = MagicMock(spec=Session)
         user = _make_user()
-        with patch("app.services.testimonial_service.BlockService.is_blocked") as is_blocked:
+        with patch(
+            "app.services.testimonial_service.BlockService.is_blocked"
+        ) as is_blocked:
             with pytest.raises(HTTPException):
                 TestimonialService.require_writable(db, user, user.id)
             is_blocked.assert_not_called()
@@ -225,12 +240,18 @@ class TestTestimonialEndpoints:
             "body": GOOD_BODY,
         }
         payload.update(overrides)
-        return client.post("/api/v1/testimonials", json=payload, headers=self._auth(token))
+        return client.post(
+            "/api/v1/testimonials", json=payload, headers=self._auth(token)
+        )
 
     def test_writing_requires_authentication(self, client):
         response = client.post(
             "/api/v1/testimonials",
-            json={"subject_id": str(uuid.uuid4()), "relationship": "mentor", "body": GOOD_BODY},
+            json={
+                "subject_id": str(uuid.uuid4()),
+                "relationship": "mentor",
+                "body": GOOD_BODY,
+            },
         )
         assert response.status_code in (401, 403)
 
@@ -284,7 +305,8 @@ class TestTestimonialEndpoints:
         testimonial_id = self._write(client, author_token, subject_id).json()["id"]
 
         approved = client.post(
-            f"/api/v1/testimonials/{testimonial_id}/approve", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/approve",
+            headers=self._auth(subject_token),
         )
         assert approved.status_code == 200
         assert approved.json()["status"] == "approved"
@@ -299,7 +321,8 @@ class TestTestimonialEndpoints:
         testimonial_id = self._write(client, author_token, subject_id).json()["id"]
 
         response = client.post(
-            f"/api/v1/testimonials/{testimonial_id}/approve", headers=self._auth(author_token)
+            f"/api/v1/testimonials/{testimonial_id}/approve",
+            headers=self._auth(author_token),
         )
         assert response.status_code == 403
 
@@ -313,11 +336,14 @@ class TestTestimonialEndpoints:
 
         _, stranger_token = register_and_login("ts13@example.com", "tsuser13")
         response = client.post(
-            f"/api/v1/testimonials/{testimonial_id}/approve", headers=self._auth(stranger_token)
+            f"/api/v1/testimonials/{testimonial_id}/approve",
+            headers=self._auth(stranger_token),
         )
         assert response.status_code == 403
 
-    def test_second_testimonial_for_the_same_person_is_409(self, client, register_and_login):
+    def test_second_testimonial_for_the_same_person_is_409(
+        self, client, register_and_login
+    ):
         subject_id, _ = register_and_login("ts14@example.com", "tsuser14")
         _, author_token = register_and_login("ts15@example.com", "tsuser15")
 
@@ -336,10 +362,12 @@ class TestTestimonialEndpoints:
         testimonial_id = self._write(client, author_token, subject_id).json()["id"]
 
         client.post(
-            f"/api/v1/testimonials/{testimonial_id}/approve", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/approve",
+            headers=self._auth(subject_token),
         )
         client.post(
-            f"/api/v1/testimonials/{testimonial_id}/feature", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/feature",
+            headers=self._auth(subject_token),
         )
 
         edited = client.patch(
@@ -372,11 +400,13 @@ class TestTestimonialEndpoints:
         testimonial_id = self._write(client, author_token, subject_id).json()["id"]
 
         client.post(
-            f"/api/v1/testimonials/{testimonial_id}/approve", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/approve",
+            headers=self._auth(subject_token),
         )
 
         hidden = client.post(
-            f"/api/v1/testimonials/{testimonial_id}/hide", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/hide",
+            headers=self._auth(subject_token),
         )
         assert hidden.status_code == 200
         assert hidden.json()["status"] == "hidden"
@@ -403,7 +433,8 @@ class TestTestimonialEndpoints:
         testimonial_id = self._write(client, author_token, subject_id).json()["id"]
 
         response = client.post(
-            f"/api/v1/testimonials/{testimonial_id}/feature", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/feature",
+            headers=self._auth(subject_token),
         )
         assert response.status_code == 400
 
@@ -412,7 +443,9 @@ class TestTestimonialEndpoints:
 
         ids = []
         for i in range(MAX_FEATURED + 1):
-            _, author_token = register_and_login(f"ts26a{i}@example.com", f"tsauthor26{i}")
+            _, author_token = register_and_login(
+                f"ts26a{i}@example.com", f"tsauthor26{i}"
+            )
             testimonial_id = self._write(client, author_token, subject_id).json()["id"]
             client.post(
                 f"/api/v1/testimonials/{testimonial_id}/approve",
@@ -439,7 +472,9 @@ class TestTestimonialEndpoints:
 
         ids = []
         for i in range(MAX_FEATURED + 1):
-            _, author_token = register_and_login(f"ts27a{i}@example.com", f"tsauthor27{i}")
+            _, author_token = register_and_login(
+                f"ts27a{i}@example.com", f"tsauthor27{i}"
+            )
             testimonial_id = self._write(client, author_token, subject_id).json()["id"]
             client.post(
                 f"/api/v1/testimonials/{testimonial_id}/approve",
@@ -471,18 +506,23 @@ class TestTestimonialEndpoints:
         testimonial_id = self._write(client, author_token, subject_id).json()["id"]
 
         client.post(
-            f"/api/v1/testimonials/{testimonial_id}/approve", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/approve",
+            headers=self._auth(subject_token),
         )
         client.post(
-            f"/api/v1/testimonials/{testimonial_id}/feature", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/feature",
+            headers=self._auth(subject_token),
         )
 
         hidden = client.post(
-            f"/api/v1/testimonials/{testimonial_id}/hide", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{testimonial_id}/hide",
+            headers=self._auth(subject_token),
         )
         assert hidden.json()["is_featured"] is False
 
-    def test_pending_testimonial_is_404_for_a_stranger(self, client, register_and_login):
+    def test_pending_testimonial_is_404_for_a_stranger(
+        self, client, register_and_login
+    ):
         subject_id, _ = register_and_login("ts30@example.com", "tsuser30")
         _, author_token = register_and_login("ts31@example.com", "tsuser31")
         testimonial_id = self._write(client, author_token, subject_id).json()["id"]
@@ -492,7 +532,8 @@ class TestTestimonialEndpoints:
         assert client.get(f"/api/v1/testimonials/{testimonial_id}").status_code == 404
         assert (
             client.get(
-                f"/api/v1/testimonials/{testimonial_id}", headers=self._auth(author_token)
+                f"/api/v1/testimonials/{testimonial_id}",
+                headers=self._auth(author_token),
             ).status_code
             == 200
         )
@@ -516,7 +557,8 @@ class TestTestimonialEndpoints:
             client, first_token, subject_id, relationship="mentor"
         ).json()["id"]
         client.post(
-            f"/api/v1/testimonials/{approved_id}/approve", headers=self._auth(subject_token)
+            f"/api/v1/testimonials/{approved_id}/approve",
+            headers=self._auth(subject_token),
         )
 
         _, second_token = register_and_login("ts36@example.com", "tsuser36")
@@ -527,8 +569,12 @@ class TestTestimonialEndpoints:
         body = summary.json()
         assert body["total_approved"] == 1
         assert body["max_featured"] == MAX_FEATURED
-        assert [entry["relationship"] for entry in body["by_relationship"]] == ["mentor"]
+        assert [entry["relationship"] for entry in body["by_relationship"]] == [
+            "mentor"
+        ]
         assert body["featured"] == []
 
     def test_unknown_username_is_404(self, client):
-        assert client.get("/api/v1/users/no-such-person/testimonials").status_code == 404
+        assert (
+            client.get("/api/v1/users/no-such-person/testimonials").status_code == 404
+        )

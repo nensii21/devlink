@@ -13,7 +13,11 @@ from sqlalchemy.orm import Session
 from app.models.api_key import ApiKey
 from app.models.audit_log import AuditAction
 from app.models.user import User
-from app.schemas.api_key import ALL_ALLOWED_SCOPES, ApiKeyCreateRequest, ApiKeyUpdateRequest
+from app.schemas.api_key import (
+    ALL_ALLOWED_SCOPES,
+    ApiKeyCreateRequest,
+    ApiKeyUpdateRequest,
+)
 from app.services.audit_log_service import AuditLogService
 
 
@@ -28,6 +32,7 @@ class ApiKeyService:
         secret = secrets.token_urlsafe(32)
         raw_key = f"dlk_live_{secret}"
         prefix = raw_key[:14]  # e.g., 'dlk_live_XXXXX'
+        # lgtm[py/weak-sensitive-data-hashing]
         hashed_key = hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
         return raw_key, prefix, hashed_key
 
@@ -60,7 +65,9 @@ class ApiKeyService:
         # Calculate expiration
         expires_at = payload.expires_at
         if payload.expires_in_days is not None:
-            expires_at = datetime.now(timezone.utc) + timedelta(days=payload.expires_in_days)
+            expires_at = datetime.now(timezone.utc) + timedelta(
+                days=payload.expires_in_days
+            )
 
         api_key = ApiKey(
             id=uuid.uuid4(),
@@ -89,7 +96,11 @@ class ApiKeyService:
             entity_id=str(api_key.id),
             organization_id=payload.organization_id,
             description=f"Created API Key '{api_key.name}' (Prefix: {prefix})",
-            new_values={"name": api_key.name, "prefix": prefix, "scopes": validated_scopes},
+            new_values={
+                "name": api_key.name,
+                "prefix": prefix,
+                "scopes": validated_scopes,
+            },
         )
         db.commit()
 
@@ -112,7 +123,10 @@ class ApiKeyService:
         elif user_id:
             stmt = stmt.where(ApiKey.user_id == user_id)
         else:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Must provide user_id or organization_id")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Must provide user_id or organization_id",
+            )
 
         # Exclude revoked/deleted keys or order active first
         stmt = stmt.order_by(ApiKey.created_at.desc())
@@ -136,7 +150,9 @@ class ApiKeyService:
     def get_api_key(cls, db: Session, key_id: uuid.UUID) -> ApiKey:
         key = db.get(ApiKey, key_id)
         if not key:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="API Key not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="API Key not found"
+            )
         return key
 
     @classmethod
@@ -151,7 +167,9 @@ class ApiKeyService:
 
         # Authorization check
         if key.user_id and key.user_id != actor.id and not actor.is_superuser:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
+            )
 
         if payload.name is not None:
             key.name = payload.name
@@ -193,7 +211,9 @@ class ApiKeyService:
         key = cls.get_api_key(db, key_id)
 
         if key.user_id and key.user_id != actor.id and not actor.is_superuser:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
+            )
 
         raw_key, prefix, hashed_key = cls.generate_raw_key()
         key.prefix = prefix
@@ -229,7 +249,9 @@ class ApiKeyService:
         key = cls.get_api_key(db, key_id)
 
         if key.user_id and key.user_id != actor.id and not actor.is_superuser:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
+            )
 
         key.is_active = False
         key.updated_at = datetime.now(timezone.utc)
@@ -266,6 +288,7 @@ class ApiKeyService:
                 detail="Missing API Key header",
             )
 
+        # lgtm[py/weak-sensitive-data-hashing]
         hashed_input = hashlib.sha256(raw_key.strip().encode("utf-8")).hexdigest()
 
         key = db.scalar(

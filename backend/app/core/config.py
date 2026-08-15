@@ -66,8 +66,8 @@ class Settings(BaseSettings):
     # touches the network; the behaviour itself is covered with a mocked
     # transport.
     ENABLE_HIBP_CHECK: bool = Field(
-        default_factory=lambda: not (
-            os.getenv("TESTING") == "true" or "pytest" in sys.modules
+        default_factory=lambda: (
+            not (os.getenv("TESTING") == "true" or "pytest" in sys.modules)
         )
     )
     HIBP_API_URL: str = "https://api.pwnedpasswords.com/range"
@@ -157,7 +157,7 @@ class Settings(BaseSettings):
     CDN_BASE_URL: str | None = None
 
     # Cloud Storage (S3 / R2)
-    STORAGE_PROVIDER: str = "local" # local, s3, r2
+    STORAGE_PROVIDER: str = "local"  # local, s3, r2
     AWS_ACCESS_KEY_ID: str | None = None
     AWS_SECRET_ACCESS_KEY: str | None = None
     AWS_REGION: str | None = None
@@ -240,9 +240,7 @@ class Settings(BaseSettings):
     REFERRER_POLICY_VALUE: str = "strict-origin-when-cross-origin"
 
     ENABLE_PERMISSIONS_POLICY: bool = True
-    PERMISSIONS_POLICY_VALUE: str = (
-        "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
-    )
+    PERMISSIONS_POLICY_VALUE: str = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
 
     ENABLE_DNS_PREFETCH_CONTROL: bool = True
     ENABLE_CROSS_DOMAIN_POLICIES: bool = True

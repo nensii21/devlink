@@ -79,6 +79,7 @@ def _signing_key() -> bytes:
     ``SECRET_KEY`` directly, so that a feed token can never be confused with a
     session token even if one of the formats changes later.
     """
+    # lgtm[py/weak-sensitive-data-hashing]
     return hashlib.sha256(
         f"{settings.SECRET_KEY}:{settings.CALENDAR_FEED_TOKEN_SALT}".encode("utf-8")
     ).digest()

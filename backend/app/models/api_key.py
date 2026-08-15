@@ -8,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
     JSON,
     String,
-    Text,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -111,7 +110,9 @@ class ApiKey(Base):
 
     # Relationships
     user = relationship("User", foreign_keys=[user_id], backref="api_keys")
-    organization = relationship("Organization", foreign_keys=[organization_id], backref="api_keys_v2")
+    organization = relationship(
+        "Organization", foreign_keys=[organization_id], backref="api_keys_v2"
+    )
     created_by = relationship("User", foreign_keys=[created_by_id])
 
     def __repr__(self):

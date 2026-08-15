@@ -134,8 +134,12 @@ class Testimonial(Base):
     # Relationships
     # ==========================================================
 
-    subject = relationship("User", foreign_keys=[subject_id], backref="testimonials_received")
-    author = relationship("User", foreign_keys=[author_id], backref="testimonials_written")
+    subject = relationship(
+        "User", foreign_keys=[subject_id], backref="testimonials_received"
+    )
+    author = relationship(
+        "User", foreign_keys=[author_id], backref="testimonials_written"
+    )
     project = relationship("Project", backref="testimonials")
 
     # ==========================================================
@@ -160,7 +164,9 @@ class Testimonial(Base):
     __table_args__ = (
         # One testimonial per author, per subject. Someone with an opinion
         # worth stating twice can edit the one they already wrote.
-        UniqueConstraint("author_id", "subject_id", name="uq_testimonials_author_subject"),
+        UniqueConstraint(
+            "author_id", "subject_id", name="uq_testimonials_author_subject"
+        ),
         # The public profile listing: one subject's approved testimonials.
         Index("ix_testimonials_subject_status", "subject_id", "status"),
         # The author's own "what have I written" view.

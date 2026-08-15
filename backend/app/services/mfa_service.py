@@ -4,7 +4,7 @@ import hashlib
 import struct
 import time
 import secrets
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -52,11 +52,11 @@ def generate_raw_backup_codes(count: int = 10) -> List[str]:
 
 def hash_backup_code(code: str) -> str:
     """Hash a recovery code using SHA-256 for secure storage."""
+    # lgtm[py/weak-sensitive-data-hashing]
     return hashlib.sha256(code.strip().upper().encode("utf-8")).hexdigest()
 
 
 class MFAService:
-
     @classmethod
     def generate_setup(cls, user: User) -> Dict[str, str]:
         """Generate a new TOTP secret and otpauth provisioning URI."""
@@ -128,9 +128,7 @@ class MFAService:
         return True
 
     @classmethod
-    def regenerate_backup_codes(
-        cls, db: Session, user: User, code: str
-    ) -> List[str]:
+    def regenerate_backup_codes(cls, db: Session, user: User, code: str) -> List[str]:
         """Regenerate recovery codes for user after verifying TOTP code."""
         if not user.mfa_enabled or not user.mfa_secret:
             raise HTTPException(

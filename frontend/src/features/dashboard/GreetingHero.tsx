@@ -1,5 +1,14 @@
 import { Card } from "@/components/shared/primitives";
-import { Folder, Users2, Calendar, ArrowRight, Plus } from "lucide-react";
+import {
+  Folder,
+  Users2,
+  Calendar,
+  ArrowRight,
+  Plus,
+  TrendingUp,
+  Flame,
+  Sparkles,
+} from "lucide-react";
 import { currentUser } from "@/mocks/seed";
 import { Link } from "@tanstack/react-router";
 import { TypoCaption, TypoHeading } from "@/components/shared/Typography";
@@ -50,6 +59,12 @@ export function GreetingHero() {
             Create Project <Plus size={14} />
           </Link>
         </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 sm:flex sm:w-auto sm:flex-row sm:shrink-0">
+        <MiniStat icon={<TrendingUp size={14} />} label="Progress" value="75%" progress={75} />
+        <MiniStat icon={<Flame size={14} />} label="Streak" value="12d" />
+        <MiniStat icon={<Sparkles size={14} />} label="AI Score" value="96" />
       </div>
 
       {/* SVG Laptop/Plant Illustration */}
@@ -150,5 +165,37 @@ export function GreetingHero() {
         <path d="M156 110C152 108 147 106 145 102C147 106 152 108 156 110Z" fill="#10B981" />
       </svg>
     </Card>
+  );
+}
+
+function MiniStat({
+  icon,
+  label,
+  value,
+  progress,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  progress?: number;
+}) {
+  return (
+    <div className="flex flex-col justify-between gap-1.5 rounded-xl border border-border/50 bg-muted/20 p-3 sm:min-w-[130px] sm:shrink-0">
+      <div className="flex items-center gap-1.5 text-muted-foreground">
+        {icon}
+        <p className="text-[10px] font-medium uppercase tracking-wider truncate">{label}</p>
+      </div>
+      <div>
+        <p className="text-lg font-semibold tracking-tight text-foreground">{value}</p>
+        {progress !== undefined && (
+          <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted/50">
+            <div
+              className="h-full rounded-full bg-primary transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

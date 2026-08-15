@@ -1,4 +1,3 @@
-import time
 from datetime import datetime, timezone
 import typing
 
@@ -9,7 +8,7 @@ from cachetools import TTLCache
 
 from app.models.maintenance import MaintenanceWindow
 from app.models.user import UserRole
-from app.core.security import decode_token
+from app.core.security import decode_access_token
 
 # Cache the maintenance window state for 30 seconds
 maintenance_cache = TTLCache(maxsize=1, ttl=30)
@@ -26,6 +25,7 @@ def get_active_maintenance():
         with SessionLocal() as db:
             now = datetime.now(timezone.utc)
             from sqlalchemy import select
+
             stmt = (
                 select(MaintenanceWindow)
                 .where(
@@ -74,11 +74,13 @@ class MaintenanceMiddleware(BaseHTTPMiddleware):
             auth_header = request.headers.get("authorization", "")
             if auth_header.startswith("Bearer "):
                 token = auth_header[7:]
+                # This is an authorisation decision -- it decides who gets past
+                # a maintenance lockout -- so the token type is checked.
                 try:
-                    payload = decode_token(token)
+                    payload = decode_access_token(token)
                     if payload and payload.get("role") == UserRole.ADMIN:
                         is_admin = True
-                except Exception:
+                except ValueError:
                     pass
 
             # If not admin, return 503

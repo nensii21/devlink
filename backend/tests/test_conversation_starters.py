@@ -27,9 +27,7 @@ def test_conversation_starters_endpoint_returns_suggestions(client, register_and
     current_user_id, token = register_and_login(
         "starter_sender@example.com", "starter_sender"
     )
-    target_id, _ = register_and_login(
-        "starter_target@example.com", "starter_target"
-    )
+    target_id, _ = register_and_login("starter_target@example.com", "starter_target")
 
     r = client.post(
         "/api/conversation-starters",

@@ -1,5 +1,3 @@
-import io
-import uuid
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -12,7 +10,6 @@ from app.dependencies import get_database, get_current_user
 from app.models.user import User
 from app.models.conversation import Conversation
 from app.models.conversation_member import ConversationMember
-from app.models.message import Message, MessageType
 
 DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(
@@ -104,7 +101,7 @@ def test_upload_attachment_and_send_message(test_client, db_session):
         "attachment_url": upload_data["url"],
         "attachment_name": upload_data["filename"],
         "attachment_size": upload_data["size"],
-        "mime_type": upload_data["mime_type"]
+        "mime_type": upload_data["mime_type"],
     }
     response = test_client.post("/api/messages/", json=message_payload)
     assert response.status_code == 201

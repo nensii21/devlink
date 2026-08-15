@@ -15,7 +15,11 @@ def test_parse_resume_pdf(mock_extract, mock_settings):
     mock_openai_client = MagicMock()
     mock_response = MagicMock()
     mock_response.choices = [
-        MagicMock(message=MagicMock(content='{"skills": ["Python", "React"], "technologies": ["Django"], "experience": [], "education": [], "certifications": []}'))
+        MagicMock(
+            message=MagicMock(
+                content='{"skills": ["Python", "React"], "technologies": ["Django"], "experience": [], "education": [], "certifications": []}'
+            )
+        )
     ]
     mock_openai_client.chat.completions.create.return_value = mock_response
 
@@ -42,7 +46,11 @@ def test_parse_resume_docx(mock_extract, mock_settings):
     mock_openai_client = MagicMock()
     mock_response = MagicMock()
     mock_response.choices = [
-        MagicMock(message=MagicMock(content='{"skills": ["Java"], "technologies": ["Spring"], "experience": [], "education": [], "certifications": []}'))
+        MagicMock(
+            message=MagicMock(
+                content='{"skills": ["Java"], "technologies": ["Spring"], "experience": [], "education": [], "certifications": []}'
+            )
+        )
     ]
     mock_openai_client.chat.completions.create.return_value = mock_response
 

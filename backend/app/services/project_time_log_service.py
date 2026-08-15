@@ -61,7 +61,9 @@ class ProjectTimeLogService:
         return project
 
     @staticmethod
-    def get_membership(db: Session, project_id: uuid.UUID, user_id: uuid.UUID) -> Optional[ProjectMember]:
+    def get_membership(
+        db: Session, project_id: uuid.UUID, user_id: uuid.UUID
+    ) -> Optional[ProjectMember]:
         stmt = select(ProjectMember).where(
             ProjectMember.project_id == project_id,
             ProjectMember.user_id == user_id,
@@ -71,7 +73,10 @@ class ProjectTimeLogService:
 
     @staticmethod
     def is_admin(user: User) -> bool:
-        return getattr(user, "system_role", None) == "admin" or getattr(user, "role", None) == "admin"
+        return (
+            getattr(user, "system_role", None) == "admin"
+            or getattr(user, "role", None) == "admin"
+        )
 
     @staticmethod
     def require_member(db: Session, project: Project, user: User) -> None:
@@ -97,7 +102,9 @@ class ProjectTimeLogService:
         return member is not None and member.role in MAINTAINER_ROLES
 
     @staticmethod
-    def require_can_modify(db: Session, project: Project, log: ProjectTimeLog, user: User) -> None:
+    def require_can_modify(
+        db: Session, project: Project, log: ProjectTimeLog, user: User
+    ) -> None:
         """
         An entry belongs to whoever did the work. Maintainers get delete rights
         so a project can clean up after a departed member, but nobody may
@@ -112,8 +119,12 @@ class ProjectTimeLogService:
         )
 
     @staticmethod
-    def require_can_delete(db: Session, project: Project, log: ProjectTimeLog, user: User) -> None:
-        if log.user_id == user.id or ProjectTimeLogService.is_maintainer(db, project, user):
+    def require_can_delete(
+        db: Session, project: Project, log: ProjectTimeLog, user: User
+    ) -> None:
+        if log.user_id == user.id or ProjectTimeLogService.is_maintainer(
+            db, project, user
+        ):
             return
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -121,7 +132,9 @@ class ProjectTimeLogService:
         )
 
     @staticmethod
-    def get_log_or_404(db: Session, project_id: uuid.UUID, log_id: uuid.UUID) -> ProjectTimeLog:
+    def get_log_or_404(
+        db: Session, project_id: uuid.UUID, log_id: uuid.UUID
+    ) -> ProjectTimeLog:
         stmt = select(ProjectTimeLog).where(
             ProjectTimeLog.id == log_id,
             ProjectTimeLog.project_id == project_id,
@@ -154,7 +167,9 @@ class ProjectTimeLogService:
             )
 
     @staticmethod
-    def validate_milestone(db: Session, project_id: uuid.UUID, milestone_id: uuid.UUID | None) -> None:
+    def validate_milestone(
+        db: Session, project_id: uuid.UUID, milestone_id: uuid.UUID | None
+    ) -> None:
         if milestone_id is None:
             return
         stmt = select(Milestone.id).where(
@@ -266,7 +281,9 @@ class ProjectTimeLogService:
         if "work_date" in data:
             ProjectTimeLogService.validate_work_date(new_date, today=today)
         if "milestone_id" in data:
-            ProjectTimeLogService.validate_milestone(db, project_id, data["milestone_id"])
+            ProjectTimeLogService.validate_milestone(
+                db, project_id, data["milestone_id"]
+            )
 
         # Re-check the cap whenever either half of the (date, minutes) pair
         # moves -- shifting an entry onto an already-full day is just as much a
@@ -290,7 +307,9 @@ class ProjectTimeLogService:
         return log
 
     @staticmethod
-    def delete_log(db: Session, project_id: uuid.UUID, log_id: uuid.UUID, actor: User) -> None:
+    def delete_log(
+        db: Session, project_id: uuid.UUID, log_id: uuid.UUID, actor: User
+    ) -> None:
         project = ProjectTimeLogService.get_project_or_404(db, project_id)
         log = ProjectTimeLogService.get_log_or_404(db, project_id, log_id)
         ProjectTimeLogService.require_can_delete(db, project, log, actor)
@@ -346,11 +365,18 @@ class ProjectTimeLogService:
             is_billable=is_billable,
         )
 
-        total = int(db.scalar(select(func.count(ProjectTimeLog.id)).where(*conditions)) or 0)
+        total = int(
+            db.scalar(select(func.count(ProjectTimeLog.id)).where(*conditions)) or 0
+        )
         # The total is over the whole filter, not the page -- a report that
         # only adds up the visible page is a report nobody can trust.
         total_minutes = int(
-            db.scalar(select(func.coalesce(func.sum(ProjectTimeLog.minutes), 0)).where(*conditions)) or 0
+            db.scalar(
+                select(func.coalesce(func.sum(ProjectTimeLog.minutes), 0)).where(
+                    *conditions
+                )
+            )
+            or 0
         )
 
         stmt = (
@@ -438,7 +464,9 @@ class ProjectTimeLogService:
             billable_minutes=billable_minutes,
             billable_hours=ProjectTimeLogService.to_hours(billable_minutes),
             non_billable_minutes=total_minutes - billable_minutes,
-            non_billable_hours=ProjectTimeLogService.to_hours(total_minutes - billable_minutes),
+            non_billable_hours=ProjectTimeLogService.to_hours(
+                total_minutes - billable_minutes
+            ),
             contributor_count=len(contributor_rows),
             first_logged_date=first_day,
             last_logged_date=last_day,

@@ -1,6 +1,7 @@
 """
 ReputationLog Model (#597)
 """
+
 from __future__ import annotations
 
 import uuid
