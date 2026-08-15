@@ -54,7 +54,9 @@ class MessageDraftService:
         return draft
 
     @staticmethod
-    def delete_draft(db: Session, user_id: uuid.UUID, conversation_id: uuid.UUID) -> None:
+    def delete_draft(
+        db: Session, user_id: uuid.UUID, conversation_id: uuid.UUID
+    ) -> None:
         db.execute(
             delete(MessageDraft).where(
                 MessageDraft.user_id == user_id,

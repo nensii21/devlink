@@ -8,9 +8,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class MilestoneCreate(BaseModel):
-    title: str = Field(..., min_length=1, max_length=200, description="Title of the milestone")
+    title: str = Field(
+        ..., min_length=1, max_length=200, description="Title of the milestone"
+    )
     description: Optional[str] = Field(default=None, description="Detailed description")
-    due_date: Optional[datetime] = Field(default=None, description="When the milestone is due")
+    due_date: Optional[datetime] = Field(
+        default=None, description="When the milestone is due"
+    )
 
 
 class MilestoneUpdate(BaseModel):
@@ -43,13 +47,19 @@ class MilestoneProgressResponse(BaseModel):
     active_milestones: int
     archived_milestones: int
     overdue_milestones: int
-    completion_percentage: float = Field(description="Percentage of completed vs total active milestones (0-100%)")
+    completion_percentage: float = Field(
+        description="Percentage of completed vs total active milestones (0-100%)"
+    )
 
 
 class MilestoneTimelineItem(BaseModel):
     milestone: MilestoneResponse
-    status: str = Field(description="Status label: 'overdue', 'upcoming', 'completed', 'archived'")
-    days_remaining: Optional[int] = Field(default=None, description="Days remaining until due date (negative if overdue)")
+    status: str = Field(
+        description="Status label: 'overdue', 'upcoming', 'completed', 'archived'"
+    )
+    days_remaining: Optional[int] = Field(
+        default=None, description="Days remaining until due date (negative if overdue)"
+    )
 
 
 class MilestoneTimelineResponse(BaseModel):

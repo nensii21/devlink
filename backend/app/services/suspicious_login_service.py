@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import re
-import uuid
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
@@ -57,7 +55,6 @@ def _parse_device(user_agent: Optional[str]) -> str:
 
 
 class SuspiciousLoginService:
-
     @classmethod
     def evaluate_login_attempt(
         cls,
@@ -121,13 +118,17 @@ class SuspiciousLoginService:
             if past_logins:
                 # 3. Check New Device
                 current_device = _parse_device(user_agent)
-                past_devices = {_parse_device(l.user_agent) for l in past_logins if l.user_agent}
+                past_devices = {
+                    _parse_device(l.user_agent) for l in past_logins if l.user_agent
+                }
                 if current_device not in past_devices:
                     signals.append("NEW_DEVICE")
 
                 # 4. Check New Browser
                 current_browser = _parse_browser(user_agent)
-                past_browsers = {_parse_browser(l.user_agent) for l in past_logins if l.user_agent}
+                past_browsers = {
+                    _parse_browser(l.user_agent) for l in past_logins if l.user_agent
+                }
                 if current_browser not in past_browsers:
                     signals.append("NEW_BROWSER")
 
@@ -152,7 +153,11 @@ class SuspiciousLoginService:
                 description=f"Suspicious login attempt detected (Signals: {', '.join(signals)}). IP: {ip_address or 'Unknown'}",
                 ip_address=ip_address,
                 user_agent=user_agent,
-                metadata_info={"signals": signals, "email": email, "is_success": is_success},
+                metadata_info={
+                    "signals": signals,
+                    "email": email,
+                    "is_success": is_success,
+                },
                 success=is_success,
             )
             db.commit()
@@ -177,5 +182,9 @@ class SuspiciousLoginService:
             is_suspicious=is_suspicious,
             signals=signals,
             warning_notification_sent=warning_sent,
-            details={"email": email, "ip_address": ip_address, "user_agent": user_agent},
+            details={
+                "email": email,
+                "ip_address": ip_address,
+                "user_agent": user_agent,
+            },
         )

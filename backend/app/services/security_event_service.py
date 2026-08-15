@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import logging
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Any, Optional
 
 import structlog
 from fastapi import HTTPException, status
@@ -24,7 +22,6 @@ from app.models.security_event import (
 from app.models.user import User
 from app.schemas.security_event import (
     PaginatedSecurityEventsResponse,
-    SecurityEventCreate,
     SecurityEventResponse,
     SecurityEventSummaryResponse,
     TopOffendingIPItem,
@@ -92,16 +89,22 @@ class SecurityEventService:
             elif risk_score >= 0.4:
                 severity = SecurityEventSeverity.HIGH
                 alert_triggered = True
-                alert_msg = f"API Usage Warning: Elevated risk score ({risk_score:.2f})."
+                alert_msg = (
+                    f"API Usage Warning: Elevated risk score ({risk_score:.2f})."
+                )
 
         # Rule 3: Failed Login Frequency
         elif event_type == SecurityEventType.FAILED_LOGIN:
             # Check recent failed logins in past 15 mins for same IP or user
             recent_fails = 0
             if ip_address or target_user_id or actor_id:
-                stmt = select(func.count()).select_from(SecurityEvent).where(
-                    SecurityEvent.event_type == SecurityEventType.FAILED_LOGIN,
-                    SecurityEvent.created_at >= m15_ago,
+                stmt = (
+                    select(func.count())
+                    .select_from(SecurityEvent)
+                    .where(
+                        SecurityEvent.event_type == SecurityEventType.FAILED_LOGIN,
+                        SecurityEvent.created_at >= m15_ago,
+                    )
                 )
                 conditions = []
                 if ip_address:
@@ -129,7 +132,9 @@ class SecurityEventService:
             if risk_score >= 0.6:
                 severity = SecurityEventSeverity.HIGH
                 alert_triggered = True
-                alert_msg = "Security Warning: Critical permission modification performed."
+                alert_msg = (
+                    "Security Warning: Critical permission modification performed."
+                )
 
         # Rule 5: High Risk Score Override
         if not alert_triggered and risk_score >= 0.75:
@@ -167,14 +172,16 @@ class SecurityEventService:
         resolved_method = request_method or audit_request_method.get()
         resolved_path = request_path or audit_request_path.get()
 
-        computed_severity, alert_triggered, alert_message = SecurityEventService._evaluate_alert_rules(
-            db=db,
-            event_type=event_type,
-            given_severity=severity,
-            risk_score=risk_score,
-            ip_address=resolved_ip,
-            actor_id=actor_id,
-            target_user_id=target_user_id,
+        computed_severity, alert_triggered, alert_message = (
+            SecurityEventService._evaluate_alert_rules(
+                db=db,
+                event_type=event_type,
+                given_severity=severity,
+                risk_score=risk_score,
+                ip_address=resolved_ip,
+                actor_id=actor_id,
+                target_user_id=target_user_id,
+            )
         )
 
         event = SecurityEvent(
@@ -279,7 +286,9 @@ class SecurityEventService:
 
         # Pagination & ordering
         offset = (page - 1) * limit
-        paginated_stmt = stmt.order_by(SecurityEvent.created_at.desc()).offset(offset).limit(limit)
+        paginated_stmt = (
+            stmt.order_by(SecurityEvent.created_at.desc()).offset(offset).limit(limit)
+        )
 
         events = list(db.scalars(paginated_stmt).all())
         pages = (total_count + limit - 1) // limit if limit > 0 else 1
@@ -305,7 +314,9 @@ class SecurityEventService:
         event.is_resolved = True
         event.resolved_at = datetime.now(timezone.utc)
         event.resolved_by_id = resolver_user.id
-        event.resolution_notes = notes.strip() if notes else "Resolved by security administrator."
+        event.resolution_notes = (
+            notes.strip() if notes else "Resolved by security administrator."
+        )
 
         db.add(event)
         db.commit()
@@ -324,36 +335,64 @@ class SecurityEventService:
         h24_ago = now - timedelta(hours=24)
 
         total_cnt = db.scalar(select(func.count()).select_from(SecurityEvent)) or 0
-        events_24h = db.scalar(
-            select(func.count()).select_from(SecurityEvent).where(SecurityEvent.created_at >= h24_ago)
-        ) or 0
-        alerts_total = db.scalar(
-            select(func.count()).select_from(SecurityEvent).where(SecurityEvent.alert_triggered.is_(True))
-        ) or 0
-        unresolved_cnt = db.scalar(
-            select(func.count()).select_from(SecurityEvent).where(
-                SecurityEvent.alert_triggered.is_(True),
-                SecurityEvent.is_resolved.is_(False),
+        events_24h = (
+            db.scalar(
+                select(func.count())
+                .select_from(SecurityEvent)
+                .where(SecurityEvent.created_at >= h24_ago)
             )
-        ) or 0
-        critical_24h = db.scalar(
-            select(func.count()).select_from(SecurityEvent).where(
-                SecurityEvent.created_at >= h24_ago,
-                SecurityEvent.severity == SecurityEventSeverity.CRITICAL,
+            or 0
+        )
+        alerts_total = (
+            db.scalar(
+                select(func.count())
+                .select_from(SecurityEvent)
+                .where(SecurityEvent.alert_triggered.is_(True))
             )
-        ) or 0
+            or 0
+        )
+        unresolved_cnt = (
+            db.scalar(
+                select(func.count())
+                .select_from(SecurityEvent)
+                .where(
+                    SecurityEvent.alert_triggered.is_(True),
+                    SecurityEvent.is_resolved.is_(False),
+                )
+            )
+            or 0
+        )
+        critical_24h = (
+            db.scalar(
+                select(func.count())
+                .select_from(SecurityEvent)
+                .where(
+                    SecurityEvent.created_at >= h24_ago,
+                    SecurityEvent.severity == SecurityEventSeverity.CRITICAL,
+                )
+            )
+            or 0
+        )
 
         # Event type breakdown
         type_rows = db.execute(
-            select(SecurityEvent.event_type, func.count()).group_by(SecurityEvent.event_type)
+            select(SecurityEvent.event_type, func.count()).group_by(
+                SecurityEvent.event_type
+            )
         ).all()
-        type_breakdown = {t.value if hasattr(t, "value") else str(t): cnt for t, cnt in type_rows}
+        type_breakdown = {
+            t.value if hasattr(t, "value") else str(t): cnt for t, cnt in type_rows
+        }
 
         # Severity breakdown
         sev_rows = db.execute(
-            select(SecurityEvent.severity, func.count()).group_by(SecurityEvent.severity)
+            select(SecurityEvent.severity, func.count()).group_by(
+                SecurityEvent.severity
+            )
         ).all()
-        sev_breakdown = {s.value if hasattr(s, "value") else str(s): cnt for s, cnt in sev_rows}
+        sev_breakdown = {
+            s.value if hasattr(s, "value") else str(s): cnt for s, cnt in sev_rows
+        }
 
         # Top offending IPs
         ip_rows = db.execute(

@@ -23,9 +23,7 @@ from app.schemas.plugin import (
     PluginDispatchItem,
     PluginEventDispatchResult,
     PluginInstallationCreate,
-    PluginInstallationResponse,
     PluginInstallationUpdate,
-    PluginResponse,
     PluginUpdate,
 )
 
@@ -60,7 +58,11 @@ class PluginService:
 
     @staticmethod
     def create_plugin(db: Session, plugin_in: PluginCreate, author: User) -> Plugin:
-        slug = plugin_in.slug.strip() if plugin_in.slug else PluginService._generate_unique_slug(db, plugin_in.name)
+        slug = (
+            plugin_in.slug.strip()
+            if plugin_in.slug
+            else PluginService._generate_unique_slug(db, plugin_in.name)
+        )
 
         existing = db.scalar(select(Plugin).where(Plugin.slug == slug))
         if existing:
@@ -104,7 +106,9 @@ class PluginService:
                 val = uuid.UUID(plugin_id_or_slug)
                 plugin = db.get(Plugin, val)
             except ValueError:
-                plugin = db.scalar(select(Plugin).where(Plugin.slug == plugin_id_or_slug))
+                plugin = db.scalar(
+                    select(Plugin).where(Plugin.slug == plugin_id_or_slug)
+                )
 
         if not plugin:
             raise HTTPException(
@@ -148,7 +152,11 @@ class PluginService:
 
         total_cnt = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
         offset = (page - 1) * limit
-        stmt = stmt.order_by(Plugin.install_count.desc(), Plugin.created_at.desc()).offset(offset).limit(limit)
+        stmt = (
+            stmt.order_by(Plugin.install_count.desc(), Plugin.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
 
         plugins = list(db.scalars(stmt).all())
         return plugins, total_cnt
@@ -163,7 +171,10 @@ class PluginService:
         plugin = PluginService.get_plugin_or_404(db, plugin_id)
 
         # Check permission: Author or System Admin
-        is_admin = getattr(actor, "system_role", None) == "admin" or getattr(actor, "role", None) == "admin"
+        is_admin = (
+            getattr(actor, "system_role", None) == "admin"
+            or getattr(actor, "role", None) == "admin"
+        )
         if plugin.author_id != actor.id and not is_admin:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -317,7 +328,9 @@ class PluginService:
         user: User,
         organization_id: Optional[uuid.UUID] = None,
     ) -> list[PluginInstallation]:
-        stmt = select(PluginInstallation).options(selectinload(PluginInstallation.plugin))
+        stmt = select(PluginInstallation).options(
+            selectinload(PluginInstallation.plugin)
+        )
 
         if organization_id:
             stmt = stmt.where(PluginInstallation.organization_id == organization_id)
@@ -327,7 +340,9 @@ class PluginService:
                 PluginInstallation.organization_id.is_(None),
             )
 
-        return list(db.scalars(stmt.order_by(PluginInstallation.installed_at.desc())).all())
+        return list(
+            db.scalars(stmt.order_by(PluginInstallation.installed_at.desc())).all()
+        )
 
     @staticmethod
     def update_installation(
@@ -385,7 +400,11 @@ class PluginService:
 
         matched_plugins: list[Plugin] = []
         for p in active_plugins:
-            manifest_points = p.manifest.get("extension_points", []) if isinstance(p.manifest, dict) else []
+            manifest_points = (
+                p.manifest.get("extension_points", [])
+                if isinstance(p.manifest, dict)
+                else []
+            )
             if event in manifest_points:
                 matched_plugins.append(p)
 
@@ -405,7 +424,11 @@ class PluginService:
             installations = list(db.scalars(stmt_inst).all())
 
             for inst in installations:
-                webhook_url = inst.plugin.manifest.get("webhook_url") if isinstance(inst.plugin.manifest, dict) else None
+                webhook_url = (
+                    inst.plugin.manifest.get("webhook_url")
+                    if isinstance(inst.plugin.manifest, dict)
+                    else None
+                )
                 dispatched_status = "queued" if webhook_url else "no_webhook"
                 dispatches.append(
                     PluginDispatchItem(

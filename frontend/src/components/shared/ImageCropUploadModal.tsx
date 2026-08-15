@@ -17,15 +17,11 @@ import {
   AlertCircle,
   CheckCircle2,
   Camera,
-  VideoOff,
-  FlipHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/services/imageUpload";
-import { useCamera } from "@/hooks/useCamera";
 import { cn } from "@/lib/utils";
 import { CameraCapture } from "@/components/shared/CameraCapture";
-import { TypoCaption } from "@/components/shared/Typography";
 
 export type ImageCropMode = "avatar" | "banner";
 
@@ -67,17 +63,6 @@ export function ImageCropUploadModal({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
 
-  const [isCameraMode, setIsCameraMode] = useState(false);
-  const {
-    cameraState,
-    stream,
-    videoRef,
-    errorMsg,
-    startCamera,
-    stopCamera,
-    switchCamera,
-  } = useCamera();
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -99,10 +84,8 @@ export function ImageCropUploadModal({
       setIsUploading(false);
       setUploadProgress(0);
       setUploadComplete(false);
-      setIsCameraMode(false);
-      stopCamera();
     }
-  }, [isOpen, stopCamera]);
+  }, [isOpen]);
 
   const validateAndLoadFile = (file: File) => {
     setError(null);
@@ -134,28 +117,6 @@ export function ImageCropUploadModal({
     };
     reader.readAsDataURL(file);
   };
-
-  const handleCapturePhoto = useCallback(() => {
-    if (!videoRef.current) return;
-    const video = videoRef.current;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
-        stopCamera();
-        setIsCameraMode(false);
-        validateAndLoadFile(file);
-      }
-    }, "image/jpeg", 0.9);
-  }, [videoRef, stopCamera]);
 
   // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent) => {
@@ -374,116 +335,7 @@ export function ImageCropUploadModal({
               <Camera size={18} />
               Take a Photo
             </Button>
-        {!previewUrl ? (
-          isCameraMode ? (
-            <div className="flex flex-col items-center justify-center space-y-4 rounded-xl border border-border bg-black/90 p-4 min-h-[300px]">
-              {cameraState === "ready" && stream ? (
-                <div className="relative w-full max-w-sm overflow-hidden rounded-lg bg-black flex justify-center">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-auto object-cover"
-                    style={{ maxHeight: "300px", transform: "scaleX(-1)" }}
-                  />
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4">
-                     <Button type="button" size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); switchCamera(); }} className="rounded-full h-10 w-10">
-                        <FlipHorizontal size={18} />
-                     </Button>
-                     <Button type="button" size="icon" className="rounded-full h-12 w-12 bg-white text-black hover:bg-gray-200" onClick={(e) => { e.stopPropagation(); handleCapturePhoto(); }}>
-                        <Camera size={24} />
-                     </Button>
-                     <Button type="button" size="icon" variant="destructive" onClick={(e) => { e.stopPropagation(); stopCamera(); setIsCameraMode(false); }} className="rounded-full h-10 w-10">
-                        <VideoOff size={18} />
-                     </Button>
-                  </div>
-                </div>
-              ) : cameraState === "requesting_permission" ? (
-                <div className="text-sm text-white p-8 animate-pulse">Requesting camera permission...</div>
-              ) : cameraState === "permission_denied" ? (
-                <div className="text-sm text-destructive p-8 flex flex-col items-center gap-2 bg-black/40 rounded-lg">
-                  <AlertCircle size={24} />
-                  <span>Camera permission denied.</span>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setIsCameraMode(false)} className="mt-2 text-foreground">Back to upload</Button>
-                </div>
-              ) : (
-                <div className="text-sm text-destructive p-8 flex flex-col items-center gap-2 bg-black/40 rounded-lg">
-                  <AlertCircle size={24} />
-                  <span>{errorMsg || "Camera is unavailable."}</span>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setIsCameraMode(false)} className="mt-2 text-foreground">Back to upload</Button>
-                </div>
-              )}
-            </div>
-            <p className="mt-3 text-sm font-medium text-foreground">
-              Drag & drop your image here, or <span className="text-primary underline">browse</span>
-            </p>
-            <TypoCaption as="p">
-              Supports JPEG, PNG, WebP, GIF · Max {maxSizeMB}MB
-            </TypoCaption>
-            <input
-              ref={fileInputRef}
-              type="file"
-              data-testid="file-input"
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              onChange={handleFileChange}
-              className="hidden"
-            />
           </div>
-          ) : (
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={cn(
-                "flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-colors text-center",
-                isDragging
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-muted/30 hover:border-primary/60",
-              )}
-            >
-              <div 
-                className="flex flex-col items-center cursor-pointer"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Upload size={24} />
-                </div>
-                <p className="mt-3 text-sm font-medium text-foreground">
-                  Drag & drop your image here, or <span className="text-primary underline">browse</span>
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground mb-4">
-                  Supports JPEG, PNG, WebP, GIF · Max {maxSizeMB}MB
-                </p>
-              </div>
-              
-              <div className="flex items-center gap-3 mt-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    setIsCameraMode(true); 
-                    startCamera(); 
-                  }}
-                  className="z-10 relative"
-                >
-                  <Camera size={16} className="mr-2" />
-                  Take Photo
-                </Button>
-              </div>
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                data-testid="file-input"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-          )
         ) : (
           <div className="space-y-4">
             {/* Interactive Canvas & Preview */}
@@ -524,9 +376,9 @@ export function ImageCropUploadModal({
                       className="h-1.5 flex-1 appearance-none rounded-lg bg-border accent-primary cursor-pointer"
                     />
                     <ZoomIn size={14} className="text-muted-foreground shrink-0" />
-                    <TypoCaption>
+                    <span className="w-10 font-mono text-muted-foreground text-right">
                       {Math.round(zoom * 100)}%
-                    </TypoCaption>
+                    </span>
                   </div>
 
                   {/* Action Buttons */}
@@ -576,7 +428,7 @@ export function ImageCropUploadModal({
                       </>
                     )}
                   </span>
-                  <TypoCaption>{uploadProgress}%</TypoCaption>
+                  <span className="font-mono text-muted-foreground">{uploadProgress}%</span>
                 </div>
 
                 {/* Progress Bar Container */}

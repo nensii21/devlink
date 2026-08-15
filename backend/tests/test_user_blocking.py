@@ -10,8 +10,6 @@ from app.models.conversation import Conversation
 from app.models.conversation_member import ConversationMember
 from app.models.follower import Follower
 from app.models.user import User
-from app.models.user_block import UserBlock
-from app.services.block_service import BlockService
 
 
 @pytest.fixture

@@ -18,21 +18,18 @@ and AI Tech Stack Recommendation.
 """
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import HTTPException, Request
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_user, get_database
+from app.dependencies import get_database
 from app.middleware.rate_limit import RECOMMENDATION_LIMIT, limiter
-from app.models.user import User
 from app.schemas.recommendation import (
     ProjectRecommendationResponse,
     RecommendationResponse,
     RecommendedBuilder,
     RecommendedProject,
 )
-from app.schemas.recommendation import RecommendationResponse, RecommendedBuilder
 from app.schemas.tech_stack import TechStackRequest, TechStackResponse
 from app.services.recommendation_service import RecommendationService
 from app.services.ai_service import AIService

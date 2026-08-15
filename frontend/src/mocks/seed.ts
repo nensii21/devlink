@@ -63,6 +63,7 @@ export interface Builder {
     title: string;
     date: string;
   }[];
+  collaborationStatus?: string;
 }
 export interface Project {
   id: ID;
@@ -233,6 +234,7 @@ export const builders: Builder[] = [
     badges: ["Top Contributor", "Social Butterfly"],
     online: true,
     bio: "Loves accessible UIs and design systems.",
+    collaborationStatus: "reviewing_pr",
     interests: ["Web Dev", "Design Systems", "AI"],
     lastActiveAt: ago(1),
     publicEmail: "priya@example.com",
@@ -288,6 +290,7 @@ export const builders: Builder[] = [
     badges: ["Active Developer"],
     online: true,
     bio: "Builds end-to-end features fast.",
+    collaborationStatus: "coding",
     interests: ["Backend", "Web Dev"],
     lastActiveAt: ago(3),
   },
@@ -304,6 +307,7 @@ export const builders: Builder[] = [
     badges: ["Project Owner", "Active Developer"],
     online: false,
     bio: "APIs, queues and Postgres tuning.",
+    collaborationStatus: "looking_for_project",
     interests: ["Backend", "AI"],
     lastActiveAt: ago(120),
   },
@@ -863,4 +867,3 @@ export const quickActions: QuickAction[] = [
   { id: "qa3", iconName: "Flame", label: "Publish flare", to: "/flares" },
   { id: "qa4", iconName: "UserPlus", label: "Invite recommended builder", to: "/builders" },
 ];
-

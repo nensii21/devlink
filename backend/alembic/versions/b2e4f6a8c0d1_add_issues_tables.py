@@ -54,7 +54,9 @@ def upgrade() -> None:
         sa.Column("labels", sa.String(500), nullable=True),
         sa.Column(
             "difficulty",
-            sa.Enum("beginner", "intermediate", "advanced", "expert", name="issuedifficulty"),
+            sa.Enum(
+                "beginner", "intermediate", "advanced", "expert", name="issuedifficulty"
+            ),
             nullable=True,
             index=True,
         ),

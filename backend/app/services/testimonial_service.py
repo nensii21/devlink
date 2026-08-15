@@ -48,14 +48,18 @@ class TestimonialService:
     def get_user_or_404(db: Session, username: str) -> User:
         user = db.scalar(select(User).where(User.username == username))
         if user is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
         return user
 
     @staticmethod
     def get_subject_or_404(db: Session, subject_id: uuid.UUID) -> User:
         user = db.get(User, subject_id)
         if user is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
         return user
 
     @staticmethod
@@ -63,7 +67,9 @@ class TestimonialService:
         testimonial = db.scalar(
             select(Testimonial)
             .where(Testimonial.id == testimonial_id)
-            .options(selectinload(Testimonial.author), selectinload(Testimonial.subject))
+            .options(
+                selectinload(Testimonial.author), selectinload(Testimonial.subject)
+            )
         )
         if testimonial is None:
             raise HTTPException(
@@ -125,7 +131,9 @@ class TestimonialService:
         if project_id is None:
             return
         if db.scalar(select(Project.id).where(Project.id == project_id)) is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+            )
 
     # ------------------------------------------------------------------
     # Writes
@@ -325,12 +333,16 @@ class TestimonialService:
             # Everyone else sees approved only, whatever they ask for.
             conditions.append(Testimonial.status == TestimonialStatus.APPROVED)
 
-        total = int(db.scalar(select(func.count(Testimonial.id)).where(*conditions)) or 0)
+        total = int(
+            db.scalar(select(func.count(Testimonial.id)).where(*conditions)) or 0
+        )
 
         stmt = (
             select(Testimonial)
             .where(*conditions)
-            .options(selectinload(Testimonial.author), selectinload(Testimonial.subject))
+            .options(
+                selectinload(Testimonial.author), selectinload(Testimonial.subject)
+            )
             # Featured first, then newest.
             .order_by(Testimonial.is_featured.desc(), Testimonial.created_at.desc())
             .limit(limit)
@@ -346,7 +358,9 @@ class TestimonialService:
         offset: int = 0,
     ) -> tuple[list[Testimonial], int]:
         conditions = [Testimonial.author_id == author.id]
-        total = int(db.scalar(select(func.count(Testimonial.id)).where(*conditions)) or 0)
+        total = int(
+            db.scalar(select(func.count(Testimonial.id)).where(*conditions)) or 0
+        )
 
         stmt = (
             select(Testimonial)

@@ -1,6 +1,4 @@
-import pytest
 from app.models.user import User
-from app.models.project import Project
 from app.services.project_service import ProjectService
 
 
@@ -11,19 +9,23 @@ def test_project_sorting_options(client, db, register_and_login):
     p1 = ProjectService.create_project(
         db,
         owner_id=user.id,
-        project=type("ProjectCreateMock", (), {
-            "title": "Alpha Project",
-            "description": "First project created for test",
-            "slug": "alpha-proj-sort",
-            "language": "Python",
-            "experience": "Beginner",
-            "is_remote": True,
-            "is_paid": False,
-            "is_open_source": True,
-            "tech_stack": "Python, FastAPI",
-            "repository_url": None,
-            "demo_url": None,
-        })()
+        project=type(
+            "ProjectCreateMock",
+            (),
+            {
+                "title": "Alpha Project",
+                "description": "First project created for test",
+                "slug": "alpha-proj-sort",
+                "language": "Python",
+                "experience": "Beginner",
+                "is_remote": True,
+                "is_paid": False,
+                "is_open_source": True,
+                "tech_stack": "Python, FastAPI",
+                "repository_url": None,
+                "demo_url": None,
+            },
+        )(),
     )
 
     # Test API sorting endpoints

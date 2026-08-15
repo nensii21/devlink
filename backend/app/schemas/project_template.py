@@ -16,13 +16,28 @@ class TemplateAuthorResponse(BaseModel):
 
 
 class ProjectTemplateCreate(BaseModel):
-    title: str = Field(..., min_length=3, max_length=255, example="Next.js Fullstack SaaS Starter")
-    description: str = Field(..., min_length=10, example="A modern production-ready template with Auth, Stripe, and PostgreSQL.")
+    title: str = Field(
+        ..., min_length=3, max_length=255, example="Next.js Fullstack SaaS Starter"
+    )
+    description: str = Field(
+        ...,
+        min_length=10,
+        example="A modern production-ready template with Auth, Stripe, and PostgreSQL.",
+    )
     category: str = Field(default="web-app", example="web-app")
-    tech_stack: list[str] = Field(default_factory=list, example=["Next.js", "TailwindCSS", "PostgreSQL"])
-    features: list[str] = Field(default_factory=list, example=["OAuth Authentication", "Dark Mode", "API Routes"])
-    repository_url: Optional[str] = Field(default=None, example="https://github.com/example/starter")
-    demo_url: Optional[str] = Field(default=None, example="https://starter-demo.example.com")
+    tech_stack: list[str] = Field(
+        default_factory=list, example=["Next.js", "TailwindCSS", "PostgreSQL"]
+    )
+    features: list[str] = Field(
+        default_factory=list,
+        example=["OAuth Authentication", "Dark Mode", "API Routes"],
+    )
+    repository_url: Optional[str] = Field(
+        default=None, example="https://github.com/example/starter"
+    )
+    demo_url: Optional[str] = Field(
+        default=None, example="https://starter-demo.example.com"
+    )
 
 
 class ProjectTemplateUpdate(BaseModel):
@@ -60,8 +75,12 @@ class ProjectTemplateResponse(BaseModel):
 
 
 class ProjectTemplateCloneRequest(BaseModel):
-    new_project_title: Optional[str] = Field(default=None, description="Custom title for cloned project")
-    description: Optional[str] = Field(default=None, description="Custom description for cloned project")
+    new_project_title: Optional[str] = Field(
+        default=None, description="Custom title for cloned project"
+    )
+    description: Optional[str] = Field(
+        default=None, description="Custom description for cloned project"
+    )
 
 
 class ProjectTemplateListResponse(BaseModel):

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, notFound } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { projectsService } from "@/services";
 import { Card, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
@@ -40,13 +40,9 @@ import { ApplyModal } from "@/features/projects/components/ApplyModal";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   loader: async ({ params }) => {
-    try {
-      const project = await projectsService.get(params.projectId);
-      if (!project) throw notFound();
-      return { project };
-    } catch (e) {
-      throw notFound();
-    }
+    const project = await projectsService.get(params.projectId).catch(() => null);
+    if (!project) throw notFound();
+    return { project };
   },
   head: ({ loaderData, params }) => {
     const p = loaderData?.project;
@@ -109,7 +105,7 @@ function ProjectDetail() {
     queryKey: ["myApplications"],
     queryFn: getMyApplications,
   });
-  const projectApplication = myApps?.find(a => a.project_id === projectId);
+  const projectApplication = myApps?.find((a) => a.project_id === projectId);
   const withdrawMutation = useWithdrawApplication();
 
   // Tag generator state
@@ -160,7 +156,7 @@ function ProjectDetail() {
     return (
       <div className="space-y-4">
         <BackButton to="/projects" label="Back to projects" />
-        
+
         {/* Header Card Skeleton */}
         <Card className="p-5">
           <div className="flex items-start gap-4">
@@ -217,7 +213,13 @@ function ProjectDetail() {
       </div>
     );
   }
-  if (!p) throw notFound();
+  if (!p) {
+    // When a child sub-route (e.g. collaboration-metrics) is active and the
+    // project data is unavailable (backend offline / not found), render the
+    // child outlet so sub-pages can display their own standalone content
+    // instead of crashing the whole route tree.
+    return <Outlet />;  
+  }
 
   const tabs = dashboard
     ? (["overview", "workspace", "members", "activity", "repos", "dashboard"] as const)
@@ -392,9 +394,7 @@ function ProjectDetail() {
                         ))}
                       </div>
                       <div className="flex items-center justify-between">
-                        <TypoCaption as="p">
-                          {selectedTags.length} tags selected
-                        </TypoCaption>
+                        <TypoCaption as="p">{selectedTags.length} tags selected</TypoCaption>
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => tagMutation.mutate()}

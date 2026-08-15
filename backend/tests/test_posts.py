@@ -9,7 +9,6 @@ from app.database.base import Base
 from app.main import app
 from app.dependencies import get_database, get_current_user
 from app.models.user import User
-from app.models.post import Post
 
 DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(
@@ -65,7 +64,7 @@ def test_create_and_list_published_post(test_client, db_session):
     payload = {
         "content": "Hello published feed! #python",
         "status": "published",
-        "tags": ["python"]
+        "tags": ["python"],
     }
     response = test_client.post("/api/posts/", json=payload)
     assert response.status_code == 201
@@ -84,11 +83,7 @@ def test_create_and_list_published_post(test_client, db_session):
 
 def test_create_and_manage_draft_post(test_client, db_session):
     # 1. Create a draft post
-    payload = {
-        "content": "This is a draft. #wip",
-        "status": "draft",
-        "tags": ["wip"]
-    }
+    payload = {"content": "This is a draft. #wip", "status": "draft", "tags": ["wip"]}
     response = test_client.post("/api/posts/", json=payload)
     assert response.status_code == 201
     draft_id = response.json()["id"]
@@ -107,17 +102,13 @@ def test_create_and_manage_draft_post(test_client, db_session):
     assert drafts[0]["status"] == "draft"
 
     # 4. Edit draft
-    update_payload = {
-        "content": "This is an edited draft. #updated"
-    }
+    update_payload = {"content": "This is an edited draft. #updated"}
     response = test_client.put(f"/api/posts/{draft_id}", json=update_payload)
     assert response.status_code == 200
     assert response.json()["content"] == "This is an edited draft. #updated"
 
     # 5. Publish draft
-    publish_payload = {
-        "status": "published"
-    }
+    publish_payload = {"status": "published"}
     response = test_client.put(f"/api/posts/{draft_id}", json=publish_payload)
     assert response.status_code == 200
     assert response.json()["status"] == "published"
@@ -135,7 +126,7 @@ def test_scheduled_post_flow(test_client, db_session):
     payload = {
         "content": "Scheduled feed post! #scheduled",
         "status": "published",
-        "publish_at": future_time
+        "publish_at": future_time,
     }
     response = test_client.post("/api/posts/", json=payload)
     assert response.status_code == 201

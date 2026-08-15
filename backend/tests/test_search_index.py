@@ -1,6 +1,5 @@
 import pytest
 from uuid import uuid4
-from fastapi.testclient import TestClient
 
 from app.models.user import User
 from app.models.project import Project

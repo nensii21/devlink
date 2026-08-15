@@ -106,8 +106,5 @@ class HackathonScore(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<HackathonScore("
-            f"submission_id={self.submission_id}, "
-            f"score={self.score}"
-            f")>"
+            f"<HackathonScore(submission_id={self.submission_id}, score={self.score})>"
         )

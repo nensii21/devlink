@@ -1,5 +1,3 @@
-import uuid
-import pytest
 from fastapi.testclient import TestClient
 
 from app.models.user import User
@@ -26,7 +24,9 @@ def test_record_profile_view_service(db):
     user1 = create_test_user(db, "pv1@example.com", "pvuser1")
     user2 = create_test_user(db, "pv2@example.com", "pvuser2")
 
-    view = ProfileViewService.record_view(db, viewed_user_id=user2.id, viewer_id=user1.id)
+    view = ProfileViewService.record_view(
+        db, viewed_user_id=user2.id, viewer_id=user1.id
+    )
     assert view is not None
     assert view.viewed_user_id == user2.id
     assert view.viewer_id == user1.id
@@ -36,7 +36,9 @@ def test_record_profile_view_service(db):
 def test_ignore_self_profile_view(db):
     user1 = create_test_user(db, "pvself@example.com", "pvself")
 
-    view = ProfileViewService.record_view(db, viewed_user_id=user1.id, viewer_id=user1.id)
+    view = ProfileViewService.record_view(
+        db, viewed_user_id=user1.id, viewer_id=user1.id
+    )
     assert view is None
 
 

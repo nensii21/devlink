@@ -49,7 +49,9 @@ class ProfileSuggestionService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def calculate_profile_score(user: User, skills: list[dict], project_count: int) -> int:
+    def calculate_profile_score(
+        user: User, skills: list[dict], project_count: int
+    ) -> int:
         """
         Calculate a profile completeness score from 0 to 100.
         """
@@ -145,7 +147,9 @@ class ProfileSuggestionService:
         # Complementary skills suggestion based on role
         user_role = (user.role or "").lower()
         existing_skills_lower = {s["name"].lower() for s in skills}
-        if "frontend" in user_role and not ("typescript" in existing_skills_lower or "react" in existing_skills_lower):
+        if "frontend" in user_role and not (
+            "typescript" in existing_skills_lower or "react" in existing_skills_lower
+        ):
             suggestions.append(
                 ProfileSuggestionItem(
                     id="missing_skills_frontend_core",
@@ -160,7 +164,12 @@ class ProfileSuggestionService:
                     action_url="/settings/skills",
                 )
             )
-        elif "backend" in user_role and not ("python" in existing_skills_lower or "postgresql" in existing_skills_lower or "fastapi" in existing_skills_lower or "node" in existing_skills_lower):
+        elif "backend" in user_role and not (
+            "python" in existing_skills_lower
+            or "postgresql" in existing_skills_lower
+            or "fastapi" in existing_skills_lower
+            or "node" in existing_skills_lower
+        ):
             suggestions.append(
                 ProfileSuggestionItem(
                     id="missing_skills_backend_core",
@@ -354,14 +363,14 @@ Analyze this developer's profile and recommend improvements to increase their vi
 
 Developer Profile:
 - Name: {user.first_name} {user.last_name}
-- Headline: {user.headline or 'None'}
-- Bio: {user.bio or 'None'}
-- Role: {user.role or 'None'}
-- Experience Level: {user.experience_level or 'None'}
-- Company: {user.company or 'None'}
+- Headline: {user.headline or "None"}
+- Bio: {user.bio or "None"}
+- Role: {user.role or "None"}
+- Experience Level: {user.experience_level or "None"}
+- Company: {user.company or "None"}
 - Skills: {json.dumps(skills)}
-- Portfolio URL: {user.portfolio_url or user.website or 'None'}
-- GitHub URL: {user.github_url or 'None'}
+- Portfolio URL: {user.portfolio_url or user.website or "None"}
+- GitHub URL: {user.github_url or "None"}
 - Open to Work: {user.open_to_work}
 - Projects Created: {project_count}
 
@@ -417,7 +426,9 @@ Return ONLY valid JSON matching this exact schema:
                         id=item.get("id", f"{cat}_{len(ai_items)}"),
                         category=cat,
                         title=item.get("title", "Improve Profile"),
-                        description=item.get("description", "Update your profile details."),
+                        description=item.get(
+                            "description", "Update your profile details."
+                        ),
                         impact=item.get("impact", "medium").lower(),
                         action_label=item.get("action_label", "Update Profile"),
                         action_url=item.get("action_url", "/settings/profile"),
@@ -455,7 +466,9 @@ Return ONLY valid JSON matching this exact schema:
         skills = [
             {
                 "name": us.skill.name,
-                "level": us.level.value if hasattr(us.level, "value") else str(us.level),
+                "level": us.level.value
+                if hasattr(us.level, "value")
+                else str(us.level),
                 "years": us.years_of_experience,
             }
             for us in user_skills_rows
@@ -467,7 +480,9 @@ Return ONLY valid JSON matching this exact schema:
         project_count = len(db.scalars(stmt_projects).all())
 
         # Calculate profile score
-        score = ProfileSuggestionService.calculate_profile_score(user, skills, project_count)
+        score = ProfileSuggestionService.calculate_profile_score(
+            user, skills, project_count
+        )
 
         # Generate base rule suggestions
         base_suggestions = ProfileSuggestionService._generate_rule_based_suggestions(

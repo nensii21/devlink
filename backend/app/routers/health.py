@@ -1,4 +1,3 @@
-import os
 import shutil
 import time
 from datetime import datetime, timezone
@@ -201,7 +200,7 @@ def _render_html_dashboard(data: dict) -> str:
         services_html += f"""
         <div style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h3 style="margin: 0; text-transform: capitalize; font-size: 1.1rem; color: #1F2937;">{name.replace('_', ' ')}</h3>
+                <h3 style="margin: 0; text-transform: capitalize; font-size: 1.1rem; color: #1F2937;">{name.replace("_", " ")}</h3>
                 <span style="background: {badge_bg}; color: {badge_text}; font-weight: 600; padding: 4px 12px; border-radius: 9999px; font-size: 0.85rem; text-transform: uppercase;">
                     {srv_status}
                 </span>

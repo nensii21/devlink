@@ -29,7 +29,9 @@ def get_active_announcements(
     current_user: User | None = Depends(get_optional_current_user),
 ):
     role = current_user.role if current_user else None
-    return GlobalAnnouncementService.get_active_announcements_for_user(db, user_role=role)
+    return GlobalAnnouncementService.get_active_announcements_for_user(
+        db, user_role=role
+    )
 
 
 @router.get(

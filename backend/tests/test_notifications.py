@@ -251,12 +251,12 @@ def test_delete_notification(client: TestClient, register_and_login):
     nid = c.json()["id"]
 
     response = client.delete(
-        f"/api/notifications/{nid}", headers={"Authorization": f"Bearer {token1}"}
+        f"/api/notifications/{nid}", headers={"Authorization": f"Bearer {token2}"}
     )
     assert response.status_code == 204
 
     get_resp = client.get(
-        f"/api/notifications/{nid}", headers={"Authorization": f"Bearer {token1}"}
+        f"/api/notifications/{nid}", headers={"Authorization": f"Bearer {token2}"}
     )
     assert get_resp.status_code == 404
 
@@ -268,3 +268,41 @@ def test_delete_notification_not_found(client: TestClient, register_and_login):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 404
+
+
+def test_notifications_unauthenticated(client: TestClient):
+    res = client.get("/api/notifications/")
+    assert res.status_code == 401
+
+
+def test_mark_read_not_found(client: TestClient, register_and_login):
+    _, token = register_and_login("mr_nf@example.com", "mrnf")
+    res = client.patch(
+        f"/api/notifications/{uuid.uuid4()}/read",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 404
+
+
+def test_delete_notification_unauthorized(client: TestClient, register_and_login):
+    uid1, token1 = register_and_login("notif_owner@example.com", "notifowner")
+    uid2, token2 = register_and_login("notif_other@example.com", "notifother")
+
+    c = client.post(
+        "/api/notifications/",
+        json={
+            "recipient_id": uid1,
+            "type": "message",
+            "title": "Private Notification",
+            "message": "Top Secret",
+        },
+        headers={"Authorization": f"Bearer {token1}"},
+    )
+    nid = c.json()["id"]
+
+    # Other user attempts to delete notification -> 404 or 403
+    res = client.delete(
+        f"/api/notifications/{nid}",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+    assert res.status_code in (403, 404)

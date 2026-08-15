@@ -1,5 +1,6 @@
-import pytest
-from app.models.centralized_analytics import CentralizedAnalyticsEvent, AnalyticsEventType
+from app.models.centralized_analytics import (
+    AnalyticsEventType,
+)
 from app.services.centralized_analytics_service import CentralizedAnalyticsService
 
 
@@ -49,7 +50,9 @@ def test_centralized_analytics_api_list_events(client, db):
         properties={"chat": "dev_group"},
     )
 
-    response = client.get("/api/centralized-analytics/events?limit=10&event_type=message_sent")
+    response = client.get(
+        "/api/centralized-analytics/events?limit=10&event_type=message_sent"
+    )
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)

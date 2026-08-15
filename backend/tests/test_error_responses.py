@@ -4,7 +4,6 @@ import pytest
 from fastapi import FastAPI, HTTPException, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
-from limits import parse as parse_limit
 from pydantic import BaseModel, Field, field_validator
 from slowapi.errors import RateLimitExceeded
 from starlette.exceptions import HTTPException as StarletteHTTPException

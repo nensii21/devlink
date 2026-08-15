@@ -17,6 +17,16 @@ ALLOWED_IMAGE_MIME_TYPES: Final[set[str]] = set(
     ct.strip().lower() for ct in settings.ALLOWED_IMAGE_TYPES.split(",") if ct.strip()
 )
 
+ALLOWED_VOICE_MIME_TYPES: Final[set[str]] = {
+    "audio/mpeg",
+    "audio/mp3",
+    "audio/wav",
+    "audio/x-wav",
+    "audio/webm",
+    "audio/ogg",
+}
+
+MAX_VOICE_SIZE_BYTES: Final[int] = 10 * 1024 * 1024
 
 def scan_file_for_malware(contents: bytes, filename: str) -> None:
     """
@@ -27,18 +37,22 @@ def scan_file_for_malware(contents: bytes, filename: str) -> None:
     # Placeholder for enterprise antivirus scanner hook (e.g., ClamAV / VirusTotal API)
     if not contents:
         raise ValueError("Uploaded file is empty.")
-    
+
     # Basic heuristic check for executable scripts disguised as uploads
     suspicious_signatures = [b"<?php", b"<script", b"MZ", b"\x7fELF"]
     for sig in suspicious_signatures:
         if contents.startswith(sig):
-            raise ValueError(f"Security violation: Prohibited file signature detected in {filename}.")
+            raise ValueError(
+                f"Security violation: Prohibited file signature detected in {filename}."
+            )
 
 
 def validate_resume_upload(
     filename: str | None, content_type: str | None, size_bytes: int
 ) -> None:
-    if not filename or not (filename.lower().endswith(".pdf") or filename.lower().endswith(".docx")):
+    if not filename or not (
+        filename.lower().endswith(".pdf") or filename.lower().endswith(".docx")
+    ):
         raise ValueError("Please upload a PDF or DOCX file.")
     normalized_content_type = (content_type or "").lower()
     if normalized_content_type not in ALLOWED_RESUME_MIME_TYPES:
@@ -62,6 +76,48 @@ def save_resume_upload(contents: bytes, filename: str, user_id: uuid.UUID | str)
 
     return f"/uploads/resumes/{safe_name}"
 
+def validate_voice_introduction_upload(
+    filename: str | None, content_type: str | None, size_bytes: int
+) -> None:
+    if not filename:
+        raise ValueError("Please upload an audio file.")
+
+    ext = Path(filename).suffix.lower()
+    allowed_exts = {".mp3", ".wav", ".webm", ".ogg"}
+
+    if ext not in allowed_exts:
+        raise ValueError(
+            "Unsupported audio format. Allowed: MP3, WAV, WebM, OGG."
+        )
+
+    normalized_content_type = (content_type or "").lower()
+
+    if normalized_content_type not in ALLOWED_VOICE_MIME_TYPES:
+        raise ValueError(
+            "Please upload a valid audio file."
+        )
+
+    if size_bytes > MAX_VOICE_SIZE_BYTES:
+        raise ValueError("Voice introduction must be smaller than 10MB.")
+
+
+def save_voice_introduction_upload(
+    contents: bytes,
+    filename: str,
+    user_id: uuid.UUID | str,
+) -> str:
+    scan_file_for_malware(contents, filename)
+
+    upload_dir = Path(settings.UPLOAD_DIR) / "voice_introductions"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    extension = Path(filename).suffix.lower()
+    safe_name = f"{user_id}-{uuid.uuid4().hex}{extension}"
+
+    destination = upload_dir / safe_name
+    destination.write_bytes(contents)
+
+    return f"/uploads/voice_introductions/{safe_name}"
 
 def validate_image_upload(
     filename: str | None, content_type: str | None, size_bytes: int

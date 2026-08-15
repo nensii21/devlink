@@ -11,8 +11,8 @@ export function useOrganization(orgId: string) {
   const { data: members, isLoading } = useQuery({
     queryKey: ['organizations', orgId, 'members'],
     queryFn: async () => {
-      const res = await api.get(`/organizations/${orgId}/members`);
-      return res.data as OrganizationMember[];
+      const res = await api.get<OrganizationMember[]>(`/organizations/${orgId}/members`);
+      return res;
     },
   });
 

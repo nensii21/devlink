@@ -99,7 +99,10 @@ def test_request_analytics_csv():
         db.close()
 
         lines = csv_data.strip().split("\n")
-        assert lines[0] == "timestamp,method,path,status_code,duration_ms,user_id,rate_limited"
+        assert (
+            lines[0]
+            == "timestamp,method,path,status_code,duration_ms,user_id,rate_limited"
+        )
         assert len(lines) == 5
         assert ",/api/search,429," in csv_data
         assert ",1\n" in csv_data

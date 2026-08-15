@@ -27,9 +27,13 @@ class TimeLogCreate(BaseModel):
         le=MAX_MINUTES_PER_ENTRY,
         description="Duration in whole minutes, 1 to 1440",
     )
-    work_date: date = Field(..., description="The day the work happened (UTC), not the day it was logged")
+    work_date: date = Field(
+        ..., description="The day the work happened (UTC), not the day it was logged"
+    )
     description: Optional[str] = Field(default=None, max_length=500)
-    milestone_id: Optional[uuid.UUID] = Field(default=None, description="Milestone this work counts towards")
+    milestone_id: Optional[uuid.UUID] = Field(
+        default=None, description="Milestone this work counts towards"
+    )
     is_billable: bool = Field(default=False)
 
     @field_validator("description")
@@ -42,7 +46,9 @@ class TimeLogCreate(BaseModel):
 
 
 class TimeLogUpdate(BaseModel):
-    minutes: Optional[int] = Field(default=None, ge=MIN_MINUTES_PER_ENTRY, le=MAX_MINUTES_PER_ENTRY)
+    minutes: Optional[int] = Field(
+        default=None, ge=MIN_MINUTES_PER_ENTRY, le=MAX_MINUTES_PER_ENTRY
+    )
     work_date: Optional[date] = None
     description: Optional[str] = Field(default=None, max_length=500)
     milestone_id: Optional[uuid.UUID] = None
@@ -74,7 +80,9 @@ class TimeLogResponse(BaseModel):
     milestone_id: Optional[uuid.UUID] = None
 
     minutes: int
-    hours: float = Field(description="Minutes as hours, rounded to two decimals, for display")
+    hours: float = Field(
+        description="Minutes as hours, rounded to two decimals, for display"
+    )
     work_date: date
     description: Optional[str] = None
     is_billable: bool
@@ -92,7 +100,9 @@ class TimeLogList(BaseModel):
     total: int
     limit: int
     offset: int
-    total_minutes: int = Field(description="Sum of minutes across the whole filtered set, not just this page")
+    total_minutes: int = Field(
+        description="Sum of minutes across the whole filtered set, not just this page"
+    )
 
 
 class ContributorTotal(BaseModel):

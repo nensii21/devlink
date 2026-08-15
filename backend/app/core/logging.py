@@ -4,7 +4,7 @@ import logging
 import logging.config
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from structlog.types import EventDict

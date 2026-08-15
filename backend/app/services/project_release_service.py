@@ -51,7 +51,10 @@ class ProjectReleaseService:
     def is_maintainer(db: Session, project: Project, user: User | None) -> bool:
         if user is None:
             return False
-        if getattr(user, "system_role", None) == "admin" or getattr(user, "role", None) == "admin":
+        if (
+            getattr(user, "system_role", None) == "admin"
+            or getattr(user, "role", None) == "admin"
+        ):
             return True
         if project.owner_id == user.id:
             return True
@@ -82,7 +85,9 @@ class ProjectReleaseService:
     ) -> ProjectRelease:
         release = db.scalar(
             select(ProjectRelease)
-            .where(ProjectRelease.id == release_id, ProjectRelease.project_id == project_id)
+            .where(
+                ProjectRelease.id == release_id, ProjectRelease.project_id == project_id
+            )
             .options(selectinload(ProjectRelease.author))
         )
         if release is None:
@@ -205,7 +210,9 @@ class ProjectReleaseService:
         return release
 
     @staticmethod
-    def delete_release(db: Session, project_id: uuid.UUID, release_id: uuid.UUID, actor: User) -> None:
+    def delete_release(
+        db: Session, project_id: uuid.UUID, release_id: uuid.UUID, actor: User
+    ) -> None:
         project = ProjectReleaseService.get_project_or_404(db, project_id)
         ProjectReleaseService.require_maintainer(db, project, actor)
         release = ProjectReleaseService.get_release_or_404(
@@ -305,7 +312,9 @@ class ProjectReleaseService:
         if not include_drafts:
             conditions.append(ProjectRelease.status == ReleaseStatus.PUBLISHED)
 
-        total = int(db.scalar(select(func.count(ProjectRelease.id)).where(*conditions)) or 0)
+        total = int(
+            db.scalar(select(func.count(ProjectRelease.id)).where(*conditions)) or 0
+        )
 
         stmt = (
             select(ProjectRelease)
@@ -332,7 +341,9 @@ class ProjectReleaseService:
                 ProjectRelease.status == ReleaseStatus.PUBLISHED,
             )
             .options(selectinload(ProjectRelease.author))
-            .order_by(ProjectRelease.published_at.desc(), ProjectRelease.created_at.desc())
+            .order_by(
+                ProjectRelease.published_at.desc(), ProjectRelease.created_at.desc()
+            )
             .limit(1)
         )
         if release is None:
@@ -379,7 +390,9 @@ class ProjectReleaseService:
             # The release is the user's work; the feed entry is a side effect.
             # Losing the announcement is annoying, losing the release is not
             # acceptable, so this never propagates.
-            logger.exception("Failed to record release activity for release %s", release.id)
+            logger.exception(
+                "Failed to record release activity for release %s", release.id
+            )
 
 
 __all__ = ["ProjectReleaseService"]

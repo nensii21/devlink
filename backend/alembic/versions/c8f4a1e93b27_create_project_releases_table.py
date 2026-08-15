@@ -120,8 +120,12 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_index("ix_project_releases_project_status", table_name="project_releases")
-    op.drop_index("ix_project_releases_project_published", table_name="project_releases")
-    op.drop_index(op.f("ix_project_releases_published_at"), table_name="project_releases")
+    op.drop_index(
+        "ix_project_releases_project_published", table_name="project_releases"
+    )
+    op.drop_index(
+        op.f("ix_project_releases_published_at"), table_name="project_releases"
+    )
     op.drop_index(op.f("ix_project_releases_status"), table_name="project_releases")
     op.drop_index(op.f("ix_project_releases_author_id"), table_name="project_releases")
     op.drop_index(op.f("ix_project_releases_project_id"), table_name="project_releases")

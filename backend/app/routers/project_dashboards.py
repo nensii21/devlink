@@ -4,7 +4,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_database, get_current_user, require_project_permission
+from app.dependencies import get_database, require_project_permission
 from app.models.user import User
 from app.schemas.project_dashboard import ProjectDashboardResponse
 from app.schemas.milestone import MilestoneCreate, MilestoneResponse

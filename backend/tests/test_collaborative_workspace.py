@@ -1,11 +1,8 @@
 import pytest
 from uuid import uuid4
-from fastapi.testclient import TestClient
 
-from app.main import app
 from app.models.project import Project, ProjectStage, ProjectVisibility
 from app.models.user import User
-from app.models.project_document import ProjectDocument
 from app.services.project_document_service import ProjectDocumentService
 
 

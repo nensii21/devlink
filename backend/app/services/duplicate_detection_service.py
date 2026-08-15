@@ -76,9 +76,7 @@ class DuplicateDetectionService:
             return response.data[0].embedding
 
         except Exception as e:
-            logger.error(
-                f"Failed to generate embedding, using keyword fallback: {e}"
-            )
+            logger.error(f"Failed to generate embedding, using keyword fallback: {e}")
             return None
 
     @staticmethod
@@ -288,12 +286,18 @@ class DuplicateDetectionService:
             match_reasons: list[str] = []
 
             # 1. Title Similarity (Jaccard + Levenshtein)
-            title_jaccard = DuplicateDetectionService.keyword_similarity(query_title, p.title)
-            title_lev = DuplicateDetectionService._levenshtein_similarity(query_title, p.title)
+            title_jaccard = DuplicateDetectionService.keyword_similarity(
+                query_title, p.title
+            )
+            title_lev = DuplicateDetectionService._levenshtein_similarity(
+                query_title, p.title
+            )
             title_score = 0.5 * title_jaccard + 0.5 * title_lev
 
             if title_lev >= 0.85:
-                match_reasons.append(f"Nearly identical project title ({int(title_lev * 100)}% title match)")
+                match_reasons.append(
+                    f"Nearly identical project title ({int(title_lev * 100)}% title match)"
+                )
             elif title_jaccard >= 0.6:
                 match_reasons.append("High title keyword overlap")
 
@@ -301,7 +305,9 @@ class DuplicateDetectionService:
             desc_score = 0.0
             p_desc = p.description or ""
             if query_desc and p_desc:
-                desc_score = DuplicateDetectionService.keyword_similarity(query_desc, p_desc)
+                desc_score = DuplicateDetectionService.keyword_similarity(
+                    query_desc, p_desc
+                )
                 if desc_score >= 0.6:
                     match_reasons.append("High description similarity")
 
@@ -314,7 +320,9 @@ class DuplicateDetectionService:
                 matched_tags = set(query_tags) & p_tags
                 if matched_tags:
                     tag_score = len(matched_tags) / max(len(query_tags), len(p_tags))
-                    match_reasons.append(f"Matching tech stack/tags: {', '.join(list(matched_tags)[:4])}")
+                    match_reasons.append(
+                        f"Matching tech stack/tags: {', '.join(list(matched_tags)[:4])}"
+                    )
 
             # 4. Semantic Embedding Similarity
             semantic_score: Optional[float] = None
@@ -322,7 +330,9 @@ class DuplicateDetectionService:
             if query_embedding and hasattr(p, "embedding") and p.embedding:
                 try:
                     p_vec = DuplicateDetectionService.json_to_embedding(p.embedding)
-                    semantic_score = DuplicateDetectionService.cosine_similarity(query_embedding, p_vec)
+                    semantic_score = DuplicateDetectionService.cosine_similarity(
+                        query_embedding, p_vec
+                    )
                     if semantic_score >= 0.7:
                         match_reasons.append("Strong AI semantic embedding similarity")
                 except Exception as e:
@@ -370,4 +380,3 @@ class DuplicateDetectionService:
             threshold_used=threshold,
             manual_override_allowed=True,
         )
-

@@ -1,20 +1,18 @@
 """
 Unit & Integration Tests for AI-Powered Profile Improvement Suggestions (#619)
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-import pytest
 from sqlalchemy.orm import Session
 
-from app.models.profile_suggestion import ProfileSuggestionDismissal
 from app.models.user import User
 from app.schemas.profile_suggestion import (
     DismissSuggestionResponse,
-    ProfileSuggestionItem,
     ProfileSuggestionsResponse,
     RefreshSuggestionsResponse,
 )
@@ -24,6 +22,7 @@ from app.services.profile_suggestion_service import ProfileSuggestionService
 # ---------------------------------------------------------------------------
 # Test Fixtures / Mock Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_user(
     username: str = "testdev",
@@ -64,10 +63,13 @@ def _make_mock_user(
 # 1. Profile Score Calculation Tests
 # ---------------------------------------------------------------------------
 
+
 class TestProfileScoreCalculation:
     def test_empty_profile_score(self):
         user = _make_mock_user(bio=None, headline=None, open_to_work=None)
-        score = ProfileSuggestionService.calculate_profile_score(user, skills=[], project_count=0)
+        score = ProfileSuggestionService.calculate_profile_score(
+            user, skills=[], project_count=0
+        )
         assert 0 <= score <= 100
         # Basic name (10)
         assert score == 10
@@ -84,8 +86,13 @@ class TestProfileScoreCalculation:
             is_verified=True,
             open_to_work=True,
         )
-        skills = [{"name": s, "level": "expert", "years": 5} for s in ["Python", "Go", "PostgreSQL", "FastAPI", "Docker"]]
-        score = ProfileSuggestionService.calculate_profile_score(user, skills=skills, project_count=3)
+        skills = [
+            {"name": s, "level": "expert", "years": 5}
+            for s in ["Python", "Go", "PostgreSQL", "FastAPI", "Docker"]
+        ]
+        score = ProfileSuggestionService.calculate_profile_score(
+            user, skills=skills, project_count=3
+        )
         assert score == 100
 
 
@@ -93,10 +100,13 @@ class TestProfileScoreCalculation:
 # 2. Rule-Based Candidate Generation Tests (5 Categories)
 # ---------------------------------------------------------------------------
 
+
 class TestRuleBasedSuggestions:
     def test_missing_skills_category_triggered(self):
         user = _make_mock_user(role="Frontend Developer")
-        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(user, skills=[], project_count=0)
+        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(
+            user, skills=[], project_count=0
+        )
         categories = [s.category for s in suggestions]
         assert "missing_skills" in categories
 
@@ -105,7 +115,9 @@ class TestRuleBasedSuggestions:
 
     def test_weak_bio_category_triggered(self):
         user = _make_mock_user(bio="Short bio", headline=None)
-        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(user, skills=[], project_count=0)
+        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(
+            user, skills=[], project_count=0
+        )
         categories = [s.category for s in suggestions]
         assert "weak_bio" in categories
 
@@ -115,20 +127,30 @@ class TestRuleBasedSuggestions:
 
     def test_portfolio_improvements_category_triggered(self):
         user = _make_mock_user(portfolio_url=None, website=None)
-        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(user, skills=[], project_count=0)
-        portfolio_ids = [s.id for s in suggestions if s.category == "portfolio_improvements"]
+        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(
+            user, skills=[], project_count=0
+        )
+        portfolio_ids = [
+            s.id for s in suggestions if s.category == "portfolio_improvements"
+        ]
         assert "portfolio_no_link" in portfolio_ids
         assert "portfolio_no_projects" in portfolio_ids
 
     def test_github_connection_category_triggered(self):
         user = _make_mock_user(github_url=None)
-        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(user, skills=[], project_count=0)
+        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(
+            user, skills=[], project_count=0
+        )
         github_ids = [s.id for s in suggestions if s.category == "github_connection"]
         assert "github_not_connected" in github_ids
 
     def test_experience_gaps_category_triggered(self):
-        user = _make_mock_user(experience_level=None, company=None, role=None, open_to_work=None)
-        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(user, skills=[], project_count=0)
+        user = _make_mock_user(
+            experience_level=None, company=None, role=None, open_to_work=None
+        )
+        suggestions = ProfileSuggestionService._generate_rule_based_suggestions(
+            user, skills=[], project_count=0
+        )
         exp_ids = [s.id for s in suggestions if s.category == "experience_gaps"]
         assert "experience_no_level" in exp_ids
         assert "experience_no_role_company" in exp_ids
@@ -138,6 +160,7 @@ class TestRuleBasedSuggestions:
 # ---------------------------------------------------------------------------
 # 3. Service Get & AI Integration Tests
 # ---------------------------------------------------------------------------
+
 
 class TestProfileSuggestionService:
     def test_get_profile_suggestions_returns_schema(self):
@@ -151,7 +174,9 @@ class TestProfileSuggestionService:
             [],  # dismissals
         ]
 
-        response = ProfileSuggestionService.get_profile_suggestions(db, user, include_dismissed=False)
+        response = ProfileSuggestionService.get_profile_suggestions(
+            db, user, include_dismissed=False
+        )
 
         assert isinstance(response, ProfileSuggestionsResponse)
         assert response.user_id == user.id
@@ -197,13 +222,16 @@ class TestProfileSuggestionService:
 # 4. Dismissal & Refresh Logic Tests
 # ---------------------------------------------------------------------------
 
+
 class TestDismissAndRefresh:
     def test_dismiss_suggestion_creates_record(self):
         db = MagicMock(spec=Session)
         db.scalar.return_value = None  # No existing dismissal
 
         user_id = uuid.uuid4()
-        res = ProfileSuggestionService.dismiss_suggestion(db, user_id, "weak_bio_empty", "weak_bio")
+        res = ProfileSuggestionService.dismiss_suggestion(
+            db, user_id, "weak_bio_empty", "weak_bio"
+        )
 
         assert isinstance(res, DismissSuggestionResponse)
         assert res.success is True
@@ -229,7 +257,9 @@ class TestDismissAndRefresh:
         db.execute.return_value = mock_execute_res
 
         user = _make_mock_user()
-        res = ProfileSuggestionService.refresh_suggestions(db, user, reset_dismissed=True)
+        res = ProfileSuggestionService.refresh_suggestions(
+            db, user, reset_dismissed=True
+        )
 
         assert isinstance(res, RefreshSuggestionsResponse)
         assert res.success is True

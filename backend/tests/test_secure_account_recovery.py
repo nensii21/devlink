@@ -1,6 +1,7 @@
 """
 Unit & Integration Tests for Secure Account Recovery Flow (#587)
 """
+
 from __future__ import annotations
 
 import uuid
@@ -38,16 +39,23 @@ class TestSecureAccountRecovery:
 
         auth_service = AuthService(db)
 
-        with patch.object(EmailService, "send_notification_email") as mock_email, \
-             patch.object(AuditLogService, "create_log") as mock_audit:
-            res = auth_service.forgot_password("recoveryuser@example.com", ip_address="127.0.0.1")
+        with (
+            patch.object(EmailService, "send_notification_email") as mock_email,
+            patch.object(AuditLogService, "create_log") as mock_audit,
+        ):
+            res = auth_service.forgot_password(
+                "recoveryuser@example.com", ip_address="127.0.0.1"
+            )
 
             assert res["success"] is True
             assert "password reset link has been sent" in res["message"]
             db.add.assert_called_once()  # Token record added
             mock_email.assert_called_once()
             mock_audit.assert_called_once()
-            assert mock_audit.call_args.kwargs["action"] == AuditAction.PASSWORD_RESET_REQUESTED
+            assert (
+                mock_audit.call_args.kwargs["action"]
+                == AuditAction.PASSWORD_RESET_REQUESTED
+            )
 
     def test_forgot_password_prevents_email_enumeration(self):
         db = MagicMock(spec=Session)
@@ -74,7 +82,15 @@ class TestSecureAccountRecovery:
         auth_service = AuthService(db)
 
         token = "fake.valid.jwt"
-        with patch("app.services.auth_service.decode_token", return_value={"sub": str(user.id), "type": "reset_password", "jti": "jti123", "hash_frag": user.password_hash[-10:]}):
+        with patch(
+            "app.services.auth_service.decode_token",
+            return_value={
+                "sub": str(user.id),
+                "type": "reset_password",
+                "jti": "jti123",
+                "hash_frag": user.password_hash[-10:],
+            },
+        ):
             res = auth_service.verify_recovery_token(token)
 
             assert res["valid"] is True
@@ -97,18 +113,34 @@ class TestSecureAccountRecovery:
         auth_service._save_password_history = MagicMock()
 
         token = "fake.valid.jwt"
-        with patch("app.services.auth_service.decode_token", return_value={"sub": str(user.id), "type": "reset_password", "jti": "jti123", "hash_frag": user.password_hash[-10:]}), \
-             patch.object(RefreshTokenService, "revoke_all_tokens") as mock_revoke_sessions, \
-             patch.object(AuditLogService, "create_log") as mock_audit:
-
-            res = auth_service.reset_password(token=token, new_password="NewSecurePassword123!")
+        with (
+            patch(
+                "app.services.auth_service.decode_token",
+                return_value={
+                    "sub": str(user.id),
+                    "type": "reset_password",
+                    "jti": "jti123",
+                    "hash_frag": user.password_hash[-10:],
+                },
+            ),
+            patch.object(
+                RefreshTokenService, "revoke_all_tokens"
+            ) as mock_revoke_sessions,
+            patch.object(AuditLogService, "create_log") as mock_audit,
+        ):
+            res = auth_service.reset_password(
+                token=token, new_password="NewSecurePassword123!"
+            )
 
             assert res["success"] is True
             assert t_rec.is_used is True
             assert t_rec.used_at is not None
             mock_revoke_sessions.assert_called_once_with(db, user.id)
             mock_audit.assert_called_once()
-            assert mock_audit.call_args.kwargs["action"] == AuditAction.PASSWORD_RESET_COMPLETED
+            assert (
+                mock_audit.call_args.kwargs["action"]
+                == AuditAction.PASSWORD_RESET_COMPLETED
+            )
 
     def test_reset_password_rejects_reused_single_use_token(self):
         db = MagicMock(spec=Session)
@@ -125,9 +157,19 @@ class TestSecureAccountRecovery:
         auth_service.get_current_user = MagicMock(return_value=user)
 
         token = "fake.used.jwt"
-        with patch("app.services.auth_service.decode_token", return_value={"sub": str(user.id), "type": "reset_password", "jti": "jti123", "hash_frag": user.password_hash[-10:]}):
+        with patch(
+            "app.services.auth_service.decode_token",
+            return_value={
+                "sub": str(user.id),
+                "type": "reset_password",
+                "jti": "jti123",
+                "hash_frag": user.password_hash[-10:],
+            },
+        ):
             with pytest.raises(HTTPException) as exc:
-                auth_service.reset_password(token=token, new_password="NewSecurePassword123!")
+                auth_service.reset_password(
+                    token=token, new_password="NewSecurePassword123!"
+                )
 
             assert exc.value.status_code == 400
             assert "already been used" in exc.value.detail
@@ -147,9 +189,19 @@ class TestSecureAccountRecovery:
         auth_service.get_current_user = MagicMock(return_value=user)
 
         token = "fake.expired.jwt"
-        with patch("app.services.auth_service.decode_token", return_value={"sub": str(user.id), "type": "reset_password", "jti": "jti123", "hash_frag": user.password_hash[-10:]}):
+        with patch(
+            "app.services.auth_service.decode_token",
+            return_value={
+                "sub": str(user.id),
+                "type": "reset_password",
+                "jti": "jti123",
+                "hash_frag": user.password_hash[-10:],
+            },
+        ):
             with pytest.raises(HTTPException) as exc:
-                auth_service.reset_password(token=token, new_password="NewSecurePassword123!")
+                auth_service.reset_password(
+                    token=token, new_password="NewSecurePassword123!"
+                )
 
             assert exc.value.status_code == 400
             assert "expired" in exc.value.detail

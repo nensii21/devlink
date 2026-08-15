@@ -91,7 +91,6 @@ def _interpolate(template: str, variables: dict[str, Any]) -> str:
 
 
 class NotificationTemplateService:
-
     def __init__(self, custom_templates: dict[str, NotificationTemplate] | None = None):
         self._templates: dict[str, NotificationTemplate] = {}
         self._templates.update(DEFAULT_TEMPLATES)

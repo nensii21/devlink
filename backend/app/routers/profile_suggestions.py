@@ -1,12 +1,12 @@
 """
 API Router for AI-Powered Profile Improvement Suggestions (#619)
 """
+
 from __future__ import annotations
 
-import uuid
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_database
@@ -68,7 +68,9 @@ def get_profile_suggestions(
 )
 def dismiss_suggestion(
     suggestion_id: str,
-    category: Optional[str] = Query("general", description="Optional category of suggestion"),
+    category: Optional[str] = Query(
+        "general", description="Optional category of suggestion"
+    ),
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ) -> DismissSuggestionResponse:

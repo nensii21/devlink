@@ -9,7 +9,11 @@ import uuid
 from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_active_user, get_database, get_optional_current_user
+from app.dependencies import (
+    get_current_active_user,
+    get_database,
+    get_optional_current_user,
+)
 from app.models.user import User
 from app.schemas.project_release import (
     ReleaseCreate,
@@ -40,7 +44,9 @@ def list_releases(
     project_id: uuid.UUID,
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    include_drafts: bool = Query(False, description="Maintainers only; ignored otherwise"),
+    include_drafts: bool = Query(
+        False, description="Maintainers only; ignored otherwise"
+    ),
     db: Session = Depends(get_database),
     current_user: User | None = Depends(get_optional_current_user),
 ) -> ReleaseList:
@@ -48,7 +54,9 @@ def list_releases(
 
     # Silently downgrading the flag rather than 403-ing keeps the public
     # listing usable for clients that always send it.
-    can_see_drafts = include_drafts and ProjectReleaseService.is_maintainer(db, project, current_user)
+    can_see_drafts = include_drafts and ProjectReleaseService.is_maintainer(
+        db, project, current_user
+    )
 
     items, total = ProjectReleaseService.list_releases(
         db,
@@ -79,7 +87,12 @@ def list_releases(
         409: {"description": "That version already exists on this project"},
     },
 )
-@router.post("/", response_model=ReleaseResponse, status_code=status.HTTP_201_CREATED, include_in_schema=False)
+@router.post(
+    "/",
+    response_model=ReleaseResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def create_release(
     project_id: uuid.UUID,
     payload: ReleaseCreate,
@@ -103,7 +116,9 @@ def get_latest_release(
     db: Session = Depends(get_database),
 ) -> ReleaseResponse:
     ProjectReleaseService.get_project_or_404(db, project_id)
-    return ReleaseResponse.model_validate(ProjectReleaseService.get_latest(db, project_id))
+    return ReleaseResponse.model_validate(
+        ProjectReleaseService.get_latest(db, project_id)
+    )
 
 
 @router.get(
@@ -141,7 +156,11 @@ def update_release(
     current_user: User = Depends(get_current_active_user),
 ) -> ReleaseResponse:
     release = ProjectReleaseService.update_release(
-        db, project_id=project_id, release_id=release_id, payload=payload, actor=current_user
+        db,
+        project_id=project_id,
+        release_id=release_id,
+        payload=payload,
+        actor=current_user,
     )
     return ReleaseResponse.model_validate(release)
 

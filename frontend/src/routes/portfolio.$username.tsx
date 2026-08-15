@@ -28,7 +28,6 @@ import {
 import { toast } from "sonner";
 import { TypoSection, TypoHeading } from "@/components/shared/Typography";
 import { ShareProfileButton } from "@/components/shared/ShareProfileButton";
-import { builders, currentUser, projects as allProjects, flares as allFlares } from "@/mocks/seed";
 import {
   builders,
   currentUser,

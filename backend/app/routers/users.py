@@ -18,10 +18,12 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from app.core.security import hash_password
+from app.core.cache import cache_manager, cached
 from app.dependencies import get_current_user, get_database
 from app.middleware.rate_limit import SEARCH_LIMIT, limiter
 from app.models.user import User
 from app.schemas.user import (
+    CollaborationStatus,
     CurrentUser,
     PrivacySettings,
     PrivacySettingsUpdate,
@@ -41,8 +43,10 @@ from app.services.user_service import UserService
 from app.utils.uploads import (
     save_image_upload,
     save_resume_upload,
+    save_voice_introduction_upload,
     validate_image_upload,
     validate_resume_upload,
+    validate_voice_introduction_upload,
 )
 from app.utils.validators import validate_username
 
@@ -119,6 +123,7 @@ def create_user(
     "/me",
     response_model=CurrentUser,
 )
+@cached(ttl=300, key_prefix="user")
 def get_me(
     online_threshold: int | None = Query(
         None, description="Online threshold in seconds"
@@ -211,6 +216,7 @@ from app.services.block_service import BlockService
     "/{user_id}",
     response_model=UserResponse,
 )
+@cached(ttl=300, key_prefix="user")
 def get_user(
     user_id: uuid.UUID,
     online_threshold: int | None = Query(
@@ -331,7 +337,56 @@ def update_me(
         description="User updated their profile",
     )
 
+    cache_manager.delete_pattern(f"user:*{updated_user.id}*")
+
     return updated_user
+
+
+@router.get(
+    "/me/collaboration-status",
+    response_model=dict,
+    summary="Get live collaboration presence status",
+)
+def get_collaboration_status(
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Get the current user's live collaboration presence status
+    (coding, reviewing_pr, in_meeting, looking_for_project, available).
+    """
+    return {"user_id": str(current_user.id), "status": current_user.collaboration_status}
+
+
+@router.put(
+    "/me/collaboration-status",
+    response_model=dict,
+    summary="Set live collaboration presence status",
+)
+def set_collaboration_status(
+    status_val: CollaborationStatus = Query(
+        ..., description="One of: coding, reviewing_pr, in_meeting, looking_for_project, available"
+    ),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    """
+    Set the current user's live collaboration presence status and broadcast the
+    change to all connected WebSocket clients.
+    """
+    current_user.collaboration_status = status_val.value
+    db.commit()
+    db.refresh(current_user)
+
+    try:
+        from app.routers.websockets import manager
+
+        manager.set_collaboration_status(str(current_user.id), status_val.value)
+    except Exception:
+        # WebSocket manager is in-memory; a failure to broadcast should not
+        # fail the persistence of the status update.
+        pass
+
+    return {"user_id": str(current_user.id), "status": status_val.value}
 
 
 @router.put(
@@ -387,7 +442,7 @@ async def parse_resume(
     db: Session = Depends(get_database),
 ):
     from app.services.resume_parser_service import ResumeParserService
-    
+
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
 
@@ -398,7 +453,6 @@ async def parse_resume(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return ResumeParserService.parse_resume(contents, file.filename)
-
 
 
 @router.post(
@@ -430,8 +484,47 @@ async def upload_avatar(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     full_avatar_url = str(request.base_url).rstrip("/") + str(saved["image_url"])
-    return UserService.update_profile_image(db, current_user, full_avatar_url)
+    result = UserService.update_profile_image(db, current_user, full_avatar_url)
+    cache_manager.delete_pattern(f"user:*{current_user.id}*")
+    return result
 
+@router.post(
+    "/me/voice-introduction",
+    response_model=UserResponse,
+    summary="Upload user voice introduction",
+)
+async def upload_voice_introduction(
+    request: Request,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    contents = await file.read()
+
+    try:
+        validate_voice_introduction_upload(
+            file.filename,
+            file.content_type,
+            len(contents),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    voice_url = save_voice_introduction_upload(
+        contents,
+        file.filename,
+        current_user.id,
+    )
+    full_voice_url = str(request.base_url).rstrip("/") + voice_url
+
+    return UserService.update_voice_introduction_url(
+        db,
+        current_user,
+        full_voice_url,
+    )
 
 @router.delete(
     "/me",
@@ -447,6 +540,7 @@ def delete_me(
         current_user,
         deleted_by_id=current_user.id,
     )
+    cache_manager.delete_pattern(f"user:*{current_user.id}*")
 
 
 @router.patch(

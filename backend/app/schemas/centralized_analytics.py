@@ -1,12 +1,17 @@
 import uuid
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 
 class AnalyticsEventCreate(BaseModel):
-    event_type: str = Field(..., description="Type of event: user_registration, project_creation, application_sent, profile_view, search_performed, message_sent, team_invitation_sent")
-    properties: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Custom event metadata properties")
+    event_type: str = Field(
+        ...,
+        description="Type of event: user_registration, project_creation, application_sent, profile_view, search_performed, message_sent, team_invitation_sent",
+    )
+    properties: Optional[Dict[str, Any]] = Field(
+        default_factory=dict, description="Custom event metadata properties"
+    )
     session_id: Optional[str] = None
 
 

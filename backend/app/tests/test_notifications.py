@@ -1,23 +1,18 @@
 # pyrefly: ignore [missing-import]
 import uuid
 
-import pytest
 
 # pyrefly: ignore [missing-import]
-from fastapi.testclient import TestClient
 
 # pyrefly: ignore [missing-import]
 # pyrefly: ignore [missing-import]
-from sqlalchemy import and_, create_engine, select
+from sqlalchemy import and_, select
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.orm import sessionmaker
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.pool import StaticPool
 
-from app.database.base import Base
-from app.dependencies import get_current_user, get_database
+from app.dependencies import get_current_user
 from app.main import app
 from app.models.application import Application, ApplicationStatus  # noqa: F401
 from app.models.builder_flare import BuilderFlare, FlareStatus
