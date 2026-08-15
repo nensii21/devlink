@@ -6,7 +6,6 @@ from app.database.session import get_db
 from app.models.notification import (
     Notification,
     NotificationStatus,
-    NotificationChannel,
 )
 from app.dependencies import get_current_user
 from app.models.user import User

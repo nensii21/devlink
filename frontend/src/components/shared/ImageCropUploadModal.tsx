@@ -17,15 +17,11 @@ import {
   AlertCircle,
   CheckCircle2,
   Camera,
-  VideoOff,
-  FlipHorizontal,
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadImage } from "@/services/imageUpload";
-import { useCamera } from "@/hooks/useCamera";
 import { cn } from "@/lib/utils";
 import { CameraCapture } from "@/components/shared/CameraCapture";
-import { TypoCaption } from "@/components/shared/Typography";
 
 export type ImageCropMode = "avatar" | "banner";
 
@@ -67,17 +63,6 @@ export function ImageCropUploadModal({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
 
-  const [isCameraMode, setIsCameraMode] = useState(false);
-  const {
-    cameraState,
-    stream,
-    videoRef,
-    errorMsg,
-    startCamera,
-    stopCamera,
-    switchCamera,
-  } = useCamera();
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -99,10 +84,8 @@ export function ImageCropUploadModal({
       setIsUploading(false);
       setUploadProgress(0);
       setUploadComplete(false);
-      setIsCameraMode(false);
-      stopCamera();
     }
-  }, [isOpen, stopCamera]);
+  }, [isOpen]);
 
   const validateAndLoadFile = (file: File) => {
     setError(null);
@@ -134,28 +117,6 @@ export function ImageCropUploadModal({
     };
     reader.readAsDataURL(file);
   };
-
-  const handleCapturePhoto = useCallback(() => {
-    if (!videoRef.current) return;
-    const video = videoRef.current;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
-        stopCamera();
-        setIsCameraMode(false);
-        validateAndLoadFile(file);
-      }
-    }, "image/jpeg", 0.9);
-  }, [videoRef, stopCamera]);
 
   // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent) => {
@@ -415,9 +376,9 @@ export function ImageCropUploadModal({
                       className="h-1.5 flex-1 appearance-none rounded-lg bg-border accent-primary cursor-pointer"
                     />
                     <ZoomIn size={14} className="text-muted-foreground shrink-0" />
-                    <TypoCaption>
+                    <span className="w-10 font-mono text-muted-foreground text-right">
                       {Math.round(zoom * 100)}%
-                    </TypoCaption>
+                    </span>
                   </div>
 
                   {/* Action Buttons */}
@@ -467,7 +428,7 @@ export function ImageCropUploadModal({
                       </>
                     )}
                   </span>
-                  <TypoCaption>{uploadProgress}%</TypoCaption>
+                  <span className="font-mono text-muted-foreground">{uploadProgress}%</span>
                 </div>
 
                 {/* Progress Bar Container */}

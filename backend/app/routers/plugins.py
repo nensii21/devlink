@@ -1,6 +1,7 @@
 """
 API Router for DevLink Plugin & Extension System (#582)
 """
+
 from __future__ import annotations
 
 import uuid
@@ -32,7 +33,10 @@ router = APIRouter(
 
 def require_admin(current_user: User = Depends(get_current_active_user)) -> User:
     """Ensure current user is a system admin."""
-    if getattr(current_user, "system_role", None) != "admin" and getattr(current_user, "role", None) != "admin":
+    if (
+        getattr(current_user, "system_role", None) != "admin"
+        and getattr(current_user, "role", None) != "admin"
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required for this action.",
@@ -43,6 +47,7 @@ def require_admin(current_user: User = Depends(get_current_active_user)) -> User
 # ------------------------------------------------------------------
 # Plugin Marketplace & Registry Endpoints
 # ------------------------------------------------------------------
+
 
 @router.get(
     "",
@@ -56,10 +61,16 @@ def require_admin(current_user: User = Depends(get_current_active_user)) -> User
     include_in_schema=False,
 )
 def list_plugins(
-    plugin_type: Optional[PluginType] = Query(None, description="Filter by plugin type: integration, widget, workflow"),
-    status_filter: Optional[PluginStatus] = Query(None, alias="status", description="Filter by status"),
+    plugin_type: Optional[PluginType] = Query(
+        None, description="Filter by plugin type: integration, widget, workflow"
+    ),
+    status_filter: Optional[PluginStatus] = Query(
+        None, alias="status", description="Filter by status"
+    ),
     is_verified: Optional[bool] = Query(None, description="Filter by verified status"),
-    search: Optional[str] = Query(None, description="Search name, slug, or description"),
+    search: Optional[str] = Query(
+        None, description="Search name, slug, or description"
+    ),
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=100),
     db: Session = Depends(get_database),
@@ -115,7 +126,9 @@ def create_plugin(
     description="Retrieve all plugins installed for the current developer or specified organization.",
 )
 def list_installed_plugins(
-    organization_id: Optional[uuid.UUID] = Query(None, description="Optional Organization ID filter"),
+    organization_id: Optional[uuid.UUID] = Query(
+        None, description="Optional Organization ID filter"
+    ),
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_active_user),
 ) -> list[PluginInstallationResponse]:

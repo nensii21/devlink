@@ -1,13 +1,7 @@
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
-from app.database.base import Base
-from app.dependencies import get_database
 from app.main import app
 from app.models.organization import Organization, OrganizationType
 from app.models.project import Project, ProjectStage, ProjectVisibility

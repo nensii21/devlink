@@ -32,6 +32,7 @@ api_key_header_scheme = APIKeyHeader(name="X-API-Key", auto_error=False)
 # API Key Authentication Dependency
 # ---------------------------------------------------------------------------
 
+
 def verify_api_key(
     scope: Optional[str] = None,
 ):
@@ -43,7 +44,11 @@ def verify_api_key(
         db: Session = Depends(get_database),
     ) -> ApiKey:
         raw_key = x_api_key
-        if not raw_key and authorization and authorization.lower().startswith("bearer dlk_live_"):
+        if (
+            not raw_key
+            and authorization
+            and authorization.lower().startswith("bearer dlk_live_")
+        ):
             raw_key = authorization.split(" ", 1)[1]
 
         if not raw_key:
@@ -52,7 +57,9 @@ def verify_api_key(
                 detail="Missing X-API-Key or Bearer API token header",
             )
 
-        return ApiKeyService.authenticate_api_key(db, raw_key=raw_key, required_scope=scope)
+        return ApiKeyService.authenticate_api_key(
+            db, raw_key=raw_key, required_scope=scope
+        )
 
     return _dependency
 
@@ -60,6 +67,7 @@ def verify_api_key(
 # ---------------------------------------------------------------------------
 # Personal User API Keys Endpoints (#605)
 # ---------------------------------------------------------------------------
+
 
 @router.post(
     "/",
@@ -120,7 +128,9 @@ def get_api_key(
 ) -> ApiKeyResponse:
     key = ApiKeyService.get_api_key(db, key_id)
     if key.user_id and key.user_id != current_user.id and not current_user.is_superuser:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
+        )
     return ApiKeyResponse.model_validate(key)
 
 
@@ -136,7 +146,9 @@ def update_api_key(
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ) -> ApiKeyResponse:
-    key = ApiKeyService.update_api_key(db, key_id=key_id, payload=payload, actor=current_user)
+    key = ApiKeyService.update_api_key(
+        db, key_id=key_id, payload=payload, actor=current_user
+    )
     return ApiKeyResponse.model_validate(key)
 
 

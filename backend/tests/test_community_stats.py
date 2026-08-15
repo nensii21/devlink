@@ -194,7 +194,10 @@ def test_community_stats_with_data():
     assert tech_map.get("Python") == 1
     assert tech_map.get("FastAPI") == 1
     assert tech_map.get("Docker") == 1
-    assert "Python" not in {t.name for t in result.trending_technologies} or tech_map.get("Python") >= 1
+    assert (
+        "Python" not in {t.name for t in result.trending_technologies}
+        or tech_map.get("Python") >= 1
+    )
 
 
 def test_community_stats_requires_admin():

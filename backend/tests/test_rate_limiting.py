@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pytest
 from app.core.config import Settings, settings
 from app.middleware.rate_limit import (
     COMMENT_LIMIT,

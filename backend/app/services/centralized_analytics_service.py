@@ -4,7 +4,9 @@ from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from app.models.centralized_analytics import CentralizedAnalyticsEvent, AnalyticsEventType
+from app.models.centralized_analytics import (
+    CentralizedAnalyticsEvent,
+)
 from app.schemas.centralized_analytics import AnalyticsMetricsSummary
 
 
@@ -39,11 +41,11 @@ class CentralizedAnalyticsService:
         days: int = 30,
     ) -> AnalyticsMetricsSummary:
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        
+
         query = (
             db.query(
                 CentralizedAnalyticsEvent.event_type,
-                func.count(CentralizedAnalyticsEvent.id).label("cnt")
+                func.count(CentralizedAnalyticsEvent.id).label("cnt"),
             )
             .filter(CentralizedAnalyticsEvent.created_at >= cutoff)
             .group_by(CentralizedAnalyticsEvent.event_type)
@@ -70,4 +72,8 @@ class CentralizedAnalyticsService:
         query = db.query(CentralizedAnalyticsEvent)
         if event_type:
             query = query.filter(CentralizedAnalyticsEvent.event_type == event_type)
-        return query.order_by(CentralizedAnalyticsEvent.created_at.desc()).limit(limit).all()
+        return (
+            query.order_by(CentralizedAnalyticsEvent.created_at.desc())
+            .limit(limit)
+            .all()
+        )

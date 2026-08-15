@@ -1,8 +1,6 @@
 import pytest
 from uuid import uuid4
-from fastapi.testclient import TestClient
 
-from app.main import app
 from app.models.user import User
 from app.core.security import create_access_token, hash_password
 from app.services.oauth_linking_service import OAuthLinkingService

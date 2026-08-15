@@ -1,7 +1,3 @@
-import pytest
-from app.models.user_skill import UserSkill, SkillLevel
-from app.models.skill import Skill
-
 def test_get_skill_matrix(client, register_and_login):
     _, token = register_and_login("skillmatrix1@example.com", "skillmatrix1")
     headers = {"Authorization": f"Bearer {token}"}
@@ -19,6 +15,7 @@ def test_get_skill_matrix(client, register_and_login):
     assert "AI/ML" in data["skills_by_category"]
     assert "Design" in data["skills_by_category"]
 
+
 def test_update_skill_matrix(client, register_and_login):
     _, token = register_and_login("skillmatrix2@example.com", "skillmatrix2")
     headers = {"Authorization": f"Bearer {token}"}
@@ -29,44 +26,44 @@ def test_update_skill_matrix(client, register_and_login):
                 "name": "Python",
                 "category": "Languages",
                 "level": "expert",
-                "years_of_experience": 5
+                "years_of_experience": 5,
             },
             {
                 "name": "React",
                 "category": "Frameworks",
                 "level": "advanced",
-                "years_of_experience": 3
+                "years_of_experience": 3,
             },
             {
                 "name": "PostgreSQL",
                 "category": "Databases",
                 "level": "intermediate",
-                "years_of_experience": 2
+                "years_of_experience": 2,
             },
             {
                 "name": "AWS",
                 "category": "Cloud",
                 "level": "beginner",
-                "years_of_experience": 1
+                "years_of_experience": 1,
             },
             {
                 "name": "Docker",
                 "category": "DevOps",
                 "level": "intermediate",
-                "years_of_experience": 2
+                "years_of_experience": 2,
             },
             {
                 "name": "PyTorch",
                 "category": "AI/ML",
                 "level": "beginner",
-                "years_of_experience": 1
+                "years_of_experience": 1,
             },
             {
                 "name": "Figma",
                 "category": "Design",
                 "level": "intermediate",
-                "years_of_experience": 2
-            }
+                "years_of_experience": 2,
+            },
         ]
     }
 

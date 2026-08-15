@@ -1,15 +1,13 @@
 import { useState, useCallback } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Card, EmptyState } from "@/components/shared/primitives";
-import { projects, flares, builders } from "@/mocks/seed";
-import { repositories } from "@/mocks/repositories";
+import { Card, EmptyState, TagChip, Avatar } from "@/components/shared/primitives";
+import { projects, flares } from "@/mocks/seed";
 
-import { FolderOpen, Trash2, Users, FolderKanban, GitBranch, FileText, Star } from "lucide-react";
+import { Bookmark, FolderOpen, Trash2, MapPin, Briefcase, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CollectionSidebar } from "@/components/bookmarks/CollectionSidebar";
 import { CollectionDialog } from "@/components/bookmarks/CollectionDialog";
 import { AddToCollectionMenu } from "@/components/bookmarks/AddToCollectionMenu";
-import { BookmarkListItem, BookmarkRowContent } from "@/components/bookmarks/BookmarkListItem";
 
 import { BookmarkToggleButton } from "@/components/shared/BookmarkToggleButton";
 import {
@@ -21,7 +19,6 @@ import {
 import type { BookmarkCollection } from "@/api";
 import { ProjectDifficultyBadge } from "@/components/project/ProjectDifficultyBadge";
 import { TypoCaption, TypoHeading } from "@/components/shared/Typography";
-import type { RepositoryItem } from "@/mocks/repositories";
 
 export const Route = createFileRoute("/_app/bookmarks")({
   head: () => ({
@@ -29,7 +26,7 @@ export const Route = createFileRoute("/_app/bookmarks")({
       { title: "Bookmarks — DevLink" },
       {
         name: "description",
-        content: "Projects, developers, repositories and posts you've saved for later.",
+        content: "Projects, builders and flares you've saved for later.",
       },
     ],
   }),
@@ -42,41 +39,20 @@ type Developer = {
   name?: string;
   role?: string;
   location?: string;
+  experience?: string;
   skills?: string[];
 };
-
-function SectionHeader({ icon: Icon, label }: { icon: typeof Users; label: string }) {
-  return (
-    <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
-      <Icon size={14} /> {label}
-    </p>
-  );
-}
 
 function BookmarksPage() {
   const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<BookmarkCollection | null>(null);
 
-  const [bookmarkedDevs, setBookmarkedDevs] = useState<Developer[]>(() =>
-    builders.slice(0, 3).map((b) => ({
-      id: b.id,
-      avatar_url: b.avatar,
-      name: b.name,
-      role: b.role,
-      location: b.country,
-      skills: b.skills,
-    })),
-  );
-  const toggleDevBookmark = useCallback((dev: Developer) => {
-    setBookmarkedDevs((prev) => prev.filter((d) => d.id !== dev.id));
-  }, []);
-
-  const [bookmarkedRepos, setBookmarkedRepos] = useState<RepositoryItem[]>(() =>
-    repositories.slice(0, 3),
-  );
-  const removeRepoBookmark = useCallback((repo: RepositoryItem) => {
-    setBookmarkedRepos((prev) => prev.filter((r) => r.id !== repo.id));
+  const [bookmarkedDevs, setBookmarkedDevs] = useState<Developer[]>([]);
+  const toggleBookmark = useCallback((dev: Developer) => {
+    setBookmarkedDevs((prev) =>
+      prev.some((d) => d.id === dev.id) ? prev.filter((d) => d.id !== dev.id) : [...prev, dev],
+    );
   }, []);
 
   const createCollection = useCreateCollection();
@@ -130,7 +106,6 @@ function BookmarksPage() {
   );
 
   const bookmarkedProjects = projects.slice(0, 3);
-  const bookmarkedPosts = flares.slice(0, 2);
 
   return (
     <div className="flex gap-6">
@@ -155,8 +130,6 @@ function BookmarksPage() {
                 ? "Filtered by collection"
                 : "Projects, developers, and flares you've saved."}
             </TypoCaption>
-                : "Developers, projects, repositories and posts you've saved."}
-            </p>
           </div>
           <Button
             variant="outline"
@@ -169,7 +142,7 @@ function BookmarksPage() {
           </Button>
         </div>
 
-        {/* SAVED DEVELOPERS */}
+        {/* SAVED DEVELOPERS / BUILDERS SECTION */}
         <section>
           <div className="mb-2 flex items-center justify-between">
             <TypoCaption as="p">
@@ -179,15 +152,11 @@ function BookmarksPage() {
           {bookmarkedDevs.length === 0 ? (
             <Card className="p-6 text-center border-dashed">
               <TypoCaption as="p">
-          <SectionHeader icon={Users} label="Saved Developers" />
-          {bookmarkedDevs.length === 0 ? (
-            <Card className="border-dashed p-6 text-center">
-              <p className="text-[13px] text-muted-foreground">
                 No developers bookmarked yet. Save builders from their profiles to see them here!
               </TypoCaption>
             </Card>
           ) : (
-            <Card className="px-2 py-1">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {bookmarkedDevs.map((dev) => (
                 <Card key={dev.id} className="p-4 flex flex-col justify-between">
                   <div>
@@ -242,48 +211,27 @@ function BookmarksPage() {
                     className="mt-2 block w-full text-center text-[12px] font-medium py-1.5 rounded-md border border-border hover:bg-muted text-foreground transition-colors"
                   >
                     View Profile
-                <BookmarkListItem
-                  key={dev.id}
-                  actions={
-                    <button
-                      onClick={() => toggleDevBookmark(dev)}
-                      title="Remove bookmark"
-                      aria-label={`Remove ${dev.name} bookmark`}
-                      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  }
-                >
-                  <Link to="/builders/$builderId" params={{ builderId: dev.id }} className="block">
-                    <BookmarkRowContent
-                      avatarSrc={dev.avatar_url}
-                      title={dev.name ?? "Developer"}
-                      subtitle={[dev.role, dev.location].filter(Boolean).join(" · ")}
-                      tags={dev.skills}
-                    />
                   </Link>
-                </BookmarkListItem>
+                </Card>
               ))}
-            </Card>
+            </div>
           )}
         </section>
 
-        {/* SAVED PROJECTS */}
+        {/* PROJECTS SECTION */}
         <section>
           <div className="mb-2 flex items-center justify-between">
             <TypoCaption as="p">
               Projects
             </TypoCaption>
           </div>
-          <SectionHeader icon={FolderKanban} label="Saved Projects" />
           {bookmarkedProjects.length === 0 ? (
             <EmptyState
               title="No bookmarked projects"
               desc="Save projects you're interested in to see them here."
             />
           ) : (
-            <Card className="px-2 py-1">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {bookmarkedProjects.map((p) => (
                 <div key={p.id} className="group relative">
                   <Link to="/projects/$projectId" params={{ projectId: p.id }}>
@@ -314,86 +262,21 @@ function BookmarksPage() {
                         ))}
                       </div>
                     </Card>
-                <BookmarkListItem
-                  key={p.id}
-                  actions={
-                    <>
-                      <BookmarkToggleButton
-                        projectId={p.id}
-                        className="h-7 min-w-0 px-2 text-[11px]"
-                      />
-                      <AddToCollectionMenu
-                        bookmarkId={p.id}
-                        onAddToCollection={handleAddToCollection(p.id)}
-                      />
-                    </>
-                  }
-                >
-                  <Link to="/projects/$projectId" params={{ projectId: p.id }} className="block">
-                    <BookmarkRowContent
-                      icon={p.icon}
-                      title={p.name}
-                      subtitle={p.description}
-                      badge={p.difficulty && <ProjectDifficultyBadge difficulty={p.difficulty} />}
-                      tags={p.stack}
-                    />
                   </Link>
-                </BookmarkListItem>
+                  <div className="absolute right-2 top-2 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <BookmarkToggleButton projectId={p.id} />
+                    <AddToCollectionMenu
+                      bookmarkId={p.id}
+                      onAddToCollection={handleAddToCollection(p.id)}
+                    />
+                  </div>
+                </div>
               ))}
-            </Card>
+            </div>
           )}
         </section>
 
-        {/* SAVED REPOSITORIES */}
-        <section>
-          <SectionHeader icon={GitBranch} label="Saved Repositories" />
-          {bookmarkedRepos.length === 0 ? (
-            <Card className="border-dashed p-6 text-center">
-              <p className="text-[13px] text-muted-foreground">
-                No repositories bookmarked yet. Save repositories from a project to see them here!
-              </p>
-            </Card>
-          ) : (
-            <Card className="px-2 py-1">
-              {bookmarkedRepos.map((repo) => (
-                <BookmarkListItem
-                  key={repo.id}
-                  actions={
-                    <button
-                      onClick={() => removeRepoBookmark(repo)}
-                      title="Remove bookmark"
-                      aria-label={`Remove ${repo.name} bookmark`}
-                      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  }
-                >
-                  <Link
-                    to="/projects/$projectId"
-                    params={{ projectId: repo.projectId }}
-                    className="block"
-                  >
-                    <BookmarkRowContent
-                      icon={<GitBranch size={16} />}
-                      title={repo.name}
-                      subtitle={repo.description}
-                      tags={[repo.language]}
-                      meta={
-                        <span className="flex items-center gap-1">
-                          <Star size={12} />
-                          {repo.stars}
-                        </span>
-                      }
-                    />
-                  </Link>
-                </BookmarkListItem>
-              ))}
-            </Card>
-          )}
-        </section>
-
-        {/* SAVED POSTS */}
+        {/* FLARES SECTION */}
         <section>
           <TypoCaption as="p">
             Flares
@@ -406,41 +289,6 @@ function BookmarksPage() {
               </Card>
             ))}
           </div>
-          <SectionHeader icon={FileText} label="Saved Posts" />
-          {bookmarkedPosts.length === 0 ? (
-            <EmptyState
-              title="No bookmarked posts"
-              desc="Save posts from the feed to see them here."
-            />
-          ) : (
-            <Card className="px-2 py-1">
-              {bookmarkedPosts.map((f) => (
-                <BookmarkListItem
-                  key={f.id}
-                  actions={
-                    <>
-                      <BookmarkToggleButton
-                        targetType="flare"
-                        targetId={f.id}
-                        className="h-7 min-w-0 px-2 text-[11px]"
-                      />
-                      <AddToCollectionMenu
-                        bookmarkId={f.id}
-                        onAddToCollection={handleAddToCollection(f.id)}
-                      />
-                    </>
-                  }
-                >
-                  <BookmarkRowContent
-                    avatarSrc={f.author.avatar}
-                    title={f.author.name}
-                    subtitle={f.content}
-                    meta={<span>{f.ago}</span>}
-                  />
-                </BookmarkListItem>
-              ))}
-            </Card>
-          )}
         </section>
       </div>
 

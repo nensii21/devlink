@@ -34,7 +34,11 @@ import { FollowButton } from "@/components/shared/FollowButton";
 import { useFollowStatus } from "@/hooks/useFollow";
 import { ActivityTimeline } from "@/components/profile/ActivityTimeline";
 import { ContributionHeatmap } from "@/components/profile/ContributionHeatmap";
+import { GitHubInsights } from "@/components/github/GitHubInsights";
 import { TypoSection, TypoCaption, TypoHeading } from "@/components/shared/Typography";
+import { CollaborationStatusBadge } from "@/features/collaboration/components/CollaborationStatusBadge";
+import { CollaborationStatusPicker } from "@/features/collaboration/components/CollaborationStatusPicker";
+import { useCollaborationStatus } from "@/hooks/useCollaborationStatus";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -149,6 +153,13 @@ function ProfilePage() {
   if (!b) throw notFound();
 
   const { data: followStatus } = useFollowStatus(b.id);
+
+  // Live collaboration presence status.
+  const {
+    status: myStatus,
+    setStatus: setMyStatus,
+    isLoading: isStatusLoading,
+  } = useCollaborationStatus();
 
   // Profile banner & avatar state
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
@@ -329,6 +340,17 @@ function ProfilePage() {
               <TypoCaption as="p">
                 @{b.handle} · {b.role}
               </TypoCaption>
+              <div className="mt-2 flex items-center gap-2">
+                {me ? (
+                  <CollaborationStatusPicker
+                    value={myStatus ?? "available"}
+                    onChange={(status) => setMyStatus(status)}
+                    disabled={isStatusLoading}
+                  />
+                ) : (
+                  <CollaborationStatusBadge status={b.collaborationStatus} />
+                )}
+              </div>
               <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
                 <div>
@@ -581,9 +603,7 @@ function ProfilePage() {
                       <p className="truncate text-[13px] font-semibold text-foreground hover:text-primary transition-colors">
                         {p.name}
                       </p>
-                      <TypoCaption as="p">
-                        {p.stack.join(" · ")}
-                      </TypoCaption>
+                      <TypoCaption as="p">{p.stack.join(" · ")}</TypoCaption>
                     </div>
                   </Link>
                 </li>
@@ -591,8 +611,27 @@ function ProfilePage() {
             </ul>
           </Card>
 
-          <ContributionHeatmap username={b.handle} className="mt-4" />
+          {(() => {
+            const githubUrl = b.githubUrl;
+            let githubUsername = undefined;
+            if (githubUrl) {
+              try {
+                const url = new URL(githubUrl);
+                githubUsername = url.pathname.split("/").filter(Boolean).pop();
+              } catch (e) {
+                // Ignore invalid URLs
+              }
+            }
 
+            if (githubUsername) {
+              return (
+                <div className="mt-4">
+                  <GitHubInsights username={githubUsername} />
+                </div>
+              );
+            }
+            return <ContributionHeatmap username={b.handle} className="mt-4" />;
+          })()}
           <ActivityTimeline userId={b.id} />
         </div>
       </div>

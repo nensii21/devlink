@@ -12,7 +12,10 @@ class ProjectAuditLogResponse(BaseModel):
     actor_id: Optional[uuid.UUID] = None
     target_user_id: Optional[uuid.UUID] = None
     project_id: uuid.UUID
-    action: str = Field(..., description="Audit action name (e.g. project_created, project_title_updated, project_member_added)")
+    action: str = Field(
+        ...,
+        description="Audit action name (e.g. project_created, project_title_updated, project_member_added)",
+    )
     entity_type: str = "project"
     entity_id: str
     old_values: Optional[dict[str, Any]] = None

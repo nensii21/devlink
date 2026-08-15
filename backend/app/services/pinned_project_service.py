@@ -109,7 +109,12 @@ class PinnedProjectService:
     @staticmethod
     def count_pins(db: Session, user_id: uuid.UUID) -> int:
         return int(
-            db.scalar(select(func.count(PinnedProject.id)).where(PinnedProject.user_id == user_id)) or 0
+            db.scalar(
+                select(func.count(PinnedProject.id)).where(
+                    PinnedProject.user_id == user_id
+                )
+            )
+            or 0
         )
 
     # ------------------------------------------------------------------
@@ -174,7 +179,9 @@ class PinnedProjectService:
         db.commit()
 
     @staticmethod
-    def replace(db: Session, user: User, project_ids: list[uuid.UUID]) -> list[PinnedProject]:
+    def replace(
+        db: Session, user: User, project_ids: list[uuid.UUID]
+    ) -> list[PinnedProject]:
         """
         Replace the entire pinned set in the given order.
 

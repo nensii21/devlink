@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
@@ -22,7 +22,9 @@ class ProjectVersionService:
     """
 
     @classmethod
-    def _get_team_roles_snapshot(cls, db: Session, project_id: uuid.UUID) -> List[Dict[str, Any]]:
+    def _get_team_roles_snapshot(
+        cls, db: Session, project_id: uuid.UUID
+    ) -> List[Dict[str, Any]]:
         """Capture team roles snapshot for the version payload."""
         members = list(
             db.scalars(
@@ -59,8 +61,16 @@ class ProjectVersionService:
 
         team_roles = cls._get_team_roles_snapshot(db, project.id)
 
-        stage_str = project.stage.value if hasattr(project.stage, "value") else str(project.stage)
-        vis_str = project.visibility.value if hasattr(project.visibility, "value") else str(project.visibility)
+        stage_str = (
+            project.stage.value
+            if hasattr(project.stage, "value")
+            else str(project.stage)
+        )
+        vis_str = (
+            project.visibility.value
+            if hasattr(project.visibility, "value")
+            else str(project.visibility)
+        )
 
         version = ProjectVersion(
             id=uuid.uuid4(),
@@ -109,7 +119,9 @@ class ProjectVersionService:
         """List version history for a project (ordered latest first)."""
         project = db.get(Project, project_id)
         if not project:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+            )
 
         stmt = (
             select(ProjectVersion)
@@ -143,7 +155,9 @@ class ProjectVersionService:
         """Fetch version by version UUID or integer version_number."""
         project = db.get(Project, project_id)
         if not project:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+            )
 
         # Try parsing as UUID first
         try:
@@ -189,7 +203,9 @@ class ProjectVersionService:
         """Compare version 1 with version 2 (or current state) and compute field diffs."""
         project = db.get(Project, project_id)
         if not project:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+            )
 
         v1_version = cls.get_version(db, project_id, v1_identifier)
 
@@ -204,8 +220,12 @@ class ProjectVersionService:
                 "requirements": project.requirements,
                 "language": project.language,
                 "experience": project.experience,
-                "stage": project.stage.value if hasattr(project.stage, "value") else str(project.stage),
-                "visibility": project.visibility.value if hasattr(project.visibility, "value") else str(project.visibility),
+                "stage": project.stage.value
+                if hasattr(project.stage, "value")
+                else str(project.stage),
+                "visibility": project.visibility.value
+                if hasattr(project.visibility, "value")
+                else str(project.visibility),
                 "team_roles": team_roles_current,
             }
             v2_num = "current"
@@ -269,12 +289,17 @@ class ProjectVersionService:
         """
         project = db.get(Project, project_id)
         if not project:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
+            )
 
         # Check permissions: owner or superuser or update permission
         if actor_user.id != project.owner_id and not actor_user.is_superuser:
             from app.core.rbac import has_project_permission
-            if not has_project_permission(db, actor_user.id, project_id, "project:update"):
+
+            if not has_project_permission(
+                db, actor_user.id, project_id, "project:update"
+            ):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Insufficient permissions to restore project versions",
@@ -295,7 +320,9 @@ class ProjectVersionService:
             "description": project.description,
             "tech_stack": project.tech_stack,
             "requirements": project.requirements,
-            "stage": project.stage.value if hasattr(project.stage, "value") else str(project.stage),
+            "stage": project.stage.value
+            if hasattr(project.stage, "value")
+            else str(project.stage),
         }
 
         # 2. Revert project fields

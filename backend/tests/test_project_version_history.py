@@ -1,13 +1,12 @@
 """
 Unit & Integration Tests for Project Version History (#606)
 """
+
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-import pytest
 from sqlalchemy.orm import Session
 
 from app.models.audit_log import AuditAction
@@ -65,7 +64,10 @@ class TestProjectVersionHistory:
             assert ver.requirements == "Requirement 1: Python 3.13"
             db.add.assert_called_once()
             mock_audit.assert_called_once()
-            assert mock_audit.call_args.kwargs["action"] == AuditAction.PROJECT_VERSION_CREATED
+            assert (
+                mock_audit.call_args.kwargs["action"]
+                == AuditAction.PROJECT_VERSION_CREATED
+            )
 
     def test_list_versions_paginated(self):
         db = MagicMock(spec=Session)
@@ -81,7 +83,9 @@ class TestProjectVersionHistory:
         db.scalar.return_value = 2
         db.scalars.return_value = [v1, v2]
 
-        res = ProjectVersionService.list_versions(db, project_id=project_id, page=1, limit=10)
+        res = ProjectVersionService.list_versions(
+            db, project_id=project_id, page=1, limit=10
+        )
 
         assert res["total"] == 2
         assert len(res["items"]) == 2
@@ -156,5 +160,7 @@ class TestProjectVersionHistory:
             assert restored.requirements == "Restored Requirements"
             mock_audit.assert_called()
             # Verify AuditAction.PROJECT_VERSION_RESTORED was logged
-            audit_actions = [call.kwargs["action"] for call in mock_audit.call_args_list]
+            audit_actions = [
+                call.kwargs["action"] for call in mock_audit.call_args_list
+            ]
             assert AuditAction.PROJECT_VERSION_RESTORED in audit_actions

@@ -11,6 +11,8 @@ The rules this module enforces on every fetch:
 * the destination is validated before we connect (see ``utils.url_safety``),
   and re-validated at every redirect hop -- following redirects automatically
   would let a public URL bounce us to ``169.254.169.254``
+* the connection is pinned to the address that validation approved, so DNS
+  cannot answer differently between the check and the connect
 * the body is streamed and abandoned once it exceeds a byte cap, so a hostile
   server cannot make us buffer a gigabyte
 * only HTML content types are parsed
@@ -34,8 +36,10 @@ import httpx
 from app.core.cache import cache_manager
 from app.core.config import settings
 from app.utils.url_safety import (
+    SafeTarget,
     UnsafeURL,
     normalise_url,
+    pin_target,
     validate_outbound_url,
 )
 
@@ -127,7 +131,7 @@ class LinkPreviewService:
             if cached is not None:
                 return LinkPreview(**cached)
 
-        fetched = self._fetch_html(target.url)
+        fetched = self._fetch_html(target)
         if fetched is None:
             cache_manager.set(
                 cache_key,
@@ -169,15 +173,26 @@ class LinkPreviewService:
     # Fetching
     # ------------------------------------------------------------------
 
-    def _fetch_html(self, url: str) -> Optional[tuple[str, str]]:
+    def _fetch_html(self, target: SafeTarget) -> Optional[tuple[str, str]]:
         """
-        Fetch a URL and return ``(body, final_url)``, or ``None`` on failure.
+        Fetch a validated target and return ``(body, final_url)``, or ``None``.
 
-        Redirects are followed by hand so that every hop goes back through
-        :func:`validate_outbound_url`. ``httpx``'s own redirect following would
-        happily walk us onto the metadata service.
+        Two things happen by hand here rather than being left to ``httpx``:
+
+        * **Redirects.** Every hop goes back through
+          :func:`validate_outbound_url`. ``httpx``'s own redirect following
+          would happily walk us onto the metadata service.
+        * **Address resolution.** Each hop connects to the address that hop's
+          validation actually approved, via :func:`pin_target`. Handing the
+          hostname to ``httpx`` would let it resolve a second time, and a
+          short-TTL record that answers public-then-private turns the whole
+          guard into decoration.
+
+        ``final_url`` is the logical URL, not the pinned one -- the IP is a
+        transport detail and has no business ending up in a preview card.
         """
-        current = url
+        current_target = target
+        current_url = target.url
 
         try:
             with httpx.Client(
@@ -191,17 +206,27 @@ class LinkPreviewService:
                 },
             ) as client:
                 for _ in range(self.max_redirects + 1):
-                    with client.stream("GET", current) as response:
+                    pinned = pin_target(current_target)
+
+                    with client.stream(
+                        "GET",
+                        pinned.url,
+                        headers=pinned.headers,
+                        extensions=pinned.extensions,
+                    ) as response:
                         if response.is_redirect:
                             location = response.headers.get("location")
                             if not location:
                                 return None
 
-                            # Relative redirects are legal and common.
-                            current = urljoin(current, location)
+                            # Relative redirects are legal and common, and must
+                            # resolve against the logical URL rather than the
+                            # pinned one, or they would inherit the IP.
+                            current_url = urljoin(current_url, location)
 
-                            # The whole point of doing this by hand.
-                            validate_outbound_url(current)
+                            # The whole point of doing this by hand: re-check
+                            # and re-pin, so hop two cannot be 169.254.169.254.
+                            current_target = validate_outbound_url(current_url)
                             continue
 
                         if response.status_code >= 400:
@@ -215,19 +240,19 @@ class LinkPreviewService:
                             return None
 
                         body = self._read_capped(response)
-                        return body, str(response.url)
+                        return body, current_url
 
         except UnsafeURL:
             # A redirect walked somewhere we will not follow. Treat it as an
             # absent preview rather than an error: the user pasted a URL that
             # was fine, and what happened after that is not their fault.
-            logger.info("Link preview redirect rejected for %s", url)
+            logger.info("Link preview redirect rejected for %s", target.url)
             return None
         except httpx.HTTPError as exc:
-            logger.info("Link preview fetch failed for %s: %s", url, exc)
+            logger.info("Link preview fetch failed for %s: %s", target.url, exc)
             return None
         except Exception as exc:  # pragma: no cover - defensive
-            logger.warning("Unexpected link preview error for %s: %s", url, exc)
+            logger.warning("Unexpected link preview error for %s: %s", target.url, exc)
             return None
 
         # Ran out of redirect budget.

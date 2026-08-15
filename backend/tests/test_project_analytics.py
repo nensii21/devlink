@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token
 from app.models.project import Project, ProjectStage, ProjectVisibility
-from app.models.project_view import ProjectView
 from app.models.user import User
 from app.services.project_analytics_service import ProjectAnalyticsService
 

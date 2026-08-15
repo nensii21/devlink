@@ -64,14 +64,21 @@ def _to_response(log) -> TimeLogResponse:
         404: {"description": "Project or milestone not found"},
     },
 )
-@router.post("/", response_model=TimeLogResponse, status_code=status.HTTP_201_CREATED, include_in_schema=False)
+@router.post(
+    "/",
+    response_model=TimeLogResponse,
+    status_code=status.HTTP_201_CREATED,
+    include_in_schema=False,
+)
 def create_time_log(
     project_id: uuid.UUID,
     payload: TimeLogCreate,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_active_user),
 ) -> TimeLogResponse:
-    log = ProjectTimeLogService.create_log(db, project_id=project_id, payload=payload, actor=current_user)
+    log = ProjectTimeLogService.create_log(
+        db, project_id=project_id, payload=payload, actor=current_user
+    )
     return _to_response(log)
 
 
@@ -91,8 +98,12 @@ def list_time_logs(
     offset: int = Query(0, ge=0),
     user_id: uuid.UUID | None = Query(None, description="Filter to one contributor"),
     milestone_id: uuid.UUID | None = Query(None, description="Filter to one milestone"),
-    from_date: date | None = Query(None, description="Inclusive lower bound on work_date"),
-    to_date: date | None = Query(None, description="Inclusive upper bound on work_date"),
+    from_date: date | None = Query(
+        None, description="Inclusive lower bound on work_date"
+    ),
+    to_date: date | None = Query(
+        None, description="Inclusive upper bound on work_date"
+    ),
     is_billable: bool | None = Query(None, description="Filter by billable flag"),
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_active_user),
@@ -175,7 +186,9 @@ def get_time_log_summary(
     project = ProjectTimeLogService.get_project_or_404(db, project_id)
     ProjectTimeLogService.require_member(db, project, current_user)
 
-    return ProjectTimeLogService.summarise(db, project_id=project_id, from_date=from_date, to_date=to_date)
+    return ProjectTimeLogService.summarise(
+        db, project_id=project_id, from_date=from_date, to_date=to_date
+    )
 
 
 @router.get(
@@ -227,5 +240,7 @@ def delete_time_log(
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_active_user),
 ) -> Response:
-    ProjectTimeLogService.delete_log(db, project_id=project_id, log_id=log_id, actor=current_user)
+    ProjectTimeLogService.delete_log(
+        db, project_id=project_id, log_id=log_id, actor=current_user
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

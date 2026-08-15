@@ -42,6 +42,19 @@ class PrivacyVisibility(str, Enum):
     PRIVATE = "private"
 
 
+class CollaborationStatus(str, Enum):
+    """Live collaboration presence status a user can set."""
+
+    CODING = "coding"
+    REVIEWING_PR = "reviewing_pr"
+    IN_MEETING = "in_meeting"
+    LOOKING_FOR_PROJECT = "looking_for_project"
+    AVAILABLE = "available"
+
+
+COLLABORATION_STATUSES = tuple(status.value for status in CollaborationStatus)
+
+
 class PrivacySettings(BaseModel):
     email: PrivacyVisibility = PrivacyVisibility.PRIVATE
     github: PrivacyVisibility = PrivacyVisibility.PUBLIC
@@ -80,6 +93,7 @@ class UserBase(BaseModel):
 
     website: ValidURL | None = None
     resume_url: ValidURL | None = None
+    voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None
@@ -94,8 +108,11 @@ class UserBase(BaseModel):
 
     open_to_work: bool = True
     is_private: bool = False
+    is_active: bool = True
+    is_verified: bool = False
     privacy_settings: PrivacySettings | None = Field(default_factory=PrivacySettings)
     availability: list[AvailabilitySlot] = Field(default_factory=list)
+    collaboration_status: CollaborationStatus | None = CollaborationStatus.AVAILABLE
 
 
 # ==========================================================
@@ -119,7 +136,7 @@ class UserCreate(UserBase):
                 "username": "janedoe",
                 "email": "jane.doe@example.com",
                 "password": "StrongPassword123!",
-                "open_to_work": True
+                "open_to_work": True,
             }
         }
     )
@@ -143,6 +160,7 @@ class UserUpdate(BaseModel):
 
     website: ValidURL | None = None
     resume_url: ValidURL | None = None
+      voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None
@@ -159,6 +177,7 @@ class UserUpdate(BaseModel):
     is_private: bool | None = None
     privacy_settings: PrivacySettingsUpdate | None = None
     availability: list[AvailabilitySlot] | None = None
+    collaboration_status: CollaborationStatus | None = None
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -168,7 +187,7 @@ class UserUpdate(BaseModel):
                 "headline": "Senior Full-Stack Developer",
                 "bio": "I love building scalable web applications.",
                 "location": "San Francisco, CA",
-                "github_url": "https://github.com/janesmith"
+                "github_url": "https://github.com/janesmith",
             }
         }
     )
@@ -188,6 +207,7 @@ class UserResponse(UserBase):
 # ==========================================================
 # Resume Parse Response
 # ==========================================================
+
 
 class ResumeParseResponse(BaseModel):
     skills: list[str] = Field(default_factory=list)

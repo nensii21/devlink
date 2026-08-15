@@ -204,8 +204,6 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
 
   if (error || !d) {
     return (
-<Card className="flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-destructive/20 bg-destructive/5">
-        <AlertCircle className="h-12 w-12 text-destructive mb-3" />        <h3 className="text-lg font-bold text-foreground">Workspace Locked</h3>
       <Card className="flex flex-col items-center justify-center p-8 text-center border-dashed border-2 border-destructive/20 bg-destructive/5">
         <AlertCircle className="h-12 w-12 text-destructive mb-3" />
         <TypoSection>Workspace Locked</TypoSection>
@@ -225,10 +223,6 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "project_milestone":
-return <Flag className="h-4 w-4 text-success" />;      case "project_announcement":
-return <Bell className="h-4 w-4 text-info" />;      case "project_created":
-      case "project_updated":
-return <TrendingUp className="h-4 w-4 text-primary" />;      default:
         return <Flag className="h-4 w-4 text-success" />;
       case "project_announcement":
         return <Bell className="h-4 w-4 text-info" />;
@@ -248,7 +242,6 @@ return <TrendingUp className="h-4 w-4 text-primary" />;      default:
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-<span className="inline-flex h-2 w-2 rounded-full bg-success animate-pulse" />              <h2 className="text-xl font-bold text-foreground">Team Workspace Dashboard</h2>
               <span className="inline-flex h-2 w-2 rounded-full bg-success animate-pulse" />
               <TypoHeading as="h2">Team Workspace Dashboard</TypoHeading>
             </div>
@@ -348,7 +341,6 @@ return <TrendingUp className="h-4 w-4 text-primary" />;      default:
                           })
                         }
                         disabled={!hasWriteAccess || toggleMilestoneMutation.isPending}
-className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer disabled:opacity-50"                      />
                         className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer disabled:opacity-50"
                       />
                       <div className="min-w-0 flex-1">

@@ -1,6 +1,5 @@
 import pytest
 from uuid import uuid4
-from unittest.mock import patch, MagicMock
 
 from app.models.user import User
 from app.services.mfa_service import (

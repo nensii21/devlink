@@ -2,9 +2,6 @@ from datetime import datetime, timedelta, timezone
 
 import app.core.security
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 
 class MockPwdContext:
@@ -17,8 +14,6 @@ class MockPwdContext:
 
 app.core.security.pwd_context = MockPwdContext()
 
-from app.database.base import Base  # noqa: E402
-from app.dependencies import get_database  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models.user import User  # noqa: E402
 from app.schemas.auth import CurrentUserResponse  # noqa: E402

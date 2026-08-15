@@ -1,11 +1,12 @@
 """
 Unit & Integration Tests for Project Milestone Management (#618)
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi import HTTPException
@@ -13,12 +14,10 @@ from sqlalchemy.orm import Session
 
 from app.models.milestone import Milestone
 from app.models.project import Project
-from app.models.project_member import MemberRole, ProjectMember
 from app.models.user import User
 from app.schemas.milestone import (
     MilestoneCreate,
     MilestoneProgressResponse,
-    MilestoneResponse,
     MilestoneTimelineResponse,
     MilestoneUpdate,
 )
@@ -28,6 +27,7 @@ from app.services.project_milestone_service import ProjectMilestoneService
 # ---------------------------------------------------------------------------
 # Test Fixtures / Mock Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_user(username: str = "testuser", system_role: str = "user") -> MagicMock:
     user = MagicMock(spec=User)
@@ -40,7 +40,9 @@ def _make_mock_user(username: str = "testuser", system_role: str = "user") -> Ma
     return user
 
 
-def _make_mock_project(owner_id: uuid.UUID | None = None, title: str = "DevLink Project") -> MagicMock:
+def _make_mock_project(
+    owner_id: uuid.UUID | None = None, title: str = "DevLink Project"
+) -> MagicMock:
     project = MagicMock(spec=Project)
     project.id = uuid.uuid4()
     project.owner_id = owner_id or uuid.uuid4()
@@ -74,12 +76,16 @@ def _make_mock_milestone(
 # 1. Authorization Tests
 # ---------------------------------------------------------------------------
 
+
 class TestMilestoneAuthorization:
     def test_owner_is_maintainer(self):
         db = MagicMock(spec=Session)
         user = _make_mock_user()
         project = _make_mock_project(owner_id=user.id)
-        assert ProjectMilestoneService.is_user_project_maintainer(db, project, user.id) is True
+        assert (
+            ProjectMilestoneService.is_user_project_maintainer(db, project, user.id)
+            is True
+        )
 
     def test_admin_system_role_allowed(self):
         db = MagicMock(spec=Session)
@@ -103,6 +109,7 @@ class TestMilestoneAuthorization:
 # ---------------------------------------------------------------------------
 # 2. CRUD Operations Tests
 # ---------------------------------------------------------------------------
+
 
 class TestMilestoneCRUD:
     def test_create_milestone_success(self):
@@ -153,7 +160,9 @@ class TestMilestoneCRUD:
 
         # Update to complete
         update_in = MilestoneUpdate(is_completed=True)
-        res = ProjectMilestoneService.update_milestone(db, project.id, milestone.id, update_in, user)
+        res = ProjectMilestoneService.update_milestone(
+            db, project.id, milestone.id, update_in, user
+        )
         assert res.is_completed is True
         assert res.completed_at is not None
 
@@ -167,12 +176,16 @@ class TestMilestoneCRUD:
         db.scalar.return_value = milestone
 
         # Archive
-        res = ProjectMilestoneService.archive_milestone(db, project.id, milestone.id, user, archive=True)
+        res = ProjectMilestoneService.archive_milestone(
+            db, project.id, milestone.id, user, archive=True
+        )
         assert res.is_archived is True
         assert res.archived_at is not None
 
         # Unarchive
-        res_un = ProjectMilestoneService.archive_milestone(db, project.id, milestone.id, user, archive=False)
+        res_un = ProjectMilestoneService.archive_milestone(
+            db, project.id, milestone.id, user, archive=False
+        )
         assert res_un.is_archived is False
         assert res_un.archived_at is None
 
@@ -194,6 +207,7 @@ class TestMilestoneCRUD:
 # 3. Progress & Timeline Calculations Tests
 # ---------------------------------------------------------------------------
 
+
 class TestMilestoneProgressAndTimeline:
     def test_calculate_progress_metrics(self):
         db = MagicMock(spec=Session)
@@ -205,9 +219,21 @@ class TestMilestoneProgressAndTimeline:
         now = datetime.now(timezone.utc)
 
         m1 = _make_mock_milestone(project_id, "Completed 1", is_completed=True)
-        m2 = _make_mock_milestone(project_id, "Upcoming 1", is_completed=False, due_date=now + timedelta(days=5))
-        m3 = _make_mock_milestone(project_id, "Overdue 1", is_completed=False, due_date=now - timedelta(days=2))
-        m4 = _make_mock_milestone(project_id, "Archived 1", is_completed=True, is_archived=True)
+        m2 = _make_mock_milestone(
+            project_id,
+            "Upcoming 1",
+            is_completed=False,
+            due_date=now + timedelta(days=5),
+        )
+        m3 = _make_mock_milestone(
+            project_id,
+            "Overdue 1",
+            is_completed=False,
+            due_date=now - timedelta(days=2),
+        )
+        m4 = _make_mock_milestone(
+            project_id, "Archived 1", is_completed=True, is_archived=True
+        )
 
         db.scalars.return_value.all.return_value = [m1, m2, m3, m4]
 
@@ -231,8 +257,12 @@ class TestMilestoneProgressAndTimeline:
 
         now = datetime.now(timezone.utc)
 
-        m_overdue = _make_mock_milestone(project_id, "Overdue Item", due_date=now - timedelta(days=3))
-        m_upcoming = _make_mock_milestone(project_id, "Upcoming Item", due_date=now + timedelta(days=10))
+        m_overdue = _make_mock_milestone(
+            project_id, "Overdue Item", due_date=now - timedelta(days=3)
+        )
+        m_upcoming = _make_mock_milestone(
+            project_id, "Upcoming Item", due_date=now + timedelta(days=10)
+        )
         m_completed = _make_mock_milestone(project_id, "Done Item", is_completed=True)
 
         db.scalars.return_value.all.return_value = [m_overdue, m_upcoming, m_completed]

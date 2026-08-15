@@ -82,14 +82,10 @@ class ETagMiddleware:
     ) -> None:
         self.app = app
         self.max_body_size = (
-            max_body_size
-            if max_body_size is not None
-            else settings.ETAG_MAX_BODY_SIZE
+            max_body_size if max_body_size is not None else settings.ETAG_MAX_BODY_SIZE
         )
         self.cache_control = (
-            cache_control
-            if cache_control is not None
-            else settings.ETAG_CACHE_CONTROL
+            cache_control if cache_control is not None else settings.ETAG_CACHE_CONTROL
         )
 
     async def __call__(self, scope: Scope, receive, send) -> None:
@@ -194,9 +190,7 @@ class ETagMiddleware:
             state["start"] = None
 
         for chunk in state["chunks"]:
-            await send(
-                {"type": "http.response.body", "body": chunk, "more_body": True}
-            )
+            await send({"type": "http.response.body", "body": chunk, "more_body": True})
 
         state["chunks"] = []
         state["buffering"] = False

@@ -7,7 +7,6 @@ from app.models.project import Project
 
 
 class ProjectDocumentService:
-
     @staticmethod
     def create_document(
         db: Session,

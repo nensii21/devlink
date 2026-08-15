@@ -21,7 +21,9 @@ from app.models.testimonial import (
 
 class TestimonialCreate(BaseModel):
     subject_id: uuid.UUID = Field(..., description="The user this testimonial is about")
-    relationship: TestimonialRelationship = Field(..., description="How you worked together")
+    relationship: TestimonialRelationship = Field(
+        ..., description="How you worked together"
+    )
     body: str = Field(
         ...,
         min_length=MIN_BODY_LENGTH,
@@ -40,13 +42,17 @@ class TestimonialCreate(BaseModel):
     def _strip_body(cls, value: str) -> str:
         cleaned = value.strip()
         if len(cleaned) < MIN_BODY_LENGTH:
-            raise ValueError(f"A testimonial must be at least {MIN_BODY_LENGTH} characters.")
+            raise ValueError(
+                f"A testimonial must be at least {MIN_BODY_LENGTH} characters."
+            )
         return cleaned
 
 
 class TestimonialUpdate(BaseModel):
     relationship: Optional[TestimonialRelationship] = None
-    body: Optional[str] = Field(default=None, min_length=MIN_BODY_LENGTH, max_length=MAX_BODY_LENGTH)
+    body: Optional[str] = Field(
+        default=None, min_length=MIN_BODY_LENGTH, max_length=MAX_BODY_LENGTH
+    )
     project_id: Optional[uuid.UUID] = None
 
     @field_validator("body")
@@ -56,7 +62,9 @@ class TestimonialUpdate(BaseModel):
             return None
         cleaned = value.strip()
         if len(cleaned) < MIN_BODY_LENGTH:
-            raise ValueError(f"A testimonial must be at least {MIN_BODY_LENGTH} characters.")
+            raise ValueError(
+                f"A testimonial must be at least {MIN_BODY_LENGTH} characters."
+            )
         return cleaned
 
 
@@ -109,7 +117,9 @@ class TestimonialSummary(BaseModel):
     user_id: uuid.UUID
     username: str
 
-    total_approved: int = Field(description="Approved testimonials, the only ones shown publicly")
+    total_approved: int = Field(
+        description="Approved testimonials, the only ones shown publicly"
+    )
     featured: list[TestimonialResponse] = Field(default_factory=list)
     by_relationship: list[RelationshipCount] = Field(default_factory=list)
     max_featured: int = Field(default=MAX_FEATURED)

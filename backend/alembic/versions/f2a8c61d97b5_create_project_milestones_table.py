@@ -43,7 +43,10 @@ def upgrade() -> None:
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("due_date", sa.DateTime(timezone=True), nullable=True),
         sa.Column(
-            "is_completed", sa.Boolean(), server_default=sa.text("false"), nullable=False
+            "is_completed",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
         ),
         sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column(

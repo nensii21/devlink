@@ -21,6 +21,7 @@ GET  /api/v1/admin/security/alerts              Security alerts
 GET  /api/v1/admin/security/alerts/export
 GET  /api/v1/admin/security/search              Universal search
 """
+
 from __future__ import annotations
 
 import uuid
@@ -36,7 +37,6 @@ from app.models.user import User
 from app.schemas.security_dashboard import (
     BlockedIPEntry,
     PaginatedSecurityLogs,
-    SecurityAlertItem,
     SecurityDashboardSummary,
 )
 from app.services.security_dashboard_service import SecurityDashboardService
@@ -51,10 +51,13 @@ router = APIRouter(
 # Role guard dependency
 # ---------------------------------------------------------------------------
 
+
 def require_admin(current_user: User = Depends(get_current_active_user)) -> User:
     """Ensure the caller has admin privileges."""
-    if getattr(current_user, "system_role", None) != "admin" and \
-       getattr(current_user, "role", None) != "admin":
+    if (
+        getattr(current_user, "system_role", None) != "admin"
+        and getattr(current_user, "role", None) != "admin"
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required for the Security Audit Dashboard.",
@@ -66,9 +69,14 @@ def require_admin(current_user: User = Depends(get_current_active_user)) -> User
 # Common query params (DRY reuse)
 # ---------------------------------------------------------------------------
 
+
 def _date_params(
-    start_date: Optional[datetime] = Query(None, description="Filter from this date (ISO 8601)"),
-    end_date: Optional[datetime] = Query(None, description="Filter to this date (ISO 8601)"),
+    start_date: Optional[datetime] = Query(
+        None, description="Filter from this date (ISO 8601)"
+    ),
+    end_date: Optional[datetime] = Query(
+        None, description="Filter to this date (ISO 8601)"
+    ),
 ):
     return start_date, end_date
 
@@ -76,6 +84,7 @@ def _date_params(
 # ---------------------------------------------------------------------------
 # 1.  Dashboard Overview / Summary
 # ---------------------------------------------------------------------------
+
 
 @router.get(
     "/summary",
@@ -98,6 +107,7 @@ def get_dashboard_summary(
 # 2.  Failed Login Attempts
 # ---------------------------------------------------------------------------
 
+
 @router.get(
     "/failed-logins",
     response_model=PaginatedSecurityLogs,
@@ -111,7 +121,9 @@ def get_failed_logins(
     end_date: Optional[datetime] = Query(None),
     ip_address: Optional[str] = Query(None, description="Filter by exact IP address"),
     actor_id: Optional[uuid.UUID] = Query(None, description="Filter by actor user ID"),
-    search: Optional[str] = Query(None, description="Full-text search on description/IP/entity"),
+    search: Optional[str] = Query(
+        None, description="Full-text search on description/IP/entity"
+    ),
     db: Session = Depends(get_database),
     _: User = Depends(require_admin),
 ) -> PaginatedSecurityLogs:
@@ -154,6 +166,7 @@ def export_failed_logins(
 # 3.  Blocked IPs
 # ---------------------------------------------------------------------------
 
+
 @router.get(
     "/blocked-ips",
     response_model=list[BlockedIPEntry],
@@ -164,7 +177,9 @@ def export_failed_logins(
     ),
 )
 def get_blocked_ips(
-    threshold: int = Query(5, ge=1, description="Minimum failed login count to consider IP blocked"),
+    threshold: int = Query(
+        5, ge=1, description="Minimum failed login count to consider IP blocked"
+    ),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
     db: Session = Depends(get_database),
@@ -178,6 +193,7 @@ def get_blocked_ips(
 # ---------------------------------------------------------------------------
 # 4.  Suspicious Sessions
 # ---------------------------------------------------------------------------
+
 
 @router.get(
     "/suspicious-sessions",
@@ -226,13 +242,16 @@ def export_suspicious_sessions(
     return Response(
         content=csv_data,
         media_type="text/csv",
-        headers={"Content-Disposition": 'attachment; filename="suspicious_sessions.csv"'},
+        headers={
+            "Content-Disposition": 'attachment; filename="suspicious_sessions.csv"'
+        },
     )
 
 
 # ---------------------------------------------------------------------------
 # 5.  Password Resets
 # ---------------------------------------------------------------------------
+
 
 @router.get(
     "/password-resets",
@@ -286,6 +305,7 @@ def export_password_resets(
 # ---------------------------------------------------------------------------
 # 6.  API Abuse Reports
 # ---------------------------------------------------------------------------
+
 
 @router.get(
     "/api-abuse",
@@ -342,6 +362,7 @@ def export_api_abuse(
 # 7.  Security Alerts
 # ---------------------------------------------------------------------------
 
+
 @router.get(
     "/alerts",
     summary="Security alerts",
@@ -356,7 +377,9 @@ def get_security_alerts(
     limit: int = Query(50, ge=1, le=500),
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
-    severity: Optional[str] = Query(None, description="Filter by severity: critical | high | medium"),
+    severity: Optional[str] = Query(
+        None, description="Filter by severity: critical | high | medium"
+    ),
     search: Optional[str] = Query(None),
     db: Session = Depends(get_database),
     _: User = Depends(require_admin),
@@ -397,6 +420,7 @@ def export_security_alerts(
 # ---------------------------------------------------------------------------
 # 8.  Universal Search
 # ---------------------------------------------------------------------------
+
 
 @router.get(
     "/search",

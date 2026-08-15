@@ -39,14 +39,17 @@ class ActivityTrackingMiddleware(BaseHTTPMiddleware):
             return response
 
         # Lazy import to avoid circular imports at module level
-        from app.core.security import decode_token
+        from app.core.security import decode_access_token
 
+        # Only an access token counts as activity. A refresh call carries a
+        # refresh token, and refreshing in a background tab is not the user
+        # doing something.
         try:
-            payload = decode_token(token)
+            payload = decode_access_token(token)
             user_id = payload.get("sub")
             if not user_id:
                 return response
-        except Exception:
+        except ValueError:
             return response
 
         try:
