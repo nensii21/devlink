@@ -4,7 +4,7 @@ import re
 import uuid
 from typing import Optional
 
-from sqlalchemy import select, func, or_, desc, asc
+from sqlalchemy import select, func, or_, desc
 from sqlalchemy.orm import Session
 
 from app.models.project import Project
@@ -108,7 +108,9 @@ class ProjectTemplateService:
         if sort_by == "recent":
             stmt = stmt.order_by(desc(ProjectTemplate.created_at))
         elif sort_by == "clones":
-            stmt = stmt.order_by(desc(ProjectTemplate.clones_count), desc(ProjectTemplate.created_at))
+            stmt = stmt.order_by(
+                desc(ProjectTemplate.clones_count), desc(ProjectTemplate.created_at)
+            )
         else:  # "popular" (default)
             stmt = stmt.order_by(
                 desc(ProjectTemplate.is_featured),
@@ -221,8 +223,16 @@ class ProjectTemplateService:
         # Increment clone count
         template.clones_count += 1
 
-        title = new_project_title.strip() if new_project_title else f"{template.title} (Cloned)"
-        proj_desc = description.strip() if description else f"Cloned from template '{template.title}'. {template.description}"
+        title = (
+            new_project_title.strip()
+            if new_project_title
+            else f"{template.title} (Cloned)"
+        )
+        proj_desc = (
+            description.strip()
+            if description
+            else f"Cloned from template '{template.title}'. {template.description}"
+        )
 
         # Create new Project based on template
         project = Project(
@@ -231,7 +241,9 @@ class ProjectTemplateService:
             description=proj_desc,
             tagline=f"Cloned from template: {template.title}",
             owner_id=user_id,
-            tech_stack=", ".join(template.tech_stack) if isinstance(template.tech_stack, list) else str(template.tech_stack or ""),
+            tech_stack=", ".join(template.tech_stack)
+            if isinstance(template.tech_stack, list)
+            else str(template.tech_stack or ""),
         )
 
         db.add(project)

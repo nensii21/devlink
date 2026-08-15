@@ -49,6 +49,12 @@ export type CollabEvent =
   | { type: "typing"; conversationId: string; from: string; typing: boolean }
   | { type: "read"; conversationId: string; by: string; at: string }
   | { type: "presence"; userId: string; online: boolean }
+  | {
+      type: "presence.collaboration_status_changed";
+      userId: string;
+      status: string;
+    }
+  | { type: "presence.query_response"; presences: Record<string, string> }
   | { type: "notification"; id: string; kind: string; text: string; at: string }
   | { type: "status"; sender_id: string; content: string }
   | { type: "error"; message: string }
@@ -181,6 +187,18 @@ class WsClient {
   /** Notify a project room that project metadata changed. */
   notifyProjectUpdate(projectId: string, changes: Record<string, unknown>): void {
     this.send({ type: "project_update", project_id: projectId, changes });
+  }
+
+  // ── Collaboration presence ────────────────────────────────────────────────
+
+  /** Broadcast a collaboration status change to all connected users. */
+  updateCollaborationStatus(status: string): void {
+    this.send({ type: "collaboration_status_update", status });
+  }
+
+  /** Query presence statuses. Pass user_ids to query specific users. */
+  queryPresence(userIds?: string[]): void {
+    this.send({ type: "presence_query", user_ids: userIds });
   }
 }
 

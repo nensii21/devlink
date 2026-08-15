@@ -27,7 +27,9 @@ class ProfileSuggestionItem(BaseModel):
 
 class ProfileSuggestionsResponse(BaseModel):
     user_id: uuid.UUID
-    profile_score: int = Field(description="Calculated profile completeness score (0-100)")
+    profile_score: int = Field(
+        description="Calculated profile completeness score (0-100)"
+    )
     total_suggestions: int
     active_suggestions_count: int
     dismissed_suggestions_count: int

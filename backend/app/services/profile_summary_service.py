@@ -79,12 +79,12 @@ class ProfileSummaryService:
         prompt = f"""Generate a professional developer profile summary based on the following information.
 
 Name: {user.first_name} {user.last_name}
-Headline: {user.headline or 'Not specified'}
-Bio: {user.bio or 'Not specified'}
-Role: {user.role or 'Not specified'}
-Company: {user.company or 'Not specified'}
-Experience Level: {user.experience_level or 'Not specified'}
-Location: {user.location or 'Not specified'}
+Headline: {user.headline or "Not specified"}
+Bio: {user.bio or "Not specified"}
+Role: {user.role or "Not specified"}
+Company: {user.company or "Not specified"}
+Experience Level: {user.experience_level or "Not specified"}
+Location: {user.location or "Not specified"}
 Open to Work: {user.open_to_work}
 {skills_text}
 {stats_text}

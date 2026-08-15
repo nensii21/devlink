@@ -30,16 +30,49 @@ router = APIRouter(
 @router.get("/stats")
 def get_job_stats(db: Session = Depends(get_db)):
     total = db.scalar(select(func.count(BackgroundJob.id))) or 0
-    running = db.scalar(select(func.count(BackgroundJob.id)).where(BackgroundJob.status == JobStatus.RUNNING)) or 0
-    completed = db.scalar(select(func.count(BackgroundJob.id)).where(BackgroundJob.status == JobStatus.COMPLETED)) or 0
-    failed = db.scalar(select(func.count(BackgroundJob.id)).where(BackgroundJob.status == JobStatus.FAILED)) or 0
-    pending = db.scalar(select(func.count(BackgroundJob.id)).where(BackgroundJob.status.in_([JobStatus.PENDING, JobStatus.RETRY]))) or 0
-    
+    running = (
+        db.scalar(
+            select(func.count(BackgroundJob.id)).where(
+                BackgroundJob.status == JobStatus.RUNNING
+            )
+        )
+        or 0
+    )
+    completed = (
+        db.scalar(
+            select(func.count(BackgroundJob.id)).where(
+                BackgroundJob.status == JobStatus.COMPLETED
+            )
+        )
+        or 0
+    )
+    failed = (
+        db.scalar(
+            select(func.count(BackgroundJob.id)).where(
+                BackgroundJob.status == JobStatus.FAILED
+            )
+        )
+        or 0
+    )
+    pending = (
+        db.scalar(
+            select(func.count(BackgroundJob.id)).where(
+                BackgroundJob.status.in_([JobStatus.PENDING, JobStatus.RETRY])
+            )
+        )
+        or 0
+    )
+
     # Calculate average processing time
-    avg_processing_time = db.scalar(
-        select(func.avg(BackgroundJob.processing_time)).where(BackgroundJob.status == JobStatus.COMPLETED)
-    ) or 0.0
-    
+    avg_processing_time = (
+        db.scalar(
+            select(func.avg(BackgroundJob.processing_time)).where(
+                BackgroundJob.status == JobStatus.COMPLETED
+            )
+        )
+        or 0.0
+    )
+
     # Worker health
     try:
         inspect = celery_app.control.inspect(timeout=1.0)
@@ -50,23 +83,25 @@ def get_job_stats(db: Session = Depends(get_db)):
             ping = inspect.ping() or {}
             reserved = inspect.reserved() or {}
             stats = inspect.stats() or {}
-            
+
             workers_info = {}
             for w in active.keys():
                 workers_info[w] = {
                     "status": "active" if ping.get(w) else "offline",
                     "active_tasks": len(active.get(w, [])),
                     "queued_tasks": len(reserved.get(w, [])),
-                    "total_processed": stats.get(w, {}).get("total", {}).get("notifications.send", 0),
+                    "total_processed": stats.get(w, {})
+                    .get("total", {})
+                    .get("notifications.send", 0),
                 }
-            
+
             worker_health = {
                 "status": "healthy" if len(workers_info) > 0 else "no_workers",
-                "workers": workers_info
+                "workers": workers_info,
             }
     except Exception as e:
         worker_health = {"status": "unhealthy", "error": str(e), "workers": {}}
-        
+
     return {
         "total": total,
         "running": running,
@@ -74,7 +109,7 @@ def get_job_stats(db: Session = Depends(get_db)):
         "failed": failed,
         "pending": pending,
         "avg_processing_time": round(float(avg_processing_time), 3),
-        "worker_health": worker_health
+        "worker_health": worker_health,
     }
 
 
@@ -88,7 +123,7 @@ def get_jobs(
     db: Session = Depends(get_db),
 ):
     stmt = select(BackgroundJob)
-    
+
     if status:
         stmt = stmt.where(BackgroundJob.status == status)
     if task_name:
@@ -104,10 +139,10 @@ def get_jobs(
                 func.cast(BackgroundJob.result, sa.Text).ilike(search_filter),
             )
         )
-        
+
     stmt = stmt.order_by(BackgroundJob.created_at.desc()).offset(skip).limit(limit)
     jobs = list(db.scalars(stmt))
-    
+
     count_stmt = select(func.count(BackgroundJob.id))
     if status:
         count_stmt = count_stmt.where(BackgroundJob.status == status)
@@ -125,13 +160,8 @@ def get_jobs(
             )
         )
     total_count = db.scalar(count_stmt) or 0
-    
-    return {
-        "jobs": jobs,
-        "total": total_count,
-        "skip": skip,
-        "limit": limit
-    }
+
+    return {"jobs": jobs, "total": total_count, "skip": skip, "limit": limit}
 
 
 @router.post("/{job_id}/retry")
@@ -142,18 +172,18 @@ def retry_job(job_id: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Background job not found",
         )
-        
+
     job.status = JobStatus.PENDING
     job.error = None
     job.result = None
     job.completed_at = None
     job.started_at = None
     db.commit()
-    
+
     payload = job.payload or {}
     args = payload.get("args", [])
     kwargs = payload.get("kwargs", {})
-    
+
     try:
         task = celery_app.tasks.get(job.task_name)
         if task:
@@ -170,6 +200,5 @@ def retry_job(job_id: str, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retry job: {str(e)}",
         )
-        
-    return {"status": "retrying", "job_id": job_id}
 
+    return {"status": "retrying", "job_id": job_id}

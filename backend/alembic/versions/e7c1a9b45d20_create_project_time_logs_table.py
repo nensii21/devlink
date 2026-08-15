@@ -57,7 +57,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         # Belt and braces alongside the service-level check: a single entry can
         # never be zero, negative, or longer than a day.
-        sa.CheckConstraint("minutes > 0 AND minutes <= 1440", name="ck_project_time_logs_minutes"),
+        sa.CheckConstraint(
+            "minutes > 0 AND minutes <= 1440", name="ck_project_time_logs_minutes"
+        ),
     )
 
     op.create_index(
@@ -110,11 +112,19 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index("ix_project_time_logs_project_user_date", table_name="project_time_logs")
+    op.drop_index(
+        "ix_project_time_logs_project_user_date", table_name="project_time_logs"
+    )
     op.drop_index("ix_project_time_logs_user_date", table_name="project_time_logs")
     op.drop_index("ix_project_time_logs_project_date", table_name="project_time_logs")
-    op.drop_index(op.f("ix_project_time_logs_work_date"), table_name="project_time_logs")
-    op.drop_index(op.f("ix_project_time_logs_milestone_id"), table_name="project_time_logs")
+    op.drop_index(
+        op.f("ix_project_time_logs_work_date"), table_name="project_time_logs"
+    )
+    op.drop_index(
+        op.f("ix_project_time_logs_milestone_id"), table_name="project_time_logs"
+    )
     op.drop_index(op.f("ix_project_time_logs_user_id"), table_name="project_time_logs")
-    op.drop_index(op.f("ix_project_time_logs_project_id"), table_name="project_time_logs")
+    op.drop_index(
+        op.f("ix_project_time_logs_project_id"), table_name="project_time_logs"
+    )
     op.drop_table("project_time_logs")

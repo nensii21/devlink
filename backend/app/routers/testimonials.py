@@ -9,7 +9,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_active_user, get_database, get_optional_current_user
+from app.dependencies import (
+    get_current_active_user,
+    get_database,
+    get_optional_current_user,
+)
 from app.models.testimonial import TestimonialStatus
 from app.models.user import User
 from app.schemas.testimonial import (
@@ -121,7 +125,9 @@ def approve_testimonial(
     current_user: User = Depends(get_current_active_user),
 ) -> TestimonialResponse:
     return TestimonialResponse.model_validate(
-        TestimonialService.approve(db, testimonial_id=testimonial_id, subject=current_user)
+        TestimonialService.approve(
+            db, testimonial_id=testimonial_id, subject=current_user
+        )
     )
 
 
@@ -222,7 +228,9 @@ def get_testimonial(
     # 404 rather than 403: a 403 would confirm that an unapproved testimonial
     # about this person exists, which is exactly what moderation hides.
     if not TestimonialService.can_view(testimonial, current_user):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Testimonial not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Testimonial not found"
+        )
 
     return TestimonialResponse.model_validate(testimonial)
 

@@ -5,7 +5,6 @@ from datetime import datetime
 
 from sqlalchemy import Float, ForeignKey, Integer, String, Text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.dialects.postgresql import JSONB
 
 from app.database.base import Base
 

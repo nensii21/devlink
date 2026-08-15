@@ -1,15 +1,14 @@
 """
 Unit & Integration Tests for Project Templates Marketplace (#596)
 """
+
 from __future__ import annotations
 
 import uuid
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-import pytest
 from sqlalchemy.orm import Session
 
-from app.models.project import Project
 from app.models.project_template import ProjectTemplate, ProjectTemplateFavorite
 from app.models.user import User
 from app.schemas.project_template import (
@@ -27,7 +26,9 @@ def _make_mock_user() -> MagicMock:
     return u
 
 
-def _make_mock_template(author_id: uuid.UUID, title: str = "FastAPI React Boilerplate") -> MagicMock:
+def _make_mock_template(
+    author_id: uuid.UUID, title: str = "FastAPI React Boilerplate"
+) -> MagicMock:
     t = MagicMock(spec=ProjectTemplate)
     t.id = uuid.uuid4()
     t.title = title

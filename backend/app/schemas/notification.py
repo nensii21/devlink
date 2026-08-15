@@ -135,4 +135,3 @@ class NotificationPreferenceUpdate(BaseModel):
     role_changes: Optional[bool] = None
     marketing_emails: Optional[bool] = None
     system_alerts: Optional[bool] = None
-

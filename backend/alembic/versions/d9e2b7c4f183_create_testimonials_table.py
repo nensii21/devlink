@@ -80,7 +80,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         # One testimonial per author per subject. Someone with an opinion worth
         # stating twice can edit the one they already wrote.
-        sa.UniqueConstraint("author_id", "subject_id", name="uq_testimonials_author_subject"),
+        sa.UniqueConstraint(
+            "author_id", "subject_id", name="uq_testimonials_author_subject"
+        ),
         # Nobody writes a testimonial about themselves.
         sa.CheckConstraint("author_id <> subject_id", name="ck_testimonials_not_self"),
     )
@@ -94,7 +96,9 @@ def upgrade() -> None:
     op.create_index(
         op.f("ix_testimonials_project_id"), "testimonials", ["project_id"], unique=False
     )
-    op.create_index(op.f("ix_testimonials_status"), "testimonials", ["status"], unique=False)
+    op.create_index(
+        op.f("ix_testimonials_status"), "testimonials", ["status"], unique=False
+    )
 
     # The public profile listing: one subject's approved testimonials.
     op.create_index(

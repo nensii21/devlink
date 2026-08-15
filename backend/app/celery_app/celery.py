@@ -12,7 +12,7 @@ celery_app = Celery(
         "app.celery_app.tasks.notification_tasks",
         "app.celery_app.tasks.image_tasks",
         "app.celery_app.tasks.digest_tasks",
-    ]
+    ],
 )
 
 celery_app.conf.update(
@@ -29,7 +29,7 @@ celery_app.conf.update(
 celery_app.conf.beat_schedule = {
     "send-daily-digest": {
         "task": "app.celery_app.tasks.digest_tasks.send_daily_digest",
-        "schedule": crontab(hour=0, minute=0), # Midnight UTC
+        "schedule": crontab(hour=0, minute=0),  # Midnight UTC
         "args": (),
     },
 }

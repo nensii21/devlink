@@ -93,8 +93,11 @@ async def upload_attachment(
         )
 
     import uuid
+
     file_id = uuid.uuid4().hex
-    safe_filename = "".join(c for c in file.filename if c.isalnum() or c in "._-").strip()
+    safe_filename = "".join(
+        c for c in file.filename if c.isalnum() or c in "._-"
+    ).strip()
     if not safe_filename:
         safe_filename = "attachment"
 
@@ -109,6 +112,5 @@ async def upload_attachment(
         url=relative_url,
         filename=file.filename,
         size=len(contents),
-        mime_type=file.content_type or "application/octet-stream"
+        mime_type=file.content_type or "application/octet-stream",
     )
-

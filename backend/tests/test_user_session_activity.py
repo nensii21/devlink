@@ -1,6 +1,7 @@
 """
 Unit & Integration Tests for User Session Activity (#588)
 """
+
 from __future__ import annotations
 
 import uuid
@@ -22,7 +23,9 @@ def _make_mock_user() -> MagicMock:
     return u
 
 
-def _make_mock_session(user_id: uuid.UUID, device_name: str = "MacBook Pro", is_current: bool = False) -> MagicMock:
+def _make_mock_session(
+    user_id: uuid.UUID, device_name: str = "MacBook Pro", is_current: bool = False
+) -> MagicMock:
     s = MagicMock(spec=RefreshToken)
     s.id = uuid.uuid4()
     s.user_id = user_id
@@ -46,8 +49,12 @@ class TestUserSessionActivity:
         db = MagicMock(spec=Session)
         user = _make_mock_user()
 
-        sess1 = _make_mock_session(user_id=user.id, device_name="MacBook Pro", is_current=True)
-        sess2 = _make_mock_session(user_id=user.id, device_name="iPhone 15", is_current=False)
+        sess1 = _make_mock_session(
+            user_id=user.id, device_name="MacBook Pro", is_current=True
+        )
+        sess2 = _make_mock_session(
+            user_id=user.id, device_name="iPhone 15", is_current=False
+        )
 
         db.scalars.return_value = [sess1, sess2]
 
@@ -64,7 +71,9 @@ class TestUserSessionActivity:
 
         db.scalar.return_value = session
 
-        success = RefreshTokenService.revoke_session_by_id(db, session_id=session.id, user_id=user.id)
+        success = RefreshTokenService.revoke_session_by_id(
+            db, session_id=session.id, user_id=user.id
+        )
 
         assert success is True
         assert session.is_revoked is True
@@ -74,9 +83,15 @@ class TestUserSessionActivity:
         db = MagicMock(spec=Session)
         user = _make_mock_user()
 
-        current_sess = _make_mock_session(user_id=user.id, device_name="Current Desktop", is_current=True)
-        other_sess1 = _make_mock_session(user_id=user.id, device_name="Laptop", is_current=False)
-        other_sess2 = _make_mock_session(user_id=user.id, device_name="Phone", is_current=False)
+        current_sess = _make_mock_session(
+            user_id=user.id, device_name="Current Desktop", is_current=True
+        )
+        other_sess1 = _make_mock_session(
+            user_id=user.id, device_name="Laptop", is_current=False
+        )
+        other_sess2 = _make_mock_session(
+            user_id=user.id, device_name="Phone", is_current=False
+        )
 
         db.scalars.return_value = [other_sess1, other_sess2]
 

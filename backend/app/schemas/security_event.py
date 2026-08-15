@@ -10,23 +10,42 @@ from app.models.security_event import SecurityEventSeverity, SecurityEventType
 
 
 class SecurityEventCreate(BaseModel):
-    event_type: SecurityEventType = Field(description="Security event classification type")
-    description: str = Field(..., min_length=1, description="Event description or error message")
-    severity: Optional[SecurityEventSeverity] = Field(
-        default=None, description="Optional explicit severity level (info, low, medium, high, critical)"
+    event_type: SecurityEventType = Field(
+        description="Security event classification type"
     )
-    risk_score: Optional[float] = Field(default=0.0, ge=0.0, le=1.0, description="Computed risk score (0.0 to 1.0)")
-    actor_id: Optional[uuid.UUID] = Field(default=None, description="User ID of actor initiating action")
-    target_user_id: Optional[uuid.UUID] = Field(default=None, description="Target user ID affected")
+    description: str = Field(
+        ..., min_length=1, description="Event description or error message"
+    )
+    severity: Optional[SecurityEventSeverity] = Field(
+        default=None,
+        description="Optional explicit severity level (info, low, medium, high, critical)",
+    )
+    risk_score: Optional[float] = Field(
+        default=0.0, ge=0.0, le=1.0, description="Computed risk score (0.0 to 1.0)"
+    )
+    actor_id: Optional[uuid.UUID] = Field(
+        default=None, description="User ID of actor initiating action"
+    )
+    target_user_id: Optional[uuid.UUID] = Field(
+        default=None, description="Target user ID affected"
+    )
     ip_address: Optional[str] = Field(default=None, description="Client IP address")
     user_agent: Optional[str] = Field(default=None, description="Client User-Agent")
-    request_method: Optional[str] = Field(default=None, description="HTTP method (POST, GET, etc.)")
-    request_path: Optional[str] = Field(default=None, description="HTTP request URI path")
-    metadata_payload: Optional[dict[str, Any]] = Field(default=None, description="Additional context payload")
+    request_method: Optional[str] = Field(
+        default=None, description="HTTP method (POST, GET, etc.)"
+    )
+    request_path: Optional[str] = Field(
+        default=None, description="HTTP request URI path"
+    )
+    metadata_payload: Optional[dict[str, Any]] = Field(
+        default=None, description="Additional context payload"
+    )
 
 
 class SecurityEventResolveRequest(BaseModel):
-    resolution_notes: Optional[str] = Field(default=None, description="Administrative notes regarding event resolution")
+    resolution_notes: Optional[str] = Field(
+        default=None, description="Administrative notes regarding event resolution"
+    )
 
 
 class SecurityEventResponse(BaseModel):

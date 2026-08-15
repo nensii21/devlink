@@ -54,7 +54,11 @@ def get_my_feedbacks(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),
 ):
-    stmt = select(UserFeedback).where(UserFeedback.user_id == current_user.id).order_by(UserFeedback.created_at.desc())
+    stmt = (
+        select(UserFeedback)
+        .where(UserFeedback.user_id == current_user.id)
+        .order_by(UserFeedback.created_at.desc())
+    )
     return db.scalars(stmt).all()
 
 

@@ -1,6 +1,7 @@
 """
 Reputation System Schemas (#597)
 """
+
 from __future__ import annotations
 
 import uuid
@@ -17,7 +18,14 @@ class ReputationAwardRequest(BaseModel):
     )
     action: str = Field(
         ...,
-        examples=["merged_pull_request", "completed_project", "community_contribution", "helpful_discussion", "profile_completion", "mentor_recognition"],
+        examples=[
+            "merged_pull_request",
+            "completed_project",
+            "community_contribution",
+            "helpful_discussion",
+            "profile_completion",
+            "mentor_recognition",
+        ],
         description="Type of activity earning reputation points.",
     )
     points: Optional[int] = Field(

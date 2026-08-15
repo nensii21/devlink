@@ -1,11 +1,12 @@
 """
 Unit & Integration Tests for Security Event Monitoring (#613)
 """
+
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock, patch
+from datetime import datetime, timezone
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi import HTTPException
@@ -18,9 +19,6 @@ from app.models.security_event import (
 )
 from app.models.user import User
 from app.schemas.security_event import (
-    PaginatedSecurityEventsResponse,
-    SecurityEventCreate,
-    SecurityEventResponse,
     SecurityEventSummaryResponse,
 )
 from app.services.security_event_service import SecurityEventService
@@ -30,7 +28,10 @@ from app.services.security_event_service import SecurityEventService
 # Test Fixtures / Mock Helpers
 # ---------------------------------------------------------------------------
 
-def _make_mock_user(username: str = "secadmin", system_role: str = "admin") -> MagicMock:
+
+def _make_mock_user(
+    username: str = "secadmin", system_role: str = "admin"
+) -> MagicMock:
     user = MagicMock(spec=User)
     user.id = uuid.uuid4()
     user.username = username
@@ -75,6 +76,7 @@ def _make_mock_security_event(
 # ---------------------------------------------------------------------------
 # 1. Alert & Threshold Evaluation Tests
 # ---------------------------------------------------------------------------
+
 
 class TestSecurityEventAlertRules:
     def test_account_lockout_triggers_critical_alert(self):
@@ -136,6 +138,7 @@ class TestSecurityEventAlertRules:
 # 2. Logging Service Tests (All 6 Monitor Event Types)
 # ---------------------------------------------------------------------------
 
+
 class TestSecurityEventLogging:
     @pytest.mark.parametrize(
         "event_type",
@@ -172,6 +175,7 @@ class TestSecurityEventLogging:
 # 3. Query, Filtering & Resolution Tests
 # ---------------------------------------------------------------------------
 
+
 class TestSecurityEventQueryAndResolution:
     def test_get_security_event_or_404_found(self):
         db = MagicMock(spec=Session)
@@ -196,7 +200,10 @@ class TestSecurityEventQueryAndResolution:
         db.get.return_value = event
 
         resolved = SecurityEventService.resolve_security_event(
-            db, event_id=event.id, resolver_user=admin, notes="IP investigated and blocked."
+            db,
+            event_id=event.id,
+            resolver_user=admin,
+            notes="IP investigated and blocked.",
         )
 
         assert resolved.is_resolved is True
@@ -208,8 +215,14 @@ class TestSecurityEventQueryAndResolution:
         db = MagicMock(spec=Session)
         db.scalar.side_effect = [100, 25, 10, 3, 2]
         db.execute.return_value.all.side_effect = [
-            [(SecurityEventType.FAILED_LOGIN, 60), (SecurityEventType.ACCOUNT_LOCKOUT, 40)],  # type breakdown
-            [(SecurityEventSeverity.MEDIUM, 70), (SecurityEventSeverity.CRITICAL, 30)],  # severity breakdown
+            [
+                (SecurityEventType.FAILED_LOGIN, 60),
+                (SecurityEventType.ACCOUNT_LOCKOUT, 40),
+            ],  # type breakdown
+            [
+                (SecurityEventSeverity.MEDIUM, 70),
+                (SecurityEventSeverity.CRITICAL, 30),
+            ],  # severity breakdown
             [("1.2.3.4", 15, 5)],  # top IPs
         ]
 
@@ -227,6 +240,7 @@ class TestSecurityEventQueryAndResolution:
 # ---------------------------------------------------------------------------
 # 4. Admin RBAC Guard Tests
 # ---------------------------------------------------------------------------
+
 
 class TestSecurityEventAdminGuard:
     def test_admin_role_allowed(self):

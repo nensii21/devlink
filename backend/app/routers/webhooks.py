@@ -64,7 +64,9 @@ def process_pending_retries(
 def get_webhook_deliveries(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
-    status: Optional[WebhookDeliveryStatus] = Query(None, description="Filter by status e.g. pending, delivered, failed, exhausted"),
+    status: Optional[WebhookDeliveryStatus] = Query(
+        None, description="Filter by status e.g. pending, delivered, failed, exhausted"
+    ),
     event_type: Optional[str] = Query(None, description="Filter by event type"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),

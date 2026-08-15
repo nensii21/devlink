@@ -7,11 +7,17 @@ from app.models.webhook import WebhookDeliveryStatus
 
 
 class WebhookDispatchParams(BaseModel):
-    event_type: str = Field(..., description="Event action name e.g. project.created, user.updated")
+    event_type: str = Field(
+        ..., description="Event action name e.g. project.created, user.updated"
+    )
     target_url: str = Field(..., description="Destination webhook URL")
     payload: Dict[str, Any] = Field(..., description="JSON payload data")
-    headers: Optional[Dict[str, Any]] = Field(default=None, description="Custom HTTP headers")
-    max_retries: int = Field(default=5, ge=1, le=20, description="Max retry attempts limit")
+    headers: Optional[Dict[str, Any]] = Field(
+        default=None, description="Custom HTTP headers"
+    )
+    max_retries: int = Field(
+        default=5, ge=1, le=20, description="Max retry attempts limit"
+    )
 
 
 class WebhookDeliveryResponse(BaseModel):

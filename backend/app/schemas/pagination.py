@@ -1,15 +1,19 @@
 import base64
 import json
-from typing import Any, Generic, List, Optional, TypeVar
+from typing import Generic, List, Optional, TypeVar
 from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 
 
 class PaginationParams(BaseModel):
-    limit: int = Field(default=20, ge=1, le=100, description="Number of items to return")
+    limit: int = Field(
+        default=20, ge=1, le=100, description="Number of items to return"
+    )
     cursor: Optional[str] = Field(default=None, description="Cursor for pagination")
-    offset: Optional[int] = Field(default=0, ge=0, description="Offset for offset-based pagination")
+    offset: Optional[int] = Field(
+        default=0, ge=0, description="Offset for offset-based pagination"
+    )
 
 
 class PaginatedResponse(BaseModel, Generic[T]):

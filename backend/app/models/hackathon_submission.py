@@ -141,8 +141,5 @@ class HackathonSubmission(Base):
 
     def __repr__(self) -> str:
         return (
-            f"<HackathonSubmission("
-            f"title='{self.title}', "
-            f"status='{self.status.value}'"
-            f")>"
+            f"<HackathonSubmission(title='{self.title}', status='{self.status.value}')>"
         )

@@ -215,9 +215,7 @@ def test_non_matching_if_none_match_returns_full_body(client):
 def test_if_none_match_list_matches_any_member(client):
     etag = client.get("/items").headers["etag"]
 
-    response = client.get(
-        "/items", headers={"If-None-Match": f'"other", {etag}'}
-    )
+    response = client.get("/items", headers={"If-None-Match": f'"other", {etag}'})
 
     assert response.status_code == 304
 
@@ -308,9 +306,7 @@ def test_etag_changes_when_the_representation_changes():
 
     with TestClient(app) as local_client:
         first = local_client.get("/counter").headers["etag"]
-        second = local_client.get(
-            "/counter", headers={"If-None-Match": first}
-        )
+        second = local_client.get("/counter", headers={"If-None-Match": first})
 
     assert second.status_code == 200
     assert second.headers["etag"] != first

@@ -7,7 +7,9 @@ from pydantic import BaseModel, Field
 
 
 class FeedbackCreate(BaseModel):
-    category: str = Field(..., description="Bug Report, Feature Request, UI Feedback, Performance, Other")
+    category: str = Field(
+        ..., description="Bug Report, Feature Request, UI Feedback, Performance, Other"
+    )
     title: str = Field(..., min_length=3, max_length=200)
     description: str = Field(..., min_length=10)
 

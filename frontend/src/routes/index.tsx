@@ -43,7 +43,6 @@ import {
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/useTheme";
-import { AnimatedBackground } from "@/components/shared/AnimatedBackground";
 import {
   Accordion,
   AccordionItem,
@@ -346,9 +345,6 @@ function Landing() {
         )}
       </AnimatePresence>
 
-<section className="relative overflow-hidden border-b border-border">
-        <AnimatedBackground />
-        <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-24 text-center">          <motion.div
       <section className="border-b border-border bg-gradient-to-b from-background to-surface/20">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-16">
           <motion.div
@@ -501,76 +497,46 @@ function Landing() {
         </div>
       </section>
 
-<section id="features" className="border-b border-border">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto grid max-w-6xl gap-4 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-4"
-        >          {[
       <section id="features" className="border-b border-border">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-16 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:px-6">
+        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
           {[
             {
               icon: Sparkles,
-              title: "AI Matching",
-              desc: "Smart teammate recommendations based on skills, availability and past work.",
+              title: "AI matches",
+              desc: "Rank teammates by skill, availability and past work.",
             },
             {
               icon: Users2,
-              title: "Builder Profiles",
-              desc: "Unified profiles with skills, repos and contribution highlights.",
+              title: "Builder profiles",
+              desc: "One profile, everywhere. Skills, stack, contributions.",
             },
             {
               icon: MessageSquare,
-              title: "Real-time Chat",
-              desc: "Threaded, low-latency messaging integrated with project workspaces.",
+              title: "Real-time chat",
+              desc: "Threaded conversations with your team, in-app.",
             },
             {
               icon: Trophy,
               title: "Hackathons",
-              desc: "Find events, form teams and ship prototypes together.",
-            },
-            {
-              icon: LayoutDashboard,
-              title: "Dashboard & Insights",
-              desc: "Project health, activity and quick metrics to stay on track.",
-            },
-            {
-              icon: Zap,
-              title: "AI Recommendations",
-              desc: "Personalized suggestions for projects, tasks and teammates.",
-            },
-            {
-              icon: Star,
-              title: "Tag Suggestions",
-              desc: "Auto-generate helpful tags and labels for issues and projects.",
-            },
-            {
-              icon: Clock,
-              title: "Issue Difficulty",
-              desc: "Estimate effort and time-to-complete to prioritize work.",
+              desc: "Discover jams, form teams, ship in a weekend.",
             },
           ].map((f) => (
-            <div
-              key={f.title}
-              className="rounded-md border border-border bg-card p-5 transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
-            >
-              <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-soft text-primary">
-                <f.icon size={18} />
+            <div key={f.title} className="rounded-md border border-border bg-card p-5">
+              <span className="grid h-9 w-9 place-items-center rounded-md bg-primary-soft text-primary">
+                <f.icon size={16} />
               </span>
               <p className="mt-3 text-[15px] font-semibold text-foreground">{f.title}</p>
               <TypoCaption as="p">{f.desc}</TypoCaption>
             </div>
-              <p className="mt-1 text-[13px] text-muted-foreground">{f.desc}</p>
-</div>
           ))}
-        </motion.div>
+        </div>
       </section>
 
       {/* ===== AI FEATURES SECTION ===== */}
-      <section id="ai-features" className="border-b border-border py-16 bg-gradient-to-b from-background to-surface/10">
+      <section
+        id="ai-features"
+        className="border-b border-border py-16 bg-gradient-to-b from-background to-surface/10"
+      >
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <TypoHeading as="h2">AI Features</TypoHeading>
@@ -605,7 +571,10 @@ function Landing() {
                 desc: "Personalized suggestions for projects, teammates and next steps.",
               },
             ].map((f) => (
-              <div key={f.title} className="rounded-md border border-border bg-card p-5 flex flex-col items-start">
+              <div
+                key={f.title}
+                className="rounded-md border border-border bg-card p-5 flex flex-col items-start"
+              >
                 <span className="grid h-10 w-10 place-items-center rounded-md bg-primary-soft text-primary">
                   <f.icon size={18} />
                 </span>
@@ -969,60 +938,6 @@ function Landing() {
         </div>
       </section>
 
-      <section id="community-partners" className="border-b border-border py-20 bg-background">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Trusted by the community
-            </h2>
-            <p className="mt-4 text-muted-foreground text-[15px]">
-              DevLink powers teams, hackathons, and communities across the globe.
-            </p>
-          </div>
-
-          {/* Logo Wall */}
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-            {/* Placeholder Logos */}
-            <div className="flex items-center gap-2 text-xl font-bold text-foreground">
-              <Globe className="h-8 w-8 text-primary" /> TechStars
-            </div>
-            <div className="flex items-center gap-2 text-xl font-bold text-foreground">
-              <Trophy className="h-8 w-8 text-primary" /> MLH
-            </div>
-            <div className="flex items-center gap-2 text-xl font-bold text-foreground">
-              <Users2 className="h-8 w-8 text-primary" /> Y Combinator
-            </div>
-            <div className="flex items-center gap-2 text-xl font-bold text-foreground">
-              <Code2 className="h-8 w-8 text-primary" /> GitHub Education
-            </div>
-          </div>
-
-          {/* Community Stats */}
-          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="flex flex-col items-center p-6 rounded-2xl bg-surface border border-border/50 text-center">
-              <div className="text-4xl font-extrabold text-primary mb-2">100+</div>
-              <div className="text-sm font-medium text-foreground">Hackathons</div>
-              <div className="text-xs text-muted-foreground mt-1">Powered by DevLink</div>
-            </div>
-            <div className="flex flex-col items-center p-6 rounded-2xl bg-surface border border-border/50 text-center">
-              <div className="text-4xl font-extrabold text-primary mb-2">50k+</div>
-              <div className="text-sm font-medium text-foreground">Builders</div>
-              <div className="text-xs text-muted-foreground mt-1">Finding matches daily</div>
-            </div>
-            <div className="flex flex-col items-center p-6 rounded-2xl bg-surface border border-border/50 text-center">
-              <div className="text-4xl font-extrabold text-primary mb-2">20k+</div>
-              <div className="text-sm font-medium text-foreground">Projects</div>
-              <div className="text-xs text-muted-foreground mt-1">Shipped to production</div>
-            </div>
-            <div className="flex flex-col items-center p-6 rounded-2xl bg-surface border border-border/50 text-center">
-              <div className="text-4xl font-extrabold text-primary mb-2">500+</div>
-              <div className="text-sm font-medium text-foreground">Communities</div>
-              <div className="text-xs text-muted-foreground mt-1">Active on the platform</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section
         id="squad-cta"
         className="border-b border-border bg-gradient-to-b from-background via-surface/10 to-background py-20 relative overflow-hidden"
@@ -1123,7 +1038,8 @@ function Landing() {
       </section>
 
       <section
-        id="pricing"        className="border-b border-border py-24 relative overflow-hidden bg-gradient-to-b from-background via-surface/30 to-background"
+        id="pricing"
+        className="border-b border-border py-24 relative overflow-hidden bg-gradient-to-b from-background via-surface/30 to-background"
       >
         {/* Subtle decorative background blur */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
@@ -1131,21 +1047,12 @@ function Landing() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6 relative z-10">
           <div className="text-center max-w-2xl mx-auto">
             <TypoHeading as="h2">
-<motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.1 }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto max-w-5xl px-4 sm:px-6 relative z-10"
-        >          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Simple, transparent pricing
             </TypoHeading>
             <TypoCaption as="p">
               Start for free, upgrade when you need more power. No hidden fees.
             </TypoCaption>
           </div>
-
           <div className="mt-12 flex justify-center">
             <div className="relative flex items-center rounded-full bg-surface border border-border p-1.5 shadow-sm">
               <button
@@ -1191,7 +1098,6 @@ function Landing() {
               </button>
             </div>
           </div>
-
           <div className="mx-auto mt-14 grid max-w-5xl gap-8 lg:grid-cols-2 lg:items-center">
             {[
               {
@@ -1284,7 +1190,6 @@ function Landing() {
               </div>
             ))}
           </div>
-
           {/* Trust / Billing Info */}
           <div className="mt-16 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm text-muted-foreground font-medium">
             <div className="flex items-center gap-2">
@@ -1300,7 +1205,6 @@ function Landing() {
               <span>No credit card for Hobby</span>
             </div>
           </div>
-
           {/* Feature Comparison */}
           <div className="mt-32 max-w-4xl mx-auto">
             <div className="text-center mb-10">
@@ -1339,7 +1243,6 @@ function Landing() {
               </table>
             </div>
           </div>
-
           {/* FAQ Section */}
           <div className="mt-32 max-w-3xl mx-auto">
             <div className="text-center mb-10">
@@ -1394,12 +1297,11 @@ function Landing() {
                   </AnimatePresence>
                 </div>
               ))}
-</div>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
-      <footer className="border-t border-border bg-surface py-3">        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-2 sm:flex-row sm:text-left">
       <section className="border-b border-border bg-background">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
           <div className="text-center">

@@ -9,7 +9,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_active_user, get_database, get_optional_current_user
+from app.dependencies import (
+    get_current_active_user,
+    get_database,
+    get_optional_current_user,
+)
 from app.models.pinned_project import MAX_PINNED_PROJECTS
 from app.models.user import User
 from app.schemas.pinned_project import (
@@ -56,7 +60,9 @@ def list_my_pinned_projects(
         "You may only pin a public, non-archived project you own or are a member of."
     ),
     responses={
-        400: {"description": "Pin limit reached, or the project is private or archived"},
+        400: {
+            "description": "Pin limit reached, or the project is private or archived"
+        },
         403: {"description": "Not your project"},
         404: {"description": "Project not found"},
         409: {"description": "Already pinned"},
@@ -81,14 +87,18 @@ def pin_project(
         "one ineligible project rejects the whole request rather than leaving a "
         "half-applied order."
     ),
-    responses={400: {"description": "Too many pins, a duplicate, or an ineligible project"}},
+    responses={
+        400: {"description": "Too many pins, a duplicate, or an ineligible project"}
+    },
 )
 def replace_pinned_projects(
     payload: PinnedProjectReorder,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_active_user),
 ) -> PinnedProjectList:
-    pins = PinnedProjectService.replace(db, user=current_user, project_ids=payload.project_ids)
+    pins = PinnedProjectService.replace(
+        db, user=current_user, project_ids=payload.project_ids
+    )
     return _as_list(pins)
 
 

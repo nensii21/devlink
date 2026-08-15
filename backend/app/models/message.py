@@ -164,6 +164,12 @@ class Message(Base):
         nullable=True,
     )
 
+    delivered_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+
     read_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,

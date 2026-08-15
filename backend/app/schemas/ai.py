@@ -14,6 +14,7 @@ class ProjectDescriptionGenerateRequest(BaseModel):
         examples=["A real-time chat application for developers"],
     )
 
+
 class ProjectDescriptionGenerateResponse(BaseModel):
     """Response containing the AI-generated project description."""
 

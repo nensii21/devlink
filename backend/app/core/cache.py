@@ -95,6 +95,22 @@ class MultiLevelCache:
             except Exception as e:
                 logger.error(f"Redis delete error for {key}: {e}")
 
+    def delete_pattern(self, pattern: str) -> None:
+        """Invalidate keys matching a pattern across all cache levels."""
+        import fnmatch
+        
+        # 1. Invalidate L1 cache
+        keys_to_delete = [k for k in self._l1_cache.keys() if fnmatch.fnmatch(k, pattern)]
+        for k in keys_to_delete:
+            del self._l1_cache[k]
+
+        # 2. Invalidate L2 cache
+        if self._redis_client:
+            try:
+                for key in self._redis_client.scan_iter(match=pattern):
+                    self._redis_client.delete(key)
+            except Exception as e:
+                logger.error(f"Redis delete_pattern error for {pattern}: {e}")
 
 # Global singleton
 cache_manager = MultiLevelCache()
@@ -109,14 +125,15 @@ def cached(ttl: int = 300, key_prefix: str = ""):
     def decorator(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            import sys
 
             if cache_manager._is_testing:
                 return func(*args, **kwargs)
 
-            # Filter kwargs to remove non-serializable FastAPI objects
             safe_kwargs = {}
+            user_id_key = ""
             for k, v in kwargs.items():
+                if k == "current_user" and hasattr(v, "id"):
+                    user_id_key = f"u:{v.id}"
                 if k in ["db", "request", "response", "current_user"]:
                     continue
                 # Also skip objects that look like SQLAlchemy sessions or FastAPI requests
@@ -132,7 +149,7 @@ def cached(ttl: int = 300, key_prefix: str = ""):
             ]
 
             # Generate a consistent cache key
-            cache_key = f"{key_prefix}:{func.__name__}:{safe_args}:{safe_kwargs}"
+            cache_key = f"{key_prefix}:{func.__name__}:{safe_args}:{safe_kwargs}:{user_id_key}"
 
             # Try to get from cache
             cached_value = cache_manager.get(cache_key)

@@ -1,13 +1,13 @@
 """
 Unit & Integration Tests for Notification Preferences Center (#586)
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-import pytest
 from sqlalchemy.orm import Session
 
 from app.models.notification import NotificationPreference

@@ -54,7 +54,9 @@ def create_template(
     summary="List and search project templates",
 )
 def list_templates(
-    search: Optional[str] = Query(None, description="Search term in title or description"),
+    search: Optional[str] = Query(
+        None, description="Search term in title or description"
+    ),
     category: Optional[str] = Query(None, description="Filter by category"),
     tag: Optional[str] = Query(None, description="Filter by tech stack tag"),
     sort_by: str = Query("popular", description="Sort by: popular, recent, clones"),

@@ -1,22 +1,16 @@
 from __future__ import annotations
 
 # pyrefly: ignore [missing-import]
-import pytest
-from app.database.base import Base
-from app.dependencies import get_database
 from app.main import app
 
 # pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy import create_engine
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.orm import sessionmaker
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.pool import StaticPool
 
 # Register models
 

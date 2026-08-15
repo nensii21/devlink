@@ -36,16 +36,28 @@ class StreakSummary(BaseModel):
             "so that an early-morning request does not report a broken streak."
         ),
     )
-    longest_streak: int = Field(ge=0, description="Longest run of consecutive active days in the window")
-    longest_streak_start: Optional[date] = Field(default=None, description="First day of the longest run")
-    longest_streak_end: Optional[date] = Field(default=None, description="Last day of the longest run")
+    longest_streak: int = Field(
+        ge=0, description="Longest run of consecutive active days in the window"
+    )
+    longest_streak_start: Optional[date] = Field(
+        default=None, description="First day of the longest run"
+    )
+    longest_streak_end: Optional[date] = Field(
+        default=None, description="Last day of the longest run"
+    )
 
     total_activities: int = Field(ge=0, description="Total activities in the window")
-    active_days: int = Field(ge=0, description="Number of days with at least one activity")
+    active_days: int = Field(
+        ge=0, description="Number of days with at least one activity"
+    )
     total_days: int = Field(ge=1, description="Size of the window in days")
 
-    busiest_day: Optional[date] = Field(default=None, description="Day with the most activity")
-    busiest_day_count: int = Field(default=0, ge=0, description="Activity count on the busiest day")
+    busiest_day: Optional[date] = Field(
+        default=None, description="Day with the most activity"
+    )
+    busiest_day_count: int = Field(
+        default=0, ge=0, description="Activity count on the busiest day"
+    )
 
     daily_average: float = Field(
         ge=0,

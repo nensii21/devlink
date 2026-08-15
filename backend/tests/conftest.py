@@ -86,6 +86,7 @@ def setup_db():
 
     app.dependency_overrides[get_database] = override_get_db
     import app.models
+
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

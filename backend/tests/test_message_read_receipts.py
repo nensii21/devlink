@@ -31,10 +31,12 @@ def test_mark_single_message_as_read(db):
     db.commit()
     db.refresh(conv)
 
-    db.add_all([
-        ConversationMember(conversation_id=conv.id, user_id=user1.id),
-        ConversationMember(conversation_id=conv.id, user_id=user2.id),
-    ])
+    db.add_all(
+        [
+            ConversationMember(conversation_id=conv.id, user_id=user1.id),
+            ConversationMember(conversation_id=conv.id, user_id=user2.id),
+        ]
+    )
     db.commit()
 
     msg = Message(
@@ -63,10 +65,12 @@ def test_bulk_mark_messages_as_read(db):
     db.commit()
     db.refresh(conv)
 
-    db.add_all([
-        ConversationMember(conversation_id=conv.id, user_id=user1.id),
-        ConversationMember(conversation_id=conv.id, user_id=user2.id),
-    ])
+    db.add_all(
+        [
+            ConversationMember(conversation_id=conv.id, user_id=user1.id),
+            ConversationMember(conversation_id=conv.id, user_id=user2.id),
+        ]
+    )
     db.commit()
 
     m1 = Message(conversation_id=conv.id, sender_id=user1.id, content="Msg 1")
@@ -93,10 +97,12 @@ def test_mark_conversation_as_read(db):
     db.commit()
     db.refresh(conv)
 
-    db.add_all([
-        ConversationMember(conversation_id=conv.id, user_id=user1.id),
-        ConversationMember(conversation_id=conv.id, user_id=user2.id),
-    ])
+    db.add_all(
+        [
+            ConversationMember(conversation_id=conv.id, user_id=user1.id),
+            ConversationMember(conversation_id=conv.id, user_id=user2.id),
+        ]
+    )
     db.commit()
 
     m1 = Message(conversation_id=conv.id, sender_id=user1.id, content="Msg A")

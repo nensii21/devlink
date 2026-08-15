@@ -29,7 +29,9 @@ def _clean_highlights(values: Optional[list[str]]) -> list[str]:
         if not item:
             continue
         if len(item) > MAX_HIGHLIGHT_LENGTH:
-            raise ValueError(f"Each highlight must be {MAX_HIGHLIGHT_LENGTH} characters or fewer.")
+            raise ValueError(
+                f"Each highlight must be {MAX_HIGHLIGHT_LENGTH} characters or fewer."
+            )
         cleaned.append(item)
 
     if len(cleaned) > MAX_HIGHLIGHTS:
@@ -46,7 +48,9 @@ class ReleaseCreate(BaseModel):
     )
     title: str = Field(..., min_length=1, max_length=200)
     body: Optional[str] = Field(default=None, description="Markdown release notes")
-    highlights: list[str] = Field(default_factory=list, description="Short bullet points")
+    highlights: list[str] = Field(
+        default_factory=list, description="Short bullet points"
+    )
     release_type: ReleaseType = Field(default=ReleaseType.MINOR)
     # Defaults to draft: writing a changelog entry and announcing it are two
     # different decisions, and conflating them means every typo is broadcast.

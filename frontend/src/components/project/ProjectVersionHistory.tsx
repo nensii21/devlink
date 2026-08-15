@@ -49,7 +49,6 @@ export function ProjectVersionHistory({
   const { data: versionsData, isLoading } = useQuery({
     queryKey: ["project-versions", projectId],
     queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res = (await api.get(`/api/projects/${projectId}/versions`)) as any;
       return res?.data || res;
     },
@@ -59,13 +58,8 @@ export function ProjectVersionHistory({
     mutationFn: async (v1: number) => {
       const res = (await api.get(
         `/api/projects/${projectId}/versions/compare?v1=${v1}&v2=current`,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       )) as any;
       return res?.data || res;
-      const res: any = await api.get(
-        `/api/projects/${projectId}/versions/compare?v1=${v1}&v2=current`,
-      );
-      return res.data || res;
     },
     onSuccess: (data) => {
       setCompareData(data);
@@ -81,7 +75,6 @@ export function ProjectVersionHistory({
 
   const restoreMutation = useMutation({
     mutationFn: async (v1: number) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res = (await api.post(`/api/projects/${projectId}/versions/${v1}/restore`)) as any;
       return res?.data || res;
     },

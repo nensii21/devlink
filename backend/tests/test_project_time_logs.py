@@ -1,6 +1,7 @@
 """
 Unit & integration tests for project time tracking (#1041).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -87,7 +88,15 @@ def _make_log(
 class TestHoursConversion:
     @pytest.mark.parametrize(
         "minutes,expected",
-        [(0, 0.0), (30, 0.5), (60, 1.0), (90, 1.5), (1440, 24.0), (100, 1.67), (5, 0.08)],
+        [
+            (0, 0.0),
+            (30, 0.5),
+            (60, 1.0),
+            (90, 1.5),
+            (1440, 24.0),
+            (100, 1.67),
+            (5, 0.08),
+        ],
     )
     def test_conversion(self, minutes: int, expected: float):
         assert ProjectTimeLogService.to_hours(minutes) == expected
@@ -115,7 +124,9 @@ class TestWorkDateValidation:
 
     def test_future_is_rejected(self):
         with pytest.raises(HTTPException) as exc:
-            ProjectTimeLogService.validate_work_date(TODAY + timedelta(days=1), today=TODAY)
+            ProjectTimeLogService.validate_work_date(
+                TODAY + timedelta(days=1), today=TODAY
+            )
         assert exc.value.status_code == 422
         assert "future" in exc.value.detail
 
@@ -146,29 +157,39 @@ def _db_with_daily_total(total: int) -> MagicMock:
 class TestDailyCap:
     def test_under_the_cap_is_fine(self):
         db = _db_with_daily_total(120)
-        ProjectTimeLogService.validate_daily_cap(db, uuid.uuid4(), uuid.uuid4(), TODAY, 60)
+        ProjectTimeLogService.validate_daily_cap(
+            db, uuid.uuid4(), uuid.uuid4(), TODAY, 60
+        )
 
     def test_exactly_at_the_cap_is_allowed(self):
         db = _db_with_daily_total(MAX_MINUTES_PER_DAY - 60)
-        ProjectTimeLogService.validate_daily_cap(db, uuid.uuid4(), uuid.uuid4(), TODAY, 60)
+        ProjectTimeLogService.validate_daily_cap(
+            db, uuid.uuid4(), uuid.uuid4(), TODAY, 60
+        )
 
     def test_one_minute_over_is_rejected(self):
         db = _db_with_daily_total(MAX_MINUTES_PER_DAY - 60)
         with pytest.raises(HTTPException) as exc:
-            ProjectTimeLogService.validate_daily_cap(db, uuid.uuid4(), uuid.uuid4(), TODAY, 61)
+            ProjectTimeLogService.validate_daily_cap(
+                db, uuid.uuid4(), uuid.uuid4(), TODAY, 61
+            )
         assert exc.value.status_code == 400
         assert "24-hour" in exc.value.detail
 
     def test_error_reports_the_remaining_budget(self):
         db = _db_with_daily_total(MAX_MINUTES_PER_DAY - 15)
         with pytest.raises(HTTPException) as exc:
-            ProjectTimeLogService.validate_daily_cap(db, uuid.uuid4(), uuid.uuid4(), TODAY, 100)
+            ProjectTimeLogService.validate_daily_cap(
+                db, uuid.uuid4(), uuid.uuid4(), TODAY, 100
+            )
         assert "15 minutes remain" in exc.value.detail
 
     def test_full_day_leaves_nothing(self):
         db = _db_with_daily_total(MAX_MINUTES_PER_DAY)
         with pytest.raises(HTTPException) as exc:
-            ProjectTimeLogService.validate_daily_cap(db, uuid.uuid4(), uuid.uuid4(), TODAY, 1)
+            ProjectTimeLogService.validate_daily_cap(
+                db, uuid.uuid4(), uuid.uuid4(), TODAY, 1
+            )
         assert "0 minutes remain" in exc.value.detail
 
     def test_editing_an_entry_excludes_itself_from_the_total(self):
@@ -246,7 +267,9 @@ class TestPermissions:
         log = _make_log(project.id, uuid.uuid4())
 
         with pytest.raises(HTTPException) as exc:
-            ProjectTimeLogService.require_can_delete(db, project, log, _make_user("contrib"))
+            ProjectTimeLogService.require_can_delete(
+                db, project, log, _make_user("contrib")
+            )
         assert exc.value.status_code == 403
 
     def test_author_may_always_delete_their_own(self):
@@ -254,7 +277,9 @@ class TestPermissions:
         db.scalar.return_value = None
         user = _make_user()
         project = _make_project()
-        ProjectTimeLogService.require_can_delete(db, project, _make_log(project.id, user.id), user)
+        ProjectTimeLogService.require_can_delete(
+            db, project, _make_log(project.id, user.id), user
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -291,8 +316,6 @@ class TestSchemaValidation:
 # ---------------------------------------------------------------------------
 # 6. HTTP surface (real database)
 # ---------------------------------------------------------------------------
-
-
 
 
 class TestTimeLogEndpoints:
@@ -354,7 +377,9 @@ class TestTimeLogEndpoints:
         assert body["hours"] == 1.5
         assert body["is_billable"] is True
 
-        listed = client.get(f"/api/v1/projects/{project.id}/time-logs", headers=self._auth(token))
+        listed = client.get(
+            f"/api/v1/projects/{project.id}/time-logs", headers=self._auth(token)
+        )
         assert listed.status_code == 200
         assert listed.json()["total"] == 1
         assert listed.json()["total_minutes"] == 90
@@ -381,7 +406,9 @@ class TestTimeLogEndpoints:
             f"/api/v1/projects/{project.id}/time-logs",
             json={
                 "minutes": 60,
-                "work_date": (date.today() - timedelta(days=MAX_BACKFILL_DAYS + 1)).isoformat(),
+                "work_date": (
+                    date.today() - timedelta(days=MAX_BACKFILL_DAYS + 1)
+                ).isoformat(),
             },
             headers=self._auth(token),
         )
@@ -407,7 +434,9 @@ class TestTimeLogEndpoints:
         assert second.status_code == 400
         assert "24-hour" in second.json()["detail"]
 
-    def test_summary_reconciles_with_its_line_items(self, client, db, register_and_login):
+    def test_summary_reconciles_with_its_line_items(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("tl6@example.com", "tluser6")
         project = self._project_for(db, uuid.UUID(user_id), "tl-project-6")
         today = date.today().isoformat()
@@ -421,7 +450,8 @@ class TestTimeLogEndpoints:
             assert response.status_code == 201, response.text
 
         summary = client.get(
-            f"/api/v1/projects/{project.id}/time-logs/summary", headers=self._auth(token)
+            f"/api/v1/projects/{project.id}/time-logs/summary",
+            headers=self._auth(token),
         )
         assert summary.status_code == 200
         body = summary.json()
@@ -431,9 +461,14 @@ class TestTimeLogEndpoints:
         assert body["total_entries"] == 3
         assert body["billable_minutes"] == 120
         assert body["non_billable_minutes"] == 30
-        assert body["billable_minutes"] + body["non_billable_minutes"] == body["total_minutes"]
+        assert (
+            body["billable_minutes"] + body["non_billable_minutes"]
+            == body["total_minutes"]
+        )
         assert body["contributor_count"] == 1
-        assert sum(c["minutes"] for c in body["by_contributor"]) == body["total_minutes"]
+        assert (
+            sum(c["minutes"] for c in body["by_contributor"]) == body["total_minutes"]
+        )
         # Work with no milestone is grouped under a null id, not dropped.
         assert sum(m["minutes"] for m in body["by_milestone"]) == body["total_minutes"]
         assert body["by_milestone"][0]["milestone_id"] is None
@@ -471,11 +506,14 @@ class TestTimeLogEndpoints:
         assert updated.json()["hours"] == 2.0
 
         deleted = client.delete(
-            f"/api/v1/projects/{project.id}/time-logs/{log_id}", headers=self._auth(token)
+            f"/api/v1/projects/{project.id}/time-logs/{log_id}",
+            headers=self._auth(token),
         )
         assert deleted.status_code == 204
 
-        listed = client.get(f"/api/v1/projects/{project.id}/time-logs", headers=self._auth(token))
+        listed = client.get(
+            f"/api/v1/projects/{project.id}/time-logs", headers=self._auth(token)
+        )
         assert listed.json()["total"] == 0
 
     def test_someone_else_cannot_edit_your_entry(self, client, db, register_and_login):
@@ -498,7 +536,8 @@ class TestTimeLogEndpoints:
         assert response.status_code == 403
 
         unchanged = client.get(
-            f"/api/v1/projects/{project.id}/time-logs/{log_id}", headers=self._auth(owner_token)
+            f"/api/v1/projects/{project.id}/time-logs/{log_id}",
+            headers=self._auth(owner_token),
         )
         assert unchanged.json()["minutes"] == 60
 
@@ -525,7 +564,10 @@ class TestTimeLogEndpoints:
         for offset in (0, 3, 10):
             response = client.post(
                 f"/api/v1/projects/{project.id}/time-logs",
-                json={"minutes": 30, "work_date": (today - timedelta(days=offset)).isoformat()},
+                json={
+                    "minutes": 30,
+                    "work_date": (today - timedelta(days=offset)).isoformat(),
+                },
                 headers=self._auth(token),
             )
             assert response.status_code == 201
@@ -547,7 +589,10 @@ class TestTimeLogEndpoints:
         for offset in range(5):
             client.post(
                 f"/api/v1/projects/{project.id}/time-logs",
-                json={"minutes": 30, "work_date": (today - timedelta(days=offset)).isoformat()},
+                json={
+                    "minutes": 30,
+                    "work_date": (today - timedelta(days=offset)).isoformat(),
+                },
                 headers=self._auth(token),
             )
 
@@ -563,7 +608,9 @@ class TestTimeLogEndpoints:
         # trust, so the totals span the whole filtered set.
         assert body["total_minutes"] == 150
 
-    def test_me_endpoint_returns_only_your_own_entries(self, client, db, register_and_login):
+    def test_me_endpoint_returns_only_your_own_entries(
+        self, client, db, register_and_login
+    ):
         owner_id, owner_token = register_and_login("tl15@example.com", "tluser15")
         project = self._project_for(db, uuid.UUID(owner_id), "tl-project-15")
 
@@ -574,7 +621,8 @@ class TestTimeLogEndpoints:
         )
 
         response = client.get(
-            f"/api/v1/projects/{project.id}/time-logs/me", headers=self._auth(owner_token)
+            f"/api/v1/projects/{project.id}/time-logs/me",
+            headers=self._auth(owner_token),
         )
         assert response.status_code == 200
         assert response.json()["total"] == 1
