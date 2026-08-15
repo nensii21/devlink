@@ -38,6 +38,13 @@ class Milestone(Base):
         index=True,
     )
 
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
     # ==========================================================
     # Milestone Details
     # ==========================================================
@@ -85,6 +92,11 @@ class Milestone(Base):
 
     project = relationship(
         "Project",
+        backref="milestones",
+    )
+
+    owner = relationship(
+        "User",
         backref="milestones",
     )
 

@@ -26,6 +26,7 @@ from .organization import Organization  # noqa: F401
 from .organization_member import OrganizationMember, OrgMemberRole  # noqa: F401
 from .password_reset_token import PasswordResetToken  # noqa: F401
 from .project import Project  # noqa: F401
+from .project_calendar_event import ProjectCalendarEvent  # noqa: F401
 from .project_document import ProjectDocument  # noqa: F401
 from .project_template import ProjectTemplate, ProjectTemplateFavorite  # noqa: F401
 from .project_view import ProjectView  # noqa: F401

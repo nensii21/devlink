@@ -538,6 +538,8 @@ from app.routers import project_time_logs
 app.include_router(
     project_time_logs.router, prefix="/api", tags=["Project Time Tracking"]
 )
+from app.routers import project_calendar
+app.include_router(project_calendar.router, prefix="/api", tags=["Project Calendar"])
 from app.routers import calendar as calendar_router
 
 app.include_router(calendar_router.router, prefix="/api", tags=["Calendar"])

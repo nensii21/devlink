@@ -110,6 +110,7 @@ class ProjectMilestoneService:
             if milestone_in.description
             else None,
             due_date=milestone_in.due_date,
+            owner_id=milestone_in.owner_id,
             is_completed=False,
             is_archived=False,
             created_at=now,
@@ -185,6 +186,11 @@ class ProjectMilestoneService:
             )
         if milestone_in.due_date is not None:
             milestone.due_date = milestone_in.due_date
+        
+        # We check if owner_id was explicitly provided, since it can be nullified.
+        # But wait, milestone_in is a Pydantic model. If it was passed in the update payload, it will be in the fields set.
+        if "owner_id" in milestone_in.model_fields_set:
+            milestone.owner_id = milestone_in.owner_id
 
         if milestone_in.is_completed is not None:
             if milestone_in.is_completed and not milestone.is_completed:

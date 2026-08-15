@@ -42,9 +42,19 @@ interface DashboardInvitation {
   invited_at: string;
 }
 
+interface MilestoneOwner {
+  id: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  profile_image: string | null;
+}
+
 interface Milestone {
   id: string;
   project_id: string;
+  owner_id: string | null;
+  owner: MilestoneOwner | null;
   title: string;
   description: string | null;
   due_date: string | null;
@@ -111,6 +121,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
   const [mTitle, setMTitle] = useState("");
   const [mDescription, setMDescription] = useState("");
   const [mDueDate, setMDueDate] = useState("");
+  const [mOwnerId, setMOwnerId] = useState("");
 
   // New Announcement Form State
   const [aTitle, setATitle] = useState("");
@@ -134,8 +145,12 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
 
   // Mutations
   const createMilestoneMutation = useMutation({
-    mutationFn: (payload: { title: string; description: string; due_date: string | null }) =>
-      api.post<Milestone>(`/projects/${projectId}/milestones`, payload),
+    mutationFn: (payload: {
+      title: string;
+      description: string;
+      due_date: string | null;
+      owner_id: string | null;
+    }) => api.post<Milestone>(`/projects/${projectId}/milestones`, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projectDashboard", projectId] });
       toast.success("Milestone created successfully!");
@@ -143,6 +158,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
       setMTitle("");
       setMDescription("");
       setMDueDate("");
+      setMOwnerId("");
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to create milestone.");
@@ -344,17 +360,30 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                         className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer disabled:opacity-50"
                       />
                       <div className="min-w-0 flex-1">
-                        <p
-                          className={cn(
-                            "text-sm font-semibold text-foreground transition-all",
-                            m.is_completed && "line-through text-muted-foreground",
+                        <div className="flex items-start justify-between">
+                          <p
+                            className={cn(
+                              "text-sm font-semibold text-foreground transition-all",
+                              m.is_completed && "line-through text-muted-foreground",
+                            )}
+                          >
+                            {m.title}
+                          </p>
+                          {m.owner && (
+                            <div className="flex items-center gap-1.5 ml-2">
+                              <Avatar
+                                src={m.owner.profile_image || undefined}
+                                alt={m.owner.username}
+                                name={m.owner.username}
+                                className="h-5 w-5"
+                              />
+                              <span className="text-[10px] font-medium text-muted-foreground hidden sm:inline-block">
+                                {m.owner.first_name || m.owner.username}
+                              </span>
+                            </div>
                           )}
-                        >
-                          {m.title}
-                        </p>
-                        {m.description && (
-                          <TypoCaption as="p">{m.description}</TypoCaption>
-                        )}
+                        </div>
+                        {m.description && <TypoCaption as="p">{m.description}</TypoCaption>}
                         {m.due_date && (
                           <TypoCaption>
                             <Clock size={10} /> Due {new Date(m.due_date).toLocaleDateString()}
@@ -404,9 +433,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                         size={24}
                       />
                     </div>
-                    <TypoCaption as="p">
-                      {ann.content}
-                    </TypoCaption>
+                    <TypoCaption as="p">{ann.content}</TypoCaption>
                   </div>
                 ))}
               </div>
@@ -518,9 +545,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                 ))}
               </div>
             ) : (
-              <TypoCaption as="p">
-                No recent team activities.
-              </TypoCaption>
+              <TypoCaption as="p">No recent team activities.</TypoCaption>
             )}
           </Card>
         </div>
@@ -548,6 +573,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                   title: mTitle,
                   description: mDescription,
                   due_date: mDueDate || null,
+                  owner_id: mOwnerId || null,
                 });
               }}
               className="space-y-4"
@@ -589,6 +615,24 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                   onChange={(e) => setMDueDate(e.target.value)}
                   className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
                 />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground uppercase">
+                  Assign Owner
+                </label>
+                <select
+                  value={mOwnerId}
+                  onChange={(e) => setMOwnerId(e.target.value)}
+                  className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
+                >
+                  <option value="">Unassigned</option>
+                  {d?.members?.map((member) => (
+                    <option key={member.user_id} value={member.user_id}>
+                      {member.full_name || member.username}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex justify-end gap-2 border-t pt-3">

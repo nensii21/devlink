@@ -4,6 +4,7 @@ import { projectsService } from "@/services";
 import { Card, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
 import { api } from "@/api";
 import { ProjectDashboard } from "@/features/projects/components/ProjectDashboard";
+import { ProjectCalendar } from "@/features/projects/components/ProjectCalendar";
 import { CollaborativeWorkspace } from "@/components/projects/CollaborativeWorkspace";
 import { ProjectMembersList } from "@/features/projects/components/ProjectMembersList";
 import {
@@ -80,7 +81,7 @@ function ProjectDetail() {
     initialData: loaderData?.project,
   });
   const [tab, setTab] = useState<
-    "overview" | "workspace" | "members" | "activity" | "repos" | "dashboard"
+    "overview" | "workspace" | "members" | "activity" | "repos" | "dashboard" | "calendar"
   >("overview");
   const [copied, setCopied] = useState(false);
   const isOwner = p?.owner === currentUser.name;
@@ -222,8 +223,8 @@ function ProjectDetail() {
   }
 
   const tabs = dashboard
-    ? (["overview", "workspace", "members", "activity", "repos", "dashboard"] as const)
-    : (["overview", "workspace", "members", "activity", "repos"] as const);
+    ? (["overview", "workspace", "members", "activity", "repos", "dashboard", "calendar"] as const)
+    : (["overview", "workspace", "members", "activity", "repos", "calendar"] as const);
 
   return (
     <div className="space-y-4">
@@ -471,6 +472,9 @@ function ProjectDetail() {
       {tab === "workspace" && <CollaborativeWorkspace projectId={projectId} />}
       {tab === "dashboard" && (
         <ProjectDashboard projectId={projectId} currentUserRole={currentUserRole} />
+      )}
+      {tab === "calendar" && (
+        <ProjectCalendar projectId={projectId} currentUserRole={currentUserRole} />
       )}
 
       <ApplyModal
