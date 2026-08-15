@@ -20,7 +20,6 @@ from app.schemas.message import (
     MessageCreate,
     MessageUpdate,
 )
-from app.schemas.notification import NotificationCreate
 from app.services.notification_service import NotificationService
 
 
@@ -74,6 +73,7 @@ class MessageService:
         # Delete any existing draft for this user and conversation
         from app.models.message_draft import MessageDraft
         from sqlalchemy import delete
+
         db.execute(
             delete(MessageDraft).where(
                 MessageDraft.user_id == sender_id,
@@ -98,20 +98,15 @@ class MessageService:
 
         for member in members:
             if member.user_id != sender_id:
-                notification_data = NotificationCreate(
+                NotificationService.create_message_notification(
+                    db=db,
                     recipient_id=member.user_id,
-                    type=NotificationType.MESSAGE,
+                    actor_id=sender_id,
                     title="New Message",
                     message=notification_message,
                     action_url=f"/messages/{conversation_id}",
                     conversation_id=conversation_id,
                     message_id=db_message.id,
-                )
-                NotificationService.create_notification(
-                    db=db,
-                    recipient_id=member.user_id,
-                    sender_id=sender_id,
-                    notification=notification_data,
                 )
 
         return db_message
@@ -429,6 +424,7 @@ class MessageService:
 
         read_time = utcnow()
         from sqlalchemy import update
+
         result = db.execute(
             update(Message)
             .where(
@@ -463,6 +459,7 @@ class MessageService:
 
         read_time = utcnow()
         from sqlalchemy import update
+
         result = db.execute(
             update(Message)
             .where(
@@ -475,3 +472,106 @@ class MessageService:
         db.flush()
         return result.rowcount, read_time
 
+    @staticmethod
+    def mark_as_delivered(
+        db: Session,
+        message_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> Message:
+        """Mark a single message as delivered to user_id."""
+        db_message = db.get(Message, message_id)
+        if not db_message:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Message not found",
+            )
+
+        # Ensure user is a member of the conversation
+        is_member = db.scalar(
+            select(func.count(ConversationMember.id)).where(
+                ConversationMember.conversation_id == db_message.conversation_id,
+                ConversationMember.user_id == user_id,
+            )
+        )
+        if not is_member:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this conversation",
+            )
+
+        if db_message.delivered_at is None:
+            db_message.delivered_at = utcnow()
+            db.flush()
+            db.refresh(db_message)
+
+        return db_message
+
+    @staticmethod
+    def bulk_mark_as_delivered(
+        db: Session,
+        message_ids: list[uuid.UUID],
+        user_id: uuid.UUID,
+    ) -> tuple[int, datetime]:
+        """Mark multiple messages as delivered to user_id."""
+        if not message_ids:
+            return 0, utcnow()
+
+        # Find conversations the user belongs to
+        user_conv_ids = db.scalars(
+            select(ConversationMember.conversation_id).where(
+                ConversationMember.user_id == user_id
+            )
+        ).all()
+
+        if not user_conv_ids:
+            return 0, utcnow()
+
+        deliver_time = utcnow()
+        from sqlalchemy import update
+
+        result = db.execute(
+            update(Message)
+            .where(
+                Message.id.in_(message_ids),
+                Message.conversation_id.in_(user_conv_ids),
+                Message.delivered_at.is_(None),
+                Message.sender_id != user_id,
+            )
+            .values(delivered_at=deliver_time)
+        )
+        db.flush()
+        return result.rowcount, deliver_time
+
+    @staticmethod
+    def mark_conversation_as_delivered(
+        db: Session,
+        conversation_id: uuid.UUID,
+        user_id: uuid.UUID,
+    ) -> tuple[int, datetime]:
+        """Mark all undelivered messages in a conversation as delivered to user_id."""
+        is_member = db.scalar(
+            select(func.count(ConversationMember.id)).where(
+                ConversationMember.conversation_id == conversation_id,
+                ConversationMember.user_id == user_id,
+            )
+        )
+        if not is_member:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this conversation",
+            )
+
+        deliver_time = utcnow()
+        from sqlalchemy import update
+
+        result = db.execute(
+            update(Message)
+            .where(
+                Message.conversation_id == conversation_id,
+                Message.delivered_at.is_(None),
+                Message.sender_id != user_id,
+            )
+            .values(delivered_at=deliver_time)
+        )
+        db.flush()
+        return result.rowcount, deliver_time

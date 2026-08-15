@@ -8,7 +8,6 @@ import { DeleteAccountModal } from "@/components/settings/DeleteAccountModal";
 import { OAuthAccountsSection } from "@/components/settings/OAuthAccountsSection";
 import { MFASection } from "@/features/settings/components/MFASection";
 import { UserSessionsActivity } from "@/components/settings/UserSessionsActivity";
-import { BillingDashboard } from "@/features/settings/components/BillingDashboard";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -564,8 +563,6 @@ function SettingsPage() {
             )}
 
             {tab === "billing" && (
-              <div className="p-6">
-                <BillingDashboard />
               <div className="p-6 space-y-6">
                 <div>
                   <TypoHeading as="h2">Billing</TypoHeading>

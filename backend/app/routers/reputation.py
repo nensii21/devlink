@@ -1,10 +1,10 @@
 """
 Reputation System Router (#597)
 """
+
 from __future__ import annotations
 
 import uuid
-from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session

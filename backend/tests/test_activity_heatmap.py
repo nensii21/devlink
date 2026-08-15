@@ -1,6 +1,7 @@
 """
 Unit & integration tests for the contribution heatmap and streaks (#1040).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -66,7 +67,9 @@ class TestResolveWindow:
         assert end == TODAY
 
     def test_default_window_spans_a_year_inclusive(self):
-        start, end = ActivityHeatmapService.resolve_window(DEFAULT_WINDOW_DAYS, today=TODAY)
+        start, end = ActivityHeatmapService.resolve_window(
+            DEFAULT_WINDOW_DAYS, today=TODAY
+        )
         assert end == TODAY
         assert (end - start).days == DEFAULT_WINDOW_DAYS - 1
 
@@ -98,15 +101,23 @@ class TestCurrentStreak:
         assert ActivityHeatmapService.compute_current_streak(_days(1, 2, 3), TODAY) == 3
 
     def test_run_ending_today(self):
-        assert ActivityHeatmapService.compute_current_streak(_days(0, 1, 2, 3, 4), TODAY) == 5
+        assert (
+            ActivityHeatmapService.compute_current_streak(_days(0, 1, 2, 3, 4), TODAY)
+            == 5
+        )
 
     def test_single_day_gap_breaks_streak(self):
         # Active 2..6 days ago but nothing yesterday or today.
-        assert ActivityHeatmapService.compute_current_streak(_days(2, 3, 4, 5, 6), TODAY) == 0
+        assert (
+            ActivityHeatmapService.compute_current_streak(_days(2, 3, 4, 5, 6), TODAY)
+            == 0
+        )
 
     def test_gap_inside_run_truncates_at_the_gap(self):
         # Active today, yesterday, then a hole at -2, then more.
-        assert ActivityHeatmapService.compute_current_streak(_days(0, 1, 3, 4), TODAY) == 2
+        assert (
+            ActivityHeatmapService.compute_current_streak(_days(0, 1, 3, 4), TODAY) == 2
+        )
 
     def test_future_days_are_ignored(self):
         active = _days(0, 1) | {TODAY + timedelta(days=1)}
@@ -141,17 +152,26 @@ class TestLongestStreak:
         assert end == date(2026, 2, 5)
 
     def test_longest_run_at_the_start_of_the_window(self):
-        active = {date(2026, 1, 1) + timedelta(days=i) for i in range(4)} | {date(2026, 5, 1)}
+        active = {date(2026, 1, 1) + timedelta(days=i) for i in range(4)} | {
+            date(2026, 5, 1)
+        }
         length, start, end = ActivityHeatmapService.compute_longest_streak(active)
         assert (length, start, end) == (4, date(2026, 1, 1), date(2026, 1, 4))
 
     def test_longest_run_at_the_end_of_the_window(self):
-        active = {date(2026, 1, 1)} | {date(2026, 5, 1) + timedelta(days=i) for i in range(4)}
+        active = {date(2026, 1, 1)} | {
+            date(2026, 5, 1) + timedelta(days=i) for i in range(4)
+        }
         length, start, end = ActivityHeatmapService.compute_longest_streak(active)
         assert (length, start, end) == (4, date(2026, 5, 1), date(2026, 5, 4))
 
     def test_ties_keep_the_first_run(self):
-        active = {date(2026, 1, 1), date(2026, 1, 2), date(2026, 3, 1), date(2026, 3, 2)}
+        active = {
+            date(2026, 1, 1),
+            date(2026, 1, 2),
+            date(2026, 3, 1),
+            date(2026, 3, 2),
+        }
         length, start, _ = ActivityHeatmapService.compute_longest_streak(active)
         assert length == 2
         assert start == date(2026, 1, 1)
@@ -191,7 +211,9 @@ class TestLevels:
         assert ActivityHeatmapService.level_for(30, thresholds) == 4
 
     def test_levels_are_monotonic_in_count(self):
-        thresholds = ActivityHeatmapService.compute_level_thresholds([1, 2, 3, 4, 5, 6, 7, 8])
+        thresholds = ActivityHeatmapService.compute_level_thresholds(
+            [1, 2, 3, 4, 5, 6, 7, 8]
+        )
         levels = [ActivityHeatmapService.level_for(c, thresholds) for c in range(0, 12)]
         assert levels == sorted(levels)
         assert max(levels) == 4
@@ -267,7 +289,9 @@ class TestBuild:
             (_at(0, hour=23), ActivityType.COMMENT_CREATED),
             (_at(1, hour=9), ActivityType.PROJECT_CREATED),
         ]
-        result = ActivityHeatmapService.build(_stub_db(rows), subject=_make_user(), days=7, today=TODAY)
+        result = ActivityHeatmapService.build(
+            _stub_db(rows), subject=_make_user(), days=7, today=TODAY
+        )
 
         by_day = {d.day: d.count for d in result.days}
         assert by_day[TODAY] == 2
@@ -288,8 +312,13 @@ class TestBuild:
     def test_activity_outside_the_window_is_discarded(self):
         # The query filters by window, but a row on the boundary must not be
         # double counted or land in the wrong bucket if one slips through.
-        rows = [(_at(400), ActivityType.PROJECT_CREATED), (_at(2), ActivityType.PROJECT_CREATED)]
-        result = ActivityHeatmapService.build(_stub_db(rows), subject=_make_user(), days=30, today=TODAY)
+        rows = [
+            (_at(400), ActivityType.PROJECT_CREATED),
+            (_at(2), ActivityType.PROJECT_CREATED),
+        ]
+        result = ActivityHeatmapService.build(
+            _stub_db(rows), subject=_make_user(), days=30, today=TODAY
+        )
         assert result.streak.total_activities == 1
 
     def test_breakdown_is_sorted_by_count_descending(self):
@@ -301,14 +330,18 @@ class TestBuild:
             (_at(4), ActivityType.PROJECT_CREATED),
             (_at(5), ActivityType.MESSAGE_SENT),
         ]
-        result = ActivityHeatmapService.build(_stub_db(rows), subject=_make_user(), days=30, today=TODAY)
+        result = ActivityHeatmapService.build(
+            _stub_db(rows), subject=_make_user(), days=30, today=TODAY
+        )
 
         assert [b.count for b in result.breakdown] == [3, 2, 1]
         assert result.breakdown[0].activity_type == ActivityType.COMMENT_CREATED.value
 
     def test_streak_reflects_a_continuous_run(self):
         rows = [(_at(offset), ActivityType.PROJECT_UPDATED) for offset in range(0, 5)]
-        result = ActivityHeatmapService.build(_stub_db(rows), subject=_make_user(), days=30, today=TODAY)
+        result = ActivityHeatmapService.build(
+            _stub_db(rows), subject=_make_user(), days=30, today=TODAY
+        )
 
         assert result.streak.current_streak == 5
         assert result.streak.longest_streak == 5
@@ -316,7 +349,9 @@ class TestBuild:
 
     def test_identity_fields_are_echoed_back(self):
         user = _make_user(username="grace")
-        result = ActivityHeatmapService.build(_stub_db([]), subject=user, days=10, today=TODAY)
+        result = ActivityHeatmapService.build(
+            _stub_db([]), subject=user, days=10, today=TODAY
+        )
 
         assert result.username == "grace"
         assert result.user_id == user.id
@@ -340,7 +375,9 @@ class TestVisibility:
 
     def test_private_profile_hidden_from_other_users(self):
         with pytest.raises(HTTPException) as exc:
-            ActivityHeatmapService.require_visible(_make_user(is_private=True), _make_user("mallory"))
+            ActivityHeatmapService.require_visible(
+                _make_user(is_private=True), _make_user("mallory")
+            )
         assert exc.value.status_code == 403
 
     def test_private_profile_visible_to_owner(self):
@@ -360,12 +397,16 @@ class TestParseActivityTypes:
         assert ActivityHeatmapService.parse_activity_types("  ,  ") is None
 
     def test_parses_a_list(self):
-        parsed = ActivityHeatmapService.parse_activity_types("project_created, comment_created")
+        parsed = ActivityHeatmapService.parse_activity_types(
+            "project_created, comment_created"
+        )
         assert parsed == [ActivityType.PROJECT_CREATED, ActivityType.COMMENT_CREATED]
 
     def test_unknown_type_is_rejected(self):
         with pytest.raises(HTTPException) as exc:
-            ActivityHeatmapService.parse_activity_types("project_created,not_a_real_type")
+            ActivityHeatmapService.parse_activity_types(
+                "project_created,not_a_real_type"
+            )
         assert exc.value.status_code == 422
         assert "not_a_real_type" in exc.value.detail
 
@@ -381,7 +422,9 @@ class TestHeatmapEndpoints:
         assert response.status_code == 404
 
     def test_days_out_of_range_returns_422(self, client):
-        response = client.get("/api/v1/users/someone/activity-heatmap", params={"days": 5000})
+        response = client.get(
+            "/api/v1/users/someone/activity-heatmap", params={"days": 5000}
+        )
         assert response.status_code == 422
 
     def test_me_endpoint_requires_authentication(self, client):
@@ -391,7 +434,9 @@ class TestHeatmapEndpoints:
     def test_heatmap_for_a_real_user(self, client, register_and_login):
         register_and_login("heatmap@example.com", "heatmapuser")
 
-        response = client.get("/api/v1/users/heatmapuser/activity-heatmap", params={"days": 30})
+        response = client.get(
+            "/api/v1/users/heatmapuser/activity-heatmap", params={"days": 30}
+        )
         assert response.status_code == 200
 
         payload = response.json()

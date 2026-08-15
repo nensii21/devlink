@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 
 from app.models.global_announcement import GlobalAnnouncement, TargetAudience
-from app.schemas.global_announcement import GlobalAnnouncementCreate, GlobalAnnouncementUpdate
+from app.schemas.global_announcement import (
+    GlobalAnnouncementCreate,
+    GlobalAnnouncementUpdate,
+)
 
 
 class GlobalAnnouncementService:
@@ -34,7 +37,9 @@ class GlobalAnnouncementService:
         return announcement
 
     @staticmethod
-    def get_announcement(db: Session, announcement_id: uuid.UUID) -> GlobalAnnouncement | None:
+    def get_announcement(
+        db: Session, announcement_id: uuid.UUID
+    ) -> GlobalAnnouncement | None:
         return db.get(GlobalAnnouncement, announcement_id)
 
     @staticmethod

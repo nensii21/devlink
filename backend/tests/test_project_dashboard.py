@@ -1,16 +1,10 @@
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.project import Project, ProjectStage
 from app.models.project_member import ProjectMember, MemberRole
-from app.models.user import User
-from app.models.milestone import Milestone
-from app.models.announcement import Announcement
-from app.models.activity import Activity, ActivityType
+from app.models.activity import ActivityType
 
 
 def test_project_dashboard_flow(client: TestClient, register_and_login, db: Session):

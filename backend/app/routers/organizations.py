@@ -488,8 +488,8 @@ def list_organization_members(
     organization = OrganizationService.get_organization(db, organization_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
-        
-    # Anyone authenticated can view members for now if the org is public, 
+
+    # Anyone authenticated can view members for now if the org is public,
     # but strictly speaking we could require "org:view_content" or similar.
     # We will just return the list.
     return OrganizationService.list_members(db, organization_id)
@@ -509,7 +509,7 @@ def update_member_role(
     organization = OrganizationService.get_organization(db, organization_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
-        
+
     try:
         return OrganizationService.update_member_role(
             db, organization_id, user_id, update.role, current_user.id
@@ -531,10 +531,8 @@ def remove_organization_member(
     organization = OrganizationService.get_organization(db, organization_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
-        
+
     try:
-        OrganizationService.remove_member(
-            db, organization_id, user_id, current_user.id
-        )
+        OrganizationService.remove_member(db, organization_id, user_id, current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

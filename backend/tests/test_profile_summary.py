@@ -4,7 +4,6 @@ import uuid
 
 from fastapi.testclient import TestClient
 
-from app.models.user import User
 from app.services.profile_summary_service import ProfileSummaryService
 
 

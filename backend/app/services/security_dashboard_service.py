@@ -21,12 +21,12 @@ All query methods support:
   - pagination            (page + limit)
   - CSV export
 """
+
 from __future__ import annotations
 
 import csv
 import io
 import uuid
-from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -77,6 +77,7 @@ SEVERITY_MAP: dict[AuditAction, str] = {
 # Internal helpers
 # ---------------------------------------------------------------------------
 
+
 def _now_utc() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -113,7 +114,11 @@ def _paginate(stmt, *, page: int, limit: int, db: Session) -> dict[str, Any]:
     count_stmt = select(func.count()).select_from(stmt.subquery())
     total = db.scalar(count_stmt) or 0
     offset = (page - 1) * limit
-    rows = list(db.scalars(stmt.order_by(AuditLog.created_at.desc()).offset(offset).limit(limit)))
+    rows = list(
+        db.scalars(
+            stmt.order_by(AuditLog.created_at.desc()).offset(offset).limit(limit)
+        )
+    )
     pages = (total + limit - 1) // limit if limit > 0 else 1
     return {"items": rows, "total": total, "page": page, "limit": limit, "pages": pages}
 
@@ -145,37 +150,55 @@ def _export_csv(logs: list[AuditLog]) -> str:
     """Serialise a list of AuditLog rows to CSV string."""
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow([
-        "ID", "Timestamp", "Action", "Actor ID", "Target User ID",
-        "Entity Type", "Entity ID", "Description", "IP Address",
-        "User Agent", "Request Method", "Request Path",
-        "Success", "Status Code", "Error Message",
-    ])
+    writer.writerow(
+        [
+            "ID",
+            "Timestamp",
+            "Action",
+            "Actor ID",
+            "Target User ID",
+            "Entity Type",
+            "Entity ID",
+            "Description",
+            "IP Address",
+            "User Agent",
+            "Request Method",
+            "Request Path",
+            "Success",
+            "Status Code",
+            "Error Message",
+        ]
+    )
     for log in logs:
-        action_str = log.action.value if hasattr(log.action, "value") else str(log.action)
-        writer.writerow([
-            str(log.id),
-            log.created_at.isoformat() if log.created_at else "",
-            action_str,
-            str(log.actor_id) if log.actor_id else "",
-            str(log.target_user_id) if log.target_user_id else "",
-            log.entity_type or "",
-            str(log.entity_id) if log.entity_id else "",
-            log.description or "",
-            log.ip_address or "",
-            (log.user_agent or "")[:200],
-            log.request_method or "",
-            log.request_path or "",
-            str(log.success),
-            str(log.status_code) if log.status_code is not None else "",
-            log.error_message or "",
-        ])
+        action_str = (
+            log.action.value if hasattr(log.action, "value") else str(log.action)
+        )
+        writer.writerow(
+            [
+                str(log.id),
+                log.created_at.isoformat() if log.created_at else "",
+                action_str,
+                str(log.actor_id) if log.actor_id else "",
+                str(log.target_user_id) if log.target_user_id else "",
+                log.entity_type or "",
+                str(log.entity_id) if log.entity_id else "",
+                log.description or "",
+                log.ip_address or "",
+                (log.user_agent or "")[:200],
+                log.request_method or "",
+                log.request_path or "",
+                str(log.success),
+                str(log.status_code) if log.status_code is not None else "",
+                log.error_message or "",
+            ]
+        )
     return output.getvalue()
 
 
 # ---------------------------------------------------------------------------
 # SecurityDashboardService
 # ---------------------------------------------------------------------------
+
 
 class SecurityDashboardService:
     """
@@ -281,8 +304,12 @@ class SecurityDashboardService:
     ) -> str:
         stmt = select(AuditLog).where(AuditLog.action.in_(FAILED_LOGIN_ACTIONS))
         stmt = _apply_common_filters(
-            stmt, start_date=start_date, end_date=end_date,
-            ip_address=ip_address, actor_id=None, search=None,
+            stmt,
+            start_date=start_date,
+            end_date=end_date,
+            ip_address=ip_address,
+            actor_id=None,
+            search=None,
         )
         logs = list(db.scalars(stmt.order_by(AuditLog.created_at.desc()).limit(10000)))
         return _export_csv(logs)
@@ -393,8 +420,12 @@ class SecurityDashboardService:
     ) -> str:
         stmt = select(AuditLog).where(AuditLog.action.in_(SUSPICIOUS_ACTIONS))
         stmt = _apply_common_filters(
-            stmt, start_date=start_date, end_date=end_date,
-            ip_address=None, actor_id=None, search=None,
+            stmt,
+            start_date=start_date,
+            end_date=end_date,
+            ip_address=None,
+            actor_id=None,
+            search=None,
         )
         logs = list(db.scalars(stmt.order_by(AuditLog.created_at.desc()).limit(10000)))
         return _export_csv(logs)
@@ -441,8 +472,12 @@ class SecurityDashboardService:
     ) -> str:
         stmt = select(AuditLog).where(AuditLog.action.in_(PASSWORD_RESET_ACTIONS))
         stmt = _apply_common_filters(
-            stmt, start_date=start_date, end_date=end_date,
-            ip_address=None, actor_id=None, search=None,
+            stmt,
+            start_date=start_date,
+            end_date=end_date,
+            ip_address=None,
+            actor_id=None,
+            search=None,
         )
         logs = list(db.scalars(stmt.order_by(AuditLog.created_at.desc()).limit(10000)))
         return _export_csv(logs)
@@ -498,8 +533,12 @@ class SecurityDashboardService:
             .where(AuditLog.success.is_(False))
         )
         stmt = _apply_common_filters(
-            stmt, start_date=start_date, end_date=end_date,
-            ip_address=None, actor_id=None, search=None,
+            stmt,
+            start_date=start_date,
+            end_date=end_date,
+            ip_address=None,
+            actor_id=None,
+            search=None,
         )
         logs = list(db.scalars(stmt.order_by(AuditLog.created_at.desc()).limit(10000)))
         return _export_csv(logs)
@@ -525,9 +564,7 @@ class SecurityDashboardService:
         """
         target_actions = set(ALERT_ACTIONS)
         if severity:
-            target_actions = {
-                a for a, s in SEVERITY_MAP.items() if s == severity
-            }
+            target_actions = {a for a, s in SEVERITY_MAP.items() if s == severity}
 
         stmt = select(AuditLog).where(AuditLog.action.in_(target_actions))
         stmt = _apply_common_filters(
@@ -543,7 +580,9 @@ class SecurityDashboardService:
         items = [
             SecurityAlertItem(
                 id=log.id,
-                action=log.action.value if hasattr(log.action, "value") else str(log.action),
+                action=log.action.value
+                if hasattr(log.action, "value")
+                else str(log.action),
                 description=log.description,
                 ip_address=log.ip_address,
                 actor_id=log.actor_id,
@@ -570,8 +609,12 @@ class SecurityDashboardService:
     ) -> str:
         stmt = select(AuditLog).where(AuditLog.action.in_(ALERT_ACTIONS))
         stmt = _apply_common_filters(
-            stmt, start_date=start_date, end_date=end_date,
-            ip_address=None, actor_id=None, search=None,
+            stmt,
+            start_date=start_date,
+            end_date=end_date,
+            ip_address=None,
+            actor_id=None,
+            search=None,
         )
         logs = list(db.scalars(stmt.order_by(AuditLog.created_at.desc()).limit(10000)))
         return _export_csv(logs)
@@ -591,7 +634,14 @@ class SecurityDashboardService:
         end_date: datetime | None = None,
     ) -> PaginatedSecurityLogs:
         """Full-text search across all security-relevant audit log fields."""
-        stmt = select(AuditLog).where(AuditLog.action.in_(ALERT_ACTIONS | FAILED_LOGIN_ACTIONS | SUSPICIOUS_ACTIONS | PASSWORD_RESET_ACTIONS))
+        stmt = select(AuditLog).where(
+            AuditLog.action.in_(
+                ALERT_ACTIONS
+                | FAILED_LOGIN_ACTIONS
+                | SUSPICIOUS_ACTIONS
+                | PASSWORD_RESET_ACTIONS
+            )
+        )
         stmt = _apply_common_filters(
             stmt,
             start_date=start_date,

@@ -1,7 +1,7 @@
 """
 Tests for Project Status Transitions (#232)
 """
-import uuid
+
 import pytest
 from fastapi import HTTPException
 
@@ -20,7 +20,9 @@ def test_allowed_status_transitions_matrix():
     for current_status, allowed_set in ALLOWED_PROJECT_STATUS_TRANSITIONS.items():
         for target_status in allowed_set:
             # Should not raise HTTPException
-            ProjectStatusService.validate_status_transition(current_status, target_status)
+            ProjectStatusService.validate_status_transition(
+                current_status, target_status
+            )
 
 
 def test_self_status_transitions_allowed():
@@ -48,15 +50,22 @@ def test_invalid_status_transitions_rejected():
 
     for current_status, target_status in invalid_pairs:
         with pytest.raises(HTTPException) as exc_info:
-            ProjectStatusService.validate_status_transition(current_status, target_status)
+            ProjectStatusService.validate_status_transition(
+                current_status, target_status
+            )
         assert exc_info.value.status_code == 400
-        assert f"Invalid project status transition from '{current_status.value}' to '{target_status.value}'" in exc_info.value.detail
+        assert (
+            f"Invalid project status transition from '{current_status.value}' to '{target_status.value}'"
+            in exc_info.value.detail
+        )
 
 
 def test_invalid_status_string():
     """Test that invalid status strings raise HTTP 400."""
     with pytest.raises(HTTPException) as exc_info:
-        ProjectStatusService.validate_status_transition("non_existent_status", "recruiting")
+        ProjectStatusService.validate_status_transition(
+            "non_existent_status", "recruiting"
+        )
     assert exc_info.value.status_code == 400
     assert "Invalid current project status" in exc_info.value.detail
 
@@ -129,7 +138,10 @@ def test_project_service_update_invalid_transition_rejected(db):
         ProjectService.update_project(db, project, update_data)
 
     assert exc_info.value.status_code == 400
-    assert "Invalid project status transition from 'archived' to 'recruiting'" in exc_info.value.detail
+    assert (
+        "Invalid project status transition from 'archived' to 'recruiting'"
+        in exc_info.value.detail
+    )
 
 
 def test_project_service_archive_and_restore(db):

@@ -4,8 +4,7 @@ import uuid
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import selectinload
 
 from app.core.cache import cached
 from app.models.activity import ActivityType
@@ -35,7 +34,10 @@ class ProjectService:
         # AI-based duplicate project detection check (#608)
         allow_dup = getattr(project, "allow_duplicate", False)
         if not allow_dup:
-            from app.services.duplicate_detection_service import DuplicateDetectionService
+            from app.services.duplicate_detection_service import (
+                DuplicateDetectionService,
+            )
+
             dup_res = DuplicateDetectionService.find_duplicate_projects(
                 db,
                 title=project.title,
@@ -46,12 +48,15 @@ class ProjectService:
             if dup_res.has_duplicates:
                 top_match = dup_res.suggested_projects[0]
                 from fastapi import HTTPException, status
+
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail={
                         "message": f"Potential duplicate project detected: '{top_match.title}' ({top_match.confidence_score}% match).",
                         "max_similarity_score": dup_res.max_similarity_score,
-                        "suggested_projects": [p.model_dump() for p in dup_res.suggested_projects],
+                        "suggested_projects": [
+                            p.model_dump() for p in dup_res.suggested_projects
+                        ],
                         "manual_override_instruction": "Pass 'allow_duplicate': true in request payload to bypass this check.",
                     },
                 )
@@ -194,10 +199,14 @@ class ProjectService:
             tech_list = [t.strip() for t in tech.split(",") if t.strip()]
             if tech_list:
                 from sqlalchemy import or_
-                stmt = stmt.where(or_(*[Project.tech_stack.ilike(f"%{t}%") for t in tech_list]))
+
+                stmt = stmt.where(
+                    or_(*[Project.tech_stack.ilike(f"%{t}%") for t in tech_list])
+                )
 
         # Apply sorting logic
         from sqlalchemy import desc, asc
+
         if sort_by == "oldest":
             stmt = stmt.order_by(asc(Project.created_at))
         elif sort_by in ("recently_updated", "most_active"):
@@ -254,7 +263,9 @@ class ProjectService:
         from app.services.project_status_service import ProjectStatusService
 
         current_status = getattr(db_project, "status", None) or (
-            ProjectStatus.ARCHIVED if db_project.is_archived else ProjectStatus.RECRUITING
+            ProjectStatus.ARCHIVED
+            if db_project.is_archived
+            else ProjectStatus.RECRUITING
         )
 
         if "status" in data and data["status"] is not None:
@@ -264,11 +275,23 @@ class ProjectService:
                 data["is_archived"] = True
             else:
                 data["is_archived"] = False
-        elif "is_archived" in data and data["is_archived"] is True and not db_project.is_archived:
-            ProjectStatusService.validate_status_transition(current_status, ProjectStatus.ARCHIVED)
+        elif (
+            "is_archived" in data
+            and data["is_archived"] is True
+            and not db_project.is_archived
+        ):
+            ProjectStatusService.validate_status_transition(
+                current_status, ProjectStatus.ARCHIVED
+            )
             data["status"] = ProjectStatus.ARCHIVED
-        elif "is_archived" in data and data["is_archived"] is False and db_project.is_archived:
-            ProjectStatusService.validate_status_transition(current_status, ProjectStatus.DRAFT)
+        elif (
+            "is_archived" in data
+            and data["is_archived"] is False
+            and db_project.is_archived
+        ):
+            ProjectStatusService.validate_status_transition(
+                current_status, ProjectStatus.DRAFT
+            )
             data["status"] = ProjectStatus.DRAFT
 
         if "scheduled_publish_at" in data and data["scheduled_publish_at"] is not None:
@@ -294,6 +317,25 @@ class ProjectService:
             color="info",
         )
 
+        from sqlalchemy import select
+        from app.models.project_member import ProjectMember
+        from app.services.notification_service import NotificationService
+
+        members = db.scalars(
+            select(ProjectMember).where(ProjectMember.project_id == db_project.id)
+        ).all()
+        for member in members:
+            if member.user_id != db_project.owner_id:
+                NotificationService.create_project_activity_notification(
+                    db=db,
+                    recipient_id=member.user_id,
+                    actor_id=db_project.owner_id,
+                    project_id=db_project.id,
+                    title="Project Updated",
+                    message=f"The project '{db_project.title}' has been updated.",
+                    action_url=f"/projects/{db_project.id}",
+                )
+
         return db_project
 
     @staticmethod
@@ -305,9 +347,13 @@ class ProjectService:
         from app.services.project_status_service import ProjectStatusService
 
         current_status = getattr(db_project, "status", None) or (
-            ProjectStatus.ARCHIVED if db_project.is_archived else ProjectStatus.RECRUITING
+            ProjectStatus.ARCHIVED
+            if db_project.is_archived
+            else ProjectStatus.RECRUITING
         )
-        ProjectStatusService.validate_status_transition(current_status, ProjectStatus.ARCHIVED)
+        ProjectStatusService.validate_status_transition(
+            current_status, ProjectStatus.ARCHIVED
+        )
 
         db_project.status = ProjectStatus.ARCHIVED.value
         db_project.is_archived = True
@@ -342,7 +388,9 @@ class ProjectService:
             if db_project.is_archived
             else (getattr(db_project, "status", None) or ProjectStatus.RECRUITING)
         )
-        ProjectStatusService.validate_status_transition(current_status, ProjectStatus.DRAFT)
+        ProjectStatusService.validate_status_transition(
+            current_status, ProjectStatus.DRAFT
+        )
 
         db_project.status = ProjectStatus.DRAFT.value
         db_project.is_archived = False

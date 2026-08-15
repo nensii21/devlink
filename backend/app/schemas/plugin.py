@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.plugin import PluginStatus, PluginType
 
@@ -14,7 +14,9 @@ class PluginManifestSchema(BaseModel):
         default_factory=list,
         description="List of extension points (e.g. ['on_project_created', 'dashboard_widget', 'workflow_action'])",
     )
-    webhook_url: Optional[str] = Field(default=None, description="HTTP webhook URL for asynchronous plugin events")
+    webhook_url: Optional[str] = Field(
+        default=None, description="HTTP webhook URL for asynchronous plugin events"
+    )
     permissions: list[str] = Field(
         default_factory=list,
         description="Requested API permissions (e.g. ['read_projects', 'write_notifications'])",
@@ -31,11 +33,27 @@ class PluginManifestSchema(BaseModel):
 
 class PluginCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=150, description="Plugin name")
-    slug: Optional[str] = Field(default=None, min_length=2, max_length=150, description="URL-friendly slug (auto-generated if empty)")
-    description: str = Field(..., min_length=5, description="Detailed plugin description and usage instructions")
-    version: str = Field(default="1.0.0", max_length=50, description="Plugin semver version string")
-    plugin_type: PluginType = Field(default=PluginType.INTEGRATION, description="Plugin type: integration, widget, workflow")
-    manifest: PluginManifestSchema = Field(..., description="Extension manifest configuration")
+    slug: Optional[str] = Field(
+        default=None,
+        min_length=2,
+        max_length=150,
+        description="URL-friendly slug (auto-generated if empty)",
+    )
+    description: str = Field(
+        ...,
+        min_length=5,
+        description="Detailed plugin description and usage instructions",
+    )
+    version: str = Field(
+        default="1.0.0", max_length=50, description="Plugin semver version string"
+    )
+    plugin_type: PluginType = Field(
+        default=PluginType.INTEGRATION,
+        description="Plugin type: integration, widget, workflow",
+    )
+    manifest: PluginManifestSchema = Field(
+        ..., description="Extension manifest configuration"
+    )
 
 
 class PluginUpdate(BaseModel):
@@ -66,13 +84,23 @@ class PluginResponse(BaseModel):
 
 
 class PluginInstallationCreate(BaseModel):
-    organization_id: Optional[uuid.UUID] = Field(default=None, description="Optional Organization ID for org-level plugin installation")
-    config: Optional[dict[str, Any]] = Field(default_factory=dict, description="Custom configuration settings for the installation")
+    organization_id: Optional[uuid.UUID] = Field(
+        default=None,
+        description="Optional Organization ID for org-level plugin installation",
+    )
+    config: Optional[dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Custom configuration settings for the installation",
+    )
 
 
 class PluginInstallationUpdate(BaseModel):
-    is_enabled: Optional[bool] = Field(default=None, description="Enable or disable plugin execution")
-    config: Optional[dict[str, Any]] = Field(default=None, description="Updated custom configuration parameters")
+    is_enabled: Optional[bool] = Field(
+        default=None, description="Enable or disable plugin execution"
+    )
+    config: Optional[dict[str, Any]] = Field(
+        default=None, description="Updated custom configuration parameters"
+    )
 
 
 class PluginInstallationResponse(BaseModel):
@@ -90,8 +118,12 @@ class PluginInstallationResponse(BaseModel):
 
 
 class PluginEventDispatch(BaseModel):
-    event: str = Field(..., description="Extension point event name (e.g., 'on_project_created')")
-    payload: dict[str, Any] = Field(default_factory=dict, description="Event data payload")
+    event: str = Field(
+        ..., description="Extension point event name (e.g., 'on_project_created')"
+    )
+    payload: dict[str, Any] = Field(
+        default_factory=dict, description="Event data payload"
+    )
 
 
 class PluginDispatchItem(BaseModel):
@@ -99,7 +131,9 @@ class PluginDispatchItem(BaseModel):
     plugin_slug: str
     installation_id: uuid.UUID
     webhook_url: Optional[str] = None
-    status: str = Field(description="Dispatch status: 'queued', 'skipped', 'no_webhook'")
+    status: str = Field(
+        description="Dispatch status: 'queued', 'skipped', 'no_webhook'"
+    )
 
 
 class PluginEventDispatchResult(BaseModel):

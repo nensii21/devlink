@@ -1,6 +1,7 @@
 """
 Unit & Integration Tests for AI-Based Duplicate Project Detection (#608)
 """
+
 from __future__ import annotations
 
 import uuid
@@ -11,9 +12,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.project import Project
-from app.models.user import User
 from app.schemas.duplicate_detection import (
-    DuplicateProjectCheckRequest,
     DuplicateProjectCheckResponse,
 )
 from app.schemas.project import ProjectCreate
@@ -40,10 +39,21 @@ def _make_mock_project(
 # 1. Similarity Metric Unit Tests
 # ---------------------------------------------------------------------------
 
+
 class TestSimilarityMetrics:
     def test_levenshtein_similarity_exact_and_case(self):
-        assert DuplicateDetectionService._levenshtein_similarity("DevLink App", "devlink app") == 1.0
-        assert DuplicateDetectionService._levenshtein_similarity("DevLink App", "DevLink Application") > 0.5
+        assert (
+            DuplicateDetectionService._levenshtein_similarity(
+                "DevLink App", "devlink app"
+            )
+            == 1.0
+        )
+        assert (
+            DuplicateDetectionService._levenshtein_similarity(
+                "DevLink App", "DevLink Application"
+            )
+            > 0.5
+        )
         assert DuplicateDetectionService._levenshtein_similarity("Alpha", "Beta") < 0.3
 
     def test_keyword_similarity(self):
@@ -57,6 +67,7 @@ class TestSimilarityMetrics:
 # ---------------------------------------------------------------------------
 # 2. Duplicate Project Detection Logic Tests
 # ---------------------------------------------------------------------------
+
 
 class TestDuplicateProjectDetection:
     def test_find_duplicate_projects_detects_similar(self):
@@ -81,7 +92,11 @@ class TestDuplicateProjectDetection:
         assert res.max_similarity_score > 0.50
         assert len(res.suggested_projects) == 1
         assert res.suggested_projects[0].project_id == existing_p.id
-        assert "Nearly identical project title" in res.suggested_projects[0].match_reasons[0] or "High title" in res.suggested_projects[0].match_reasons[0]
+        assert (
+            "Nearly identical project title"
+            in res.suggested_projects[0].match_reasons[0]
+            or "High title" in res.suggested_projects[0].match_reasons[0]
+        )
 
     def test_find_duplicate_projects_filters_below_threshold(self):
         db = MagicMock(spec=Session)
@@ -105,6 +120,7 @@ class TestDuplicateProjectDetection:
 # ---------------------------------------------------------------------------
 # 3. Project Creation & Manual Override Tests
 # ---------------------------------------------------------------------------
+
 
 class TestProjectCreationDuplicateGuard:
     def test_create_project_blocked_on_duplicate_without_override(self):
@@ -134,7 +150,11 @@ class TestProjectCreationDuplicateGuard:
             manual_override_allowed=True,
         )
 
-        with patch.object(DuplicateDetectionService, "find_duplicate_projects", return_value=dup_response):
+        with patch.object(
+            DuplicateDetectionService,
+            "find_duplicate_projects",
+            return_value=dup_response,
+        ):
             project_in = ProjectCreate(
                 title="DevLink Developer Platform",
                 description="Collaborative network for open source builders.",
@@ -145,7 +165,10 @@ class TestProjectCreationDuplicateGuard:
                 ProjectService.create_project(db, owner_id, project_in)
 
             assert exc_info.value.status_code == 409
-            assert "Potential duplicate project detected" in exc_info.value.detail["message"]
+            assert (
+                "Potential duplicate project detected"
+                in exc_info.value.detail["message"]
+            )
 
     def test_create_project_allowed_with_manual_override(self):
         db = MagicMock(spec=Session)

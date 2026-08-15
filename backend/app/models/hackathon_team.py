@@ -124,12 +124,7 @@ class HackathonTeam(Base):
     )
 
     def __repr__(self) -> str:
-        return (
-            f"<HackathonTeam("
-            f"name='{self.name}', "
-            f"hackathon_id={self.hackathon_id}"
-            f")>"
-        )
+        return f"<HackathonTeam(name='{self.name}', hackathon_id={self.hackathon_id})>"
 
 
 class HackathonTeamMember(Base):

@@ -132,7 +132,12 @@ class ProjectTimeLog(Base):
         Index("ix_project_time_logs_user_date", "user_id", "work_date"),
         # The per-day cap check, which reads one user's entries on one project
         # for one day.
-        Index("ix_project_time_logs_project_user_date", "project_id", "user_id", "work_date"),
+        Index(
+            "ix_project_time_logs_project_user_date",
+            "project_id",
+            "user_id",
+            "work_date",
+        ),
     )
 
     @property

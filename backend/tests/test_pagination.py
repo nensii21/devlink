@@ -1,13 +1,10 @@
-import pytest
 from app.schemas.pagination import (
     PaginationParams,
-    PaginatedResponse,
     encode_cursor,
     decode_cursor,
 )
 from app.core.pagination import build_paginated_response, paginate_query
 from app.models.skill import Skill
-from app.models.user import User
 
 
 def test_encode_decode_cursor():
@@ -52,7 +49,14 @@ def test_build_paginated_response():
 def test_paginate_query_basic(db):
     # Add dummy skill objects
     for i in range(5):
-        db.add(Skill(name=f"PaginationSkill_{i}", normalized_name=f"paginationskill_{i}", slug=f"paginationskill_{i}", category="Test"))
+        db.add(
+            Skill(
+                name=f"PaginationSkill_{i}",
+                normalized_name=f"paginationskill_{i}",
+                slug=f"paginationskill_{i}",
+                category="Test",
+            )
+        )
     db.commit()
 
     query = db.query(Skill).filter(Skill.category == "Test")

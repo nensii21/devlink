@@ -34,7 +34,9 @@ def _run(cmd: list[str]) -> None:
 
 def generate_typescript() -> None:
     if not shutil.which("npx"):
-        raise SystemExit("npx not found; install Node.js to generate the TypeScript SDK")
+        raise SystemExit(
+            "npx not found; install Node.js to generate the TypeScript SDK"
+        )
     _run(
         [
             "npx",

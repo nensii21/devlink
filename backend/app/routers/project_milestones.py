@@ -1,15 +1,16 @@
 """
 API Router for Project Milestone Management (#618)
 """
+
 from __future__ import annotations
 
 import uuid
-from typing import Any, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_active_user, get_current_user, get_database
+from app.dependencies import get_current_active_user, get_database
 from app.models.user import User
 from app.schemas.milestone import (
     MilestoneCreate,
@@ -39,12 +40,19 @@ router = APIRouter(
 )
 def list_milestones(
     project_id: uuid.UUID,
-    include_archived: bool = Query(False, description="Set to true to include archived milestones"),
-    is_completed: Optional[bool] = Query(None, description="Filter by completion status"),
+    include_archived: bool = Query(
+        False, description="Set to true to include archived milestones"
+    ),
+    is_completed: Optional[bool] = Query(
+        None, description="Filter by completion status"
+    ),
     db: Session = Depends(get_database),
 ) -> list[MilestoneResponse]:
     milestones = ProjectMilestoneService.list_milestones(
-        db, project_id=project_id, include_archived=include_archived, is_completed=is_completed
+        db,
+        project_id=project_id,
+        include_archived=include_archived,
+        is_completed=is_completed,
     )
     return [MilestoneResponse.model_validate(m) for m in milestones]
 
@@ -110,7 +118,9 @@ def get_milestone(
     milestone_id: uuid.UUID,
     db: Session = Depends(get_database),
 ) -> MilestoneResponse:
-    milestone = ProjectMilestoneService.get_milestone_or_404(db, project_id, milestone_id)
+    milestone = ProjectMilestoneService.get_milestone_or_404(
+        db, project_id, milestone_id
+    )
     return MilestoneResponse.model_validate(milestone)
 
 
@@ -128,7 +138,11 @@ def update_milestone(
     current_user: User = Depends(get_current_active_user),
 ) -> MilestoneResponse:
     milestone = ProjectMilestoneService.update_milestone(
-        db, project_id=project_id, milestone_id=milestone_id, milestone_in=milestone_in, actor=current_user
+        db,
+        project_id=project_id,
+        milestone_id=milestone_id,
+        milestone_in=milestone_in,
+        actor=current_user,
     )
     return MilestoneResponse.model_validate(milestone)
 
@@ -146,7 +160,11 @@ def archive_milestone(
     current_user: User = Depends(get_current_active_user),
 ) -> MilestoneResponse:
     milestone = ProjectMilestoneService.archive_milestone(
-        db, project_id=project_id, milestone_id=milestone_id, actor=current_user, archive=True
+        db,
+        project_id=project_id,
+        milestone_id=milestone_id,
+        actor=current_user,
+        archive=True,
     )
     return MilestoneResponse.model_validate(milestone)
 
@@ -164,7 +182,11 @@ def unarchive_milestone(
     current_user: User = Depends(get_current_active_user),
 ) -> MilestoneResponse:
     milestone = ProjectMilestoneService.archive_milestone(
-        db, project_id=project_id, milestone_id=milestone_id, actor=current_user, archive=False
+        db,
+        project_id=project_id,
+        milestone_id=milestone_id,
+        actor=current_user,
+        archive=False,
     )
     return MilestoneResponse.model_validate(milestone)
 

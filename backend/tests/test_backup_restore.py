@@ -9,6 +9,7 @@ Tests cover:
  - BackupService.restore_backup (profile, bookmarks, skills)
  - API router endpoints (mock-level)
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -22,7 +23,6 @@ import pytest
 from app.schemas.backup import (
     BackupCreateResponse,
     RestoreResponse,
-    RestoreValidationResponse,
 )
 from app.services.backup_service import BackupService, _sha256
 
@@ -30,6 +30,7 @@ from app.services.backup_service import BackupService, _sha256
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_user(username: str = "testuser") -> MagicMock:
     u = MagicMock()
@@ -106,6 +107,7 @@ def _make_minimal_export_data() -> MagicMock:
 # _sha256 helper
 # ---------------------------------------------------------------------------
 
+
 class TestSha256Helper:
     def test_consistent_hash(self):
         text = '{"key": "value"}'
@@ -115,6 +117,7 @@ class TestSha256Helper:
         assert _sha256("abc") != _sha256("def")
 
     def test_known_value(self):
+        # lgtm[py/weak-sensitive-data-hashing]
         expected = hashlib.sha256(b"hello").hexdigest()
         assert _sha256("hello") == expected
 
@@ -122,6 +125,7 @@ class TestSha256Helper:
 # ---------------------------------------------------------------------------
 # BackupService.create_backup
 # ---------------------------------------------------------------------------
+
 
 class TestCreateBackup:
     @patch("app.services.backup_service.ExportService.collect_user_data")
@@ -140,7 +144,8 @@ class TestCreateBackup:
 
     @patch("app.services.backup_service.ExportService.collect_user_data")
     def test_zip_contains_json(self, mock_collect):
-        import io, zipfile
+        import io
+        import zipfile
 
         mock_collect.return_value = _make_minimal_export_data()
         db = MagicMock()
@@ -159,7 +164,8 @@ class TestCreateBackup:
 
     @patch("app.services.backup_service.ExportService.collect_user_data")
     def test_checksum_valid_in_payload(self, mock_collect):
-        import io, zipfile
+        import io
+        import zipfile
 
         mock_collect.return_value = _make_minimal_export_data()
         db = MagicMock()
@@ -176,7 +182,8 @@ class TestCreateBackup:
 
     @patch("app.services.backup_service.ExportService.collect_user_data")
     def test_metadata_contains_username(self, mock_collect):
-        import io, zipfile
+        import io
+        import zipfile
 
         mock_collect.return_value = _make_minimal_export_data()
         db = MagicMock()
@@ -193,6 +200,7 @@ class TestCreateBackup:
 # ---------------------------------------------------------------------------
 # BackupService.validate_backup
 # ---------------------------------------------------------------------------
+
 
 def _build_valid_payload(user: MagicMock | None = None) -> dict:
     """Return a structurally valid backup payload dict."""
@@ -271,6 +279,7 @@ class TestValidateBackup:
 # BackupService.preview_restore
 # ---------------------------------------------------------------------------
 
+
 class TestPreviewRestore:
     def test_preview_returns_expected_keys(self):
         payload = _build_valid_payload()
@@ -296,6 +305,7 @@ class TestPreviewRestore:
 # ---------------------------------------------------------------------------
 # BackupService.restore_backup
 # ---------------------------------------------------------------------------
+
 
 class TestRestoreBackup:
     def test_raises_on_invalid_payload(self):

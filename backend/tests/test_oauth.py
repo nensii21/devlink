@@ -48,8 +48,11 @@ def test_github_login_success_new_user(client: TestClient, db, override_github_c
             with patch("app.routers.auth.oauth_redis") as mock_redis:
                 mock_redis.get = AsyncMock(return_value="1")
                 mock_redis.delete = AsyncMock(return_value=1)
-                
-                response = client.post("/api/auth/github", json={"code": "test_code_123", "state": "test_state"})
+
+                response = client.post(
+                    "/api/auth/github",
+                    json={"code": "test_code_123", "state": "test_state"},
+                )
 
             assert response.status_code == 200
             data = response.json()
@@ -115,8 +118,11 @@ def test_github_login_link_existing_account(
             with patch("app.routers.auth.oauth_redis") as mock_redis:
                 mock_redis.get = AsyncMock(return_value="1")
                 mock_redis.delete = AsyncMock(return_value=1)
-                
-                response = client.post("/api/auth/github", json={"code": "test_code_456", "state": "test_state"})
+
+                response = client.post(
+                    "/api/auth/github",
+                    json={"code": "test_code_456", "state": "test_state"},
+                )
 
             assert response.status_code == 200
             data = response.json()
@@ -146,8 +152,10 @@ def test_github_login_invalid_code(client: TestClient, override_github_config):
         with patch("app.routers.auth.oauth_redis") as mock_redis:
             mock_redis.get = AsyncMock(return_value="1")
             mock_redis.delete = AsyncMock(return_value=1)
-            
-            response = client.post("/api/auth/github", json={"code": "invalid_code", "state": "test_state"})
+
+            response = client.post(
+                "/api/auth/github", json={"code": "invalid_code", "state": "test_state"}
+            )
 
         assert response.status_code == 401
         assert "incorrect or expired" in response.json()["detail"]

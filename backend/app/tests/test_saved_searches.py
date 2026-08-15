@@ -12,7 +12,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
 from app.database.base import Base
-from app.models.saved_search import SavedSearch
 from app.models.user import User
 from app.schemas.saved_search import (
     ProjectSearchFilters,

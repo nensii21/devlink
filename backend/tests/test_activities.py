@@ -20,7 +20,9 @@ def test_create_activity(client: TestClient, db: Session, register_and_login):
     }
 
     response = client.post(
-        "/api/activities/", json=activity_data, headers={"Authorization": f"Bearer {token}"}
+        "/api/activities/",
+        json=activity_data,
+        headers={"Authorization": f"Bearer {token}"},
     )
 
     if response.status_code != 201:

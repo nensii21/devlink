@@ -91,7 +91,9 @@ class PinnedProject(Base):
     __table_args__ = (
         # One pin per project per user. This *is* safe to enforce in the
         # database -- unlike position, it never legitimately collides.
-        UniqueConstraint("user_id", "project_id", name="uq_pinned_projects_user_project"),
+        UniqueConstraint(
+            "user_id", "project_id", name="uq_pinned_projects_user_project"
+        ),
         # The read path: one user's pins in display order.
         Index("ix_pinned_projects_user_position", "user_id", "position"),
     )

@@ -7,7 +7,6 @@ from app.core.celery_app import celery_app
 from app.database.session import SessionLocal
 from app.models.notification import NotificationType
 from app.services.notification_service import NotificationService
-from app.services.email_service import EmailService
 from app.services.push_service import PushNotificationService
 from app.services.user_service import UserService
 

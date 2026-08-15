@@ -3,6 +3,7 @@ from app.celery_app.celery import celery_app
 
 logger = logging.getLogger(__name__)
 
+
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=60)
 def process_notification(self, user_id: int, notification_type: str, payload: dict):
     """

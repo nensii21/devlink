@@ -28,6 +28,8 @@ from sqlalchemy.orm import Session
 
 from app.core.events import event_bus
 from app.core.security import (
+    InvalidTokenType,
+    TokenType,
     create_access_token,
     create_refresh_token,
     hash_password,
@@ -37,7 +39,6 @@ from app.core.security import (
 )
 from app.models.user import User
 from app.models.password_history import PasswordHistory
-from app.models.refresh_token import RefreshToken
 from app.services.refresh_token_service import RefreshTokenService
 from app.schemas.auth import (
     LoginRequest,
@@ -52,7 +53,6 @@ from app.utils.validators import (
 
 
 class AuthService:
-
     PASSWORD_HISTORY_LIMIT = 5
 
     """
@@ -289,9 +289,15 @@ class AuthService:
         self.db.flush()
 
         if user.mfa_enabled:
-            mfa_token = create_access_token(
-                str(user.id),
-                {"type": "mfa_pending"},
+            # Not an access token: this only gets the caller as far as
+            # `/api/auth/mfa/verify`. It used to be minted by
+            # `create_access_token` with `extra={"type": "mfa_pending"}`,
+            # relying on `extra` overwriting the type the creator had just
+            # set -- which now raises. Same lifetime, stated outright.
+            mfa_token = _create_token(
+                subject=str(user.id),
+                expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+                token_type=TokenType.MFA_PENDING,
             )
             self.db.commit()
             return {
@@ -343,15 +349,9 @@ class AuthService:
         ip_address: Optional[str] = None,
     ):
         try:
-            payload = decode_token(mfa_token)
-            if payload.get("type") != "mfa_pending":
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid MFA session token.",
-                )
-            user_id_str = payload.get("sub")
-            user_id = UUID(user_id_str)
-        except Exception:
+            payload = decode_token(mfa_token, expected_type=TokenType.MFA_PENDING)
+            user_id = UUID(payload.get("sub"))
+        except (ValueError, TypeError):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired MFA session token.",
@@ -365,6 +365,7 @@ class AuthService:
             )
 
         from app.services.mfa_service import MFAService
+
         verified = MFAService.verify_user_mfa(self.db, user, code)
         if not verified:
             raise HTTPException(
@@ -535,7 +536,7 @@ class AuthService:
                 counter = 1
                 while self.get_user_by_username(username):
                     suffix = str(counter)
-                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    username = f"{base_username[: 50 - len(suffix)]}{suffix}"
                     counter += 1
                 user = User(
                     first_name=first_name,
@@ -606,27 +607,27 @@ class AuthService:
     # =====================================================
     # Microsoft OAuth
     # =====================================================
-    
+
     def microsoft_login(self, microsoft_user: dict, primary_email: str):
         microsoft_id = str(microsoft_user["id"])
-        
+
         # 1. Check if user already exists by microsoft_id
         user = self.db.scalar(select(User).where(User.microsoft_id == microsoft_id))
-        
+
         if not user:
             # 2. Check if user exists by primary email
             user = self.db.scalar(select(User).where(User.email == primary_email))
-            
+
             if user:
                 # User exists by email, link Microsoft account safely
                 if user.microsoft_id and user.microsoft_id != microsoft_id:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Email is linked to another Microsoft account."
+                        detail="Email is linked to another Microsoft account.",
                     )
-                
+
                 user.microsoft_id = microsoft_id
-                
+
                 # Assume verified since it came from MS
                 if not user.is_verified:
                     user.is_verified = True
@@ -634,24 +635,33 @@ class AuthService:
             else:
                 # 3. Create new user
                 name_parts = (
-                    microsoft_user.get("displayName") or 
-                    microsoft_user.get("givenName") or 
-                    "Microsoft User"
+                    microsoft_user.get("displayName")
+                    or microsoft_user.get("givenName")
+                    or "Microsoft User"
                 ).split(" ")
-                
-                first_name = name_parts[0] if len(name_parts) > 0 and name_parts[0] else "Microsoft"
+
+                first_name = (
+                    name_parts[0]
+                    if len(name_parts) > 0 and name_parts[0]
+                    else "Microsoft"
+                )
                 last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
-                
-                base_username = (microsoft_user.get("userPrincipalName") or primary_email).split("@")[0].lower()[:50]
+
+                base_username = (
+                    (microsoft_user.get("userPrincipalName") or primary_email)
+                    .split("@")[0]
+                    .lower()[:50]
+                )
                 username = base_username
                 counter = 1
                 while self.db.scalar(select(User).where(User.username == username)):
                     username = f"{base_username}{counter}"
                     counter += 1
-                    
+
                 import secrets
+
                 random_password = secrets.token_urlsafe(32)
-                
+
                 user = User(
                     first_name=first_name,
                     last_name=last_name,
@@ -672,13 +682,13 @@ class AuthService:
                     email=user.email,
                     user_id=str(user.id),
                 )
-                
+
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account is disabled.",
             )
-            
+
         user.last_login = datetime.now(timezone.utc)
         self.db.commit()
 
@@ -721,27 +731,27 @@ class AuthService:
     # =====================================================
     # Google OAuth
     # =====================================================
-    
+
     def google_login(self, google_user: dict, primary_email: str):
         google_id = str(google_user["id"])
-        
+
         # 1. Check if user already exists by google_id
         user = self.db.scalar(select(User).where(User.google_id == google_id))
-        
+
         if not user:
             # 2. Check if user exists by primary email
             user = self.db.scalar(select(User).where(User.email == primary_email))
-            
+
             if user:
                 # User exists by email, link Google account safely
                 if user.google_id and user.google_id != google_id:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Email is linked to another Google account."
+                        detail="Email is linked to another Google account.",
                     )
-                
+
                 user.google_id = google_id
-                
+
                 # Assume verified since it came from Google
                 if not user.is_verified:
                     user.is_verified = True
@@ -750,17 +760,18 @@ class AuthService:
                 # 3. Create new user
                 first_name = google_user.get("given_name") or "Google"
                 last_name = google_user.get("family_name") or "User"
-                
+
                 base_username = primary_email.split("@")[0].lower()[:50]
                 username = base_username
                 counter = 1
                 while self.db.scalar(select(User).where(User.username == username)):
                     username = f"{base_username}{counter}"
                     counter += 1
-                    
+
                 import secrets
+
                 random_password = secrets.token_urlsafe(32)
-                
+
                 user = User(
                     first_name=first_name,
                     last_name=last_name,
@@ -782,13 +793,13 @@ class AuthService:
                     email=user.email,
                     user_id=str(user.id),
                 )
-                
+
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account is disabled.",
             )
-            
+
         user.last_login = datetime.now(timezone.utc)
         self.db.commit()
 
@@ -1099,6 +1110,7 @@ class AuthService:
             extra={"jti": jti, "hash_frag": pwd_hash_frag},
         )
 
+        # lgtm[py/weak-sensitive-data-hashing]
         token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
 
         # Store single-use recovery token record
@@ -1148,32 +1160,50 @@ class AuthService:
         from app.models.password_reset_token import PasswordResetToken
 
         try:
-            payload = decode_token(token)
-            if payload.get("type") not in ("reset", "reset_password"):
-                return {"valid": False, "message": "Invalid token type."}
+            payload = decode_token(token, expected_type=TokenType.RESET_PASSWORD)
             user_id = payload.get("sub")
             jti = payload.get("jti")
             hash_frag = payload.get("hash_frag")
-        except Exception:
+        except InvalidTokenType:
+            return {"valid": False, "message": "Invalid token type."}
+        except ValueError:
             return {"valid": False, "message": "Invalid or expired recovery token."}
 
         user = self.db.get(User, UUID(user_id)) if user_id else None
         if not user:
-            return {"valid": False, "message": "User account associated with token not found."}
+            return {
+                "valid": False,
+                "message": "User account associated with token not found.",
+            }
 
         if jti:
-            t_rec = self.db.scalar(select(PasswordResetToken).where(PasswordResetToken.jti == jti))
+            t_rec = self.db.scalar(
+                select(PasswordResetToken).where(PasswordResetToken.jti == jti)
+            )
             if t_rec:
                 if t_rec.is_used:
-                    return {"valid": False, "message": "This recovery token has already been used."}
+                    return {
+                        "valid": False,
+                        "message": "This recovery token has already been used.",
+                    }
                 if t_rec.expires_at and t_rec.expires_at < datetime.now(timezone.utc):
-                    return {"valid": False, "message": "This recovery token has expired."}
+                    return {
+                        "valid": False,
+                        "message": "This recovery token has expired.",
+                    }
 
         expected_frag = user.password_hash[-10:] if user.password_hash else "nohash"
         if hash_frag and hash_frag != expected_frag:
-            return {"valid": False, "message": "This recovery token has already been used."}
+            return {
+                "valid": False,
+                "message": "This recovery token has already been used.",
+            }
 
-        return {"valid": True, "message": "Recovery token is valid.", "email": user.email}
+        return {
+            "valid": True,
+            "message": "Recovery token is valid.",
+            "email": user.email,
+        }
 
     # =====================================================
     # Reset Password
@@ -1189,13 +1219,11 @@ class AuthService:
         from app.models.password_reset_token import PasswordResetToken
 
         try:
-            payload = decode_token(token)
-            if payload.get("type") not in ("reset", "reset_password"):
-                raise ValueError("Invalid token type")
+            payload = decode_token(token, expected_type=TokenType.RESET_PASSWORD)
             user_id = payload.get("sub")
             jti = payload.get("jti")
             hash_frag = payload.get("hash_frag")
-        except Exception:
+        except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid or expired reset token.",
@@ -1205,14 +1233,18 @@ class AuthService:
 
         token_record = None
         if jti:
-            token_record = self.db.scalar(select(PasswordResetToken).where(PasswordResetToken.jti == jti))
+            token_record = self.db.scalar(
+                select(PasswordResetToken).where(PasswordResetToken.jti == jti)
+            )
             if token_record:
                 if token_record.is_used:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="This reset token has already been used.",
                     )
-                if token_record.expires_at and token_record.expires_at < datetime.now(timezone.utc):
+                if token_record.expires_at and token_record.expires_at < datetime.now(
+                    timezone.utc
+                ):
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="This reset token has expired.",
@@ -1308,7 +1340,7 @@ class AuthService:
                 counter = 1
                 while self.get_user_by_username(username):
                     suffix = str(counter)
-                    username = f"{base_username[:50 - len(suffix)]}{suffix}"
+                    username = f"{base_username[: 50 - len(suffix)]}{suffix}"
                     counter += 1
 
                 user = User(

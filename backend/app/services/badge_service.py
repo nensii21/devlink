@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Tuple
+from typing import List
 from sqlalchemy.orm import Session
 
 from app.models.badge import Badge, UserBadge
@@ -7,7 +7,7 @@ from app.models.project import Project
 from app.models.project_member import ProjectMember
 from app.models.follower import Follower
 from app.models.feedback import UserFeedback
-from app.schemas.badge import BadgeResponse, UserBadgeResponse, BadgeEvaluationResponse
+from app.schemas.badge import BadgeResponse, BadgeEvaluationResponse
 
 DEFAULT_BADGES = [
     {
@@ -82,31 +82,49 @@ class BadgeService:
         return db.query(UserBadge).filter(UserBadge.user_id == user_id).all()
 
     @staticmethod
-    def evaluate_user_badges(db: Session, user_id: uuid.UUID) -> BadgeEvaluationResponse:
+    def evaluate_user_badges(
+        db: Session, user_id: uuid.UUID
+    ) -> BadgeEvaluationResponse:
         BadgeService.seed_badges(db)
 
         # Fetch existing user badge IDs
-        existing_user_badges = db.query(UserBadge).filter(UserBadge.user_id == user_id).all()
-        existing_badge_slugs = {ub.badge.slug for ub in existing_user_badges if ub.badge}
+        existing_user_badges = (
+            db.query(UserBadge).filter(UserBadge.user_id == user_id).all()
+        )
+        existing_badge_slugs = {
+            ub.badge.slug for ub in existing_user_badges if ub.badge
+        }
 
         # Gather user statistics for milestone evaluation
-        created_projects_count = db.query(Project).filter(Project.owner_id == user_id).count()
-        collaboration_count = db.query(ProjectMember).filter(ProjectMember.user_id == user_id).count()
-        followers_count = db.query(Follower).filter(Follower.following_id == user_id).count()
-        
+        created_projects_count = (
+            db.query(Project).filter(Project.owner_id == user_id).count()
+        )
+        collaboration_count = (
+            db.query(ProjectMember).filter(ProjectMember.user_id == user_id).count()
+        )
+        followers_count = (
+            db.query(Follower).filter(Follower.following_id == user_id).count()
+        )
+
         # AI projects check
         ai_projects = (
             db.query(Project)
             .filter(
                 (Project.owner_id == user_id),
-                (Project.title.ilike("%ai%") | Project.description.ilike("%ai%") | Project.title.ilike("%machine learning%"))
+                (
+                    Project.title.ilike("%ai%")
+                    | Project.description.ilike("%ai%")
+                    | Project.title.ilike("%machine learning%")
+                ),
             )
             .count()
         )
 
         feedback_count = 0
         try:
-            feedback_count = db.query(UserFeedback).filter(UserFeedback.user_id == user_id).count()
+            feedback_count = (
+                db.query(UserFeedback).filter(UserFeedback.user_id == user_id).count()
+            )
         except Exception:
             pass
 
@@ -141,7 +159,9 @@ class BadgeService:
 
         return BadgeEvaluationResponse(
             user_id=user_id,
-            newly_awarded=[BadgeResponse.model_validate(b) for b in newly_awarded_badges],
+            newly_awarded=[
+                BadgeResponse.model_validate(b) for b in newly_awarded_badges
+            ],
             total_badges=len(all_user_badges),
             total_points=total_points,
         )

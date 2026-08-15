@@ -26,7 +26,9 @@ def upgrade() -> None:
         sa.Column("user_id", UUID(as_uuid=True), nullable=False),
         sa.Column("project_id", UUID(as_uuid=True), nullable=False),
         # 0-based and contiguous, compacted by the service on every removal.
-        sa.Column("position", sa.Integer(), nullable=False, server_default=sa.text("0")),
+        sa.Column(
+            "position", sa.Integer(), nullable=False, server_default=sa.text("0")
+        ),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -38,7 +40,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         # One pin per project per user. Unlike position this never
         # legitimately collides, so it is safe to enforce here.
-        sa.UniqueConstraint("user_id", "project_id", name="uq_pinned_projects_user_project"),
+        sa.UniqueConstraint(
+            "user_id", "project_id", name="uq_pinned_projects_user_project"
+        ),
         sa.CheckConstraint("position >= 0", name="ck_pinned_projects_position"),
     )
 
@@ -46,7 +50,10 @@ def upgrade() -> None:
         op.f("ix_pinned_projects_user_id"), "pinned_projects", ["user_id"], unique=False
     )
     op.create_index(
-        op.f("ix_pinned_projects_project_id"), "pinned_projects", ["project_id"], unique=False
+        op.f("ix_pinned_projects_project_id"),
+        "pinned_projects",
+        ["project_id"],
+        unique=False,
     )
     # The read path: one user's pins in display order.
     op.create_index(

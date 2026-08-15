@@ -55,7 +55,9 @@ def get_my_activity_heatmap(
     current_user: User = Depends(get_current_user),
 ) -> ActivityHeatmapResponse:
     types = ActivityHeatmapService.parse_activity_types(activity_types)
-    return ActivityHeatmapService.build(db, subject=current_user, days=days, activity_types=types)
+    return ActivityHeatmapService.build(
+        db, subject=current_user, days=days, activity_types=types
+    )
 
 
 @router.get(
@@ -82,4 +84,6 @@ def get_user_activity_heatmap(
     ActivityHeatmapService.require_visible(subject, current_user)
 
     types = ActivityHeatmapService.parse_activity_types(activity_types)
-    return ActivityHeatmapService.build(db, subject=subject, days=days, activity_types=types)
+    return ActivityHeatmapService.build(
+        db, subject=subject, days=days, activity_types=types
+    )

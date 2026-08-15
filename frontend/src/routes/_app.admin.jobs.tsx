@@ -1,7 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ChevronUp, ChevronDown, RefreshCw, Activity, Play, CheckCircle, XCircle, Clock, Cpu, Search } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { api } from "@/api/client";
 
 export const Route = createFileRoute("/_app/admin/jobs")({
-  component: () => <div className="p-6">Admin Jobs Page</div>,
+  component: AdminJobsPage,
 });
 
 interface AdminJobStats {
@@ -208,45 +219,45 @@ function AdminJobsPage() {
         <CardContent>
           {stats?.worker_health?.workers && Object.keys(stats.worker_health.workers).length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-2">
-              {Object.entries(stats.worker_health.workers).map(
-                ([name, info]: [
+              {Object.entries(
+                stats.worker_health.workers as Record<
                   string,
                   {
                     status: string;
                     active_tasks: number;
                     queued_tasks: number;
                     total_processed: number;
-                  },
-                ]) => (
-                  <div
-                    key={name}
-                    className="border border-border rounded-lg p-3 bg-surface/50 space-y-2"
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-sm truncate max-w-[200px]" title={name}>
-                        {name}
-                      </span>
-                      <Badge variant={info.status === "active" ? "default" : "secondary"}>
-                        {info.status}
-                      </Badge>
+                  }
+                >,
+              ).map(([name, info]) => (
+                <div
+                  key={name}
+                  className="border border-border rounded-lg p-3 bg-surface/50 space-y-2"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-sm truncate max-w-[200px]" title={name}>
+                      {name}
+                    </span>
+                    <Badge variant={info.status === "active" ? "default" : "secondary"}>
+                      {info.status}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                    <div>
+                      <p className="font-medium text-foreground">{info.active_tasks}</p>
+                      <p>Active</p>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                      <div>
-                        <p className="font-medium text-foreground">{info.active_tasks}</p>
-                        <p>Active</p>
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{info.queued_tasks}</p>
-                        <p>Queued</p>
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{info.total_processed}</p>
-                        <p>Processed</p>
-                      </div>
+                    <div>
+                      <p className="font-medium text-foreground">{info.queued_tasks}</p>
+                      <p>Queued</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{info.total_processed}</p>
+                      <p>Processed</p>
                     </div>
                   </div>
-                ),
-              )}
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
@@ -450,4 +461,3 @@ function AdminJobsPage() {
     </div>
   );
 }
-

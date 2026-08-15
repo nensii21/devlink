@@ -93,6 +93,8 @@ class ConnectionManager:
         self.rooms: Dict[str, Set[str]] = {}
         # user_id → presence status ("online", "away", "busy", "offline")
         self.presence_states: Dict[str, str] = {}
+        # user_id → collaboration status ("coding", "reviewing_pr", ...)
+        self.collaboration_states: Dict[str, str] = {}
         # user_id → timestamp of last activity
         self.last_activity: Dict[str, datetime] = {}
 
@@ -136,6 +138,7 @@ class ConnectionManager:
                 exclude_user_id=user_id,
             )
             self.presence_states.pop(user_id, None)
+            self.collaboration_states.pop(user_id, None)
             self.last_activity.pop(user_id, None)
 
         logger.info("User %s disconnected a session.", user_id)
@@ -179,6 +182,35 @@ class ConnectionManager:
         self.presence_states[user_id] = status
         await self.broadcast_to_all(
             _event("presence.status_changed", user_id=user_id, status=status)
+        )
+
+    def set_collaboration_status(self, user_id: str, status: str) -> None:
+        """Record a user's collaboration presence status (persisted elsewhere).
+
+        Synchronous — called from REST handlers. The actual broadcast is done
+        by ``broadcast_collaboration_status`` so the async broadcast is not
+        blocked on the request path.
+        """
+        allowed_statuses = {
+            "coding",
+            "reviewing_pr",
+            "in_meeting",
+            "looking_for_project",
+            "available",
+        }
+        if status not in allowed_statuses:
+            raise ValueError(f"Invalid collaboration status: {status}")
+        self.collaboration_states[user_id] = status
+
+    async def broadcast_collaboration_status(self, user_id: str, status: str) -> None:
+        """Broadcast a collaboration status change to all connected clients."""
+        self.collaboration_states[user_id] = status
+        await self.broadcast_to_all(
+            _event(
+                "presence.collaboration_status_changed",
+                user_id=user_id,
+                status=status,
+            )
         )
 
     async def check_timeouts(self, timeout_seconds: int = 300) -> None:
@@ -234,6 +266,12 @@ manager = ConnectionManager()
 def get_all_presences(current_user: User = Depends(get_current_user)):
     """Retrieve active presence states for all connected users."""
     return manager.presence_states.copy()
+
+
+@router.get("/collaboration-status", response_model=Dict[str, str])
+def get_all_collaboration_statuses(current_user: User = Depends(get_current_user)):
+    """Retrieve collaboration statuses for all connected users."""
+    return manager.collaboration_states.copy()
 
 
 @router.get("/presence/{user_id}", response_model=Dict[str, str])
@@ -422,6 +460,30 @@ async def websocket_collab(websocket: WebSocket, token: str = ""):
                     ),
                 )
 
+            elif msg_type == "chat.delivered" and data.get("conversation_id"):
+                conv_id = data["conversation_id"]
+                await manager.broadcast_to_room(
+                    conv_id,
+                    _event(
+                        "chat.message.delivered",
+                        conversation_id=conv_id,
+                        user_id=user_id,
+                        message_ids=data.get("message_ids", []),
+                    ),
+                )
+
+            elif msg_type == "chat.read" and data.get("conversation_id"):
+                conv_id = data["conversation_id"]
+                await manager.broadcast_to_room(
+                    conv_id,
+                    _event(
+                        "chat.message.read",
+                        conversation_id=conv_id,
+                        user_id=user_id,
+                        message_ids=data.get("message_ids", []),
+                    ),
+                )
+
             # ── Project update ───────────────────────────────────────────
             elif msg_type == "project_update" and project_id:
                 await manager.broadcast_to_room(
@@ -460,6 +522,24 @@ async def websocket_collab(websocket: WebSocket, token: str = ""):
                     _event("presence.query_response", presences=presences),
                     user_id,
                 )
+
+            # ── Collaboration Status Update ─────────────────────────────
+            elif msg_type == "collaboration_status_update":
+                status_val = data.get("status")
+                allowed_statuses = {
+                    "coding",
+                    "reviewing_pr",
+                    "in_meeting",
+                    "looking_for_project",
+                    "available",
+                }
+                if status_val not in allowed_statuses:
+                    await manager.send_personal_message(
+                        _event("error", message=f"Invalid collaboration status: {status_val}"),
+                        user_id,
+                    )
+                else:
+                    await manager.broadcast_collaboration_status(user_id, status_val)
 
             # ── Document Collaboration Events ───────────────────────────
             elif msg_type == "doc.join" and project_id:

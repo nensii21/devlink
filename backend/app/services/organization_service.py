@@ -4,8 +4,7 @@ import uuid
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import selectinload
 
 from app.core.cache import cached
 from app.models.activity import ActivityType
@@ -335,7 +334,7 @@ class OrganizationService:
         organization_id: uuid.UUID,
     ):
         from app.models.organization_member import OrganizationMember
-        
+
         stmt = (
             select(OrganizationMember)
             .options(selectinload(OrganizationMember.user))
@@ -346,17 +345,17 @@ class OrganizationService:
     @staticmethod
     def can_manage_role(actor_role, target_current_role, target_new_role) -> bool:
         from app.models.organization_member import OrgMemberRole
-        
+
         if actor_role == OrgMemberRole.OWNER:
             return True
-            
+
         if actor_role == OrgMemberRole.ADMIN:
             if target_current_role == OrgMemberRole.OWNER:
                 return False
             if target_new_role == OrgMemberRole.OWNER:
                 return False
             return True
-            
+
         return False
 
     @staticmethod
@@ -368,45 +367,47 @@ class OrganizationService:
         actor_id: uuid.UUID,
     ):
         from app.models.organization_member import OrganizationMember, OrgMemberRole
-        
+
         # Get actor
         actor = db.scalar(
             select(OrganizationMember).where(
                 OrganizationMember.organization_id == organization_id,
-                OrganizationMember.user_id == actor_id
+                OrganizationMember.user_id == actor_id,
             )
         )
         if not actor:
             raise ValueError("Actor is not a member of the organization")
-            
+
         # Get target member
         target = db.scalar(
             select(OrganizationMember).where(
                 OrganizationMember.organization_id == organization_id,
-                OrganizationMember.user_id == target_user_id
+                OrganizationMember.user_id == target_user_id,
             )
         )
         if not target:
             raise ValueError("Target user is not a member of the organization")
-            
+
         if target.role == new_role:
             return target
-            
+
         # Check permission
         if not OrganizationService.can_manage_role(actor.role, target.role, new_role):
             raise ValueError("You do not have permission to perform this role change")
-            
+
         # Owner protection (last owner cannot be demoted)
         if target.role == OrgMemberRole.OWNER and new_role != OrgMemberRole.OWNER:
             owner_count = db.scalar(
-                select(func.count()).select_from(OrganizationMember).where(
+                select(func.count())
+                .select_from(OrganizationMember)
+                .where(
                     OrganizationMember.organization_id == organization_id,
-                    OrganizationMember.role == OrgMemberRole.OWNER
+                    OrganizationMember.role == OrgMemberRole.OWNER,
                 )
             )
             if owner_count <= 1:
                 raise ValueError("Cannot demote the last owner of the organization")
-                
+
         target.role = new_role
         db.commit()
         db.refresh(target)
@@ -420,40 +421,42 @@ class OrganizationService:
         actor_id: uuid.UUID,
     ):
         from app.models.organization_member import OrganizationMember, OrgMemberRole
-        
+
         actor = db.scalar(
             select(OrganizationMember).where(
                 OrganizationMember.organization_id == organization_id,
-                OrganizationMember.user_id == actor_id
+                OrganizationMember.user_id == actor_id,
             )
         )
         if not actor:
             raise ValueError("Actor is not a member of the organization")
-            
+
         target = db.scalar(
             select(OrganizationMember).where(
                 OrganizationMember.organization_id == organization_id,
-                OrganizationMember.user_id == target_user_id
+                OrganizationMember.user_id == target_user_id,
             )
         )
         if not target:
             raise ValueError("Target user is not a member of the organization")
-            
+
         # Self-leave is allowed for non-owners (or owners if not the last one)
         if actor_id != target_user_id:
             if not OrganizationService.can_manage_role(actor.role, target.role, None):
                 raise ValueError("You do not have permission to remove this member")
-                
+
         # Owner protection
         if target.role == OrgMemberRole.OWNER:
             owner_count = db.scalar(
-                select(func.count()).select_from(OrganizationMember).where(
+                select(func.count())
+                .select_from(OrganizationMember)
+                .where(
                     OrganizationMember.organization_id == organization_id,
-                    OrganizationMember.role == OrgMemberRole.OWNER
+                    OrganizationMember.role == OrgMemberRole.OWNER,
                 )
             )
             if owner_count <= 1:
                 raise ValueError("Cannot remove the last owner of the organization")
-                
+
         db.delete(target)
         db.commit()

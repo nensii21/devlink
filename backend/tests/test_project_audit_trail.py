@@ -1,25 +1,21 @@
 """
 Unit & Integration Tests for Project Audit Trail (#585)
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-import pytest
 from sqlalchemy.orm import Session
 
 from app.models.audit_log import AuditAction, AuditLog
 from app.models.project import Project, ProjectStage, ProjectVisibility
 from app.models.project_member import MemberRole, ProjectMember
 from app.models.user import User
-from app.schemas.project import ProjectCreate, ProjectUpdate
-from app.schemas.project_audit import PaginatedProjectAuditLogsResponse
-from app.schemas.project_member import UpdateProjectMemberRoleRequest
 from app.services.audit_log_service import AuditLogService
 from app.services.project_member_service import ProjectMemberService
-from app.services.project_service import ProjectService
 
 
 def _make_mock_user(username: str = "audituser") -> MagicMock:
@@ -49,16 +45,26 @@ def _make_mock_project(owner_id: uuid.UUID) -> MagicMock:
 # 1. Project Audit Action Enum & Service Tests
 # ---------------------------------------------------------------------------
 
+
 class TestProjectAuditTrailActions:
     def test_audit_action_enum_values(self):
         assert AuditAction.PROJECT_CREATED.value == "project_created"
         assert AuditAction.PROJECT_TITLE_UPDATED.value == "project_title_updated"
-        assert AuditAction.PROJECT_DESCRIPTION_UPDATED.value == "project_description_updated"
+        assert (
+            AuditAction.PROJECT_DESCRIPTION_UPDATED.value
+            == "project_description_updated"
+        )
         assert AuditAction.PROJECT_STATUS_CHANGED.value == "project_status_changed"
         assert AuditAction.PROJECT_MEMBER_ADDED.value == "project_member_added"
         assert AuditAction.PROJECT_MEMBER_REMOVED.value == "project_member_removed"
-        assert AuditAction.PROJECT_MEMBER_ROLE_UPDATED.value == "project_member_role_updated"
-        assert AuditAction.PROJECT_OWNERSHIP_TRANSFERRED.value == "project_ownership_transferred"
+        assert (
+            AuditAction.PROJECT_MEMBER_ROLE_UPDATED.value
+            == "project_member_role_updated"
+        )
+        assert (
+            AuditAction.PROJECT_OWNERSHIP_TRANSFERRED.value
+            == "project_ownership_transferred"
+        )
         assert AuditAction.PROJECT_ARCHIVED.value == "project_archived"
 
     def test_search_project_audit_logs(self):
@@ -93,6 +99,7 @@ class TestProjectAuditTrailActions:
 # 2. Member & Ownership Audit Logging Tests
 # ---------------------------------------------------------------------------
 
+
 class TestProjectMemberAuditLogging:
     def test_update_member_role_logs_audit_event(self):
         db = MagicMock(spec=Session)
@@ -106,7 +113,9 @@ class TestProjectMemberAuditLogging:
         pm.user_id = target_user.id
         pm.role = MemberRole.CONTRIBUTOR
 
-        db.get.side_effect = lambda model, obj_id: project if model == Project else target_user
+        db.get.side_effect = lambda model, obj_id: (
+            project if model == Project else target_user
+        )
         db.scalar.return_value = pm
 
         with patch.object(AuditLogService, "create_log") as mock_create_log:
@@ -131,7 +140,9 @@ class TestProjectMemberAuditLogging:
         new_owner = _make_mock_user("owner2")
         project = _make_mock_project(owner_id=current_owner.id)
 
-        db.get.side_effect = lambda model, obj_id: project if model == Project else new_owner
+        db.get.side_effect = lambda model, obj_id: (
+            project if model == Project else new_owner
+        )
         db.scalar.return_value = None
 
         with patch.object(AuditLogService, "create_log") as mock_create_log:

@@ -1,6 +1,6 @@
 import json
 import uuid
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, select, desc
 from sqlalchemy.orm import Session
@@ -9,7 +9,6 @@ from app.models.search_analytics import SearchQueryLog, SearchClickLog
 
 
 class SearchAnalyticsService:
-
     @staticmethod
     def log_search(
         db: Session,

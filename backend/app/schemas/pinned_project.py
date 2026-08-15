@@ -14,7 +14,9 @@ from app.models.pinned_project import MAX_PINNED_PROJECTS
 
 
 class PinnedProjectCreate(BaseModel):
-    project_id: uuid.UUID = Field(..., description="Project to pin; appended after any existing pins")
+    project_id: uuid.UUID = Field(
+        ..., description="Project to pin; appended after any existing pins"
+    )
 
 
 class PinnedProjectReorder(BaseModel):
@@ -60,4 +62,6 @@ class PinnedProjectResponse(BaseModel):
 class PinnedProjectList(BaseModel):
     items: list[PinnedProjectResponse]
     total: int
-    max_pins: int = Field(default=MAX_PINNED_PROJECTS, description="Server-enforced cap")
+    max_pins: int = Field(
+        default=MAX_PINNED_PROJECTS, description="Server-enforced cap"
+    )

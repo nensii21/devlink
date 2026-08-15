@@ -12,7 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.core.security import decode_token
+from app.core.security import decode_access_token
 from app.database.session import get_db
 from app.models.user import User
 from app.services.auth_service import AuthService
@@ -34,29 +34,82 @@ def get_database():
     yield from get_db()
 
 
-def get_optional_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(optional_security),
-    db: Session = Depends(get_database),
-) -> User | None:
+# ---------------------------------------------------------------------
+# Credential resolution
+# ---------------------------------------------------------------------
+#
+# Two credential kinds reach these dependencies:
+#
+#   * a user's JWT access token, and
+#   * a workspace API token, which is not a JWT at all.
+#
+# Both resolve to a `User`, so the lookup is shared here rather than
+# duplicated across the required and optional variants -- the two used to be
+# near-copies of each other, and the copies had already drifted.
+
+
+def _user_from_access_token(db: Session, token: str) -> User | None:
     """
-    Returns the currently authenticated user if token is valid, else None.
+    The user behind a JWT access token, or ``None`` if this is not one.
+
+    The token type is checked, so a refresh, verification, password-reset or
+    MFA-pending token does not authenticate here. Those are all correctly
+    signed for the same subject, which is exactly why the signature check on
+    its own was not enough: without the type check, the long-lived refresh
+    token sitting in browser storage was usable as a bearer credential on
+    every endpoint, and an emailed verification or reset link was too.
     """
-    if not credentials:
+
+    try:
+        payload = decode_access_token(token)
+    except ValueError:
+        # Wrong type, expired, or not signed by us. All three mean "this is
+        # not a usable access token"; the caller decides what to do next.
+        return None
+
+    user_id = payload.get("sub")
+    if not user_id:
         return None
 
     try:
-        payload = decode_token(credentials.credentials)
-        user_id = payload.get("sub")
-        if not user_id:
-            return None
-        user_uuid = UUID(user_id)
-        auth_service = AuthService(db)
-        return auth_service.get_current_user(user_uuid)
-    except Exception:
+        user_uuid = UUID(str(user_id))
+    except (ValueError, AttributeError, TypeError):
         return None
 
+    return AuthService(db).get_current_user(user_uuid)
 
-get_current_user_optional = get_optional_current_user
+
+def _user_from_workspace_api_token(db: Session, token: str) -> User | None:
+    """
+    The user behind a workspace API token, with its scopes attached.
+
+    The scope and organisation attributes are read back by
+    ``require_org_permission`` and ``require_project_permission`` below.
+    """
+
+    from app.services.workspace_api_token_service import WorkspaceApiTokenService
+
+    token_info = WorkspaceApiTokenService.authenticate_api_token(db, token)
+    if not token_info:
+        return None
+
+    user = AuthService(db).get_current_user(token_info.created_by_id)
+    if not user:
+        return None
+
+    user._authenticated_via_token = True
+    user._token_organization_id = token_info.organization_id
+    user._token_scopes = [s.strip() for s in token_info.scopes.split(",") if s.strip()]
+
+    return user
+
+
+def _resolve_user(db: Session, token: str) -> User | None:
+    """A JWT access token first, then a workspace API token."""
+
+    return _user_from_access_token(db, token) or _user_from_workspace_api_token(
+        db, token
+    )
 
 
 # ---------------------------------------------------------------------
@@ -72,64 +125,19 @@ def get_current_user(
     Returns the currently authenticated user.
 
     Raises:
-        401 Unauthorized if token is invalid.
+        401 Unauthorized if the credential is not a valid access token or
+        workspace API token, or if it does not resolve to a user.
     """
 
-    try:
-        payload = decode_token(credentials.credentials)
+    user = _resolve_user(db, credentials.credentials)
 
-        user_id = payload.get("sub")
-
-        if not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication token.",
-            )
-
-        user_id = UUID(user_id)
-
-    except Exception:
-        # Try authenticating as a workspace API Token
-        from app.services.workspace_api_token_service import WorkspaceApiTokenService
-
-        token_info = WorkspaceApiTokenService.authenticate_api_token(
-            db, credentials.credentials
-        )
-        if token_info:
-            auth_service = AuthService(db)
-            user = auth_service.get_current_user(token_info.created_by_id)
-            if user:
-                user._authenticated_via_token = True
-                user._token_organization_id = token_info.organization_id
-                user._token_scopes = [
-                    s.strip() for s in token_info.scopes.split(",") if s.strip()
-                ]
-                return user
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials.",
         )
 
-    auth_service = AuthService(db)
-
-    user = auth_service.get_current_user(user_id)
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found.",
-        )
-
     return user
-
-
-def get_current_user_id(
-    current_user: User = Depends(get_current_user),
-) -> UUID:
-    """
-    Returns UUID of the currently authenticated user.
-    """
-    return current_user.id
 
 
 def get_optional_current_user(
@@ -137,35 +145,17 @@ def get_optional_current_user(
     db: Session = Depends(get_database),
 ) -> User | None:
     """
-    Returns currently authenticated user if token present, or None if unauthenticated.
+    Returns the currently authenticated user, or ``None`` when the request is
+    unauthenticated or the credential does not check out.
     """
+
     if not credentials:
         return None
-    try:
-        payload = decode_token(credentials.credentials)
-        user_id = payload.get("sub")
-        if not user_id:
-            return None
-        auth_service = AuthService(db)
-        return auth_service.get_current_user(UUID(user_id))
-    except Exception:
-        # Try authenticating as a workspace API Token
-        from app.services.workspace_api_token_service import WorkspaceApiTokenService
 
-        token_info = WorkspaceApiTokenService.authenticate_api_token(
-            db, credentials.credentials
-        )
-        if token_info:
-            auth_service = AuthService(db)
-            user = auth_service.get_current_user(token_info.created_by_id)
-            if user:
-                user._authenticated_via_token = True
-                user._token_organization_id = token_info.organization_id
-                user._token_scopes = [
-                    s.strip() for s in token_info.scopes.split(",") if s.strip()
-                ]
-                return user
-        return None
+    return _resolve_user(db, credentials.credentials)
+
+
+get_current_user_optional = get_optional_current_user
 
 
 # ---------------------------------------------------------------------
@@ -176,6 +166,12 @@ def get_optional_current_user(
 def get_current_user_id(current_user: User = Depends(get_current_user)) -> str:
     """
     Returns the currently authenticated user's ID as a string.
+
+    This used to be declared twice in this module with different return types
+    -- one annotated ``-> UUID`` returning ``current_user.id``, one annotated
+    ``-> str`` returning ``str(current_user.id)``. The second silently won, so
+    a router annotating its parameter as ``UUID`` was handed a ``str``. Every
+    call site in the tree annotates ``str``, so that is what it returns.
     """
     return str(current_user.id)
 

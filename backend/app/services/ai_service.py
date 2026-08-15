@@ -57,7 +57,9 @@ IMPORTANT: Return ONLY valid JSON matching this exact schema:
 Do not include any text outside the JSON object."""
 
 
-def _rec(name: str, category: str, reason: str, confidence: float) -> TechStackRecommendation:
+def _rec(
+    name: str, category: str, reason: str, confidence: float
+) -> TechStackRecommendation:
     """Build a fallback recommendation with an explicit confidence score."""
     return TechStackRecommendation(
         name=name,
@@ -78,41 +80,146 @@ def _fallback_response(request: TechStackRequest) -> TechStackResponse:
         for kw in ["food", "delivery", "ecommerce", "e-commerce", "shop", "marketplace"]
     ):
         recommendations = [
-            _rec("React", "frontend", "Fast, component-based UI ideal for dynamic product catalogs and real-time order tracking.", 0.85),
-            _rec("Next.js", "frontend", "Server-side rendering improves SEO for restaurant/store pages and enables fast page loads.", 0.8),
-            _rec("FastAPI", "backend", "High-performance async Python framework perfect for handling concurrent orders and real-time updates.", 0.85),
-            _rec("PostgreSQL", "database", "Robust relational database for orders, users, inventory, and payment records with ACID compliance.", 0.9),
-            _rec("Redis", "cache", "In-memory cache for session management, cart data, and real-time order status.", 0.75),
-            _rec("Docker", "devops", "Containerization ensures consistent deployments across development and production environments.", 0.8),
+            _rec(
+                "React",
+                "frontend",
+                "Fast, component-based UI ideal for dynamic product catalogs and real-time order tracking.",
+                0.85,
+            ),
+            _rec(
+                "Next.js",
+                "frontend",
+                "Server-side rendering improves SEO for restaurant/store pages and enables fast page loads.",
+                0.8,
+            ),
+            _rec(
+                "FastAPI",
+                "backend",
+                "High-performance async Python framework perfect for handling concurrent orders and real-time updates.",
+                0.85,
+            ),
+            _rec(
+                "PostgreSQL",
+                "database",
+                "Robust relational database for orders, users, inventory, and payment records with ACID compliance.",
+                0.9,
+            ),
+            _rec(
+                "Redis",
+                "cache",
+                "In-memory cache for session management, cart data, and real-time order status.",
+                0.75,
+            ),
+            _rec(
+                "Docker",
+                "devops",
+                "Containerization ensures consistent deployments across development and production environments.",
+                0.8,
+            ),
         ]
     elif any(
         kw in idea_lower for kw in ["chat", "messaging", "social", "community", "forum"]
     ):
         recommendations = [
-            _rec("React", "frontend", "Component-based architecture is ideal for building real-time chat interfaces.", 0.85),
-            _rec("Node.js", "backend", "Event-driven architecture handles thousands of concurrent WebSocket connections efficiently.", 0.85),
-            _rec("MongoDB", "database", "Flexible document storage suits varied message formats and conversation threads.", 0.8),
-            _rec("Redis", "cache", "Pub/Sub capability powers real-time message broadcasting between connected clients.", 0.85),
-            _rec("WebSockets", "backend", "Native bidirectional communication for instant message delivery and typing indicators.", 0.75),
+            _rec(
+                "React",
+                "frontend",
+                "Component-based architecture is ideal for building real-time chat interfaces.",
+                0.85,
+            ),
+            _rec(
+                "Node.js",
+                "backend",
+                "Event-driven architecture handles thousands of concurrent WebSocket connections efficiently.",
+                0.85,
+            ),
+            _rec(
+                "MongoDB",
+                "database",
+                "Flexible document storage suits varied message formats and conversation threads.",
+                0.8,
+            ),
+            _rec(
+                "Redis",
+                "cache",
+                "Pub/Sub capability powers real-time message broadcasting between connected clients.",
+                0.85,
+            ),
+            _rec(
+                "WebSockets",
+                "backend",
+                "Native bidirectional communication for instant message delivery and typing indicators.",
+                0.75,
+            ),
         ]
     elif any(
         kw in idea_lower
         for kw in ["ai", "ml", "machine learning", "data", "analytics", "analytics"]
     ):
         recommendations = [
-            _rec("React", "frontend", "Interactive dashboard components with rich data visualization libraries like D3.js and Recharts.", 0.8),
-            _rec("Python", "backend", "Rich ecosystem of ML/AI libraries (scikit-learn, PyTorch, TensorFlow) for model serving.", 0.9),
-            _rec("FastAPI", "backend", "Async support handles ML inference requests without blocking, with automatic API docs.", 0.85),
-            _rec("PostgreSQL", "database", "Structured data storage with JSON support for flexible schema evolution.", 0.8),
-            _rec("Redis", "cache", "Caches model predictions and feature store data for low-latency inference.", 0.75),
+            _rec(
+                "React",
+                "frontend",
+                "Interactive dashboard components with rich data visualization libraries like D3.js and Recharts.",
+                0.8,
+            ),
+            _rec(
+                "Python",
+                "backend",
+                "Rich ecosystem of ML/AI libraries (scikit-learn, PyTorch, TensorFlow) for model serving.",
+                0.9,
+            ),
+            _rec(
+                "FastAPI",
+                "backend",
+                "Async support handles ML inference requests without blocking, with automatic API docs.",
+                0.85,
+            ),
+            _rec(
+                "PostgreSQL",
+                "database",
+                "Structured data storage with JSON support for flexible schema evolution.",
+                0.8,
+            ),
+            _rec(
+                "Redis",
+                "cache",
+                "Caches model predictions and feature store data for low-latency inference.",
+                0.75,
+            ),
         ]
     else:
         recommendations = [
-            _rec("React", "frontend", "Industry-standard component library with massive ecosystem and community support.", 0.8),
-            _rec("FastAPI", "backend", "Modern, fast Python web framework with automatic OpenAPI docs and type safety.", 0.8),
-            _rec("PostgreSQL", "database", "Battle-tested relational database with excellent performance and extensibility.", 0.85),
-            _rec("Redis", "cache", "High-performance in-memory store for caching, sessions, and real-time features.", 0.7),
-            _rec("Docker", "devops", "Industry-standard containerization for reproducible builds and easy deployments.", 0.75),
+            _rec(
+                "React",
+                "frontend",
+                "Industry-standard component library with massive ecosystem and community support.",
+                0.8,
+            ),
+            _rec(
+                "FastAPI",
+                "backend",
+                "Modern, fast Python web framework with automatic OpenAPI docs and type safety.",
+                0.8,
+            ),
+            _rec(
+                "PostgreSQL",
+                "database",
+                "Battle-tested relational database with excellent performance and extensibility.",
+                0.85,
+            ),
+            _rec(
+                "Redis",
+                "cache",
+                "High-performance in-memory store for caching, sessions, and real-time features.",
+                0.7,
+            ),
+            _rec(
+                "Docker",
+                "devops",
+                "Industry-standard containerization for reproducible builds and easy deployments.",
+                0.75,
+            ),
         ]
 
     return TechStackResponse(
@@ -193,7 +300,9 @@ class AIService:
             return _fallback_response(request)
 
     @staticmethod
-    def generate_project_description(request: ProjectDescriptionGenerateRequest) -> ProjectDescriptionGenerateResponse:
+    def generate_project_description(
+        request: ProjectDescriptionGenerateRequest,
+    ) -> ProjectDescriptionGenerateResponse:
         """
         Generate a comprehensive project description based on a short prompt using OpenAI.
         """
@@ -224,7 +333,9 @@ class AIService:
             content = response.choices[0].message.content or ""
             if not content.strip():
                 logger.warning("Empty description from OpenAI, using fallback")
-                return ProjectDescriptionGenerateResponse(description=fallback_description)
+                return ProjectDescriptionGenerateResponse(
+                    description=fallback_description
+                )
 
             return ProjectDescriptionGenerateResponse(description=content.strip())
 
