@@ -45,6 +45,7 @@ from .workspace_api_token import WorkspaceApiToken as WorkspaceApiToken
 from .milestone import Milestone as Milestone
 from .announcement import Announcement as Announcement
 from .message_draft import MessageDraft  # noqa: F401
+from .user_subscription import UserSubscription  # noqa: F401
 from .verification_request import VerificationRequest  # noqa: F401
 from .maintenance import MaintenanceWindow
 from .search_analytics import SearchQueryLog, SearchClickLog

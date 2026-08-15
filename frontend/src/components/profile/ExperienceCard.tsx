@@ -61,9 +61,7 @@ export function ExperienceCard({
 
         <div className="mt-4 space-y-4">
           <label className="block text-sm">
-            <TypoCaption>
-              Role
-            </TypoCaption>
+            <TypoCaption>Role</TypoCaption>
             <input
               value={formValues?.role ?? ""}
               onChange={(event) => onFieldChange?.("role", event.target.value)}
@@ -72,9 +70,7 @@ export function ExperienceCard({
             />
           </label>
           <label className="block text-sm">
-            <TypoCaption>
-              Company
-            </TypoCaption>
+            <TypoCaption>Company</TypoCaption>
             <input
               value={formValues?.company ?? ""}
               onChange={(event) => onFieldChange?.("company", event.target.value)}
@@ -83,9 +79,7 @@ export function ExperienceCard({
             />
           </label>
           <label className="block text-sm">
-            <TypoCaption>
-              Experience Level
-            </TypoCaption>
+            <TypoCaption>Experience Level</TypoCaption>
             <input
               value={formValues?.experienceLevel ?? ""}
               onChange={(event) => onFieldChange?.("experienceLevel", event.target.value)}
@@ -124,22 +118,14 @@ export function ExperienceCard({
                 <p className="text-sm font-semibold text-foreground">
                   {entry.title ?? role ?? "Current role"}
                 </p>
-                <TypoCaption as="p">
-                  {entry.company ?? company ?? "Independent"}
-                </TypoCaption>
+                <TypoCaption as="p">{entry.company ?? company ?? "Independent"}</TypoCaption>
                 {entry.experienceLevel || experienceLevel ? (
                   <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">
                     <BadgeCheck size={12} /> {entry.experienceLevel ?? experienceLevel}
                   </div>
                 ) : null}
-                {entry.period ? (
-                  <TypoCaption as="p">{entry.period}</TypoCaption>
-                ) : null}
-                {entry.description ? (
-                  <TypoCaption as="p">
-                    {entry.description}
-                  </TypoCaption>
-                ) : null}
+                {entry.period ? <TypoCaption as="p">{entry.period}</TypoCaption> : null}
+                {entry.description ? <TypoCaption as="p">{entry.description}</TypoCaption> : null}
               </div>
             </div>
           ))}

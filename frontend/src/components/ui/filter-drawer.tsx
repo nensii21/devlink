@@ -350,9 +350,7 @@ export function FilterDrawer({
           key={section.id}
           className="space-y-1.5 border-b border-border/50 pb-4 last:border-b-0 last:pb-0"
         >
-          <TypoCard>
-            {section.title}
-          </TypoCard>
+          <TypoCard>{section.title}</TypoCard>
           {renderSectionContent(section)}
         </div>
       ))}

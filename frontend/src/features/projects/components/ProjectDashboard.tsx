@@ -352,9 +352,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                         >
                           {m.title}
                         </p>
-                        {m.description && (
-                          <TypoCaption as="p">{m.description}</TypoCaption>
-                        )}
+                        {m.description && <TypoCaption as="p">{m.description}</TypoCaption>}
                         {m.due_date && (
                           <TypoCaption>
                             <Clock size={10} /> Due {new Date(m.due_date).toLocaleDateString()}
@@ -404,9 +402,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                         size={24}
                       />
                     </div>
-                    <TypoCaption as="p">
-                      {ann.content}
-                    </TypoCaption>
+                    <TypoCaption as="p">{ann.content}</TypoCaption>
                   </div>
                 ))}
               </div>
@@ -518,9 +514,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({
                 ))}
               </div>
             ) : (
-              <TypoCaption as="p">
-                No recent team activities.
-              </TypoCaption>
+              <TypoCaption as="p">No recent team activities.</TypoCaption>
             )}
           </Card>
         </div>

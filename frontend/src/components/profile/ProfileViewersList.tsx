@@ -81,9 +81,7 @@ export function ProfileViewersList({
             <Eye className="h-4 w-4 text-primary" />
             Recent Profile Visitors
           </TypoSection>
-          <TypoCaption as="p">
-            {totalViewers} developers viewed your profile recently.
-          </TypoCaption>
+          <TypoCaption as="p">{totalViewers} developers viewed your profile recently.</TypoCaption>
         </div>
 
         {/* Privacy Toggle */}
@@ -137,11 +135,7 @@ export function ProfileViewersList({
               <div className="min-w-0">
                 <p className="text-sm font-medium text-foreground truncate flex items-center gap-1.5">
                   {viewer.viewer_name}
-                  {viewer.is_anonymous && (
-                    <TypoCaption>
-                      Private
-                    </TypoCaption>
-                  )}
+                  {viewer.is_anonymous && <TypoCaption>Private</TypoCaption>}
                 </p>
                 <TypoCaption as="p">
                   {viewer.is_anonymous

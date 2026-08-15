@@ -450,6 +450,13 @@ class User(Base):
 
         return (now - last_seen).total_seconds() < threshold
 
+    subscription = relationship(
+        "UserSubscription",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
     # ------------------------------------------------------------------
     # Representation
     # ------------------------------------------------------------------

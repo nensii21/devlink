@@ -65,9 +65,7 @@ export function SocialLinksCard({
             { key: "linkedinUrl", label: "LinkedIn", value: formValues?.linkedinUrl ?? "" },
           ].map((field) => (
             <label key={field.key} className="block text-sm">
-              <TypoCaption>
-                {field.label}
-              </TypoCaption>
+              <TypoCaption>{field.label}</TypoCaption>
               <input
                 value={field.value}
                 onChange={(event) =>

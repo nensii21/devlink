@@ -88,9 +88,7 @@ export function SkillsCard({
             >
               <div className="grid gap-3 md:grid-cols-[1.5fr_1fr_1fr_auto]">
                 <label className="text-sm">
-                  <TypoCaption>
-                    Skill Name
-                  </TypoCaption>
+                  <TypoCaption>Skill Name</TypoCaption>
                   <input
                     value={skill.name}
                     onChange={(event) => onSkillChange?.(index, "name", event.target.value)}
@@ -99,9 +97,7 @@ export function SkillsCard({
                   />
                 </label>
                 <label className="text-sm">
-                  <TypoCaption>
-                    Proficiency
-                  </TypoCaption>
+                  <TypoCaption>Proficiency</TypoCaption>
                   <select
                     value={skill.level ?? "Intermediate"}
                     onChange={(event) => onSkillChange?.(index, "level", event.target.value)}
@@ -115,9 +111,7 @@ export function SkillsCard({
                   </select>
                 </label>
                 <label className="text-sm">
-                  <TypoCaption>
-                    Years Exp.
-                  </TypoCaption>
+                  <TypoCaption>Years Exp.</TypoCaption>
                   <input
                     type="number"
                     min="0"
@@ -137,9 +131,7 @@ export function SkillsCard({
                 </button>
               </div>
               <label className="mt-3 block text-sm">
-                <TypoCaption>
-                  Category
-                </TypoCaption>
+                <TypoCaption>Category</TypoCaption>
                 <select
                   value={skill.category ?? "Languages"}
                   onChange={(event) => onSkillChange?.(index, "category", event.target.value)}
@@ -174,9 +166,7 @@ export function SkillsCard({
           </div>
           <div>
             <TypoHeading as="h2">Developer Skill Matrix</TypoHeading>
-            <TypoCaption as="p">
-              Categorized technical expertise and proficiency
-            </TypoCaption>
+            <TypoCaption as="p">Categorized technical expertise and proficiency</TypoCaption>
           </div>
         </div>
       </div>
@@ -206,9 +196,7 @@ export function SkillsCard({
                       className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-foreground shadow-sm"
                     >
                       <span>{skill.name}</span>
-                      <TypoCaption>
-                        {skill.level || "Intermediate"}
-                      </TypoCaption>
+                      <TypoCaption>{skill.level || "Intermediate"}</TypoCaption>
                     </span>
                   ))}
                 </div>

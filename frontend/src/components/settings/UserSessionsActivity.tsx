@@ -38,7 +38,13 @@ function getDeviceIcon(deviceType?: string | null, os?: string | null) {
   if (typeLower.includes("mobile") || osLower.includes("ios") || osLower.includes("android")) {
     return <Smartphone className="h-5 w-5 text-primary" />;
   }
-  if (typeLower.includes("desktop") || typeLower.includes("laptop") || osLower.includes("mac") || osLower.includes("windows") || osLower.includes("linux")) {
+  if (
+    typeLower.includes("desktop") ||
+    typeLower.includes("laptop") ||
+    osLower.includes("mac") ||
+    osLower.includes("windows") ||
+    osLower.includes("linux")
+  ) {
     return <Laptop className="h-5 w-5 text-primary" />;
   }
   return <Globe className="h-5 w-5 text-muted-foreground" />;
@@ -163,7 +169,9 @@ export function UserSessionsActivity() {
               const deviceLabel =
                 sess.device_name ||
                 `${sess.browser || "Browser"} on ${sess.operating_system || "Unknown OS"}`;
-              const formattedIp = maskIp ? maskIpAddress(sess.ip_address) : sess.ip_address || "Unknown IP";
+              const formattedIp = maskIp
+                ? maskIpAddress(sess.ip_address)
+                : sess.ip_address || "Unknown IP";
 
               return (
                 <div
@@ -179,11 +187,12 @@ export function UserSessionsActivity() {
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-sm text-foreground">
-                          {deviceLabel}
-                        </span>
+                        <span className="font-semibold text-sm text-foreground">{deviceLabel}</span>
                         {sess.is_current && (
-                          <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-[11px] font-medium gap-1">
+                          <Badge
+                            variant="default"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-[11px] font-medium gap-1"
+                          >
                             <CheckCircle2 size={11} /> Current Session
                           </Badge>
                         )}
@@ -194,10 +203,14 @@ export function UserSessionsActivity() {
                           {formattedIp}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Clock size={12} /> {formatRelativeTime(sess.last_used_at || sess.created_at)}
+                          <Clock size={12} />{" "}
+                          {formatRelativeTime(sess.last_used_at || sess.created_at)}
                         </span>
                         {sess.user_agent && (
-                          <span className="hidden md:inline truncate max-w-[200px]" title={sess.user_agent}>
+                          <span
+                            className="hidden md:inline truncate max-w-[200px]"
+                            title={sess.user_agent}
+                          >
                             {sess.user_agent}
                           </span>
                         )}
@@ -225,7 +238,8 @@ export function UserSessionsActivity() {
           {otherSessionsCount > 0 && (
             <div className="flex items-center justify-between pt-2">
               <TypoCaption as="p">
-                You have {otherSessionsCount} other active session{otherSessionsCount > 1 ? "s" : ""}.
+                You have {otherSessionsCount} other active session
+                {otherSessionsCount > 1 ? "s" : ""}.
               </TypoCaption>
 
               {!confirmRevokeOthersOpen ? (

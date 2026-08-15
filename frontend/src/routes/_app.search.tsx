@@ -436,9 +436,7 @@ function SearchPage() {
                         <TypoCaption as="p">
                           <HighlightText text={r.description} query={q} />
                         </TypoCaption>
-                        <TypoCaption>
-                          {r.language}
-                        </TypoCaption>
+                        <TypoCaption>{r.language}</TypoCaption>
                       </div>
                     </Card>
                   </Link>

@@ -56,9 +56,7 @@ export function ApplicationsList({ projectId, className }: Props) {
     return (
       <Card className={cn("p-4", className)}>
         <p className="text-[13px] font-semibold text-destructive">Failed to load applications</p>
-        <TypoCaption as="p">
-          {error instanceof Error ? error.message : "Unknown error"}
-        </TypoCaption>
+        <TypoCaption as="p">{error instanceof Error ? error.message : "Unknown error"}</TypoCaption>
       </Card>
     );
   }
@@ -68,9 +66,7 @@ export function ApplicationsList({ projectId, className }: Props) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-[13px] font-semibold text-foreground">Applications</p>
-          <TypoCaption as="p">
-            Review applicants and update status.
-          </TypoCaption>
+          <TypoCaption as="p">Review applicants and update status.</TypoCaption>
         </div>
         <div className="min-w-0">
           <Input
@@ -113,9 +109,7 @@ export function ApplicationsList({ projectId, className }: Props) {
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <ApplicationStatusBadge status={a.status} />
-                      <TypoCaption>
-                        Application ID: {a.id}
-                      </TypoCaption>
+                      <TypoCaption>Application ID: {a.id}</TypoCaption>
                     </div>
 
                     {a.message && (

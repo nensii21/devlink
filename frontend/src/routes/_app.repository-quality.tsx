@@ -104,9 +104,7 @@ function MetricCard({ metric, index }: { metric: MetricScore; index: number }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <TypoSection>{metric.label}</TypoSection>
-            <TypoCaption>
-              {Math.round(metric.weight * 100)}%
-            </TypoCaption>
+            <TypoCaption>{Math.round(metric.weight * 100)}%</TypoCaption>
           </div>
           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
             <motion.div
@@ -155,9 +153,7 @@ function SuggestionCard({
               {suggestion.priority}
             </span>
           </div>
-          <TypoCaption as="p">
-            {suggestion.description}
-          </TypoCaption>
+          <TypoCaption as="p">{suggestion.description}</TypoCaption>
         </div>
       </div>
     </motion.div>
@@ -195,9 +191,7 @@ function ResultDisplay({ result }: { result: RepositoryQualityResponse }) {
               </a>
             </div>
             {repository_info.description && (
-              <TypoCaption as="p">
-                {repository_info.description}
-              </TypoCaption>
+              <TypoCaption as="p">{repository_info.description}</TypoCaption>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
@@ -254,9 +248,7 @@ function ResultDisplay({ result }: { result: RepositoryQualityResponse }) {
                 </span>
               </div>
             </div>
-            <TypoCaption as="p">
-              {Math.round(result.overall_score * 100)}% overall
-            </TypoCaption>
+            <TypoCaption as="p">{Math.round(result.overall_score * 100)}% overall</TypoCaption>
           </div>
         </div>
       </motion.div>
@@ -324,9 +316,7 @@ function RepositoryQualityPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-8 text-center">
-        <TypoHeading as="h1">
-          Repository Quality Analyzer
-        </TypoHeading>
+        <TypoHeading as="h1">Repository Quality Analyzer</TypoHeading>
         <TypoCaption as="p">
           Analyze any GitHub repository and get a comprehensive quality score with actionable
           improvement suggestions.

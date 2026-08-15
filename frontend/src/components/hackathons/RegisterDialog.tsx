@@ -67,8 +67,7 @@ export function RegisterDialog({
             htmlFor="motivation"
             className="mb-1.5 block text-[13px] font-medium text-foreground"
           >
-            What are you hoping to build?{" "}
-            <TypoCaption>(optional)</TypoCaption>
+            What are you hoping to build? <TypoCaption>(optional)</TypoCaption>
           </label>
           <textarea
             id="motivation"

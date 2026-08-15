@@ -48,9 +48,7 @@ export function CollectionSidebar({
   return (
     <nav aria-label="Bookmark collections" className="space-y-1">
       <div className="flex items-center justify-between px-1 pb-2">
-        <TypoSection>
-          Collections
-        </TypoSection>
+        <TypoSection>Collections</TypoSection>
         <Button
           variant="ghost"
           size="icon"
@@ -93,9 +91,7 @@ export function CollectionSidebar({
       )}
 
       {collections.filter((c) => !c.is_default).length === 0 && !isLoading && (
-        <TypoCaption as="p">
-          No collections yet. Create one to organize your bookmarks.
-        </TypoCaption>
+        <TypoCaption as="p">No collections yet. Create one to organize your bookmarks.</TypoCaption>
       )}
     </nav>
   );

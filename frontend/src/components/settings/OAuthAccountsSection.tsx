@@ -174,15 +174,11 @@ export function OAuthAccountsSection() {
                         <CheckCircle2 size={12} /> Connected
                       </span>
                     ) : (
-                      <TypoCaption>
-                        Not Connected
-                      </TypoCaption>
+                      <TypoCaption>Not Connected</TypoCaption>
                     )}
                   </div>
                   {item.is_linked && item.provider_user_id && (
-                    <TypoCaption as="p">
-                      ID: {item.provider_user_id}
-                    </TypoCaption>
+                    <TypoCaption as="p">ID: {item.provider_user_id}</TypoCaption>
                   )}
                 </div>
               </div>

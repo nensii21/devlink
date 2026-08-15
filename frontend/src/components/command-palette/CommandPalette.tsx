@@ -236,11 +236,7 @@ export function CommandPalette<TItem extends CommandPaletteItemBase>(
                         <span className="mt-0.5 inline-flex h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">{item.title}</span>
-                          {item.description ? (
-                            <TypoCaption>
-                              {item.description}
-                            </TypoCaption>
-                          ) : null}
+                          {item.description ? <TypoCaption>{item.description}</TypoCaption> : null}
                         </span>
                       </button>
                     </li>

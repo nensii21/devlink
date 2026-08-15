@@ -40,19 +40,21 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
 
       {/* Tabs */}
       <div className="flex border-b border-gray-800 mb-6 gap-6 overflow-x-auto">
-        {(["about", "members", "team", "projects", "hiring", "tokens", "audit"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-3 text-sm font-medium capitalize border-b-2 transition-colors shrink-0 ${
-              activeTab === tab
-                ? "border-indigo-500 text-indigo-400"
-                : "border-transparent text-gray-400 hover:text-gray-200"
-            }`}
-          >
-            {tab === "tokens" ? "API Tokens" : tab === "audit" ? "Audit Logs" : tab}
-          </button>
-        ))}
+        {(["about", "members", "team", "projects", "hiring", "tokens", "audit"] as const).map(
+          (tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-3 text-sm font-medium capitalize border-b-2 transition-colors shrink-0 ${
+                activeTab === tab
+                  ? "border-indigo-500 text-indigo-400"
+                  : "border-transparent text-gray-400 hover:text-gray-200"
+              }`}
+            >
+              {tab === "tokens" ? "API Tokens" : tab === "audit" ? "Audit Logs" : tab}
+            </button>
+          ),
+        )}
       </div>
 
       {/* Tab Content */}
@@ -66,9 +68,7 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
           </div>
         )}
 
-        {activeTab === "members" && (
-          <OrganizationMembers orgId={orgId} />
-        )}
+        {activeTab === "members" && <OrganizationMembers orgId={orgId} />}
 
         {activeTab === "team" && (
           <div>

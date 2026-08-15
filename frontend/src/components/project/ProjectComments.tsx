@@ -128,9 +128,7 @@ export function ProjectComments({
           <time className="text-xs text-muted-foreground" dateTime={comment.created_at}>
             {formatTimestamp(comment.created_at)}
           </time>
-          {comment.is_edited && !comment.is_deleted ? (
-            <TypoCaption>(edited)</TypoCaption>
-          ) : null}
+          {comment.is_edited && !comment.is_deleted ? <TypoCaption>(edited)</TypoCaption> : null}
         </div>
 
         {isEditing ? (
@@ -256,9 +254,7 @@ export function ProjectComments({
       <CardHeader>
         <CardTitle>
           Discussion
-          {data ? (
-            <TypoCaption>{data.total}</TypoCaption>
-          ) : null}
+          {data ? <TypoCaption>{data.total}</TypoCaption> : null}
         </CardTitle>
       </CardHeader>
 

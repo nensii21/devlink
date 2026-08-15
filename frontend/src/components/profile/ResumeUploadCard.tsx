@@ -114,9 +114,7 @@ export function ResumeUploadCard({ resumeUrl, editable = false }: ResumeUploadCa
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-foreground">Resume ready to share</p>
-              <TypoCaption as="p">
-                Your latest PDF is attached to this profile.
-              </TypoCaption>
+              <TypoCaption as="p">Your latest PDF is attached to this profile.</TypoCaption>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <a
@@ -158,9 +156,7 @@ export function ResumeUploadCard({ resumeUrl, editable = false }: ResumeUploadCa
         )}
       </div>
 
-      {isUploading ? (
-        <TypoCaption as="p">Uploading your resume…</TypoCaption>
-      ) : null}
+      {isUploading ? <TypoCaption as="p">Uploading your resume…</TypoCaption> : null}
       {error ? (
         <div className="mt-3 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-2 text-sm text-red-600">
           <XCircle size={16} className="mt-0.5 shrink-0" />

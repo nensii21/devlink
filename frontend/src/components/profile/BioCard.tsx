@@ -46,9 +46,7 @@ export function BioCard({
 
         <div className="mt-4 space-y-4">
           <label className="block text-sm">
-            <TypoCaption>
-              Headline
-            </TypoCaption>
+            <TypoCaption>Headline</TypoCaption>
             <input
               value={formValues?.headline ?? ""}
               onChange={(event) => onFieldChange?.("headline", event.target.value)}
@@ -62,9 +60,7 @@ export function BioCard({
           </label>
 
           <label className="block text-sm">
-            <TypoCaption>
-              Bio
-            </TypoCaption>
+            <TypoCaption>Bio</TypoCaption>
             <textarea
               value={formValues?.bio ?? ""}
               onChange={(event) => onFieldChange?.("bio", event.target.value)}
@@ -87,9 +83,7 @@ export function BioCard({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm">
-              <TypoCaption>
-                Location
-              </TypoCaption>
+              <TypoCaption>Location</TypoCaption>
               <input
                 value={formValues?.location ?? ""}
                 onChange={(event) => onFieldChange?.("location", event.target.value)}
@@ -98,9 +92,7 @@ export function BioCard({
               />
             </label>
             <label className="block text-sm">
-              <TypoCaption>
-                Timezone
-              </TypoCaption>
+              <TypoCaption>Timezone</TypoCaption>
               <input
                 value={formValues?.timezone ?? ""}
                 onChange={(event) => onFieldChange?.("timezone", event.target.value)}
