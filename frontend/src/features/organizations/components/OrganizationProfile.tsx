@@ -14,6 +14,18 @@ interface OrganizationProfileProps {
     website?: string;
     description?: string;
     hiring: boolean;
+    technologies?: string[];
+    socialLinks?: {
+      twitter?: string;
+      linkedin?: string;
+      github?: string;
+    };
+    activityFeed?: {
+      id: string;
+      type: string;
+      content: string;
+      date: string;
+    }[];
   };
   orgId: string;
 }
@@ -23,7 +35,7 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
   orgId,
 }) => {
   const [activeTab, setActiveTab] = useState<
-    "about" | "members" | "team" | "projects" | "hiring" | "tokens" | "audit"
+    "about" | "members" | "team" | "projects" | "hiring" | "tokens" | "audit" | "activity"
   >("about");
 
   return (
@@ -36,11 +48,14 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
         location={organizationData.location}
         website={organizationData.website}
         isHiring={organizationData.hiring}
+        socialLinks={organizationData.socialLinks}
       />
 
       {/* Tabs */}
       <div className="flex border-b border-gray-800 mb-6 gap-6 overflow-x-auto">
-        {(["about", "members", "team", "projects", "hiring", "tokens", "audit"] as const).map((tab) => (
+        {(
+          ["about", "members", "team", "projects", "hiring", "tokens", "audit", "activity"] as const
+        ).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -50,7 +65,13 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
                 : "border-transparent text-gray-400 hover:text-gray-200"
             }`}
           >
-            {tab === "tokens" ? "API Tokens" : tab === "audit" ? "Audit Logs" : tab}
+            {tab === "tokens"
+              ? "API Tokens"
+              : tab === "audit"
+                ? "Audit Logs"
+                : tab === "activity"
+                  ? "Activity Feed"
+                  : tab}
           </button>
         ))}
       </div>
@@ -60,15 +81,30 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
         {activeTab === "about" && (
           <div>
             <TypoHeading as="h2">About Us</TypoHeading>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-300 leading-relaxed mb-6">
               {organizationData.description || "No description provided."}
             </p>
+            {organizationData.technologies && organizationData.technologies.length > 0 && (
+              <div className="mt-6">
+                <TypoHeading as="h3" className="text-sm font-semibold text-gray-400 mb-3">
+                  Technologies We Use
+                </TypoHeading>
+                <div className="flex flex-wrap gap-2">
+                  {organizationData.technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full border border-gray-700"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {activeTab === "members" && (
-          <OrganizationMembers orgId={orgId} />
-        )}
+        {activeTab === "members" && <OrganizationMembers orgId={orgId} />}
 
         {activeTab === "team" && (
           <div>
@@ -104,6 +140,34 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
         {activeTab === "tokens" && <OrganizationApiTokens orgId={orgId} />}
 
         {activeTab === "audit" && <OrganizationAuditLogs orgId={orgId} />}
+
+        {activeTab === "activity" && (
+          <div>
+            <TypoHeading as="h2">Activity Feed</TypoHeading>
+            <div className="mt-6 space-y-4">
+              {organizationData.activityFeed && organizationData.activityFeed.length > 0 ? (
+                organizationData.activityFeed.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="p-4 rounded-lg bg-gray-800/50 border border-gray-700/50 flex flex-col gap-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-indigo-400 capitalize">
+                        {activity.type}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(activity.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-300">{activity.content}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm">No recent activity found.</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

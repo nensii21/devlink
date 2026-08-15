@@ -29,3 +29,23 @@ export function getInitials(name?: string | null, fallback = "?") {
 
   return initials || fallback;
 }
+
+export function sanitizeUrl(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  
+  // Basic check for relative URLs
+  if (url.startsWith("/")) {
+    return url;
+  }
+  
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.href;
+    }
+  } catch (e) {
+    // Invalid URL parsing
+  }
+  
+  return undefined;
+}

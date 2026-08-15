@@ -1,5 +1,7 @@
 import { TypoHeading } from "@/components/shared/Typography";
 import React from "react";
+import { Twitter, Linkedin, Github } from "lucide-react";
+import { sanitizeUrl } from "@/lib/utils";
 
 interface OrganizationHeaderProps {
   name: string;
@@ -10,6 +12,11 @@ interface OrganizationHeaderProps {
   isHiring: boolean;
   isVerified?: boolean;
   onVerifyClick?: () => void;
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    github?: string;
+  };
 }
 
 export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
@@ -21,6 +28,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   isHiring,
   isVerified = false,
   onVerifyClick,
+  socialLinks,
 }) => {
   return (
     <div className="relative rounded-xl border border-gray-800 bg-gray-900/50 overflow-hidden mb-6">
@@ -75,9 +83,40 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             </button>
           )}
 
-          {website && (
+          {socialLinks?.twitter && sanitizeUrl(socialLinks.twitter) && (
             <a
-              href={website}
+              href={sanitizeUrl(socialLinks.twitter)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+          )}
+          {socialLinks?.github && sanitizeUrl(socialLinks.github) && (
+            <a
+              href={sanitizeUrl(socialLinks.github)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <Github className="w-5 h-5" />
+            </a>
+          )}
+          {socialLinks?.linkedin && sanitizeUrl(socialLinks.linkedin) && (
+            <a
+              href={sanitizeUrl(socialLinks.linkedin)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <Linkedin className="w-5 h-5" />
+            </a>
+          )}
+
+          {website && sanitizeUrl(website) && (
+            <a
+              href={sanitizeUrl(website)}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm transition-colors"
