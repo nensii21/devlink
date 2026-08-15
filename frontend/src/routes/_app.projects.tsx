@@ -180,9 +180,7 @@ function ProjectsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <TypoHeading as="h1">Projects</TypoHeading>
-          <TypoCaption as="p">
-            Everything you're building, in one place.
-          </TypoCaption>
+          <TypoCaption as="p">Everything you're building, in one place.</TypoCaption>
         </div>
         <button
           onClick={() => setCreateOpen(true)}
@@ -212,9 +210,7 @@ function ProjectsPage() {
                       <p className="truncate text-[14px] font-semibold text-foreground">
                         {project.name}
                       </p>
-                      <TypoCaption as="p">
-                        {project.description}
-                      </TypoCaption>
+                      <TypoCaption as="p">{project.description}</TypoCaption>
                     </div>
                   </div>
 
@@ -424,9 +420,7 @@ function ProjectsPage() {
           <p className="text-[14px] font-semibold text-foreground">
             No projects match your filters
           </p>
-          <TypoCaption as="p">
-            Try adjusting or resetting your filters.
-          </TypoCaption>
+          <TypoCaption as="p">Try adjusting or resetting your filters.</TypoCaption>
           {hasActiveFilters && (
             <button
               onClick={handleClearAllFilters}
@@ -453,9 +447,7 @@ function ProjectsPage() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[14px] font-semibold text-foreground">{p.name}</p>
-                      <TypoCaption as="p">
-                        {p.description}
-                      </TypoCaption>
+                      <TypoCaption as="p">{p.description}</TypoCaption>
                     </div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1">

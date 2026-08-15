@@ -271,9 +271,7 @@ function NotificationsPage() {
                                 >
                                   {n.text}
                                 </p>
-                                <TypoCaption as="p">
-                                  {n.ago}
-                                </TypoCaption>
+                                <TypoCaption as="p">{n.ago}</TypoCaption>
                               </div>
 
                               <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">

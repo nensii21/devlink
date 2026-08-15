@@ -48,9 +48,7 @@ function ForgotPassword() {
 
       <div className="w-full max-w-[440px] rounded-md border border-border bg-surface px-8 py-6">
         <TypoHeading as="h1">Reset your password</TypoHeading>
-        <TypoCaption as="p">
-          Enter your email and we'll send you a reset link.
-        </TypoCaption>
+        <TypoCaption as="p">Enter your email and we'll send you a reset link.</TypoCaption>
         {sent ? (
           <div className="mt-5 rounded-md border border-success/30 bg-success/10 p-4 text-[13px] text-success">
             Check your inbox — a reset link is on its way.

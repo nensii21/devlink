@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { GitHubContribution } from '../../lib/github';
+import React, { useMemo } from "react";
+import { GitHubContribution } from "../../lib/github";
 
 interface Props {
   contributions: GitHubContribution[] | undefined;
@@ -7,11 +7,11 @@ interface Props {
 }
 
 const LEVEL_COLORS = [
-  'bg-surface-200',    // 0: No contributions
-  'bg-primary-200',    // 1: Light
-  'bg-primary-400',    // 2: Medium
-  'bg-primary-600',    // 3: High
-  'bg-primary-800',    // 4: Very High
+  "bg-surface-200", // 0: No contributions
+  "bg-primary-200", // 1: Light
+  "bg-primary-400", // 2: Medium
+  "bg-primary-600", // 3: High
+  "bg-primary-800", // 4: Very High
 ];
 
 export const ContributionGraph: React.FC<Props> = ({ contributions, isLoading }) => {
@@ -68,7 +68,7 @@ export const ContributionGraph: React.FC<Props> = ({ contributions, isLoading })
           <span>More</span>
         </div>
       </div>
-      
+
       <div className="flex gap-[3px] min-w-max pb-2">
         {weeks.map((week, wIdx) => (
           <div key={wIdx} className="flex flex-col gap-[3px]">

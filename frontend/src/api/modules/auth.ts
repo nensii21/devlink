@@ -13,6 +13,7 @@ export interface AuthUser {
   full_name?: string;
   avatar?: string;
   profile_image?: string;
+  is_pro?: boolean;
 }
 export interface AuthResponse extends AuthTokens {
   user: AuthUser;

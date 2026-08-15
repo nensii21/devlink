@@ -188,9 +188,7 @@ export function NotificationCenter() {
           </div>
 
           <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/20">
-            <TypoCaption>
-              You have {unreadCount} unread notifications
-            </TypoCaption>
+            <TypoCaption>You have {unreadCount} unread notifications</TypoCaption>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"

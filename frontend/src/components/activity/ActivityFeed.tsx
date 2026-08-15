@@ -72,9 +72,7 @@ export function ActivityItem({ activity }: { activity: BackendActivity }) {
           {actorName && <span> by {actorName}</span>}
         </TypoCaption>
       </div>
-      <TypoCaption>
-        {getActivityTime(activity.created_at)}
-      </TypoCaption>
+      <TypoCaption>{getActivityTime(activity.created_at)}</TypoCaption>
     </li>
   );
 }

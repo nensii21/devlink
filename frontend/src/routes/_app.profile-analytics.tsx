@@ -26,7 +26,9 @@ import {
   Info,
   Calendar,
   Sparkles,
+  Lock,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_app/profile-analytics")({
   head: () => ({
@@ -42,7 +44,9 @@ export const Route = createFileRoute("/_app/profile-analytics")({
 });
 
 function ProfileAnalyticsPage() {
-  const [activeTab, setActiveTab] = useState<"all" | "views" | "search" | "connections" | "clicks">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "views" | "search" | "connections" | "clicks">(
+    "all",
+  );
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["profile-analytics"],
@@ -67,6 +71,30 @@ function ProfileAnalyticsPage() {
   }
 
   if (error || !data) {
+    const isForbidden = (error as any)?.response?.status === 403;
+
+    if (isForbidden) {
+      return (
+        <div className="mx-auto max-w-[1536px] w-full p-6 text-center space-y-6 mt-12">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <Lock className="h-8 w-8 text-primary" />
+          </div>
+          <div className="space-y-2">
+            <TypoHeading as="h2">Profile Analytics is a Pro feature</TypoHeading>
+            <TypoCaption as="p" className="max-w-md mx-auto">
+              Upgrade to DevLink Pro to see who viewed your profile, search appearances, and get
+              actionable insights to grow your developer presence.
+            </TypoCaption>
+          </div>
+          <Button asChild>
+            <Link to="/settings" search={{ tab: "billing" }}>
+              Upgrade to Pro
+            </Link>
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="mx-auto max-w-[1536px] w-full p-6 text-center space-y-4">
         <TypoHeading as="h2">Failed to load analytics</TypoHeading>
@@ -185,13 +213,9 @@ function ProfileAnalyticsPage() {
               </div>
 
               <div className="mt-4 space-y-1 relative z-10">
-                <TypoCaption as="p">
-                  {kpi.title}
-                </TypoCaption>
+                <TypoCaption as="p">{kpi.title}</TypoCaption>
                 <TypoSection>{kpi.value}</TypoSection>
-                <TypoCaption as="p">
-                  {kpi.description}
-                </TypoCaption>
+                <TypoCaption as="p">{kpi.description}</TypoCaption>
               </div>
             </Card>
           );
@@ -203,9 +227,7 @@ function ProfileAnalyticsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-4">
           <div className="space-y-1">
             <TypoSection>Performance Trends</TypoSection>
-            <TypoCaption as="p">
-              Analyze daily growth of your profile metrics.
-            </TypoCaption>
+            <TypoCaption as="p">Analyze daily growth of your profile metrics.</TypoCaption>
           </div>
 
           {/* Filtering tabs */}
@@ -347,7 +369,9 @@ function ProfileAnalyticsPage() {
         <div className="space-y-1">
           <TypoCard>About Profile Privacy & Analytics</TypoCard>
           <TypoCaption as="p">
-            We respect developer privacy opt-outs. Visitor profiles are anonymous if the viewer has enabled private browsing in their settings. Clicks are logged anonymously, and search appearances are tallied for every global multi-category search index query match.
+            We respect developer privacy opt-outs. Visitor profiles are anonymous if the viewer has
+            enabled private browsing in their settings. Clicks are logged anonymously, and search
+            appearances are tallied for every global multi-category search index query match.
           </TypoCaption>
         </div>
       </Card>

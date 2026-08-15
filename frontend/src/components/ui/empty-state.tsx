@@ -31,11 +31,7 @@ export function EmptyState({
           {icon || <Ghost className="h-10 w-10 text-muted-foreground" />}
         </div>
         <TypoHeading as="h2">{title}</TypoHeading>
-        {description && (
-          <TypoCaption as="p">
-            {description}
-          </TypoCaption>
-        )}
+        {description && <TypoCaption as="p">{description}</TypoCaption>}
         {action}
       </div>
     </div>

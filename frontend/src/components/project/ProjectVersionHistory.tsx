@@ -144,9 +144,7 @@ export function ProjectVersionHistory({
                       {new Date(ver.created_at).toLocaleDateString()}
                     </Badge>
                   </div>
-                  <TypoCaption as="p">
-                    {ver.change_summary || ver.title}
-                  </TypoCaption>
+                  <TypoCaption as="p">{ver.change_summary || ver.title}</TypoCaption>
                 </div>
               ))}
             </CardContent>
@@ -188,9 +186,7 @@ export function ProjectVersionHistory({
                 ) : (
                   Object.entries(compareData.diff).map(([field, { old: oldVal, new: newVal }]) => (
                     <div key={field} className="p-3 border rounded-md space-y-2">
-                      <TypoCaption>
-                        {field}
-                      </TypoCaption>
+                      <TypoCaption>{field}</TypoCaption>
                       <div className="grid grid-cols-2 gap-4 text-xs">
                         <div className="p-2 bg-red-500/10 rounded border border-red-500/20">
                           <span className="font-semibold text-red-600 block mb-1">

@@ -217,9 +217,7 @@ const ChartTooltipContent = React.forwardRef<
                       >
                         <div className="grid gap-1.5">
                           {nestLabel ? tooltipLabel : null}
-                          <TypoCaption>
-                            {itemConfig?.label || item.name}
-                          </TypoCaption>
+                          <TypoCaption>{itemConfig?.label || item.name}</TypoCaption>
                         </div>
                         {item.value && (
                           <span className="font-mono font-medium tabular-nums text-foreground">

@@ -212,7 +212,9 @@ const UserAvatar = React.forwardRef<HTMLSpanElement, UserAvatarProps>(
               <BadgeCheck
                 size={s.badgeIcon}
                 className={cn(
-                  premium ? "fill-amber-500/10 text-amber-500 animate-pulse" : "fill-primary text-primary-foreground"
+                  premium
+                    ? "fill-amber-500/10 text-amber-500 animate-pulse"
+                    : "fill-primary text-primary-foreground",
                 )}
               />
             </span>

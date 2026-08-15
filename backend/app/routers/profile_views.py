@@ -2,7 +2,7 @@ import uuid
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_user, get_database
+from app.dependencies import get_current_user, get_pro_user, get_database
 from app.models.user import User
 from app.schemas.profile_view import (
     PaginatedProfileViewsResponse,
@@ -46,7 +46,7 @@ def get_my_profile_views(
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, le=50, description="Items per page"),
     db: Session = Depends(get_database),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_pro_user),
 ):
     """
     Retrieves paginated history of users who recently visited your profile.

@@ -37,9 +37,7 @@ function OrganizationsListPage() {
             className="block p-6 rounded-xl border border-gray-800 bg-gray-900/40 hover:border-indigo-500/50 hover:bg-gray-800/40 transition-all cursor-pointer"
           >
             <div className="flex justify-between items-start mb-3">
-              <TypoHeading as="h2">
-                {org.name}
-              </TypoHeading>
+              <TypoHeading as="h2">{org.name}</TypoHeading>
               {org.hiring && (
                 <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
                   Hiring
