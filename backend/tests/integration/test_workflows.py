@@ -67,7 +67,7 @@ def test_project_creation_and_application_workflow(client: TestClient, db: Sessi
         "flare_id": flare_id,
         "message": "I would love to join this project!"
     }
-    r = client.post("/api/applications/applications/", json=application_payload, headers=applicant_headers)
+    r = client.post("/api/applications/", json=application_payload, headers=applicant_headers)
     assert r.status_code == 201, r.json()
     application_id = r.json()["id"]
     assert r.json()["status"] == "pending"
@@ -83,7 +83,7 @@ def test_project_creation_and_application_workflow(client: TestClient, db: Sessi
     assert application_notification["sender_id"] == applicant_id
 
     # 7. User A accepts User B's application
-    r = client.patch(f"/api/applications/applications/{application_id}/accept", headers=owner_headers)
+    r = client.patch(f"/api/applications/{application_id}/accept", headers=owner_headers)
     assert r.status_code == 200, r.json()
     assert r.json()["status"] == "accepted"
 
