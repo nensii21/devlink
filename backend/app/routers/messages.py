@@ -21,6 +21,8 @@ from app.schemas.message import (
     MessageCreate,
     MessageResponse,
     MessageUpdate,
+    ReactionCreate,
+    ReactionResponse,
 )
 from app.services.message_service import MessageService
 
@@ -415,6 +417,51 @@ def mark_conversation_as_read(
         user_id=current_user.id,
     )
     return BulkReadResponse(updated_count=count, read_at=read_at)
+
+
+@router.post(
+    "/{message_id}/reactions",
+    response_model=ReactionResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+@limiter.limit(MESSAGE_LIMIT)
+def add_reaction(
+    request: Request,
+    message_id: uuid.UUID,
+    body: ReactionCreate,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Add a reaction to a message."""
+    reaction = MessageService.add_reaction(
+        db=db,
+        message_id=message_id,
+        user_id=current_user.id,
+        emoji=body.emoji,
+    )
+    return reaction
+
+
+@router.delete(
+    "/{message_id}/reactions/{emoji}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+@limiter.limit(MESSAGE_LIMIT)
+def remove_reaction(
+    request: Request,
+    message_id: uuid.UUID,
+    emoji: str,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    """Remove a reaction from a message."""
+    MessageService.remove_reaction(
+        db=db,
+        message_id=message_id,
+        user_id=current_user.id,
+        emoji=emoji,
+    )
+    return None
 
 
 @router.post(

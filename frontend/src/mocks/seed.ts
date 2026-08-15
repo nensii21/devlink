@@ -139,6 +139,12 @@ export interface Message {
   attachment_name?: string;
   attachment_size?: number;
   mime_type?: string;
+  reactions?: {
+    id: string;
+    user_id: string;
+    emoji: string;
+    created_at: string;
+  }[];
 }
 export interface Notification {
   id: ID;

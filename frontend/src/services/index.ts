@@ -254,6 +254,12 @@ export const messagesService = {
           attachment_name?: string;
           attachment_size?: number;
           mime_type?: string;
+          reactions?: {
+            id: string;
+            user_id: string;
+            emoji: string;
+            created_at: string;
+          }[];
         }): seed.Message => ({
           id: m.id,
           from: m.sender_id === currentUser?.id ? "me" : (m.sender_id ?? "me"),
@@ -268,6 +274,7 @@ export const messagesService = {
           attachment_url: m.attachment_url,
           attachment_name: m.attachment_name,
           attachment_size: m.attachment_size,
+          reactions: m.reactions || [],
           mime_type: m.mime_type,
         }));
       },
@@ -308,6 +315,15 @@ export const messagesService = {
         mime_type: attachment?.mime_type,
       },
     ),
+  addReaction: (messageId: string, emoji: string) =>
+    withFallback(() => messagesApi.addReaction(messageId, emoji), {
+      id: `reaction-${Date.now()}`,
+      user_id: "me",
+      emoji,
+      created_at: new Date().toISOString(),
+    }),
+  removeReaction: (messageId: string, emoji: string) =>
+    withFallback(() => messagesApi.removeReaction(messageId, emoji), undefined),
 };
 
 export const issuesService = {
