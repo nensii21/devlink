@@ -1,6 +1,7 @@
 """
 Unit & integration tests for project release notes (#1043).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -90,24 +91,32 @@ class TestReleaseSchema:
         assert payload.highlights == ["Faster search", "Dark mode"]
 
     def test_highlights_are_stripped(self):
-        payload = ReleaseCreate(version="v1", title="t", highlights=["  Faster search  "])
+        payload = ReleaseCreate(
+            version="v1", title="t", highlights=["  Faster search  "]
+        )
         assert payload.highlights == ["Faster search"]
 
     def test_too_many_highlights_rejected(self):
         with pytest.raises(Exception):
             ReleaseCreate(
-                version="v1", title="t", highlights=[f"item {i}" for i in range(MAX_HIGHLIGHTS + 1)]
+                version="v1",
+                title="t",
+                highlights=[f"item {i}" for i in range(MAX_HIGHLIGHTS + 1)],
             )
 
     def test_exactly_the_highlight_limit_is_allowed(self):
         payload = ReleaseCreate(
-            version="v1", title="t", highlights=[f"item {i}" for i in range(MAX_HIGHLIGHTS)]
+            version="v1",
+            title="t",
+            highlights=[f"item {i}" for i in range(MAX_HIGHLIGHTS)],
         )
         assert len(payload.highlights) == MAX_HIGHLIGHTS
 
     def test_overlong_highlight_rejected(self):
         with pytest.raises(Exception):
-            ReleaseCreate(version="v1", title="t", highlights=["x" * (MAX_HIGHLIGHT_LENGTH + 1)])
+            ReleaseCreate(
+                version="v1", title="t", highlights=["x" * (MAX_HIGHLIGHT_LENGTH + 1)]
+            )
 
     def test_update_omits_unset_fields(self):
         assert ReleaseUpdate(title="New title").model_dump(exclude_unset=True) == {
@@ -128,7 +137,12 @@ class TestMaintainerChecks:
     def test_owner_is_a_maintainer(self):
         db = MagicMock(spec=Session)
         user = _make_user()
-        assert ProjectReleaseService.is_maintainer(db, _make_project(owner_id=user.id), user) is True
+        assert (
+            ProjectReleaseService.is_maintainer(
+                db, _make_project(owner_id=user.id), user
+            )
+            is True
+        )
 
     def test_anonymous_is_not(self):
         db = MagicMock(spec=Session)
@@ -136,17 +150,28 @@ class TestMaintainerChecks:
 
     def test_platform_admin_is(self):
         db = MagicMock(spec=Session)
-        assert ProjectReleaseService.is_maintainer(db, _make_project(), _make_user(system_role="admin")) is True
+        assert (
+            ProjectReleaseService.is_maintainer(
+                db, _make_project(), _make_user(system_role="admin")
+            )
+            is True
+        )
 
     def test_maintainer_role_qualifies(self):
         db = MagicMock(spec=Session)
         db.scalar.return_value = _make_member(MemberRole.MAINTAINER)
-        assert ProjectReleaseService.is_maintainer(db, _make_project(), _make_user()) is True
+        assert (
+            ProjectReleaseService.is_maintainer(db, _make_project(), _make_user())
+            is True
+        )
 
     def test_contributor_role_does_not(self):
         db = MagicMock(spec=Session)
         db.scalar.return_value = _make_member(MemberRole.CONTRIBUTOR)
-        assert ProjectReleaseService.is_maintainer(db, _make_project(), _make_user()) is False
+        assert (
+            ProjectReleaseService.is_maintainer(db, _make_project(), _make_user())
+            is False
+        )
 
     def test_require_maintainer_raises_403(self):
         db = MagicMock(spec=Session)
@@ -179,7 +204,10 @@ class TestDraftVisibility:
         draft = _make_release(ReleaseStatus.DRAFT)
         with pytest.raises(HTTPException) as exc:
             ProjectReleaseService.get_release_or_404(
-                self._db_returning(draft), uuid.uuid4(), draft.id, viewer_is_maintainer=False
+                self._db_returning(draft),
+                uuid.uuid4(),
+                draft.id,
+                viewer_is_maintainer=False,
             )
         assert exc.value.status_code == 404
 
@@ -254,7 +282,9 @@ class TestReleaseEndpoints:
         assert body["published_at"] is None
         assert body["is_pinned"] is False
 
-    def test_drafts_are_hidden_from_the_public_listing(self, client, db, register_and_login):
+    def test_drafts_are_hidden_from_the_public_listing(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("rel3@example.com", "reluser3")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p3")
         self._create(client, token, project.id)
@@ -270,7 +300,9 @@ class TestReleaseEndpoints:
         )
         assert maintainer.json()["total"] == 1
 
-    def test_include_drafts_is_ignored_for_the_public(self, client, db, register_and_login):
+    def test_include_drafts_is_ignored_for_the_public(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("rel4@example.com", "reluser4")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p4")
         self._create(client, token, project.id)
@@ -286,20 +318,30 @@ class TestReleaseEndpoints:
         project = self._project_for(db, uuid.UUID(user_id), "rel-p5")
         release_id = self._create(client, token, project.id).json()["id"]
 
-        assert client.get(f"/api/v1/projects/{project.id}/releases/{release_id}").status_code == 404
+        assert (
+            client.get(
+                f"/api/v1/projects/{project.id}/releases/{release_id}"
+            ).status_code
+            == 404
+        )
         # But its own maintainer can read it.
         assert (
             client.get(
-                f"/api/v1/projects/{project.id}/releases/{release_id}", headers=self._auth(token)
+                f"/api/v1/projects/{project.id}/releases/{release_id}",
+                headers=self._auth(token),
             ).status_code
             == 200
         )
 
-    def test_duplicate_version_is_409_case_insensitively(self, client, db, register_and_login):
+    def test_duplicate_version_is_409_case_insensitively(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("rel6@example.com", "reluser6")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p6")
 
-        assert self._create(client, token, project.id, version="v1.0.0").status_code == 201
+        assert (
+            self._create(client, token, project.id, version="v1.0.0").status_code == 201
+        )
 
         clash = self._create(client, token, project.id, version="V1.0.0")
         assert clash.status_code == 409
@@ -310,10 +352,16 @@ class TestReleaseEndpoints:
         first = self._project_for(db, uuid.UUID(user_id), "rel-p7-a")
         second = self._project_for(db, uuid.UUID(user_id), "rel-p7-b")
 
-        assert self._create(client, token, first.id, version="v1.0.0").status_code == 201
-        assert self._create(client, token, second.id, version="v1.0.0").status_code == 201
+        assert (
+            self._create(client, token, first.id, version="v1.0.0").status_code == 201
+        )
+        assert (
+            self._create(client, token, second.id, version="v1.0.0").status_code == 201
+        )
 
-    def test_publishing_sets_the_date_and_is_idempotent(self, client, db, register_and_login):
+    def test_publishing_sets_the_date_and_is_idempotent(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("rel8@example.com", "reluser8")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p8")
         release_id = self._create(client, token, project.id).json()["id"]
@@ -358,7 +406,9 @@ class TestReleaseEndpoints:
         )
         assert announcement_count() == before + 1
 
-    def test_creating_as_published_announces_immediately(self, client, db, register_and_login):
+    def test_creating_as_published_announces_immediately(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("rel10@example.com", "reluser10")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p10")
 
@@ -371,14 +421,20 @@ class TestReleaseEndpoints:
         user_id, token = register_and_login("rel11@example.com", "reluser11")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p11")
 
-        first = self._create(client, token, project.id, version="v1.0.0", status="published").json()
-        second = self._create(client, token, project.id, version="v2.0.0", status="published").json()
+        first = self._create(
+            client, token, project.id, version="v1.0.0", status="published"
+        ).json()
+        second = self._create(
+            client, token, project.id, version="v2.0.0", status="published"
+        ).json()
 
         client.post(
-            f"/api/v1/projects/{project.id}/releases/{first['id']}/pin", headers=self._auth(token)
+            f"/api/v1/projects/{project.id}/releases/{first['id']}/pin",
+            headers=self._auth(token),
         )
         client.post(
-            f"/api/v1/projects/{project.id}/releases/{second['id']}/pin", headers=self._auth(token)
+            f"/api/v1/projects/{project.id}/releases/{second['id']}/pin",
+            headers=self._auth(token),
         )
 
         items = client.get(f"/api/v1/projects/{project.id}/releases").json()["items"]
@@ -394,7 +450,8 @@ class TestReleaseEndpoints:
         release_id = self._create(client, token, project.id).json()["id"]
 
         response = client.post(
-            f"/api/v1/projects/{project.id}/releases/{release_id}/pin", headers=self._auth(token)
+            f"/api/v1/projects/{project.id}/releases/{release_id}/pin",
+            headers=self._auth(token),
         )
         assert response.status_code == 400
 
@@ -402,7 +459,10 @@ class TestReleaseEndpoints:
         user_id, token = register_and_login("rel13@example.com", "reluser13")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p13")
 
-        assert client.get(f"/api/v1/projects/{project.id}/releases/latest").status_code == 404
+        assert (
+            client.get(f"/api/v1/projects/{project.id}/releases/latest").status_code
+            == 404
+        )
 
         self._create(client, token, project.id, version="v1.0.0", status="published")
         newest = self._create(
@@ -447,7 +507,8 @@ class TestReleaseEndpoints:
         assert updated.json()["highlights"] == ["Faster boot"]
 
         deleted = client.delete(
-            f"/api/v1/projects/{project.id}/releases/{release_id}", headers=self._auth(token)
+            f"/api/v1/projects/{project.id}/releases/{release_id}",
+            headers=self._auth(token),
         )
         assert deleted.status_code == 204
 
@@ -456,7 +517,9 @@ class TestReleaseEndpoints:
         project = self._project_for(db, uuid.UUID(user_id), "rel-p18")
 
         self._create(client, token, project.id, version="v1.0.0")
-        second_id = self._create(client, token, project.id, version="v2.0.0").json()["id"]
+        second_id = self._create(client, token, project.id, version="v2.0.0").json()[
+            "id"
+        ]
 
         response = client.patch(
             f"/api/v1/projects/{project.id}/releases/{second_id}",
@@ -472,7 +535,9 @@ class TestReleaseEndpoints:
         # form without touching the version field would fail.
         user_id, token = register_and_login("rel19@example.com", "reluser19")
         project = self._project_for(db, uuid.UUID(user_id), "rel-p19")
-        release_id = self._create(client, token, project.id, version="v1.0.0").json()["id"]
+        release_id = self._create(client, token, project.id, version="v1.0.0").json()[
+            "id"
+        ]
 
         response = client.patch(
             f"/api/v1/projects/{project.id}/releases/{release_id}",

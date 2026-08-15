@@ -129,7 +129,9 @@ class CommunityStatsService:
         skill_rows = db.execute(
             select(Skill.name, func.count(distinct(UserSkill.user_id)).label("cnt"))
             .join(UserSkill, UserSkill.skill_id == Skill.id)
-            .where(UserSkill.user_id.in_(select(User.id).where(User.deleted_at.is_(None))))
+            .where(
+                UserSkill.user_id.in_(select(User.id).where(User.deleted_at.is_(None)))
+            )
             .group_by(Skill.id, Skill.name)
             .order_by(func.count(distinct(UserSkill.user_id)).desc())
             .limit(10)

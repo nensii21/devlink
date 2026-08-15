@@ -7,7 +7,11 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.dependencies import get_current_admin, get_current_user, get_optional_current_user
+from app.dependencies import (
+    get_current_admin,
+    get_current_user,
+    get_optional_current_user,
+)
 from app.models.user import User
 from app.schemas.analytics import PlatformAnalyticsResponse
 from app.schemas.community_stats import CommunityStatsResponse
@@ -94,10 +98,15 @@ def get_community_stats(
     db: Annotated[Session, Depends(get_db)],
     _: Annotated[User, Depends(get_current_admin)],
     days: int = Query(
-        default=30, ge=1, le=365, description="Timeframe in days for trending technologies"
+        default=30,
+        ge=1,
+        le=365,
+        description="Timeframe in days for trending technologies",
     ),
 ) -> CommunityStatsResponse:
     return CommunityStatsService.get_community_stats(db=db, days=days)
+
+
 # ==========================================================
 # API Request Analytics
 # ==========================================================

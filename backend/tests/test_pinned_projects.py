@@ -1,6 +1,7 @@
 """
 Unit & integration tests for pinned profile projects (#1042).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -119,7 +120,10 @@ class TestReorderSchema:
 
     def test_at_the_limit_is_valid(self):
         ids = [uuid.uuid4() for _ in range(MAX_PINNED_PROJECTS)]
-        assert len(PinnedProjectReorder(project_ids=ids).project_ids) == MAX_PINNED_PROJECTS
+        assert (
+            len(PinnedProjectReorder(project_ids=ids).project_ids)
+            == MAX_PINNED_PROJECTS
+        )
 
     def test_over_the_limit_is_rejected(self):
         ids = [uuid.uuid4() for _ in range(MAX_PINNED_PROJECTS + 1)]
@@ -193,7 +197,9 @@ class TestPinnedProjectEndpoints:
         assert body["items"][0]["project"]["slug"] == "pin-p2"
 
     def test_unknown_username_is_404(self, client):
-        assert client.get("/api/v1/users/nobody-at-all/pinned-projects").status_code == 404
+        assert (
+            client.get("/api/v1/users/nobody-at-all/pinned-projects").status_code == 404
+        )
 
     def test_pinning_twice_is_409(self, client, db, register_and_login):
         user_id, token = register_and_login("pin3@example.com", "pinuser3")
@@ -230,15 +236,20 @@ class TestPinnedProjectEndpoints:
         assert [item["position"] for item in items] == [0, 1, 2]
         assert [item["project"]["slug"] for item in items] == slugs
 
-    def test_unpinning_the_middle_compacts_positions(self, client, db, register_and_login):
+    def test_unpinning_the_middle_compacts_positions(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("pin6@example.com", "pinuser6")
 
-        projects = [self._project_for(db, uuid.UUID(user_id), f"pin-p6-{i}") for i in range(3)]
+        projects = [
+            self._project_for(db, uuid.UUID(user_id), f"pin-p6-{i}") for i in range(3)
+        ]
         for project in projects:
             self._pin(client, token, project.id)
 
         removed = client.delete(
-            f"/api/v1/users/me/pinned-projects/{projects[1].id}", headers=self._auth(token)
+            f"/api/v1/users/me/pinned-projects/{projects[1].id}",
+            headers=self._auth(token),
         )
         assert removed.status_code == 204
 
@@ -249,7 +260,8 @@ class TestPinnedProjectEndpoints:
     def test_unpinning_something_not_pinned_is_404(self, client, register_and_login):
         _, token = register_and_login("pin7@example.com", "pinuser7")
         response = client.delete(
-            f"/api/v1/users/me/pinned-projects/{uuid.uuid4()}", headers=self._auth(token)
+            f"/api/v1/users/me/pinned-projects/{uuid.uuid4()}",
+            headers=self._auth(token),
         )
         assert response.status_code == 404
 
@@ -277,7 +289,9 @@ class TestPinnedProjectEndpoints:
 
     def test_replace_sets_the_exact_order(self, client, db, register_and_login):
         user_id, token = register_and_login("pin12@example.com", "pinuser12")
-        projects = [self._project_for(db, uuid.UUID(user_id), f"pin-p12-{i}") for i in range(3)]
+        projects = [
+            self._project_for(db, uuid.UUID(user_id), f"pin-p12-{i}") for i in range(3)
+        ]
 
         for project in projects:
             self._pin(client, token, project.id)
@@ -328,7 +342,9 @@ class TestPinnedProjectEndpoints:
         assert response.status_code == 400
         assert "more than once" in response.json()["detail"]
 
-    def test_replace_with_an_empty_list_clears_pins(self, client, db, register_and_login):
+    def test_replace_with_an_empty_list_clears_pins(
+        self, client, db, register_and_login
+    ):
         user_id, token = register_and_login("pin16@example.com", "pinuser16")
         project = self._project_for(db, uuid.UUID(user_id), "pin-p16")
         self._pin(client, token, project.id)
@@ -357,12 +373,20 @@ class TestPinnedProjectEndpoints:
         project = self._project_for(db, uuid.UUID(user_id), "pin-p18")
         self._pin(client, token, project.id)
 
-        response = client.get("/api/v1/users/me/pinned-projects", headers=self._auth(token))
+        response = client.get(
+            "/api/v1/users/me/pinned-projects", headers=self._auth(token)
+        )
         assert response.status_code == 200
         assert response.json()["total"] == 1
 
-    def test_a_user_with_no_pins_returns_an_empty_list(self, client, register_and_login):
+    def test_a_user_with_no_pins_returns_an_empty_list(
+        self, client, register_and_login
+    ):
         register_and_login("pin19@example.com", "pinuser19")
         response = client.get("/api/v1/users/pinuser19/pinned-projects")
         assert response.status_code == 200
-        assert response.json() == {"items": [], "total": 0, "max_pins": MAX_PINNED_PROJECTS}
+        assert response.json() == {
+            "items": [],
+            "total": 0,
+            "max_pins": MAX_PINNED_PROJECTS,
+        }

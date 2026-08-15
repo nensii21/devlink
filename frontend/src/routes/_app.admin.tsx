@@ -61,6 +61,9 @@ function AdminLayout() {
           <a href="/admin/community-stats" className="text-blue-600 hover:underline">
             Community Stats
           </a>
+          <a href="/admin/email-templates" className="text-blue-600 hover:underline">
+            Email Templates
+          </a>
           <a href="/admin/api-request-analytics" className="text-blue-600 hover:underline">
             API Request Analytics
           </a>

@@ -7,6 +7,7 @@ from app.schemas.user import ResumeParseResponse
 
 logger = logging.getLogger(__name__)
 
+
 class ResumeParserService:
     """Service to parse resumes (PDF/DOCX) and extract structured data using AI."""
 
@@ -48,18 +49,18 @@ class ResumeParserService:
     @staticmethod
     def parse_resume(file_bytes: bytes, filename: str) -> ResumeParseResponse:
         """Extract text from the resume file and parse it into a structured format."""
-        
+
         # 1. Extract text
         text = ""
         if filename.lower().endswith(".pdf"):
             text = ResumeParserService._extract_text_from_pdf(file_bytes)
         elif filename.lower().endswith(".docx"):
             text = ResumeParserService._extract_text_from_docx(file_bytes)
-        
+
         if not text.strip():
             logger.warning("Could not extract any text from the resume.")
             return ResumeParseResponse()
-        
+
         # 2. Use AI to parse the text
         if not settings.OPENAI_API_KEY:
             logger.warning("OPENAI_API_KEY not configured, cannot parse resume.")
@@ -67,6 +68,7 @@ class ResumeParserService:
 
         try:
             from openai import OpenAI
+
             client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
             prompt = (
@@ -78,17 +80,20 @@ class ResumeParserService:
                 "5. certifications: A list of objects, each containing 'name', 'issuer', 'date'.\n\n"
                 "Return the result strictly as a valid JSON object with the exact keys: 'skills', 'technologies', 'experience', 'education', 'certifications'.\n"
                 "Do not include any markdown formatting, code blocks, or extra text.\n\n"
-                f"RESUME TEXT:\n{text[:15000]}" # Limit text to avoid token limits
+                f"RESUME TEXT:\n{text[:15000]}"  # Limit text to avoid token limits
             )
 
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant designed to output strictly JSON."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant designed to output strictly JSON.",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.1,
-                response_format={ "type": "json_object" }
+                response_format={"type": "json_object"},
             )
 
             result_text = response.choices[0].message.content
@@ -99,10 +104,10 @@ class ResumeParserService:
                     technologies=parsed_data.get("technologies", []),
                     experience=parsed_data.get("experience", []),
                     education=parsed_data.get("education", []),
-                    certifications=parsed_data.get("certifications", [])
+                    certifications=parsed_data.get("certifications", []),
                 )
-            
+
         except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to parse resume with OpenAI: {e}")
-        
+
         return ResumeParseResponse()

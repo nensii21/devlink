@@ -1,6 +1,7 @@
 """
 Project Status Transition Validation Service (#232)
 """
+
 from __future__ import annotations
 
 from typing import Dict, Set

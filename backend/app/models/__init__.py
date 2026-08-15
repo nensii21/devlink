@@ -40,41 +40,11 @@ from .user import User  # noqa: F401
 from .user_block import UserBlock  # noqa: F401
 from .user_skill import UserSkill  # noqa: F401
 from .user_report import UserReport as UserReport
-from .activity import Activity
-from .application import Application
-from .audit_log import AuditLog
-from .bookmark import Bookmark
-from .bookmark_collection import BookmarkCollection, CollectionBookmark
-from .builder_flare import BuilderFlare
-from .conversation import Conversation
-from .conversation_member import ConversationMember
-from .follower import Follower
-from .hackathon import Hackathon
-from .hackathon_judge import HackathonJudge
-from .hackathon_registration import HackathonRegistration
-from .hackathon_score import HackathonScore
-from .hackathon_submission import HackathonSubmission
-from .hackathon_team import HackathonTeam, HackathonTeamMember
 from .issue import Issue
-from .message import Message
-from .notification import Notification
-from .organization import Organization
-from .organization_member import OrganizationMember, OrgMemberRole
-from .project import Project
-from .project_member import ProjectMember
-from .project_skill import ProjectSkill
-from .refresh_token import RefreshToken
-from .repository import Repository
-from .skill import Skill
-from .user import User
-from .user_report import UserReport as UserReport
-from .user_skill import UserSkill as UserSkill
 from .workspace_api_token import WorkspaceApiToken as WorkspaceApiToken
 from .milestone import Milestone as Milestone
 from .announcement import Announcement as Announcement
 from .message_draft import MessageDraft  # noqa: F401
-from .user_report import UserReport  # noqa: F401
-from .user_skill import UserSkill  # noqa: F401
 from .user_subscription import UserSubscription  # noqa: F401
 from .verification_request import VerificationRequest  # noqa: F401
 from .maintenance import MaintenanceWindow
@@ -94,9 +64,14 @@ from .testimonial import (  # noqa: F401
 from .badge import Badge, UserBadge  # noqa: F401
 from .project_release import ProjectRelease, ReleaseStatus, ReleaseType  # noqa: F401
 from .centralized_analytics import CentralizedAnalyticsEvent, AnalyticsEventType  # noqa: F401
-from .global_announcement import GlobalAnnouncement, AnnouncementSeverity, TargetAudience  # noqa: F401
+from .global_announcement import (
+    GlobalAnnouncement,
+    AnnouncementSeverity,
+    TargetAudience,
+)  # noqa: F401
 from .post import Post  # noqa: F401
 from .pinned_project import PinnedProject  # noqa: F401
 
 from .project_comment import ProjectComment  # noqa: F401
 from .project_time_log import ProjectTimeLog  # noqa: F401
+from .connection import Connection, ConnectionStatus  # noqa: F401

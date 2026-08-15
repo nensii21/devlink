@@ -4,11 +4,9 @@ from app.models.user import User
 
 from app.models.notification import NotificationType
 from app.schemas.notification import NotificationCreate
-from app.schemas.project import ProjectCreate
 from app.models.project import ProjectStage, ProjectVisibility
 from app.services.daily_digest_service import DailyDigestService
 from app.services.notification_service import NotificationService
-from app.services.project_service import ProjectService
 
 
 def _create_user(db, email: str, username: str) -> User:

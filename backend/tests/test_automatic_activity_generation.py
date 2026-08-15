@@ -1,9 +1,6 @@
 import uuid
-import pytest
 from app.models.activity import Activity, ActivityType
 from app.models.application import Application, ApplicationStatus
-from app.models.organization import Organization
-from app.models.project import Project
 from app.models.user import User
 from app.schemas.organization import OrganizationCreate
 from app.schemas.project import ProjectCreate
@@ -79,6 +76,7 @@ def test_automatic_activity_project_joined(db):
     )
 
     from app.models.builder_flare import BuilderFlare
+
     flare = BuilderFlare(
         project_id=project.id,
         created_by=owner.id,

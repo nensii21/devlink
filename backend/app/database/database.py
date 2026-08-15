@@ -15,6 +15,5 @@ engine = create_engine(
     pool_pre_ping=True,
     future=True,
     echo=settings.DEBUG,
-    **engine_kwargs
+    **engine_kwargs,
 )
-

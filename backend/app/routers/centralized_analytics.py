@@ -1,4 +1,3 @@
-import uuid
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.orm import Session
@@ -67,4 +66,6 @@ def list_events(
     event_type: Optional[str] = Query(None),
     db: Session = Depends(get_database),
 ):
-    return CentralizedAnalyticsService.list_events(db=db, limit=limit, event_type=event_type)
+    return CentralizedAnalyticsService.list_events(
+        db=db, limit=limit, event_type=event_type
+    )

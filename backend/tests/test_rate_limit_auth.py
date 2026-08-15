@@ -1,10 +1,10 @@
 """
 Unit & Integration Tests for Rate Limiting on Authentication Endpoints (#590)
 """
+
 from __future__ import annotations
 
-import os
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi import Request, status

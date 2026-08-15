@@ -26,38 +26,57 @@ class RequestAnalyticsService:
         now = datetime.now(timezone.utc)
         start_date = now - timedelta(days=days)
 
-        total_requests = db.scalar(
-            select(func.count(RequestLog.id)).where(RequestLog.created_at >= start_date)
-        ) or 0
-
-        avg_duration = db.scalar(
-            select(func.avg(RequestLog.duration_ms)).where(
-                RequestLog.created_at >= start_date
+        total_requests = (
+            db.scalar(
+                select(func.count(RequestLog.id)).where(
+                    RequestLog.created_at >= start_date
+                )
             )
-        ) or 0.0
+            or 0
+        )
 
-        errors = db.scalar(
-            select(func.count(RequestLog.id)).where(
-                RequestLog.created_at >= start_date,
-                RequestLog.status_code >= 400,
+        avg_duration = (
+            db.scalar(
+                select(func.avg(RequestLog.duration_ms)).where(
+                    RequestLog.created_at >= start_date
+                )
             )
-        ) or 0
+            or 0.0
+        )
 
-        active_users = db.scalar(
-            select(func.count(func.distinct(RequestLog.user_id))).where(
-                RequestLog.created_at >= start_date,
-                RequestLog.user_id.isnot(None),
+        errors = (
+            db.scalar(
+                select(func.count(RequestLog.id)).where(
+                    RequestLog.created_at >= start_date,
+                    RequestLog.status_code >= 400,
+                )
             )
-        ) or 0
+            or 0
+        )
 
-        rate_limited = db.scalar(
-            select(func.count(RequestLog.id)).where(
-                RequestLog.created_at >= start_date,
-                RequestLog.is_rate_limited.is_(True),
+        active_users = (
+            db.scalar(
+                select(func.count(func.distinct(RequestLog.user_id))).where(
+                    RequestLog.created_at >= start_date,
+                    RequestLog.user_id.isnot(None),
+                )
             )
-        ) or 0
+            or 0
+        )
 
-        error_rate_pct = round((errors / total_requests) * 100, 2) if total_requests else 0.0
+        rate_limited = (
+            db.scalar(
+                select(func.count(RequestLog.id)).where(
+                    RequestLog.created_at >= start_date,
+                    RequestLog.is_rate_limited.is_(True),
+                )
+            )
+            or 0
+        )
+
+        error_rate_pct = (
+            round((errors / total_requests) * 100, 2) if total_requests else 0.0
+        )
 
         # ------------------------------------------------------------------
         # Per-endpoint breakdown
@@ -158,12 +177,16 @@ class RequestAnalyticsService:
     def export_csv(db: Session, days: int = 30) -> str:
         """Returns a CSV string of request logs for the given window."""
         start_date = datetime.now(timezone.utc) - timedelta(days=days)
-        rows = db.execute(
-            select(RequestLog)
-            .where(RequestLog.created_at >= start_date)
-            .order_by(RequestLog.created_at.desc())
-            .limit(10000)
-        ).scalars().all()
+        rows = (
+            db.execute(
+                select(RequestLog)
+                .where(RequestLog.created_at >= start_date)
+                .order_by(RequestLog.created_at.desc())
+                .limit(10000)
+            )
+            .scalars()
+            .all()
+        )
 
         lines = ["timestamp,method,path,status_code,duration_ms,user_id,rate_limited"]
         for log in rows:

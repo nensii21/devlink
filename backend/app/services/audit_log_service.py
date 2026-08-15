@@ -55,7 +55,7 @@ class AuditLogService:
         def _sanitize_json(d: dict | None) -> dict | None:
             if not d:
                 return d
-            import json
+
             # A quick way to stringify complex objects like UUID or HttpUrl
             res = {}
             for k, v in d.items():
@@ -65,14 +65,18 @@ class AuditLogService:
                     res[k] = _sanitize_json(v)
                 elif isinstance(v, list):
                     res[k] = [
-                        _sanitize_json(i) if isinstance(i, dict) else (
-                            str(i) if not isinstance(i, (int, float, bool, str, type(None))) else i
-                        ) for i in v
+                        _sanitize_json(i)
+                        if isinstance(i, dict)
+                        else (
+                            str(i)
+                            if not isinstance(i, (int, float, bool, str, type(None)))
+                            else i
+                        )
+                        for i in v
                     ]
                 else:
                     res[k] = str(v)
             return res
-
 
         resolved_ip = ip_address or audit_ip_address.get()
         resolved_ua = user_agent or audit_user_agent.get()

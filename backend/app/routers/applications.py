@@ -22,7 +22,6 @@ from app.services.application_service import ApplicationService
 from app.services.notification_service import NotificationService
 
 router = APIRouter(
-    prefix="/applications",
     tags=["Applications"],
     route_class=IdempotentRoute,
 )
@@ -186,6 +185,13 @@ def accept_application(
             detail="Application not found",
         )
 
+    project = db.query(Project).filter(Project.id == db_application.project_id).first()
+    if project and project.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can accept applications",
+        )
+
     accepted = ApplicationService.accept_application(
         db,
         db_application,
@@ -230,6 +236,13 @@ def reject_application(
             detail="Application not found",
         )
 
+    project = db.query(Project).filter(Project.id == db_application.project_id).first()
+    if project and project.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can reject applications",
+        )
+
     rejected = ApplicationService.reject_application(
         db,
         db_application,
@@ -260,6 +273,7 @@ def reject_application(
 def withdraw_application(
     application_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
 
     db_application = ApplicationService.get_application(
@@ -271,6 +285,12 @@ def withdraw_application(
         raise HTTPException(
             status_code=404,
             detail="Application not found",
+        )
+
+    if db_application.applicant_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the applicant can withdraw this application",
         )
 
     return ApplicationService.withdraw_application(
@@ -286,6 +306,7 @@ def withdraw_application(
 def delete_application(
     application_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
 
     db_application = ApplicationService.get_application(
@@ -297,6 +318,12 @@ def delete_application(
         raise HTTPException(
             status_code=404,
             detail="Application not found",
+        )
+
+    if db_application.applicant_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the applicant can delete this application",
         )
 
     ApplicationService.delete_application(

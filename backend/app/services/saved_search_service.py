@@ -15,7 +15,6 @@ class DuplicateSavedSearchName(Exception):
 
 
 class SavedSearchService:
-
     @staticmethod
     def list(db: Session, user_id: uuid.UUID) -> list[SavedSearch]:
         return list(

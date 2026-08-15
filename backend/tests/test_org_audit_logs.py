@@ -1,11 +1,9 @@
 import pytest
 from uuid import uuid4
-from datetime import datetime, timezone, timedelta
-from fastapi.testclient import TestClient
 
 from app.models.user import User
 from app.models.organization import Organization
-from app.models.audit_log import AuditLog, AuditAction
+from app.models.audit_log import AuditAction
 from app.services.audit_log_service import AuditLogService
 from app.core.security import create_access_token
 

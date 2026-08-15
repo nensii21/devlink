@@ -9,7 +9,6 @@ from app.main import app
 from app.dependencies import get_database, get_current_user
 from app.models.user import User
 from app.services.search_service import search_users
-from app.services.search_index_service import SearchIndexService
 
 # Setup in-memory SQLite database for tests
 DATABASE_URL = "sqlite:///:memory:"
@@ -147,7 +146,7 @@ def test_search_prioritization(db_session):
     # 3. Unverified + Premium (Eva) -> matches is_verified=False, premium=True
     # 4. Unverified + Free (Bobby) -> matches is_verified=False, premium=False
     usernames = [u.username for u in results]
-    
+
     # We find indices of each user in search results to verify they are in correct priority order
     idx_david = usernames.index("david_prem")
     idx_charlie = usernames.index("charlie_ver")

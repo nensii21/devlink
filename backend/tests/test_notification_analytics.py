@@ -1,8 +1,7 @@
-import pytest
-import uuid
-
 def test_notification_delivery_analytics(client, register_and_login):
-    user_id, token = register_and_login("notif_analytics@example.com", "notif_analytics")
+    user_id, token = register_and_login(
+        "notif_analytics@example.com", "notif_analytics"
+    )
     headers = {"Authorization": f"Bearer {token}"}
 
     # Create notification
@@ -10,7 +9,7 @@ def test_notification_delivery_analytics(client, register_and_login):
         "recipient_id": user_id,
         "type": "system",
         "title": "Analytics Test Notification",
-        "message": "Testing notification delivery analytics"
+        "message": "Testing notification delivery analytics",
     }
     res = client.post("/api/notifications/", json=create_payload, headers=headers)
     assert res.status_code == 201

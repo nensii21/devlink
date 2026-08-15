@@ -108,9 +108,7 @@ def merge_vary(existing: Optional[str], additions: Iterable[str]) -> str:
 
     Returns ``*`` unchanged if the response already varies on everything.
     """
-    current = [
-        part.strip() for part in (existing or "").split(",") if part.strip()
-    ]
+    current = [part.strip() for part in (existing or "").split(",") if part.strip()]
 
     if any(part == _WILDCARD for part in current):
         return _WILDCARD

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List
 
@@ -292,7 +291,6 @@ class AnalyticsService:
         entity_id: Optional[uuid.UUID] = None,
         user_id: Optional[uuid.UUID] = None,
     ) -> None:
-        import uuid
         from app.models.centralized_analytics import CentralizedAnalyticsEvent
 
         event = CentralizedAnalyticsEvent(
@@ -311,9 +309,7 @@ class AnalyticsService:
         db: Session,
         user_id: uuid.UUID,
     ) -> ProfileAnalyticsResponse:
-        import uuid
         from datetime import datetime, timedelta, timezone
-        from typing import Optional
         from app.models.profile_view import ProfileView
         from app.models.centralized_analytics import CentralizedAnalyticsEvent
         from app.models.follower import Follower
@@ -331,21 +327,28 @@ class AnalyticsService:
         start_current = today - timedelta(days=6)
         start_previous = today - timedelta(days=13)
 
-        start_current_dt = datetime.combine(start_current, datetime.min.time(), tzinfo=timezone.utc)
-        start_previous_dt = datetime.combine(start_previous, datetime.min.time(), tzinfo=timezone.utc)
+        start_current_dt = datetime.combine(
+            start_current, datetime.min.time(), tzinfo=timezone.utc
+        )
+        start_previous_dt = datetime.combine(
+            start_previous, datetime.min.time(), tzinfo=timezone.utc
+        )
 
         # Database dialect check for JSON querying compatibility (SQLite vs PostgreSQL)
         bind = db.get_bind()
         is_postgres = bind is not None and bind.dialect.name == "postgresql"
 
         # 1. Profile Views
-        views_all = db.scalars(select(ProfileView).where(ProfileView.viewed_user_id == user_id)).all()
+        views_all = db.scalars(
+            select(ProfileView).where(ProfileView.viewed_user_id == user_id)
+        ).all()
 
         # 2. Search Appearances
         if is_postgres:
             search_stmt = select(CentralizedAnalyticsEvent).where(
                 CentralizedAnalyticsEvent.event_type == "profile_search_appearance",
-                CentralizedAnalyticsEvent.properties["target_user_id"].astext == str(user_id)
+                CentralizedAnalyticsEvent.properties["target_user_id"].astext
+                == str(user_id),
             )
         else:
             search_stmt = select(CentralizedAnalyticsEvent).where(
@@ -353,16 +356,24 @@ class AnalyticsService:
             )
         search_all = db.scalars(search_stmt).all()
         if not is_postgres:
-            search_all = [r for r in search_all if r.properties and str(r.properties.get("target_user_id")) == str(user_id)]
+            search_all = [
+                r
+                for r in search_all
+                if r.properties
+                and str(r.properties.get("target_user_id")) == str(user_id)
+            ]
 
         # 3. Connection Requests (Follows)
-        follows_all = db.scalars(select(Follower).where(Follower.following_id == user_id)).all()
+        follows_all = db.scalars(
+            select(Follower).where(Follower.following_id == user_id)
+        ).all()
 
         # 4. Repo Clicks
         if is_postgres:
             repo_stmt = select(CentralizedAnalyticsEvent).where(
                 CentralizedAnalyticsEvent.event_type == "repository_click",
-                CentralizedAnalyticsEvent.properties["target_user_id"].astext == str(user_id)
+                CentralizedAnalyticsEvent.properties["target_user_id"].astext
+                == str(user_id),
             )
         else:
             repo_stmt = select(CentralizedAnalyticsEvent).where(
@@ -370,13 +381,19 @@ class AnalyticsService:
             )
         repo_all = db.scalars(repo_stmt).all()
         if not is_postgres:
-            repo_all = [r for r in repo_all if r.properties and str(r.properties.get("target_user_id")) == str(user_id)]
+            repo_all = [
+                r
+                for r in repo_all
+                if r.properties
+                and str(r.properties.get("target_user_id")) == str(user_id)
+            ]
 
         # 5. Project Clicks
         if is_postgres:
             project_stmt = select(CentralizedAnalyticsEvent).where(
                 CentralizedAnalyticsEvent.event_type == "project_click",
-                CentralizedAnalyticsEvent.properties["target_user_id"].astext == str(user_id)
+                CentralizedAnalyticsEvent.properties["target_user_id"].astext
+                == str(user_id),
             )
         else:
             project_stmt = select(CentralizedAnalyticsEvent).where(
@@ -384,7 +401,12 @@ class AnalyticsService:
             )
         project_all = db.scalars(project_stmt).all()
         if not is_postgres:
-            project_all = [r for r in project_all if r.properties and str(r.properties.get("target_user_id")) == str(user_id)]
+            project_all = [
+                r
+                for r in project_all
+                if r.properties
+                and str(r.properties.get("target_user_id")) == str(user_id)
+            ]
 
         # Function to aggregate counts
         def get_summary_and_growth(items) -> ProfileAnalyticSummaryItem:
@@ -405,7 +427,9 @@ class AnalyticsService:
             if previous_count == 0:
                 growth_pct = 100.0 if current_count > 0 else 0.0
             else:
-                growth_pct = round(((current_count - previous_count) / previous_count) * 100, 1)
+                growth_pct = round(
+                    ((current_count - previous_count) / previous_count) * 100, 1
+                )
 
             return ProfileAnalyticSummaryItem(total=total, growth_pct=growth_pct)
 
@@ -479,4 +503,3 @@ class AnalyticsService:
             )
 
         return ProfileAnalyticsResponse(summary=summary, trends=trends)
-

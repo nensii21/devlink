@@ -1,6 +1,5 @@
 import uuid
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_pro_user, get_database
@@ -8,7 +7,6 @@ from app.models.user import User
 from app.schemas.profile_view import (
     PaginatedProfileViewsResponse,
     ProfileViewPrivacySettings,
-    ProfileViewResponse,
 )
 from app.services.profile_view_service import ProfileViewService
 
@@ -93,4 +91,6 @@ def update_privacy_settings(
     setattr(current_user, "hide_profile_views", settings.hide_profile_views)
     db.commit()
     db.refresh(current_user)
-    return ProfileViewPrivacySettings(hide_profile_views=current_user.hide_profile_views)
+    return ProfileViewPrivacySettings(
+        hide_profile_views=current_user.hide_profile_views
+    )

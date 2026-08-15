@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { TypoCard } from "@/components/shared/Typography";
+import { EmptySearchState } from "@/components/shared/EmptySearchState";
 
 export interface FilterOption {
   label: string;
@@ -92,7 +93,7 @@ export interface FilterDrawerProps {
   onReset: () => void;
   /** Number of active filters to display in badge */
   activeCount?: number;
-  /** Drawer slide direction for desktop/tablet sheet */
+  /** Drawer slide direction for desktop, tablet sheet */
   side?: "right" | "left";
   /** Optional custom CSS classes */
   className?: string;
@@ -132,6 +133,17 @@ export function FilterDrawer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onOpenChange]);
 
+  // Track search queries per section for pills display
+  const [searchQueries, setSearchQueries] = React.useState<Record<string, string>>(
+    Object.fromKeys(sections.map((s) => [s.id, ""]))
+  );
+
+  // Update search query state
+  const updateSearchQuery = (sectionId: string, query: string) => {
+    setSearchQueries((prev) => ({ ...prev, [sectionId]: query }));
+  };
+
+  // Handle option toggle (checkbox/radio/chip)
   const handleOptionToggle = (sectionId: string, optionValue: string, isMulti = true) => {
     setDraftValues((prev) => {
       if (isMulti) {
@@ -144,10 +156,16 @@ export function FilterDrawer({
       }
       return { ...prev, [sectionId]: optionValue === prev[sectionId] ? "" : optionValue };
     });
+    // Also update search query for pills display
+    if (!isMulti) {
+      updateSearchQuery(sectionId, optionValue);
+    }
   };
 
+  // Handle text input change (for search and single select)
   const handleTextChange = (sectionId: string, text: string | number) => {
     setDraftValues((prev) => ({ ...prev, [sectionId]: text }));
+    updateSearchQuery(sectionId, typeof text === "string" ? text : "");
   };
 
   const handleApply = () => {
@@ -158,29 +176,99 @@ export function FilterDrawer({
   const handleReset = () => {
     onReset();
     setDraftValues({});
+    setSearchQueries(Object.fromKeys(sections.map((s) => [s.id, ""])));
     onOpenChange(false);
   };
 
+  // Render a single filter pill
+  const renderPill = (
+    sectionId: string,
+    optionValue: string,
+    label: string,
+    isSelected: boolean,
+    hasSearchQuery: boolean
+  ) => {
+    const isSearchMode = sections.find((s) => s.id === sectionId)?.type === "search";
+
+    return (
+      <button
+        key={optionValue}
+        type="button"
+        onClick={() => handleOptionToggle(sectionId, optionValue, false)}
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer",
+          isSelected
+            ? "border-primary bg-primary/10 text-primary font-semibold"
+            : "border-border bg-surface text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+          // Show pill as "active search" when there's a search query
+          hasSearchMode && isSelected
+            ? "border-primary bg-primary/10 text-primary font-semibold"
+            : ""
+        )}
+        aria-pressed={isSelected}
+        aria-label={`${sectionId}: ${optionLabel(sectionId, optionValue)}`}
+      >
+        {isSelected && <Check size={12} className="shrink-0" />}
+        <span>{label}</span>
+        {hasSearchQuery && (
+          <span className="ml-1 text-[10px] opacity-70">🔍 active</span>
+        )}
+      </button>
+    );
+  };
+
+  // Get option label for aria
+  const optionLabel = (sectionId: string, value: string) => {
+    const section = sections.find((s) => s.id === sectionId);
+    const option = section?.options?.find((opt) => opt.value === value);
+    return option ? option.label : value;
+  };
+
+  // Render search input with pill
+  const renderSearchInput = (section: FilterSection) => {
+    const hasQuery = searchQueries[section.id] && searchQueries[section.id].trim();
+
+    return (
+      <div className="relative mt-2 flex items-center">
+        <Search
+          size={14}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+        />
+        <input
+          type="text"
+          value={asText(draftValues[section.id])}
+          onChange={(e) => {
+            const query = e.target.value.trim();
+            handleTextChange(section.id, query);
+          }}
+          placeholder={section.placeholder || `Search ${section.title.toLowerCase()}...`}
+          className="w-full rounded-md border border-border bg-surface py-1.5 pl-8 pr-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          aria-label={section.title}
+        />
+        {hasSearchQuery && (
+          <button
+            type="button"
+            onClick={() => {
+              handleTextChange(section.id, "");
+              setSearchQueries((prev) => ({ ...prev, [section.id]: "" }));
+            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-accent/20 cursor-pointer"
+            aria-label="Clear search"
+          >
+            <X size={14} className="text-muted-foreground" />
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  // Render filter section with pills and search
   const renderSectionContent = (section: FilterSection) => {
     const type = section.type || "multi";
 
+    // For search type, render search input with pill
     if (type === "search") {
-      return (
-        <div className="relative mt-2">
-          <Search
-            size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-          />
-          <input
-            type="text"
-            value={asText(draftValues[section.id])}
-            onChange={(e) => handleTextChange(section.id, e.target.value)}
-            placeholder={section.placeholder || `Search ${section.title.toLowerCase()}...`}
-            className="w-full rounded-md border border-border bg-surface py-1.5 pl-8 pr-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-            aria-label={section.title}
-          />
-        </div>
-      );
+      return renderSearchInput(section);
     }
 
     if (type === "select") {
@@ -228,10 +316,13 @@ export function FilterDrawer({
       );
     }
 
-    // Default multi or single checkbox/radio chip buttons
+    // Default multi or single - render chips/buttons
     const isMulti = type === "multi";
     const selectedList = asList(draftValues[section.id]);
     const selectedText = asText(draftValues[section.id]);
+
+    // Get search query for this section
+    const sectionSearchQuery = searchQueries[section.id] || "";
 
     return (
       <div className="mt-2 flex flex-wrap gap-2">
@@ -240,26 +331,12 @@ export function FilterDrawer({
             ? selectedList.includes(option.value)
             : selectedText === option.value;
 
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => handleOptionToggle(section.id, option.value, isMulti)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer",
-                isSelected
-                  ? "border-primary bg-primary/10 text-primary font-semibold"
-                  : "border-border bg-surface text-muted-foreground hover:border-foreground/30 hover:text-foreground",
-              )}
-              aria-pressed={isSelected}
-              aria-label={`${section.title}: ${option.label}`}
-            >
-              {isSelected && <Check size={12} className="shrink-0" />}
-              <span>{option.label}</span>
-              {option.count !== undefined && (
-                <span className="ml-1 text-[10px] opacity-70">({option.count})</span>
-              )}
-            </button>
+          return renderPill(
+            section.id,
+            option.value,
+            option.label,
+            isSelected,
+            sectionSearchQuery !== ""
           );
         })}
       </div>
@@ -302,6 +379,11 @@ export function FilterDrawer({
     </div>
   );
 
+  // Check if any section has active search query
+  const hasAnySearchQuery = React.useMemo(() => {
+    return Object.values(searchQueries).some((q) => q && q.trim());
+  }, [searchQueries]);
+
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
@@ -340,6 +422,22 @@ export function FilterDrawer({
         </DrawerContent>
       </Drawer>
     );
+  }
+
+  // Check if there are any filters active (selected chips or search queries)
+  const hasActiveFilters = React.useMemo(() => {
+    // Check if any multi/select section has selected values
+    const hasSelected = sections.some((section) => {
+      const isMulti = section.type !== "select" && section.type !== "range";
+      const selectedList = asList(draftValues[section.id]);
+      return selectedList.length > 0;
+    });
+    return hasSelected || hasAnySearchQuery;
+  }, [sections, draftValues, searchQueries]);
+
+  if (!hasActiveFilters && !open) {
+    // Show empty state when no filters are active and drawer is closed
+    return null;
   }
 
   return (

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from typing import List, Optional
+from typing import List
 
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
@@ -13,7 +13,6 @@ from app.models.user_block import UserBlock
 
 
 class BlockService:
-
     @staticmethod
     def block_user(
         db: Session,

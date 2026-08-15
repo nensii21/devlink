@@ -21,11 +21,22 @@ ALL_ALLOWED_SCOPES = {
 
 
 class ApiKeyCreateRequest(BaseModel):
-    name: str = Field(..., min_length=1, max_length=200, description="Friendly label for the API Key")
-    organization_id: Optional[uuid.UUID] = Field(None, description="Optional organization ID if creating an organization API Key")
-    scopes: List[str] = Field(default_factory=lambda: DEFAULT_SCOPES, description="List of assigned scopes/permissions")
-    expires_in_days: Optional[int] = Field(None, ge=1, le=365, description="Optional expiration period in days")
-    expires_at: Optional[datetime] = Field(None, description="Optional explicit expiration datetime")
+    name: str = Field(
+        ..., min_length=1, max_length=200, description="Friendly label for the API Key"
+    )
+    organization_id: Optional[uuid.UUID] = Field(
+        None, description="Optional organization ID if creating an organization API Key"
+    )
+    scopes: List[str] = Field(
+        default_factory=lambda: DEFAULT_SCOPES,
+        description="List of assigned scopes/permissions",
+    )
+    expires_in_days: Optional[int] = Field(
+        None, ge=1, le=365, description="Optional expiration period in days"
+    )
+    expires_at: Optional[datetime] = Field(
+        None, description="Optional explicit expiration datetime"
+    )
 
 
 class ApiKeyUpdateRequest(BaseModel):

@@ -66,12 +66,15 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         user_id = None
         auth_header = request.headers.get("authorization", "")
         if auth_header.startswith("Bearer "):
-            from app.core.security import decode_token
+            from app.core.security import decode_access_token
 
+            # Attribution only, but still access-token-only: a request bearing
+            # anything else is not an authenticated request, and logging it as
+            # one makes the request log disagree with what actually happened.
             try:
-                payload = decode_token(auth_header[7:])
+                payload = decode_access_token(auth_header[7:])
                 user_id = payload.get("sub")
-            except Exception:
+            except ValueError:
                 user_id = None
 
         try:

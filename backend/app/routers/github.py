@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from app.dependencies import get_database, get_current_user
+from fastapi import APIRouter, Depends
+from app.dependencies import get_current_user
 from app.models.user import User
 from app.services.github_service import GitHubService
 from typing import Any, List, Dict
@@ -9,6 +8,7 @@ router = APIRouter(
     prefix="/github",
     tags=["GitHub Insights"],
 )
+
 
 @router.get(
     "/{username}/profile",
@@ -20,6 +20,7 @@ async def get_github_profile(
 ) -> Dict[str, Any]:
     return await GitHubService.get_profile(username)
 
+
 @router.get(
     "/{username}/repositories",
     summary="Get GitHub repositories",
@@ -30,6 +31,7 @@ async def get_github_repositories(
 ) -> List[Dict[str, Any]]:
     return await GitHubService.get_repositories(username)
 
+
 @router.get(
     "/{username}/stats",
     summary="Get GitHub stats",
@@ -39,6 +41,7 @@ async def get_github_stats(
     current_user: User = Depends(get_current_user),
 ) -> Dict[str, Any]:
     return await GitHubService.get_stats(username)
+
 
 @router.get(
     "/{username}/contributions",

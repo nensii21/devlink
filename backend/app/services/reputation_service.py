@@ -1,6 +1,7 @@
 """
 Reputation System Service (#597)
 """
+
 from __future__ import annotations
 
 import uuid
@@ -82,7 +83,8 @@ class ReputationService:
             user_id=user.id,
             action=action.lower(),
             points=pts,
-            description=description or f"Earned {pts} pts for {action.replace('_', ' ')}",
+            description=description
+            or f"Earned {pts} pts for {action.replace('_', ' ')}",
         )
         db.add(log_entry)
         db.commit()
@@ -153,8 +155,10 @@ class ReputationService:
                     rank=idx,
                     user_id=u.id,
                     username=u.username,
-                    full_name=getattr(u, "full_name", None) or getattr(u, "name", u.username),
-                    avatar_url=getattr(u, "avatar_url", None) or getattr(u, "avatar", None),
+                    full_name=getattr(u, "full_name", None)
+                    or getattr(u, "name", u.username),
+                    avatar_url=getattr(u, "avatar_url", None)
+                    or getattr(u, "avatar", None),
                     reputation_score=score,
                     rank_tier=calculate_rank_tier(score),
                 )

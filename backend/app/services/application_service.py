@@ -184,6 +184,7 @@ class ApplicationService:
 
         # Create ProjectMember record for applicant if not already present
         from app.models.project_member import ProjectMember, MemberRole
+
         existing_pm = db.scalar(
             select(ProjectMember).where(
                 ProjectMember.project_id == db_application.project_id,

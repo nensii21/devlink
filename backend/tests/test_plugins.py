@@ -1,11 +1,12 @@
 """
 Unit & Integration Tests for DevLink Plugin & Extension System (#582)
 """
+
 from __future__ import annotations
 
 import uuid
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi import HTTPException
@@ -22,9 +23,7 @@ from app.schemas.plugin import (
     PluginCreate,
     PluginEventDispatchResult,
     PluginInstallationCreate,
-    PluginInstallationUpdate,
     PluginManifestSchema,
-    PluginResponse,
     PluginUpdate,
 )
 from app.services.plugin_service import PluginService
@@ -33,6 +32,7 @@ from app.services.plugin_service import PluginService
 # ---------------------------------------------------------------------------
 # Test Fixtures & Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_user(username: str = "devuser", system_role: str = "user") -> MagicMock:
     user = MagicMock(spec=User)
@@ -63,7 +63,8 @@ def _make_mock_plugin(
     p.plugin_type = plugin_type
     p.status = PluginStatus.ACTIVE
     p.manifest = {
-        "extension_points": extension_points or ["on_project_created", "dashboard_widget"],
+        "extension_points": extension_points
+        or ["on_project_created", "dashboard_widget"],
         "webhook_url": webhook_url,
         "permissions": ["read_projects"],
         "widget_config": {"height": 250},
@@ -101,9 +102,13 @@ def _make_mock_installation(
 # 1. Plugin Registration & Slug Tests
 # ---------------------------------------------------------------------------
 
+
 class TestPluginRegistration:
     def test_slugify(self):
-        assert PluginService._slugify("Slack Integration & Bot!") == "slack-integration-bot"
+        assert (
+            PluginService._slugify("Slack Integration & Bot!")
+            == "slack-integration-bot"
+        )
         assert PluginService._slugify("  Custom Workflow  ") == "custom-workflow"
 
     def test_create_plugin_success(self):
@@ -155,6 +160,7 @@ class TestPluginRegistration:
 # 2. Retrieval, Update & Verification Tests
 # ---------------------------------------------------------------------------
 
+
 class TestPluginManagement:
     def test_get_plugin_or_404_found(self):
         db = MagicMock(spec=Session)
@@ -202,7 +208,9 @@ class TestPluginManagement:
         plugin = _make_mock_plugin()
         db.get.return_value = plugin
 
-        res = PluginService.verify_plugin(db, plugin.id, is_verified=True, is_official=True)
+        res = PluginService.verify_plugin(
+            db, plugin.id, is_verified=True, is_official=True
+        )
         assert res.is_verified is True
         assert res.is_official is True
 
@@ -210,6 +218,7 @@ class TestPluginManagement:
 # ---------------------------------------------------------------------------
 # 3. Installation & Uninstallation Tests
 # ---------------------------------------------------------------------------
+
 
 class TestPluginInstallationService:
     def test_install_plugin_user_success(self):
@@ -235,7 +244,9 @@ class TestPluginInstallationService:
         db.scalar.return_value = existing_inst
 
         with pytest.raises(HTTPException) as exc_info:
-            PluginService.install_plugin(db, plugin.id, user, PluginInstallationCreate())
+            PluginService.install_plugin(
+                db, plugin.id, user, PluginInstallationCreate()
+            )
         assert exc_info.value.status_code == 400
 
     def test_uninstall_plugin_success(self):
@@ -257,6 +268,7 @@ class TestPluginInstallationService:
 # ---------------------------------------------------------------------------
 # 4. Event Dispatch & Workflow Hooks Tests
 # ---------------------------------------------------------------------------
+
 
 class TestPluginEventDispatch:
     def test_dispatch_event_matches_and_queues_webhook(self):

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.services.project_tag_service import ProjectTagService, PREDEFINED_TAGS
+from app.services.project_tag_service import ProjectTagService
 
 
 def test_get_predefined_tags_service():

@@ -1,9 +1,5 @@
 import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 from app.core.config import settings
 from app.core.security import (
@@ -12,9 +8,6 @@ from app.core.security import (
     create_verification_token,
     decode_token,
 )
-from app.database.base import Base
-from app.dependencies import get_database
-from app.main import app
 from app.models.user import User
 
 

@@ -16,6 +16,7 @@ from app.schemas.notification import (
     NotificationUpdate,
 )
 from app.services.notification_service import NotificationService
+from app.core.cache import cache_manager, cached
 
 router = APIRouter(
     tags=["Notifications"],
@@ -33,12 +34,14 @@ def create_notification(
     current_user: User = Depends(get_current_user),
 ):
 
-    return NotificationService.create_notification(
+    result = NotificationService.create_notification(
         db=db,
         recipient_id=notification.recipient_id,
         sender_id=current_user.id,
         notification=notification,
     )
+    cache_manager.delete_pattern(f"notifs_count:*{notification.recipient_id}*")
+    return result
 
 
 @router.get(
@@ -74,6 +77,7 @@ def unread_notifications(
 @router.get(
     "/unread/count",
 )
+@cached(ttl=600, key_prefix="notifs_count")
 def unread_count(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),
@@ -99,6 +103,7 @@ def mark_all_as_read(
         db,
         current_user.id,
     )
+    cache_manager.delete_pattern(f"notifs_count:*{current_user.id}*")
 
     return {
         "message": "All notifications marked as read",
@@ -148,10 +153,12 @@ def mark_as_read(
             detail="Notification not found",
         )
 
-    return NotificationService.mark_as_read(
+    result = NotificationService.mark_as_read(
         db,
         notification,
     )
+    cache_manager.delete_pattern(f"notifs_count:*{notification.recipient_id}*")
+    return result
 
 
 @router.put(
@@ -175,11 +182,13 @@ def update_notification(
             detail="Notification not found",
         )
 
-    return NotificationService.update_notification(
+    result = NotificationService.update_notification(
         db,
         db_notification,
         notification,
     )
+    cache_manager.delete_pattern(f"notifs_count:*{db_notification.recipient_id}*")
+    return result
 
 
 @router.delete(
@@ -188,6 +197,7 @@ def update_notification(
 )
 def delete_notification(
     notification_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),
 ):
 
@@ -202,10 +212,17 @@ def delete_notification(
             detail="Notification not found",
         )
 
+    if notification.recipient_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this notification",
+        )
+
     NotificationService.delete_notification(
         db,
         notification,
     )
+    cache_manager.delete_pattern(f"notifs_count:*{notification.recipient_id}*")
 
 
 from app.schemas.notification import (

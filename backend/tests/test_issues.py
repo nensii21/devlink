@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models.issue import DuplicateSuggestion, Issue, IssueDifficulty, IssueStatus
+from app.models.issue import DuplicateSuggestion, Issue, IssueDifficulty
 from app.models.project import Project, ProjectStage, ProjectVisibility
 from app.models.user import User
 from app.services.duplicate_detection_service import DuplicateDetectionService

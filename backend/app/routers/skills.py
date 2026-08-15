@@ -19,7 +19,6 @@ from app.schemas.skill import (
     SkillUpdate,
 )
 from app.services.skill_service import SkillService
-from app.core.cache import cached
 
 router = APIRouter(
     prefix="/skills",

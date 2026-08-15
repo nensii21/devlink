@@ -12,7 +12,7 @@ prove is a public destination, because the cost of a false negative is a
 credential leak and the cost of a false positive is one link that does not get
 a preview card.
 
-Two things it does that the obvious implementation does not:
+Three things it does that the obvious implementation does not:
 
 * It resolves the hostname and inspects the **resolved addresses**, not the
   hostname string. ``127.0.0.1.nip.io`` is a perfectly ordinary public name
@@ -20,6 +20,12 @@ Two things it does that the obvious implementation does not:
 * It exposes the resolved addresses to the caller, so a fetch can be re-checked
   at every redirect hop. A URL that passes on hop one and 302s to
   ``http://169.254.169.254/`` must fail on hop two.
+* It gives the caller everything needed to connect to *the address it just
+  checked* (see :func:`pin_target`). Validating a hostname and then handing the
+  hostname to an HTTP client leaves a gap in which DNS is free to answer
+  differently the second time, and that gap is the whole of the DNS-rebinding
+  attack. A check is only worth something if the socket goes to the address
+  that passed it.
 """
 
 from __future__ import annotations
@@ -28,7 +34,7 @@ import ipaddress
 import socket
 from dataclasses import dataclass
 from typing import Iterable, Optional
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 # Only these two ever make sense for a link somebody pasted into a message.
 # `file:` reads our disk, `gopher:` and `dict:` are classic SSRF gadgets for
@@ -65,6 +71,86 @@ class SafeTarget:
     host: str
     port: int
     addresses: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class PinnedRequest:
+    """
+    How to issue a request that lands on an address we verified.
+
+    ``url`` has the literal IP in place of the hostname, so the client does not
+    get a second bite at DNS. ``headers`` restores the original ``Host`` so
+    virtual hosting still works, and ``extensions`` carries the SNI hostname so
+    TLS still presents and validates the right certificate. Pass all three to
+    ``httpx`` and the connection is pinned without breaking name-based routing.
+    """
+
+    url: str
+    headers: dict[str, str]
+    extensions: dict[str, str]
+    address: str
+
+
+def format_host_for_url(host: str) -> str:
+    """
+    A host as it should appear in a URL's authority.
+
+    IPv6 literals need square brackets. Without them ``::1`` and the port
+    separator are indistinguishable and the result does not parse at all.
+    """
+    try:
+        parsed = ipaddress.ip_address(host)
+    except ValueError:
+        return host
+
+    return f"[{host}]" if isinstance(parsed, ipaddress.IPv6Address) else host
+
+
+def pin_target(target: SafeTarget, address: Optional[str] = None) -> PinnedRequest:
+    """
+    Turn a validated target into a request that cannot be re-resolved.
+
+    ``address`` picks which of the verified addresses to use; it must be one of
+    ``target.addresses``, and defaults to the first. Passing an address that
+    was not verified is a programming error and raises, rather than quietly
+    connecting somewhere unchecked.
+    """
+    if not target.addresses:
+        raise UnsafeURL("That host did not resolve to any address.")
+
+    chosen = address if address is not None else target.addresses[0]
+    if chosen not in target.addresses:
+        raise UnsafeURL("That address was not one of the verified addresses.")
+
+    parsed = urlparse(target.url)
+
+    # The Host header keeps the port when it is not the scheme default, which
+    # is what a browser would send and what virtual hosts key on.
+    host_header = target.host
+    if target.port != DEFAULT_PORTS.get(target.scheme):
+        host_header = f"{format_host_for_url(target.host)}:{target.port}"
+
+    authority = f"{format_host_for_url(chosen)}:{target.port}"
+    pinned_url = urlunparse(
+        (
+            target.scheme,
+            authority,
+            parsed.path or "/",
+            parsed.params,
+            parsed.query,
+            "",
+        )
+    )
+
+    return PinnedRequest(
+        url=pinned_url,
+        headers={"Host": host_header},
+        # httpx reads sni_hostname from request extensions. Without it the TLS
+        # handshake would use the IP as the server name and every certificate
+        # would fail to verify.
+        extensions={"sni_hostname": target.host},
+        address=chosen,
+    )
 
 
 def _is_public_address(address: str) -> bool:
@@ -200,22 +286,38 @@ def normalise_url(url: str) -> str:
     A stable spelling of a URL, for use as a cache key.
 
     Lowercases the scheme and host, drops a redundant explicit port and an
-    empty query or fragment. Two links that differ only in these respects
-    describe the same page and should share one cache entry.
+    empty fragment, brackets an IPv6 literal, and sorts the query. Two links
+    that differ only in these respects describe the same page and should share
+    one cache entry -- and a cache miss here is a real outbound fetch and a
+    rate-limit slot, so the sorting is not cosmetic.
     """
     parsed = urlparse(url.strip())
     scheme = parsed.scheme.lower()
     host = (parsed.hostname or "").lower()
 
-    netloc = host
+    # `parsed.hostname` strips the brackets from an IPv6 literal. Putting the
+    # bare address back into an authority produces `http://::1:8080/x`, which
+    # does not parse -- `urlparse` reports no hostname at all for it.
+    netloc = format_host_for_url(host)
     if parsed.port and parsed.port != DEFAULT_PORTS.get(scheme):
-        netloc = f"{host}:{parsed.port}"
+        netloc = f"{netloc}:{parsed.port}"
 
     path = parsed.path or "/"
 
+    # `?b=2&a=1` and `?a=1&b=2` are the same request. Sorting makes them the
+    # same cache key too.
+    #
+    # Sorting by the key alone, not by the whole pair: Python's sort is stable,
+    # so repeated keys keep their relative order. `?tag=a&tag=b` is not
+    # necessarily the same request as `?tag=b&tag=a` -- plenty of APIs treat
+    # repeated parameters as an ordered list -- and collapsing the two would be
+    # a cache collision between two different pages.
+    pairs = parse_qsl(parsed.query, keep_blank_values=True)
+    query = urlencode(sorted(pairs, key=lambda pair: pair[0]))
+
     # The fragment is a client-side concern; the server returns the same
     # document either way.
-    return urlunparse((scheme, netloc, path, parsed.params, parsed.query, ""))
+    return urlunparse((scheme, netloc, path, parsed.params, query, ""))
 
 
 def filter_safe_urls(urls: Iterable[str], *, resolver=_resolve) -> list[str]:
