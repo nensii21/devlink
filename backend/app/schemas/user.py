@@ -93,7 +93,7 @@ class UserBase(BaseModel):
 
     website: ValidURL | None = None
     resume_url: ValidURL | None = None
-      voice_introduction_url: ValidURL | None = None
+    voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None
@@ -160,7 +160,7 @@ class UserUpdate(BaseModel):
 
     website: ValidURL | None = None
     resume_url: ValidURL | None = None
-      voice_introduction_url: ValidURL | None = None
+    voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None

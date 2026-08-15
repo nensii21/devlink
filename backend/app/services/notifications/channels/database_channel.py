@@ -41,6 +41,11 @@ class DatabaseChannel(NotificationChannel):
         if sender_id is not None:
             stmt = stmt.where(Notification.sender_id == sender_id)
 
+        def _parse_uuid(val):
+            if val:
+                return uuid.UUID(val) if isinstance(val, str) else val
+            return None
+
         # We can also check if metadata_info matches, but for simplicity we'll just update existing if same type/sender
         existing = db.scalars(stmt).first()
         if existing:
@@ -51,9 +56,19 @@ class DatabaseChannel(NotificationChannel):
             existing.action_url = action_url
             existing.image_url = image_url
             existing.priority = priority
+            if metadata_info:
+                existing.project_id = _parse_uuid(metadata_info.get("project_id"))
+                existing.conversation_id = _parse_uuid(metadata_info.get("conversation_id"))
+                existing.message_id = _parse_uuid(metadata_info.get("message_id"))
+                existing.application_id = _parse_uuid(metadata_info.get("application_id"))
             db.flush()
             db.refresh(existing)
             return existing
+
+        project_id = _parse_uuid(metadata_info.get("project_id")) if metadata_info else None
+        conversation_id = _parse_uuid(metadata_info.get("conversation_id")) if metadata_info else None
+        message_id = _parse_uuid(metadata_info.get("message_id")) if metadata_info else None
+        application_id = _parse_uuid(metadata_info.get("application_id")) if metadata_info else None
 
         db_notification = Notification(
             recipient_id=recipient_id,
@@ -68,6 +83,10 @@ class DatabaseChannel(NotificationChannel):
             image_url=image_url,
             metadata_info=metadata_info,
             sent_at=utcnow(),
+            project_id=project_id,
+            conversation_id=conversation_id,
+            message_id=message_id,
+            application_id=application_id,
         )
 
         db.add(db_notification)
