@@ -456,6 +456,7 @@ http://localhost:8000/docs
 npm run dev        # Start local development server (HMR)
 npm run build      # Compile production bundle
 npm run test       # Run unit tests (Vitest)
+npm run test:coverage # Run unit tests with coverage
 npm run lint       # Static analysis with ESLint
 npm run format     # Format with Prettier
 npm run typecheck  # TypeScript type check (no emit)
@@ -466,7 +467,7 @@ npm run typecheck  # TypeScript type check (no emit)
 ```bash
 uvicorn app.main:app --reload             # Start development server
 pytest                                    # Run test suite
-pytest --cov=app --cov-report=term        # Run with coverage report
+pytest --cov=app --cov-report=term-missing --cov-report=xml # Run tests with coverage
 alembic upgrade head                      # Apply pending migrations
 alembic revision --autogenerate -m "msg"  # Generate new migration
 ```

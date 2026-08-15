@@ -41,5 +41,4 @@ jobs:
       #   run: mypy .
 
       - name: Run tests
-        run: pytest
-        continue-on-error: true
+        run: pytest --cov=app --cov-report=term-missing --cov-report=xml

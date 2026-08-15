@@ -19,7 +19,7 @@ export function SectionHeader({
 }) {
   return (
     <div className={cn("flex items-center justify-between px-5 pt-4 pb-3.5", className)}>
-      <TypoSection>
+      <TypoSection className="flex items-center gap-2">
         <span className="inline-block h-2 w-2 rounded-full bg-primary/80" />
         {title}
       </TypoSection>

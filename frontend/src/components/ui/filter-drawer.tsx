@@ -135,7 +135,7 @@ export function FilterDrawer({
 
   // Track search queries per section for pills display
   const [searchQueries, setSearchQueries] = React.useState<Record<string, string>>(
-    Object.fromKeys(sections.map((s) => [s.id, ""]))
+    Object.fromEntries(sections.map((s) => [s.id, ""]))
   );
 
   // Update search query state
@@ -176,7 +176,7 @@ export function FilterDrawer({
   const handleReset = () => {
     onReset();
     setDraftValues({});
-    setSearchQueries(Object.fromKeys(sections.map((s) => [s.id, ""])));
+    setSearchQueries(Object.fromEntries(sections.map((s) => [s.id, ""])));
     onOpenChange(false);
   };
 
@@ -186,7 +186,8 @@ export function FilterDrawer({
     optionValue: string,
     label: string,
     isSelected: boolean,
-    hasSearchQuery: boolean
+    hasSearchQuery: boolean,
+    isMulti: boolean = true
   ) => {
     const isSearchMode = sections.find((s) => s.id === sectionId)?.type === "search";
 
@@ -194,14 +195,14 @@ export function FilterDrawer({
       <button
         key={optionValue}
         type="button"
-        onClick={() => handleOptionToggle(sectionId, optionValue, false)}
+        onClick={() => handleOptionToggle(sectionId, optionValue, isMulti)}
         className={cn(
           "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer",
           isSelected
             ? "border-primary bg-primary/10 text-primary font-semibold"
             : "border-border bg-surface text-muted-foreground hover:border-foreground/30 hover:text-foreground",
           // Show pill as "active search" when there's a search query
-          hasSearchMode && isSelected
+          isSearchMode && isSelected
             ? "border-primary bg-primary/10 text-primary font-semibold"
             : ""
         )}
@@ -245,7 +246,7 @@ export function FilterDrawer({
           className="w-full rounded-md border border-border bg-surface py-1.5 pl-8 pr-3 text-[13px] text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           aria-label={section.title}
         />
-        {hasSearchQuery && (
+        {hasQuery && (
           <button
             type="button"
             onClick={() => {
@@ -336,7 +337,8 @@ export function FilterDrawer({
             option.value,
             option.label,
             isSelected,
-            sectionSearchQuery !== ""
+            sectionSearchQuery !== "",
+            isMulti
           );
         })}
       </div>
