@@ -116,7 +116,7 @@ pytest-cov>=6.2.1
 # Formatting
 # ----------------------------
 
-black>=25.1.0
+black>=26.5.1
 isort>=8.0.1
 ruff>=0.12.5
 
