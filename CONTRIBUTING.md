@@ -254,6 +254,8 @@ Backend
 ```bash
 pytest
 ```
+## 🌱 Contributor Mentorship Program
+New to open source or our codebase? Check out our [Contributor Mentorship Program](./docs/mentorship/README.md) for step-by-step beginner roadmaps, weekly checklists, and dedicated mentor guidance!
 
 Please ensure:
 
