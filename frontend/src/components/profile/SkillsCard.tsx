@@ -6,6 +6,8 @@ import { TypoCaption, TypoHeading } from "@/components/shared/Typography";
 export interface SkillsCardProps {
   skills: ProfileSkill[];
   editable?: boolean;
+  isOwnProfile?: boolean;
+  onManageSkills?: () => void;
   formValues?: ProfileSkill[];
   skillErrors?: Record<string, string>;
   onSkillChange?: (
@@ -38,6 +40,8 @@ const SKILL_CATEGORIES = [
 export function SkillsCard({
   skills,
   editable = false,
+  isOwnProfile = false,
+  onManageSkills,
   formValues = [],
   skillErrors = {},
   onSkillChange,
@@ -179,6 +183,15 @@ export function SkillsCard({
             </TypoCaption>
           </div>
         </div>
+        {onManageSkills && (
+          <button
+            type="button"
+            onClick={onManageSkills}
+            className="inline-flex items-center gap-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer"
+          >
+            Manage Skills
+          </button>
+        )}
       </div>
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -131,39 +131,6 @@ export function CurrentProjects() {
   return (
     <Card className="border-border/60 rounded-2xl bg-card shadow-xs flex flex-col h-full">
       <SectionHeader title="Current Projects" action="View All" actionTo="/projects" />
-      <div className="flex-1 px-5 pb-5 pt-1 flex flex-col gap-4">
-        {projectsList.map((p) => (
-          <div
-            key={p.id}
-            className="flex items-center justify-between gap-4 p-3 rounded-xl border border-border/40 hover:bg-muted/10 transition-colors"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className={cn(
-                  "flex items-center justify-center h-10 w-10 shrink-0 rounded-lg text-sm font-bold",
-                  p.iconBg,
-                )}
-              >
-                {p.iconText}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">{p.name}</p>
-                <TypoCaption as="p">{p.status}</TypoCaption>
-              </div>
-            </div>
-
-            {/* Progress bar stack */}
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="hidden sm:flex flex-col items-end gap-1">
-                <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full"
-                    style={{ width: `${p.progress}%` }}
-                  />
-                </div>
-                <span className="text-[10px] font-semibold text-muted-foreground">
-                  {p.progress}%
-                </span>
       <div className="flex-1 px-4 sm:px-5 pb-5 pt-1 flex flex-col gap-3.5">
         {isLoading
           ? Array.from({ length: 3 }).map((_, i) => (
@@ -185,26 +152,6 @@ export function CurrentProjects() {
               };
               const statusBadge = statusMap[p.status] || statusMap["in-progress"];
 
-              {/* Avatar stack */}
-              <div className="flex -space-x-1.5 items-center shrink-0">
-                {p.avatars.map((av, idx) => (
-                  <Avatar
-                    key={idx}
-                    src={av}
-                    alt="Team"
-                    size={24}
-                    className="border border-card ring-1 ring-border/20"
-                  />
-                ))}
-                {p.extraAvatars > 0 && (
-                  <div className="flex items-center justify-center h-6 w-6 rounded-full bg-muted border border-card text-[9px] font-semibold text-muted-foreground ring-1 ring-border/20">
-                    +{p.extraAvatars}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
               return (
                 <div
                   key={p.id}

@@ -2,11 +2,13 @@ import { createFileRoute, notFound, Link, useNavigate } from "@tanstack/react-ro
 import { Card, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
 import { UserAvatar } from "@/components/user-avatar";
 import { ImageCropUploadModal } from "@/components/shared/ImageCropUploadModal";
-import { builders, currentUser, projects, type Builder, type UserRole } from "@/mocks/seed";
+import { currentUser } from "@/mocks/seed";
 import { toast } from "sonner";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { profileSummaryApi, type ProfileSummaryResponse } from "@/api";
+import { usersApi } from "@/api/modules/users";
+import { projectsApi, type ExtendedProject } from "@/api/modules/projects";
 import { cn } from "@/lib/utils";
 import {
   MapPin,
@@ -21,8 +23,9 @@ import {
   BadgeCheck,
   Camera,
   TrendingUp,
+  FolderOpen,
+  Plus,
 } from "lucide-react";
-import { copyText } from "@/lib/clipboard";
 import { ReportUserModal } from "@/components/shared/ReportUserModal";
 import { analyticsApi } from "@/api/modules/analytics";
 import SkillsCard from "@/components/profile/SkillsCard";
@@ -39,6 +42,8 @@ import { TypoSection, TypoCaption, TypoHeading } from "@/components/shared/Typog
 import { CollaborationStatusBadge } from "@/features/collaboration/components/CollaborationStatusBadge";
 import { CollaborationStatusPicker } from "@/features/collaboration/components/CollaborationStatusPicker";
 import { useCollaborationStatus } from "@/hooks/useCollaborationStatus";
+import { EditProfileModal } from "@/components/profile/EditProfileModal";
+import { ManageSkillsModal } from "@/components/profile/ManageSkillsModal";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -60,101 +65,116 @@ type ProfileSkill = {
   yearsOfExperience?: number;
 };
 
-type ProfileFormValues = {
-  headline: string;
-  bio: string;
-  location: string;
-  timezone: string;
-  website: string;
-  resumeUrl: string;
-  portfolioUrl: string;
-  githubUrl: string;
-  linkedinUrl: string;
-  role: string;
-  experienceLevel: string;
-  company: string;
-  profileSkills: ProfileSkill[];
-  techStack: string[];
-};
-
-function mapBuilderToFormValues(builder: Builder): ProfileFormValues {
-  return {
-    headline: builder.headline ?? "",
-    bio: builder.bio ?? "",
-    location: builder.location ?? "",
-    timezone: builder.timezone ?? "",
-    website: builder.website ?? "",
-    resumeUrl: builder.resumeUrl ?? "",
-    portfolioUrl: builder.portfolioUrl ?? "",
-    githubUrl: builder.githubUrl ?? "",
-    linkedinUrl: builder.linkedinUrl ?? "",
-    role: builder.role ?? "",
-    experienceLevel: builder.experienceLevel ?? "",
-    company: builder.company ?? "",
-    profileSkills: builder.profileSkills?.length
-      ? builder.profileSkills.map((skill: ProfileSkill) => ({
-          ...skill,
-          level: skill.level ?? "Intermediate",
-          yearsOfExperience: skill.yearsOfExperience ?? 0,
-        }))
-      : builder.skills.map((skill: string) => ({
-          name: skill,
-          level: "Intermediate",
-          category: "general",
-        })),
-    techStack: builder.techStack ?? [],
-  };
-}
-
-function buildUpdatedBuilder(builder: Builder, values: ProfileFormValues): Builder {
-  return {
-    ...builder,
-    headline: values.headline || undefined,
-    bio: values.bio || "",
-    location: values.location || undefined,
-    timezone: values.timezone || undefined,
-    website: values.website || undefined,
-    resumeUrl: values.resumeUrl || undefined,
-    portfolioUrl: values.portfolioUrl || undefined,
-    githubUrl: values.githubUrl || undefined,
-    linkedinUrl: values.linkedinUrl || undefined,
-    role: (values.role as UserRole) || "Developer",
-    experienceLevel: values.experienceLevel || undefined,
-    company: values.company || undefined,
-    profileSkills: values.profileSkills.map((skill) => ({
-      name: skill.name,
-      level: skill.level || "Intermediate",
-      category: skill.category || "general",
-      yearsOfExperience: skill.yearsOfExperience ?? 0,
-    })),
-    techStack: values.techStack.filter(Boolean),
-    skills: values.profileSkills.map((skill) => skill.name),
-  };
-}
-
 function ProfilePage() {
   const { username } = Route.useParams();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const navigate = useNavigate();
-  const me = username === currentUser.handle;
-  const b = me
-    ? {
-        ...builders[0],
-        name: currentUser.name,
-        handle: currentUser.handle,
-        avatar: currentUser.avatar,
-        bio: "Product engineer. Ships fast, sleeps sometimes.",
-        role: "Full Stack Developer",
-        id: currentUser.id,
-        premium: currentUser.premium,
-        verified: currentUser.verified,
+
+  // Fetch real user profile from backend
+  const {
+    data: fetchedUser,
+    isLoading: isUserLoading,
+    isError: isUserError,
+  } = useQuery({
+    queryKey: ["profile", username],
+    queryFn: async () => {
+      try {
+        const res = await usersApi.getByUsername(username);
+        return res;
+      } catch (err) {
+        // Fallback for currently logged in mock session user if offline
+        if (username === currentUser.handle) {
+          return {
+            id: currentUser.id,
+            username: currentUser.handle,
+            first_name: currentUser.name.split(" ")[0] || currentUser.name,
+            last_name: currentUser.name.split(" ").slice(1).join(" ") || "",
+            bio: "Product engineer. Ships fast, sleeps sometimes.",
+            role: "Full Stack Developer",
+            profile_image: currentUser.avatar,
+            premium: currentUser.premium,
+            verified: currentUser.verified,
+            skills: [],
+          };
+        }
+        throw err;
       }
-    : builders.find((x) => x.handle === username);
-  if (!b) throw notFound();
+    },
+  });
 
-  const { data: followStatus } = useFollowStatus(b.id);
+  const me =
+    username === currentUser.handle ||
+    Boolean(fetchedUser && fetchedUser.username === currentUser.handle);
 
-  // Live collaboration presence status.
+  const b = useMemo(() => {
+    if (!fetchedUser) return null;
+    const name =
+      fetchedUser.first_name && fetchedUser.last_name
+        ? `${fetchedUser.first_name} ${fetchedUser.last_name}`
+        : fetchedUser.first_name || fetchedUser.username || username;
+
+    const rawSkills: string[] = Array.isArray(fetchedUser.skills) ? fetchedUser.skills : [];
+    const profileSkills: ProfileSkill[] = rawSkills.map((skillName: string) => ({
+      name: skillName,
+      level: "Intermediate",
+      category: "Languages",
+    }));
+
+    return {
+      id: fetchedUser.id || "",
+      name,
+      firstName: fetchedUser.first_name || "",
+      lastName: fetchedUser.last_name || "",
+      handle: fetchedUser.username || username,
+      avatar: fetchedUser.profile_image || "",
+      headline: fetchedUser.headline ?? "",
+      bio: fetchedUser.bio ?? "",
+      location: fetchedUser.location ?? "",
+      country: fetchedUser.location ?? "",
+      website: fetchedUser.website ?? "",
+      githubUrl: fetchedUser.github_url ?? "",
+      linkedinUrl: fetchedUser.linkedinUrl ?? fetchedUser.linkedin_url ?? "",
+      twitterUrl: fetchedUser.twitterUrl ?? fetchedUser.twitter_url ?? "",
+      portfolioUrl: fetchedUser.portfolioUrl ?? fetchedUser.portfolio_url ?? "",
+      role: fetchedUser.role ?? "Developer",
+      company: fetchedUser.company ?? "",
+      experienceLevel: fetchedUser.experience_level ?? "Intermediate",
+      skills: rawSkills,
+      profileSkills,
+      experience: fetchedUser.experience ?? [],
+      education: fetchedUser.education ?? [],
+      badges: fetchedUser.badges ?? [],
+      online: Boolean(fetchedUser.online || fetchedUser.is_active),
+      premium: Boolean(fetchedUser.premium),
+      verified: Boolean(fetchedUser.is_verified || fetchedUser.verified),
+      collaborationStatus: fetchedUser.collaboration_status ?? "available",
+      followers: fetchedUser.followers_count ?? 0,
+      following: fetchedUser.following_count ?? 0,
+      contributions: fetchedUser.contributions_count ?? 0,
+    };
+  }, [fetchedUser, username]);
+
+  // Fetch real projects for this user
+  const {
+    data: userProjects = [],
+    isLoading: isProjectsLoading,
+  } = useQuery({
+    queryKey: ["user-projects", b?.id],
+    queryFn: async () => {
+      if (!b?.id) return [];
+      try {
+        const res = await projectsApi.byUser(b.id);
+        return Array.isArray(res) ? res : [];
+      } catch {
+        return [];
+      }
+    },
+    enabled: Boolean(b?.id),
+  });
+
+  const { data: followStatus } = useFollowStatus(b?.id || "");
+
+  // Live collaboration presence status
   const {
     status: myStatus,
     setStatus: setMyStatus,
@@ -166,7 +186,9 @@ function ProfilePage() {
   const [bannerUrl, setBannerUrl] = useState<string | null>(
     "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=400&fit=crop&auto=format",
   );
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(b.avatar);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isManageSkillsOpen, setIsManageSkillsOpen] = useState(false);
 
   // Profile summary state
   const [summary, setSummary] = useState<string | null>(null);
@@ -174,7 +196,7 @@ function ProfilePage() {
   const [editedSummary, setEditedSummary] = useState("");
 
   const summaryMutation = useMutation({
-    mutationFn: () => profileSummaryApi.generate(b.id),
+    mutationFn: () => profileSummaryApi.generate(b?.id || ""),
     onSuccess: (data: ProfileSummaryResponse) => {
       setSummary(data.summary);
       setEditedSummary(data.summary);
@@ -200,6 +222,73 @@ function ProfilePage() {
     setEditedSummary(summary || "");
     setIsEditing(false);
   };
+
+  // 1. Loading state
+  if (isUserLoading) {
+    return (
+      <div className="space-y-4 animate-pulse">
+        {/* Banner & Avatar Skeleton */}
+        <Card className="overflow-hidden p-0 border-border">
+          <Skeleton className="h-44 w-full" />
+          <div className="p-6 pt-0">
+            <div className="flex flex-wrap items-start gap-5 -mt-12">
+              <Skeleton className="h-24 w-24 rounded-full ring-4 ring-card" />
+              <div className="min-w-0 flex-1 pt-12 sm:pt-4 space-y-3">
+                <Skeleton className="h-7 w-48" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-3/4" />
+                <div className="flex gap-4 pt-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+              </div>
+              <div className="flex gap-2 pt-12 sm:pt-4">
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-9 w-24" />
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid gap-4 lg:grid-cols-3 items-start">
+          <div className="space-y-4">
+            <Skeleton className="h-48 w-full rounded-lg" />
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </div>
+          <div className="space-y-4 lg:col-span-2">
+            <Skeleton className="h-64 w-full rounded-lg" />
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Error / Not found state
+  if (isUserError || !b) {
+    return (
+      <Card className="p-12 text-center space-y-4">
+        <AlertTriangle className="mx-auto h-12 w-12 text-destructive/80" />
+        <TypoHeading as="h2" className="text-xl">
+          User Profile Not Found
+        </TypoHeading>
+        <TypoCaption as="p">
+          We couldn't find a DevLink profile for @{username}. The user might not exist or the profile is private.
+        </TypoCaption>
+        <div className="pt-2">
+          <Link
+            to="/builders"
+            className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Explore Developers
+          </Link>
+        </div>
+      </Card>
+    );
+  }
+
+  const currentAvatar = avatarUrl ?? b.avatar;
 
   return (
     <div className="space-y-4">
@@ -229,7 +318,7 @@ function ProfilePage() {
                   navigator.clipboard.writeText(url);
                   toast.success("Portfolio link copied to clipboard!");
                 }}
-                className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                className="inline-flex items-center justify-center rounded-md border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 Copy Link
               </button>
@@ -256,15 +345,15 @@ function ProfilePage() {
       {me && (
         <ProfileCompletionChecklist
           userProfile={{
-            avatar: avatarUrl,
+            avatar: currentAvatar,
             banner: bannerUrl || undefined,
             bio: b.bio,
-            skills: b.profileSkills?.map((s) => s.name) ?? b.skills,
+            skills: b.skills,
             experience: b.experienceLevel || b.role || b.company,
             education: b.headline,
             githubUrl: b.githubUrl,
             portfolioUrl: b.portfolioUrl,
-            projects: projects.length,
+            projects: userProjects.length,
           }}
         />
       )}
@@ -306,7 +395,7 @@ function ProfilePage() {
         <div className="p-6 pt-0">
           <div className="flex flex-wrap items-start gap-5 -mt-12">
             <UserAvatar
-              src={avatarUrl}
+              src={currentAvatar}
               name={b.name}
               size="2xl"
               status={b.online}
@@ -338,7 +427,7 @@ function ProfilePage() {
                   ))}
               </TypoHeading>
               <TypoCaption as="p">
-                @{b.handle} · {b.role}
+                @{b.handle} {b.role ? `· ${b.role}` : ""}
               </TypoCaption>
               <div className="mt-2 flex items-center gap-2">
                 {me ? (
@@ -351,35 +440,44 @@ function ProfilePage() {
                   <CollaborationStatusBadge status={b.collaborationStatus} />
                 )}
               </div>
-              <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>
+              {b.bio && <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>}
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
                 <div>
                   <span className="font-semibold">
                     {followStatus?.follower_count ?? b.followers ?? 0}
-                  </span>
+                  </span>{" "}
                   <TypoCaption>Followers</TypoCaption>
                 </div>
                 <div>
                   <span className="font-semibold">
                     {followStatus?.following_count ?? b.following ?? 0}
-                  </span>
+                  </span>{" "}
                   <TypoCaption>Following</TypoCaption>
                 </div>
                 <div>
-                  <span className="font-semibold">{b.contributions ?? 0}</span>
+                  <span className="font-semibold">{b.contributions ?? 0}</span>{" "}
                   <TypoCaption>Contributions</TypoCaption>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
+                {b.country && (
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin size={12} /> {b.country}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1">
-                  <MapPin size={12} /> {b.country}
+                  <Calendar size={12} /> Joined DevLink
                 </span>
-                <span className="inline-flex items-center gap-1">
-                  <Calendar size={12} /> Joined 2024
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <LinkIcon size={12} /> devlink.io/{b.handle}
-                </span>
+                {b.website && (
+                  <a
+                    href={b.website.startsWith("http") ? b.website : `https://${b.website}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                  >
+                    <LinkIcon size={12} /> {b.website.replace(/^https?:\/\//, "")}
+                  </a>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -393,20 +491,31 @@ function ProfilePage() {
                       params: { conversationId: b.id },
                     })
                   }
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer"
                 >
                   <MessageCircle size={16} />
                   Contact Developer
                 </button>
               )}
               {me && (
-                <Link
-                  to="/profile-analytics"
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-                >
-                  <TrendingUp size={16} />
-                  Profile Analytics
-                </Link>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditProfileOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer"
+                  >
+                    <Pencil size={16} />
+                    Edit Profile
+                  </button>
+
+                  <Link
+                    to="/profile-analytics"
+                    className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
+                  >
+                    <TrendingUp size={16} />
+                    Analytics
+                  </Link>
+                </>
               )}
               <button
                 type="button"
@@ -415,7 +524,7 @@ function ProfilePage() {
                   navigator.clipboard.writeText(url);
                   toast.success("Profile link copied to clipboard!");
                 }}
-                className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
                 <LinkIcon size={16} />
                 Copy Link
@@ -436,14 +545,14 @@ function ProfilePage() {
             <div className="flex items-center gap-1">
               <button
                 onClick={handleEdit}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground cursor-pointer"
               >
                 <Pencil size={12} /> Edit
               </button>
               <button
                 onClick={() => summaryMutation.mutate()}
                 disabled={summaryMutation.isPending}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground disabled:opacity-50"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/50 hover:text-foreground disabled:opacity-50 cursor-pointer"
               >
                 <RotateCw size={12} className={summaryMutation.isPending ? "animate-spin" : ""} />{" "}
                 Regenerate
@@ -453,7 +562,7 @@ function ProfilePage() {
           {!summary && !summaryMutation.isPending && (
             <button
               onClick={() => summaryMutation.mutate()}
-              className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground hover:opacity-90"
+              className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground hover:opacity-90 cursor-pointer"
             >
               <Sparkles size={12} /> Generate Summary
             </button>
@@ -491,13 +600,13 @@ function ProfilePage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleCancel}
-                      className="rounded-md px-3 py-1.5 text-[11px] text-muted-foreground hover:bg-muted/50"
+                      className="rounded-md px-3 py-1.5 text-[11px] text-muted-foreground hover:bg-muted/50 cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSave}
-                      className="rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground hover:opacity-90"
+                      className="rounded-md bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground hover:opacity-90 cursor-pointer"
                     >
                       Save
                     </button>
@@ -508,7 +617,7 @@ function ProfilePage() {
               <p className="text-[13px] text-foreground leading-relaxed">{summary}</p>
             )}
             {!me && (
-              <>
+              <div className="mt-3 flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() =>
@@ -517,18 +626,18 @@ function ProfilePage() {
                       params: { conversationId: b.id },
                     })
                   }
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer"
                 >
                   <MessageCircle size={16} />
                   Contact Developer
                 </button>
                 <button
                   onClick={() => setIsReportModalOpen(true)}
-                  className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] font-semibold text-destructive hover:bg-destructive/20 transition-colors flex items-center gap-1"
+                  className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] font-semibold text-destructive hover:bg-destructive/20 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   <AlertTriangle size={14} /> Report
                 </button>
-              </>
+              </div>
             )}
           </div>
         )}
@@ -550,16 +659,17 @@ function ProfilePage() {
 
       <div className="grid gap-4 lg:grid-cols-3 items-start">
         <div className="flex flex-col gap-4">
-          {/* <Card className="p-4">
-            <p className="text-[13px] font-semibold text-foreground">Skills</p>
-            <div className="mt-3 flex flex-wrap gap-1">
-              {b.skills.map((s) => (
-                <TagChip key={s}>{s}</TagChip>
-              ))}
-            </div>
-          </Card> */}
-          <SkillsCard skills={b.profileSkills ?? []} />
-          <ExperienceCard role={b.role} company={b.company} experienceLevel={b.experienceLevel} />
+          <SkillsCard
+            skills={b.profileSkills ?? []}
+            isOwnProfile={me}
+            onManageSkills={me ? () => setIsManageSkillsOpen(true) : undefined}
+          />
+          <ExperienceCard
+            role={b.role}
+            company={b.company}
+            experienceLevel={b.experienceLevel}
+            entries={b.experience}
+          />
 
           <PinnedProjectsCard username={b.handle} isOwnProfile={me} />
 
@@ -567,7 +677,7 @@ function ProfilePage() {
             <Card className="p-4">
               <p className="text-[13px] font-semibold text-foreground">Badges</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {b.badges.map((badge) => (
+                {b.badges.map((badge: string) => (
                   <span
                     key={badge}
                     className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
@@ -581,34 +691,86 @@ function ProfilePage() {
         </div>
 
         <div className="flex flex-col gap-4 lg:col-span-2">
-          <Card className="p-4">
-            <p className="text-[13px] font-semibold text-foreground">Projects</p>
-            <ul className="mt-3 divide-y divide-border">
-              {projects.slice(0, 4).map((p) => (
-                <li key={p.id} className="py-2">
+          {/* Projects Section */}
+          <Card className="p-5">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div>
+                <TypoHeading as="h2" className="text-sm font-semibold text-foreground">
+                  Projects
+                </TypoHeading>
+                <TypoCaption as="p">
+                  {me ? "Projects you have published" : `Projects built by ${b.name}`}
+                </TypoCaption>
+              </div>
+              {me && (
+                <Link
+                  to="/projects"
+                  className="inline-flex items-center gap-1 rounded-md bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-xs font-medium transition-colors"
+                >
+                  <Plus size={12} /> New Project
+                </Link>
+              )}
+            </div>
+
+            {isProjectsLoading ? (
+              <div className="mt-3 space-y-2">
+                <Skeleton className="h-12 w-full rounded-md" />
+                <Skeleton className="h-12 w-full rounded-md" />
+              </div>
+            ) : userProjects.length === 0 ? (
+              <div className="py-8 text-center">
+                <FolderOpen className="mx-auto h-8 w-8 text-muted-foreground/60 mb-2" />
+                <p className="text-sm font-medium text-foreground">No projects shared yet</p>
+                <TypoCaption as="p" className="mt-1">
+                  {me
+                    ? "Showcase your work by creating your first project."
+                    : `${b.name} hasn't published any public projects yet.`}
+                </TypoCaption>
+                {me && (
                   <Link
-                    to="/projects/$projectId"
-                    params={{ projectId: p.id }}
-                    onClick={() => {
-                      if (b.id) {
-                        analyticsApi.trackClick("project", b.id, p.id).catch(() => {});
-                      }
-                    }}
-                    className="flex items-center gap-3 hover:bg-muted/50 p-1.5 rounded-lg transition-colors w-full text-left"
+                    to="/projects"
+                    className="inline-flex items-center gap-2 mt-4 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
                   >
-                    <span className="grid h-8 w-8 place-items-center rounded-md bg-muted text-lg shrink-0">
-                      {p.icon}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold text-foreground hover:text-primary transition-colors">
-                        {p.name}
-                      </p>
-                      <TypoCaption as="p">{p.stack.join(" · ")}</TypoCaption>
-                    </div>
+                    <Plus size={14} /> Create Project
                   </Link>
-                </li>
-              ))}
-            </ul>
+                )}
+              </div>
+            ) : (
+              <ul className="mt-3 divide-y divide-border">
+                {userProjects.map((p: ExtendedProject) => (
+                  <li key={p.id} className="py-2.5">
+                    <Link
+                      to="/projects/$projectId"
+                      params={{ projectId: p.id }}
+                      onClick={() => {
+                        if (b.id) {
+                          analyticsApi.trackClick("project", b.id, p.id).catch(() => {});
+                        }
+                      }}
+                      className="flex items-center gap-3 hover:bg-muted/50 p-2 rounded-lg transition-colors w-full text-left"
+                    >
+                      <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary font-bold text-sm shrink-0">
+                        {p.title ? p.title.charAt(0).toUpperCase() : "P"}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-semibold text-foreground hover:text-primary transition-colors">
+                          {p.title || (p as any).name}
+                        </p>
+                        <TypoCaption as="p" className="truncate">
+                          {p.tagline ||
+                            p.description ||
+                            (Array.isArray((p as any).tech_stack)
+                              ? (p as any).tech_stack.join(" · ")
+                              : Array.isArray((p as any).stack)
+                                ? (p as any).stack.join(" · ")
+                                : "")}
+                        </TypoCaption>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
 
           {(() => {
@@ -654,6 +816,45 @@ function ProfilePage() {
           }}
           mode="banner"
           title="Upload Cover Banner"
+        />
+      )}
+
+      {me && (
+        <EditProfileModal
+          open={isEditProfileOpen}
+          onOpenChange={setIsEditProfileOpen}
+          initialData={{
+            firstName: b.firstName,
+            lastName: b.lastName,
+            username: b.handle,
+            headline: b.headline,
+            bio: b.bio,
+            location: b.location,
+            website: b.website,
+            profileImage: currentAvatar,
+            githubUrl: b.githubUrl,
+            linkedinUrl: b.linkedinUrl,
+            twitterUrl: b.twitterUrl,
+            portfolioUrl: b.portfolioUrl,
+            role: b.role,
+            experienceLevel: b.experienceLevel,
+            company: b.company,
+            skills: b.skills,
+          }}
+          onSuccess={(updated) => {
+            if (updated && updated.username && updated.username !== b.handle) {
+              navigate({ to: "/profile/$username", params: { username: updated.username } });
+            }
+          }}
+        />
+      )}
+
+      {me && (
+        <ManageSkillsModal
+          open={isManageSkillsOpen}
+          onOpenChange={setIsManageSkillsOpen}
+          initialSkills={b.profileSkills}
+          username={b.handle}
         />
       )}
     </div>

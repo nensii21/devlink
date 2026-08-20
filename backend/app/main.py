@@ -637,7 +637,7 @@ app.include_router(
 app.include_router(
     applications.router, prefix="/api/applications", tags=["Applications"]
 )
-app.include_router(skills.router, prefix="/api/skills", tags=["Skills"])
+app.include_router(skills.router, prefix="/api", tags=["Skills"])
 # users.router already included above
 app.include_router(websockets.router, prefix="/api/ws", tags=["WebSockets"])
 app.include_router(graph.router, prefix="/api", tags=["Graph"])
