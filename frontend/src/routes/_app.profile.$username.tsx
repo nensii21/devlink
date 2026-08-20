@@ -39,6 +39,7 @@ import { TypoSection, TypoCaption, TypoHeading } from "@/components/shared/Typog
 import { CollaborationStatusBadge } from "@/features/collaboration/components/CollaborationStatusBadge";
 import { CollaborationStatusPicker } from "@/features/collaboration/components/CollaborationStatusPicker";
 import { useCollaborationStatus } from "@/hooks/useCollaborationStatus";
+import { EditProfileModal } from "@/components/profile/EditProfileModal";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -167,6 +168,26 @@ function ProfilePage() {
     "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=400&fit=crop&auto=format",
   );
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(b.avatar);
+
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [userProfileData, setUserProfileData] = useState({
+    firstName: b.name.split(" ")[0] || b.name,
+    lastName: b.name.split(" ").slice(1).join(" ") || "",
+    username: b.handle,
+    headline: b.headline ?? "",
+    bio: b.bio,
+    location: b.country || b.location || "",
+    website: b.website || "",
+    profileImage: b.avatar || "",
+    githubUrl: b.githubUrl || "",
+    linkedinUrl: b.linkedinUrl || "",
+    twitterUrl: b.twitterUrl || "",
+    portfolioUrl: b.portfolioUrl || "",
+    role: b.role || "",
+    experienceLevel: b.experienceLevel || "Intermediate",
+    company: b.company || "",
+    skills: b.profileSkills?.map((s) => s.name) ?? b.skills ?? [],
+  });
 
   // Profile summary state
   const [summary, setSummary] = useState<string | null>(null);
@@ -400,13 +421,24 @@ function ProfilePage() {
                 </button>
               )}
               {me && (
-                <Link
-                  to="/profile-analytics"
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-                >
-                  <TrendingUp size={16} />
-                  Profile Analytics
-                </Link>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditProfileOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 cursor-pointer"
+                  >
+                    <Pencil size={16} />
+                    Edit Profile
+                  </button>
+
+                  <Link
+                    to="/profile-analytics"
+                    className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors"
+                  >
+                    <TrendingUp size={16} />
+                    Analytics
+                  </Link>
+                </>
               )}
               <button
                 type="button"
@@ -654,6 +686,31 @@ function ProfilePage() {
           }}
           mode="banner"
           title="Upload Cover Banner"
+        />
+      )}
+
+      {me && (
+        <EditProfileModal
+          open={isEditProfileOpen}
+          onOpenChange={setIsEditProfileOpen}
+          initialData={userProfileData}
+          onSuccess={(updated) => {
+            if (updated) {
+              setUserProfileData((prev) => ({
+                ...prev,
+                firstName: updated.firstName ?? prev.firstName,
+                lastName: updated.lastName ?? prev.lastName,
+                username: updated.username ?? prev.username,
+                bio: updated.bio ?? prev.bio,
+                location: updated.location ?? prev.location,
+                role: updated.role ?? prev.role,
+                skills: updated.skills ?? prev.skills,
+              }));
+              if (updated.username && updated.username !== b.handle) {
+                navigate({ to: "/profile/$username", params: { username: updated.username } });
+              }
+            }
+          }}
         />
       )}
     </div>
