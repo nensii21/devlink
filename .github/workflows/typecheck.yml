@@ -1,10 +1,41 @@
 name: Type Check
 
-on: [pull_request]
+# This job used to check out the repository and stop there -- no Node, no
+# install, no `tsc`. It reported success on every pull request while checking
+# nothing, which is worse than not having it: `main` sat with a file that did
+# not parse and a green "Type Check" next to it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   typecheck:
+    name: Frontend
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+          node-version: 22
+
+      - name: Install
+        run: npm ci
+
+      # `routeTree.gen.ts` is generated and committed. `tsc` reads the
+      # committed copy, so a route file added without regenerating it is a type
+      # error in the route that references it -- which is a real breakage, not
+      # a CI artefact, since the same stale file is what ships.
+      - name: Type check
+        run: npm run typecheck
