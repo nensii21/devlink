@@ -348,20 +348,31 @@ app.state.limiter = limiter
 
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from app.core.exceptions import AppException
 from app.core.error_handlers import (
+    app_exception_handler,
     http_exception_handler,
     validation_exception_handler,
     rate_limit_exception_handler,
     global_exception_handler,
     integrity_error_handler,
+    sqlalchemy_error_handler,
 )
 
+# Registration order does not decide which handler runs -- Starlette walks the
+# raised exception's MRO and picks the most specific class registered -- so
+# `IntegrityError` keeps its 409 even though `SQLAlchemyError` is also
+# registered, and `AppException` keeps its own status even though `Exception`
+# is. They are listed most-specific-first anyway, so reading the block tells
+# you the same thing.
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
+app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
+app.add_exception_handler(SQLAlchemyError, sqlalchemy_error_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 app.add_middleware(SlowAPIMiddleware)
 
