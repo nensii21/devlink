@@ -92,11 +92,15 @@ class UserBase(BaseModel):
     timezone: SanitizedStr | None = None
 
     website: ValidURL | None = None
+    profile_image: ValidURL | None = None
     resume_url: ValidURL | None = None
     voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None
+    twitter_url: ValidURL | None = None
+
+    skills: list[str] = Field(default_factory=list)
 
     role: SanitizedStr | None = None
     experience_level: SanitizedStr | None = None
@@ -150,6 +154,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     first_name: NameStr | None = None
     last_name: NameStr | None = None
+    username: UsernameStr | None = None
 
     headline: HeadlineStr | None = None
     bio: BioStr | None = None
@@ -159,11 +164,15 @@ class UserUpdate(BaseModel):
     public_email: ValidEmail | None = None
 
     website: ValidURL | None = None
+    profile_image: ValidURL | None = None
     resume_url: ValidURL | None = None
     voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None
+    twitter_url: ValidURL | None = None
+
+    skills: list[str] | None = None
 
     role: SanitizedStr | None = None
     experience_level: SanitizedStr | None = None

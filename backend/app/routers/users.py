@@ -212,6 +212,44 @@ def get_user_profile_completion(
 
 
 @router.get(
+    "/by-username/{username}",
+    response_model=UserResponse,
+    summary="Get User Profile by Username",
+)
+def get_user_by_username(
+    username: str,
+    online_threshold: int | None = Query(
+        None, description="Online threshold in seconds"
+    ),
+    db: Session = Depends(get_database),
+    current_user: User | None = Depends(get_optional_current_user),
+):
+    user = UserService.get_by_username(db, username)
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    # Check private profile and blocking restrictions
+    if user.is_private:
+        if not current_user or (
+            current_user.id != user.id
+            and BlockService.is_blocked(db, user.id, current_user.id)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to view this private profile.",
+            )
+
+    if online_threshold is not None:
+        user._online_threshold = online_threshold
+
+    user = UserService.apply_privacy_filters(db, user, current_user)
+    return user
+
+
+@router.get(
     "/{user_id}",
     response_model=UserResponse,
 )
