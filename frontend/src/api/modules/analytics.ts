@@ -66,8 +66,18 @@ export interface ProfileAnalyticsResponse {
   trends: ProfileAnalyticTrendItem[];
 }
 
+export interface PlatformSocialProofResponse {
+  developers: number;
+  projects: number;
+  teams: number;
+  organizations: number;
+  hackathons: number;
+  last_updated: string;
+}
+
 export const analyticsApi = {
   dashboard: () => api.get<DashboardSnapshot>("/api/analytics/dashboard"),
+  socialProof: () => api.get<PlatformSocialProofResponse>("/api/analytics/social-proof"),
   profile: () => api.get<ProfileAnalyticsResponse>("/api/analytics/profile"),
   projects: () => api.get<unknown>("/api/analytics/projects"),
   communityStats: (days?: number) =>

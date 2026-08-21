@@ -194,6 +194,11 @@ class User(Base):
         nullable=True,
     )
 
+    twitter_url: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
     # ------------------------------------------------------------------
     # Professional
     # ------------------------------------------------------------------
@@ -264,6 +269,12 @@ class User(Base):
             "availability": "public",
             "activity": "public",
         },
+    )
+
+    dashboard_layout: Mapped[dict | None] = mapped_column(
+        JSON,
+        nullable=True,
+        default=None,
     )
 
     def get_privacy_settings(self) -> dict:
@@ -468,6 +479,15 @@ class User(Base):
             last_seen = last_seen.replace(tzinfo=timezone.utc)
 
         return (now - last_seen).total_seconds() < threshold
+
+    @property
+    def skills(self) -> list[str]:
+        try:
+            if not hasattr(self, "user_skills") or not self.user_skills:
+                return []
+            return [us.skill.name for us in self.user_skills if getattr(us, "skill", None)]
+        except Exception:
+            return []
 
     # ------------------------------------------------------------------
     # Representation

@@ -66,6 +66,7 @@ export const projectsApi = {
     tech?: string;
   }) => api.get<ExtendedProject[]>("/api/projects", { query }),
   myProjects: () => api.get<ExtendedProject[]>("/api/projects/me/list"),
+  byUser: (userId: string) => api.get<ExtendedProject[]>(`/api/projects/user/${userId}`),
   get: (id: string) => api.get<ExtendedProject>(`/api/projects/${id}`),
   create: (body: Partial<ExtendedProject>) => api.post<ExtendedProject>("/api/projects", body),
   update: (id: string, body: Partial<ExtendedProject>) =>

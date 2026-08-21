@@ -57,6 +57,8 @@ import {
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { TypoSection, TypoCaption, TypoCard, TypoHeading } from "@/components/shared/Typography";
+import { SocialProofSection } from "@/components/landing/SocialProofSection";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -490,6 +492,9 @@ function Landing() {
           </motion.div>
         </div>
       </section>
+
+      {/* ===== SOCIAL PROOF / PLATFORM GROWTH SECTION (#761) ===== */}
+      <SocialProofSection />
 
       <section id="features" className="border-b border-border">
         <div className="mx-auto grid max-w-6xl gap-4 px-4 py-16 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
