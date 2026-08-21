@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    JSON,
     String,
     Text,
     func,
@@ -58,13 +59,13 @@ class ProjectTemplate(Base):
     )
 
     tech_stack: Mapped[list[str]] = mapped_column(
-        JSONB,
+        JSONB().with_variant(JSON, "sqlite"),
         default=list,
         nullable=False,
     )
 
     features: Mapped[list[str]] = mapped_column(
-        JSONB,
+        JSONB().with_variant(JSON, "sqlite"),
         default=list,
         nullable=False,
     )

@@ -291,6 +291,21 @@ def my_projects(
     )
 
 
+@router.get(
+    "/user/{user_id}",
+    response_model=list[ProjectResponse],
+    summary="List projects owned by a specific user",
+)
+def list_user_projects(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+    return ProjectService.list_owner_projects(
+        db,
+        user_id,
+    )
+
+
 @router.post(
     "/{project_id}/clone",
     response_model=ProjectResponse,

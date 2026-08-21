@@ -1,10 +1,31 @@
 import { api } from "../client";
 
+export interface UserProfileUpdateData {
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  headline?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  profile_image?: string;
+  github_url?: string;
+  linkedin_url?: string;
+  twitter_url?: string;
+  portfolio_url?: string;
+  role?: string;
+  experience_level?: string;
+  company?: string;
+  skills?: string[];
+}
+
 export const usersApi = {
   list: (query?: { page?: number; limit?: number; q?: string }) =>
     api.get<unknown[]>("/api/users", { query }),
   get: (id: string) => api.get<unknown>(`/api/users/${id}`),
+  getByUsername: (username: string) => api.get<any>(`/api/users/by-username/${username}`),
   update: (id: string, body: Record<string, unknown>) => api.put<unknown>(`/api/users/${id}`, body),
+  updateProfile: (body: UserProfileUpdateData) => api.put<unknown>("/api/users/me", body),
   updateMe: (body: Record<string, unknown>) => api.put<unknown>("/api/users/me", body),
   getMe: () => api.get<any>("/api/users/me"),
   getPrivacySettings: () => api.get<any>("/api/users/me/privacy"),

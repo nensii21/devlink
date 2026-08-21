@@ -37,6 +37,7 @@ export interface Builder {
   portfolioUrl?: string;
   githubUrl?: string;
   linkedinUrl?: string;
+  twitterUrl?: string;
   experienceLevel?: string;
   company?: string;
   profileSkills?: { name: string; level?: string; category?: string; yearsOfExperience?: number }[];
