@@ -178,7 +178,7 @@ def get_my_profile_analytics(
 def track_profile_click(
     request: TrackClickRequest,
     db: Annotated[Session, Depends(get_db)],
-    current_user: Annotated[Optional[User], Depends(get_optional_current_user)] = None,
+    current_user: Annotated[User | None, Depends(get_optional_current_user)] = None,
 ):
     AnalyticsService.log_profile_click(
         db=db,
