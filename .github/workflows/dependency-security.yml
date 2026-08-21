@@ -1,0 +1,44 @@
+name: Supply Chain & Dependency Security
+on:
+  push:
+    branches: [main, release/*]
+  pull_request:
+    branches: [main]
+jobs:
+  audit-and-scan:
+    name: Dependency Audit & License Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-with-registry: 'https://npmjs.org'
+          cache: 'npm'
+      - name: Validate Lockfile Integrity
+        # Acceptance Criteria: Enforce lockfile synchronization to prevent dependency confusion attacks
+        run: npm ci --ignore-scripts
+      - name: Audit Vulnerability Risk Thresholds
+        # Acceptance Criteria: Scan vulnerabilities and fail the build if High or Critical bugs exist
+        run: npm audit --audit-level=high
+      - name: Continuous License Compliance Verification
+        # Blocks unauthorized or restrictive software licenses (e.g. GPL-3.0) from entering production
+        run: |
+          npx license-checker --summary --production --failOn "GPLv3;AGPLv3;LGPLv3"
+  sbom-generation:
+    name: SBOM Generation Asset Builder
+    runs-on: ubuntu-latest
+    needs: audit-and-scan
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+      - name: Generate CycloneDX SBOM File
+        # Acceptance Criteria: Auto-generates standard SPDX/CycloneDX bill-of-materials on release paths
+        run: |
+          npx @cyclonedx/cyclonedx-npm --output-file public/sbom.json --output-format JSON
+      - name: Upload SBOM Artifact Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: software-bill-of-materials
+          path: public/sbom.json
