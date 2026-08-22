@@ -1,6 +1,5 @@
 import { Card, EmptyState } from "@/components/shared/primitives";
 import { MapPin, Clock3, Sparkles } from "lucide-react";
-import { TypoCaption, TypoHeading } from "@/components/shared/Typography";
 
 export interface BioCardProps {
   headline?: string | null;
@@ -39,16 +38,16 @@ export function BioCard({
             <Sparkles size={16} />
           </div>
           <div>
-            <TypoHeading as="h2">About</TypoHeading>
-            <TypoCaption as="p">Update your profile summary</TypoCaption>
+            <h2 className="text-sm font-semibold text-foreground">About</h2>
+            <p className="text-xs text-muted-foreground">Update your profile summary</p>
           </div>
         </div>
 
         <div className="mt-4 space-y-4">
           <label className="block text-sm">
-            <TypoCaption>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Headline
-            </TypoCaption>
+            </span>
             <input
               value={formValues?.headline ?? ""}
               onChange={(event) => onFieldChange?.("headline", event.target.value)}
@@ -62,9 +61,9 @@ export function BioCard({
           </label>
 
           <label className="block text-sm">
-            <TypoCaption>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Bio
-            </TypoCaption>
+            </span>
             <textarea
               value={formValues?.bio ?? ""}
               onChange={(event) => onFieldChange?.("bio", event.target.value)}
@@ -87,9 +86,9 @@ export function BioCard({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm">
-              <TypoCaption>
+              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 Location
-              </TypoCaption>
+              </span>
               <input
                 value={formValues?.location ?? ""}
                 onChange={(event) => onFieldChange?.("location", event.target.value)}
@@ -98,9 +97,9 @@ export function BioCard({
               />
             </label>
             <label className="block text-sm">
-              <TypoCaption>
+              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 Timezone
-              </TypoCaption>
+              </span>
               <input
                 value={formValues?.timezone ?? ""}
                 onChange={(event) => onFieldChange?.("timezone", event.target.value)}
@@ -121,8 +120,8 @@ export function BioCard({
           <Sparkles size={16} />
         </div>
         <div>
-          <TypoHeading as="h2">About</TypoHeading>
-          <TypoCaption as="p">Profile summary</TypoCaption>
+          <h2 className="text-sm font-semibold text-foreground">About</h2>
+          <p className="text-xs text-muted-foreground">Profile summary</p>
         </div>
       </div>
 
@@ -136,18 +135,18 @@ export function BioCard({
       ) : (
         <div className="mt-4 space-y-3">
           {headline ? <p className="text-sm font-semibold text-foreground">{headline}</p> : null}
-          {bio ? <TypoCaption as="p">{bio}</TypoCaption> : null}
+          {bio ? <p className="text-sm leading-6 text-muted-foreground">{bio}</p> : null}
 
           <div className="flex flex-wrap gap-2">
             {location ? (
-              <TypoCaption>
+              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">
                 <MapPin size={12} /> {location}
-              </TypoCaption>
+              </span>
             ) : null}
             {timezone ? (
-              <TypoCaption>
+              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">
                 <Clock3 size={12} /> {timezone}
-              </TypoCaption>
+              </span>
             ) : null}
           </div>
         </div>

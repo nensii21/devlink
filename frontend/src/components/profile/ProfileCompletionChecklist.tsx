@@ -1,5 +1,15 @@
 import React, { useState, useMemo } from "react";
-import { Sparkles, X, ChevronRight, CheckCircle2, Circle, Trophy, Award, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Sparkles,
+  X,
+  ChevronRight,
+  CheckCircle2,
+  Circle,
+  Trophy,
+  Award,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { TypoSection, TypoCaption } from "@/components/shared/Typography";
@@ -37,19 +47,19 @@ export function ProfileCompletionChecklist({
     const hasSkills = Boolean(userProfile.skills && userProfile.skills.length > 0);
     const hasExp = Boolean(
       userProfile.experience !== undefined &&
-        userProfile.experience !== null &&
-        userProfile.experience !== "",
+      userProfile.experience !== null &&
+      userProfile.experience !== "",
     );
     const hasEdu = Boolean(userProfile.education?.trim());
     const hasSocial = Boolean(
       userProfile.githubUrl?.trim() ||
-        userProfile.linkedinUrl?.trim() ||
-        userProfile.portfolioUrl?.trim() ||
-        userProfile.website?.trim(),
+      userProfile.linkedinUrl?.trim() ||
+      userProfile.portfolioUrl?.trim() ||
+      userProfile.website?.trim(),
     );
     const hasProjects = Boolean(
       (Array.isArray(userProfile.projects) && userProfile.projects.length > 0) ||
-        (typeof userProfile.projects === "number" && userProfile.projects > 0),
+      (typeof userProfile.projects === "number" && userProfile.projects > 0),
     );
 
     return [
@@ -90,9 +100,7 @@ export function ProfileCompletionChecklist({
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <TypoSection>
-                100% Profile Complete!
-              </TypoSection>
+              <TypoSection>100% Profile Complete!</TypoSection>
               <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[10px] font-bold text-amber-500 flex items-center gap-1">
                 <Award size={10} /> Profile Master Unlocked
               </span>
@@ -137,7 +145,9 @@ export function ProfileCompletionChecklist({
               </span>
             </div>
             <TypoCaption as="p">
-              Stand out to other builders and unlock the <strong className="text-primary font-medium">Profile Master</strong> reward badge. ({completedCount}/{totalItems} factors complete)
+              Stand out to other builders and unlock the{" "}
+              <strong className="text-primary font-medium">Profile Master</strong> reward badge. (
+              {completedCount}/{totalItems} factors complete)
             </TypoCaption>
             <div className="mt-2 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-primary/10">
               <div

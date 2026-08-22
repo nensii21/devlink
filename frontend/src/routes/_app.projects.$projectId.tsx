@@ -239,7 +239,7 @@ function ProjectDetail() {
             <TypoHeading as="h1">{p.name}</TypoHeading>
             <TypoCaption as="p">{p.description}</TypoCaption>
             <div className="mt-3 flex flex-wrap gap-1">
-              {p.stack.map((s) => (
+              {p.stack.map((s: string) => (
                 <TagChip key={s}>{s}</TagChip>
               ))}
             </div>

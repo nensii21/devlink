@@ -142,9 +142,7 @@ function AvatarDemo() {
                 size="lg"
                 id={`initials-avatar-${i}`}
               />
-              <TypoCaption>
-                {u.name ?? "(no name)"}
-              </TypoCaption>
+              <TypoCaption>{u.name ?? "(no name)"}</TypoCaption>
             </div>
           ))}
         </Section>

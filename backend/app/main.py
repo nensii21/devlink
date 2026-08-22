@@ -491,11 +491,12 @@ from app.routers import (
 
 # Router inclusions
 app.include_router(skill_matrix.router, prefix="/api", tags=["Skill Matrix"])
+from app.routers import availability
+app.include_router(availability.router, prefix="/api/availability", tags=["Availability"])
+
 from app.routers import github
 
 app.include_router(github.router, prefix="/api", tags=["GitHub Insights"])
-
-app.include_router(media.router, prefix="/api", tags=["Media"])
 from app.routers import link_previews
 
 app.include_router(link_previews.router, prefix="/api", tags=["Link Previews"])

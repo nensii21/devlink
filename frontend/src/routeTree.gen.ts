@@ -9,75 +9,66 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as MaintenanceRouteImport } from './routes/maintenance'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as AvatarRouteImport } from './routes/avatar'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
-import { Route as AppTemplatesRouteImport } from './routes/_app.templates'
-import { Route as AppSettingsRouteImport } from './routes/_app.settings'
-import { Route as AppSearchRouteImport } from './routes/_app.search'
-import { Route as AppRepositoryQualityRouteImport } from './routes/_app.repository-quality'
-import { Route as AppProjectsRouteImport } from './routes/_app.projects'
-import { Route as AppProfileAnalyticsRouteImport } from './routes/_app.profile-analytics'
-import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
-import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
-import { Route as AppMessagesRouteImport } from './routes/_app.messages'
-import { Route as AppLoadingStatesRouteImport } from './routes/_app.loading-states'
-import { Route as AppLeaderboardRouteImport } from './routes/_app.leaderboard'
-import { Route as AppInsightsRouteImport } from './routes/_app.insights'
-import { Route as AppHackathonsRouteImport } from './routes/_app.hackathons'
-import { Route as AppGraphRouteImport } from './routes/_app.graph'
-import { Route as AppFlaresRouteImport } from './routes/_app.flares'
-import { Route as AppFeedRouteImport } from './routes/_app.feed'
-import { Route as AppDesignSystemRouteImport } from './routes/_app.design-system'
-import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
-import { Route as AppBuildersRouteImport } from './routes/_app.builders'
-import { Route as AppBookmarksRouteImport } from './routes/_app.bookmarks'
-import { Route as AppAnnouncementsRouteImport } from './routes/_app.announcements'
-import { Route as AppAnalyticsRouteImport } from './routes/_app.analytics'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AvatarRouteImport } from './routes/avatar'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as MaintenanceRouteImport } from './routes/maintenance'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ShowcaseRouteImport } from './routes/showcase'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
-import { Route as AppOrganizationsIndexRouteImport } from './routes/_app.organizations.index'
-import { Route as AppSettingsNotificationsRouteImport } from './routes/_app.settings.notifications'
-import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
-import { Route as AppProfileUsernameRouteImport } from './routes/_app.profile.$username'
-import { Route as AppOrganizationsOrgIdRouteImport } from './routes/_app.organizations.$orgId'
-import { Route as AppMessagesConversationIdRouteImport } from './routes/_app.messages.$conversationId'
-import { Route as AppHackathonsHackathonIdRouteImport } from './routes/_app.hackathons.$hackathonId'
-import { Route as AppBuildersBuilderIdRouteImport } from './routes/_app.builders.$builderId'
-import { Route as AppAdminSearchAnalyticsRouteImport } from './routes/_app.admin.search-analytics'
-import { Route as AppAdminNotificationsRouteImport } from './routes/_app.admin.notifications'
-import { Route as AppAdminMaintenanceRouteImport } from './routes/_app.admin.maintenance'
-import { Route as AppAdminJobsRouteImport } from './routes/_app.admin.jobs'
-import { Route as AppAdminEmailTemplatesRouteImport } from './routes/_app.admin.email-templates'
-import { Route as AppAdminCommunityStatsRouteImport } from './routes/_app.admin.community-stats'
-import { Route as AppAdminAuditLogsRouteImport } from './routes/_app.admin.audit-logs'
+import { Route as AppAnalyticsRouteImport } from './routes/_app.analytics'
+import { Route as AppAnnouncementsRouteImport } from './routes/_app.announcements'
+import { Route as AppBookmarksRouteImport } from './routes/_app.bookmarks'
+import { Route as AppBuildersRouteImport } from './routes/_app.builders'
+import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppDesignSystemRouteImport } from './routes/_app.design-system'
+import { Route as AppFeedRouteImport } from './routes/_app.feed'
+import { Route as AppFlaresRouteImport } from './routes/_app.flares'
+import { Route as AppGraphRouteImport } from './routes/_app.graph'
+import { Route as AppHackathonsRouteImport } from './routes/_app.hackathons'
+import { Route as AppInsightsRouteImport } from './routes/_app.insights'
+import { Route as AppLeaderboardRouteImport } from './routes/_app.leaderboard'
+import { Route as AppLoadingStatesRouteImport } from './routes/_app.loading-states'
+import { Route as AppMessagesRouteImport } from './routes/_app.messages'
+import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
+import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
+import { Route as AppProfileAnalyticsRouteImport } from './routes/_app.profile-analytics'
+import { Route as AppProjectsRouteImport } from './routes/_app.projects'
+import { Route as AppRepositoryQualityRouteImport } from './routes/_app.repository-quality'
+import { Route as AppSearchRouteImport } from './routes/_app.search'
+import { Route as AppSettingsRouteImport } from './routes/_app.settings'
+import { Route as AppTemplatesRouteImport } from './routes/_app.templates'
+import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
 import { Route as AppAdminApiRequestAnalyticsRouteImport } from './routes/_app.admin.api-request-analytics'
-import { Route as AppProjectsProjectIdIssuesRouteImport } from './routes/_app.projects.$projectId.issues'
-import { Route as AppProjectsProjectIdCollaborationMetricsRouteImport } from './routes/_app.projects.$projectId.collaboration-metrics'
+import { Route as AppAdminAuditLogsRouteImport } from './routes/_app.admin.audit-logs'
+import { Route as AppAdminCommunityStatsRouteImport } from './routes/_app.admin.community-stats'
+import { Route as AppAdminEmailTemplatesRouteImport } from './routes/_app.admin.email-templates'
+import { Route as AppAdminJobsRouteImport } from './routes/_app.admin.jobs'
+import { Route as AppAdminMaintenanceRouteImport } from './routes/_app.admin.maintenance'
+import { Route as AppAdminNotificationsRouteImport } from './routes/_app.admin.notifications'
+import { Route as AppAdminSearchAnalyticsRouteImport } from './routes/_app.admin.search-analytics'
+import { Route as AppBuildersBuilderIdRouteImport } from './routes/_app.builders.$builderId'
+import { Route as AppHackathonsHackathonIdRouteImport } from './routes/_app.hackathons.$hackathonId'
+import { Route as AppMessagesConversationIdRouteImport } from './routes/_app.messages.$conversationId'
+import { Route as AppOrganizationsIndexRouteImport } from './routes/_app.organizations.index'
+import { Route as AppOrganizationsOrgIdRouteImport } from './routes/_app.organizations.$orgId'
+import { Route as AppProfileUsernameRouteImport } from './routes/_app.profile.$username'
+import { Route as AppProjectsProjectIdRouteImport } from './routes/_app.projects.$projectId'
+import { Route as AppSettingsNotificationsRouteImport } from './routes/_app.settings.notifications'
 import { Route as AppProjectsProjectIdActivityRouteImport } from './routes/_app.projects.$projectId.activity'
+import { Route as AppProjectsProjectIdCollaborationMetricsRouteImport } from './routes/_app.projects.$projectId.collaboration-metrics'
+import { Route as AppProjectsProjectIdIssuesRouteImport } from './routes/_app.projects.$projectId.issues'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MaintenanceRoute = MaintenanceRouteImport.update({
-  id: '/maintenance',
-  path: '/maintenance',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AvatarRoute = AvatarRouteImport.update({
-  id: '/avatar',
-  path: '/avatar',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -85,123 +76,39 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const AvatarRoute = AvatarRouteImport.update({
+  id: '/avatar',
+  path: '/avatar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PortfolioUsernameRoute = PortfolioUsernameRouteImport.update({
-  id: '/portfolio/$username',
-  path: '/portfolio/$username',
+const MaintenanceRoute = MaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppTemplatesRoute = AppTemplatesRouteImport.update({
-  id: '/templates',
-  path: '/templates',
-  getParentRoute: () => AppRoute,
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppRoute,
+const ShowcaseRoute = ShowcaseRouteImport.update({
+  id: '/showcase',
+  path: '/showcase',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppSearchRoute = AppSearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => AppRoute,
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppRepositoryQualityRoute = AppRepositoryQualityRouteImport.update({
-  id: '/repository-quality',
-  path: '/repository-quality',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProjectsRoute = AppProjectsRouteImport.update({
-  id: '/projects',
-  path: '/projects',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProfileAnalyticsRoute = AppProfileAnalyticsRouteImport.update({
-  id: '/profile-analytics',
-  path: '/profile-analytics',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppOrganizationsRoute = AppOrganizationsRouteImport.update({
-  id: '/organizations',
-  path: '/organizations',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppNotificationsRoute = AppNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppMessagesRoute = AppMessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLoadingStatesRoute = AppLoadingStatesRouteImport.update({
-  id: '/loading-states',
-  path: '/loading-states',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLeaderboardRoute = AppLeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppInsightsRoute = AppInsightsRouteImport.update({
-  id: '/insights',
-  path: '/insights',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHackathonsRoute = AppHackathonsRouteImport.update({
-  id: '/hackathons',
-  path: '/hackathons',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppGraphRoute = AppGraphRouteImport.update({
-  id: '/graph',
-  path: '/graph',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFlaresRoute = AppFlaresRouteImport.update({
-  id: '/flares',
-  path: '/flares',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFeedRoute = AppFeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppDesignSystemRoute = AppDesignSystemRouteImport.update({
-  id: '/design-system',
-  path: '/design-system',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBuildersRoute = AppBuildersRouteImport.update({
-  id: '/builders',
-  path: '/builders',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppBookmarksRoute = AppBookmarksRouteImport.update({
-  id: '/bookmarks',
-  path: '/bookmarks',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAnnouncementsRoute = AppAnnouncementsRouteImport.update({
-  id: '/announcements',
-  path: '/announcements',
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
@@ -209,88 +116,115 @@ const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AppRoute,
 } as any)
-const AppAdminRoute = AppAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AppAnnouncementsRoute = AppAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
   getParentRoute: () => AppRoute,
 } as any)
-const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppOrganizationsRoute,
-} as any)
-const AppSettingsNotificationsRoute =
-  AppSettingsNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AppSettingsRoute,
-  } as any)
-const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
-  id: '/$projectId',
-  path: '/$projectId',
-  getParentRoute: () => AppProjectsRoute,
-} as any)
-const AppProfileUsernameRoute = AppProfileUsernameRouteImport.update({
-  id: '/profile/$username',
-  path: '/profile/$username',
+const AppBookmarksRoute = AppBookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
   getParentRoute: () => AppRoute,
 } as any)
-const AppOrganizationsOrgIdRoute = AppOrganizationsOrgIdRouteImport.update({
-  id: '/$orgId',
-  path: '/$orgId',
-  getParentRoute: () => AppOrganizationsRoute,
+const AppBuildersRoute = AppBuildersRouteImport.update({
+  id: '/builders',
+  path: '/builders',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppMessagesConversationIdRoute =
-  AppMessagesConversationIdRouteImport.update({
-    id: '/$conversationId',
-    path: '/$conversationId',
-    getParentRoute: () => AppMessagesRoute,
-  } as any)
-const AppHackathonsHackathonIdRoute =
-  AppHackathonsHackathonIdRouteImport.update({
-    id: '/$hackathonId',
-    path: '/$hackathonId',
-    getParentRoute: () => AppHackathonsRoute,
-  } as any)
-const AppBuildersBuilderIdRoute = AppBuildersBuilderIdRouteImport.update({
-  id: '/$builderId',
-  path: '/$builderId',
-  getParentRoute: () => AppBuildersRoute,
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppAdminSearchAnalyticsRoute = AppAdminSearchAnalyticsRouteImport.update({
-  id: '/search-analytics',
-  path: '/search-analytics',
-  getParentRoute: () => AppAdminRoute,
+const AppDesignSystemRoute = AppDesignSystemRouteImport.update({
+  id: '/design-system',
+  path: '/design-system',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppAdminNotificationsRoute = AppAdminNotificationsRouteImport.update({
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFlaresRoute = AppFlaresRouteImport.update({
+  id: '/flares',
+  path: '/flares',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppGraphRoute = AppGraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHackathonsRoute = AppHackathonsRouteImport.update({
+  id: '/hackathons',
+  path: '/hackathons',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppInsightsRoute = AppInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLeaderboardRoute = AppLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLoadingStatesRoute = AppLoadingStatesRouteImport.update({
+  id: '/loading-states',
+  path: '/loading-states',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesRoute = AppMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
-  getParentRoute: () => AppAdminRoute,
+  getParentRoute: () => AppRoute,
 } as any)
-const AppAdminMaintenanceRoute = AppAdminMaintenanceRouteImport.update({
-  id: '/maintenance',
-  path: '/maintenance',
-  getParentRoute: () => AppAdminRoute,
+const AppOrganizationsRoute = AppOrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppAdminJobsRoute = AppAdminJobsRouteImport.update({
-  id: '/jobs',
-  path: '/jobs',
-  getParentRoute: () => AppAdminRoute,
+const AppProfileAnalyticsRoute = AppProfileAnalyticsRouteImport.update({
+  id: '/profile-analytics',
+  path: '/profile-analytics',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppAdminEmailTemplatesRoute = AppAdminEmailTemplatesRouteImport.update({
-  id: '/email-templates',
-  path: '/email-templates',
-  getParentRoute: () => AppAdminRoute,
+const AppProjectsRoute = AppProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppAdminCommunityStatsRoute = AppAdminCommunityStatsRouteImport.update({
-  id: '/community-stats',
-  path: '/community-stats',
-  getParentRoute: () => AppAdminRoute,
+const AppRepositoryQualityRoute = AppRepositoryQualityRouteImport.update({
+  id: '/repository-quality',
+  path: '/repository-quality',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppAdminAuditLogsRoute = AppAdminAuditLogsRouteImport.update({
-  id: '/audit-logs',
-  path: '/audit-logs',
-  getParentRoute: () => AppAdminRoute,
+const AppSearchRoute = AppSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTemplatesRoute = AppTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => AppRoute,
+} as any)
+const PortfolioUsernameRoute = PortfolioUsernameRouteImport.update({
+  id: '/portfolio/$username',
+  path: '/portfolio/$username',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppAdminApiRequestAnalyticsRoute =
   AppAdminApiRequestAnalyticsRouteImport.update({
@@ -298,10 +232,88 @@ const AppAdminApiRequestAnalyticsRoute =
     path: '/api-request-analytics',
     getParentRoute: () => AppAdminRoute,
   } as any)
-const AppProjectsProjectIdIssuesRoute =
-  AppProjectsProjectIdIssuesRouteImport.update({
-    id: '/issues',
-    path: '/issues',
+const AppAdminAuditLogsRoute = AppAdminAuditLogsRouteImport.update({
+  id: '/audit-logs',
+  path: '/audit-logs',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminCommunityStatsRoute = AppAdminCommunityStatsRouteImport.update({
+  id: '/community-stats',
+  path: '/community-stats',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminEmailTemplatesRoute = AppAdminEmailTemplatesRouteImport.update({
+  id: '/email-templates',
+  path: '/email-templates',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminJobsRoute = AppAdminJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMaintenanceRoute = AppAdminMaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminNotificationsRoute = AppAdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminSearchAnalyticsRoute = AppAdminSearchAnalyticsRouteImport.update({
+  id: '/search-analytics',
+  path: '/search-analytics',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppBuildersBuilderIdRoute = AppBuildersBuilderIdRouteImport.update({
+  id: '/$builderId',
+  path: '/$builderId',
+  getParentRoute: () => AppBuildersRoute,
+} as any)
+const AppHackathonsHackathonIdRoute =
+  AppHackathonsHackathonIdRouteImport.update({
+    id: '/$hackathonId',
+    path: '/$hackathonId',
+    getParentRoute: () => AppHackathonsRoute,
+  } as any)
+const AppMessagesConversationIdRoute =
+  AppMessagesConversationIdRouteImport.update({
+    id: '/$conversationId',
+    path: '/$conversationId',
+    getParentRoute: () => AppMessagesRoute,
+  } as any)
+const AppOrganizationsIndexRoute = AppOrganizationsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppOrganizationsRoute,
+} as any)
+const AppOrganizationsOrgIdRoute = AppOrganizationsOrgIdRouteImport.update({
+  id: '/$orgId',
+  path: '/$orgId',
+  getParentRoute: () => AppOrganizationsRoute,
+} as any)
+const AppProfileUsernameRoute = AppProfileUsernameRouteImport.update({
+  id: '/profile/$username',
+  path: '/profile/$username',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
+  id: '/$projectId',
+  path: '/$projectId',
+  getParentRoute: () => AppProjectsRoute,
+} as any)
+const AppSettingsNotificationsRoute =
+  AppSettingsNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AppSettingsRoute,
+  } as any)
+const AppProjectsProjectIdActivityRoute =
+  AppProjectsProjectIdActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
     getParentRoute: () => AppProjectsProjectIdRoute,
   } as any)
 const AppProjectsProjectIdCollaborationMetricsRoute =
@@ -310,10 +322,10 @@ const AppProjectsProjectIdCollaborationMetricsRoute =
     path: '/collaboration-metrics',
     getParentRoute: () => AppProjectsProjectIdRoute,
   } as any)
-const AppProjectsProjectIdActivityRoute =
-  AppProjectsProjectIdActivityRouteImport.update({
-    id: '/activity',
-    path: '/activity',
+const AppProjectsProjectIdIssuesRoute =
+  AppProjectsProjectIdIssuesRouteImport.update({
+    id: '/issues',
+    path: '/issues',
     getParentRoute: () => AppProjectsProjectIdRoute,
   } as any)
 
@@ -324,6 +336,8 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/admin': typeof AppAdminRouteWithChildren
   '/analytics': typeof AppAnalyticsRoute
   '/announcements': typeof AppAnnouncementsRoute
@@ -375,6 +389,8 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/admin': typeof AppAdminRouteWithChildren
   '/analytics': typeof AppAnalyticsRoute
   '/announcements': typeof AppAnnouncementsRoute
@@ -427,6 +443,8 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/_app/admin': typeof AppAdminRouteWithChildren
   '/_app/analytics': typeof AppAnalyticsRoute
   '/_app/announcements': typeof AppAnnouncementsRoute
@@ -480,6 +498,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
+    | '/verify-email'
     | '/admin'
     | '/analytics'
     | '/announcements'
@@ -531,6 +551,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
+    | '/verify-email'
     | '/admin'
     | '/analytics'
     | '/announcements'
@@ -582,6 +604,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
+    | '/verify-email'
     | '/_app/admin'
     | '/_app/analytics'
     | '/_app/announcements'
@@ -635,44 +659,18 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   MaintenanceRoute: typeof MaintenanceRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ShowcaseRoute: typeof ShowcaseRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   PortfolioUsernameRoute: typeof PortfolioUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/maintenance': {
-      id: '/maintenance'
-      path: '/maintenance'
-      fullPath: '/maintenance'
-      preLoaderRoute: typeof MaintenanceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/avatar': {
-      id: '/avatar'
-      path: '/avatar'
-      fullPath: '/avatar'
-      preLoaderRoute: typeof AvatarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -682,165 +680,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/portfolio/$username': {
-      id: '/portfolio/$username'
-      path: '/portfolio/$username'
-      fullPath: '/portfolio/$username'
-      preLoaderRoute: typeof PortfolioUsernameRouteImport
+    '/avatar': {
+      id: '/avatar'
+      path: '/avatar'
+      fullPath: '/avatar'
+      preLoaderRoute: typeof AvatarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/templates': {
-      id: '/_app/templates'
-      path: '/templates'
-      fullPath: '/templates'
-      preLoaderRoute: typeof AppTemplatesRouteImport
-      parentRoute: typeof AppRoute
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/settings': {
-      id: '/_app/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRoute
+    '/maintenance': {
+      id: '/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof MaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/search': {
-      id: '/_app/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof AppSearchRouteImport
-      parentRoute: typeof AppRoute
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/repository-quality': {
-      id: '/_app/repository-quality'
-      path: '/repository-quality'
-      fullPath: '/repository-quality'
-      preLoaderRoute: typeof AppRepositoryQualityRouteImport
-      parentRoute: typeof AppRoute
+    '/showcase': {
+      id: '/showcase'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/projects': {
-      id: '/_app/projects'
-      path: '/projects'
-      fullPath: '/projects'
-      preLoaderRoute: typeof AppProjectsRouteImport
-      parentRoute: typeof AppRoute
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/profile-analytics': {
-      id: '/_app/profile-analytics'
-      path: '/profile-analytics'
-      fullPath: '/profile-analytics'
-      preLoaderRoute: typeof AppProfileAnalyticsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/organizations': {
-      id: '/_app/organizations'
-      path: '/organizations'
-      fullPath: '/organizations'
-      preLoaderRoute: typeof AppOrganizationsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/notifications': {
-      id: '/_app/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof AppNotificationsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/messages': {
-      id: '/_app/messages'
-      path: '/messages'
-      fullPath: '/messages'
-      preLoaderRoute: typeof AppMessagesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/loading-states': {
-      id: '/_app/loading-states'
-      path: '/loading-states'
-      fullPath: '/loading-states'
-      preLoaderRoute: typeof AppLoadingStatesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/leaderboard': {
-      id: '/_app/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof AppLeaderboardRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/insights': {
-      id: '/_app/insights'
-      path: '/insights'
-      fullPath: '/insights'
-      preLoaderRoute: typeof AppInsightsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/hackathons': {
-      id: '/_app/hackathons'
-      path: '/hackathons'
-      fullPath: '/hackathons'
-      preLoaderRoute: typeof AppHackathonsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/graph': {
-      id: '/_app/graph'
-      path: '/graph'
-      fullPath: '/graph'
-      preLoaderRoute: typeof AppGraphRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/flares': {
-      id: '/_app/flares'
-      path: '/flares'
-      fullPath: '/flares'
-      preLoaderRoute: typeof AppFlaresRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/feed': {
-      id: '/_app/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof AppFeedRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/design-system': {
-      id: '/_app/design-system'
-      path: '/design-system'
-      fullPath: '/design-system'
-      preLoaderRoute: typeof AppDesignSystemRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/dashboard': {
-      id: '/_app/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/builders': {
-      id: '/_app/builders'
-      path: '/builders'
-      fullPath: '/builders'
-      preLoaderRoute: typeof AppBuildersRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/bookmarks': {
-      id: '/_app/bookmarks'
-      path: '/bookmarks'
-      fullPath: '/bookmarks'
-      preLoaderRoute: typeof AppBookmarksRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/announcements': {
-      id: '/_app/announcements'
-      path: '/announcements'
-      fullPath: '/announcements'
-      preLoaderRoute: typeof AppAnnouncementsRouteImport
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/analytics': {
@@ -850,109 +743,165 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/admin': {
-      id: '/_app/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AppAdminRouteImport
+    '/_app/announcements': {
+      id: '/_app/announcements'
+      path: '/announcements'
+      fullPath: '/announcements'
+      preLoaderRoute: typeof AppAnnouncementsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/organizations/': {
-      id: '/_app/organizations/'
-      path: '/'
-      fullPath: '/organizations/'
-      preLoaderRoute: typeof AppOrganizationsIndexRouteImport
-      parentRoute: typeof AppOrganizationsRoute
-    }
-    '/_app/settings/notifications': {
-      id: '/_app/settings/notifications'
-      path: '/notifications'
-      fullPath: '/settings/notifications'
-      preLoaderRoute: typeof AppSettingsNotificationsRouteImport
-      parentRoute: typeof AppSettingsRoute
-    }
-    '/_app/projects/$projectId': {
-      id: '/_app/projects/$projectId'
-      path: '/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof AppProjectsProjectIdRouteImport
-      parentRoute: typeof AppProjectsRoute
-    }
-    '/_app/profile/$username': {
-      id: '/_app/profile/$username'
-      path: '/profile/$username'
-      fullPath: '/profile/$username'
-      preLoaderRoute: typeof AppProfileUsernameRouteImport
+    '/_app/bookmarks': {
+      id: '/_app/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof AppBookmarksRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/organizations/$orgId': {
-      id: '/_app/organizations/$orgId'
-      path: '/$orgId'
-      fullPath: '/organizations/$orgId'
-      preLoaderRoute: typeof AppOrganizationsOrgIdRouteImport
-      parentRoute: typeof AppOrganizationsRoute
+    '/_app/builders': {
+      id: '/_app/builders'
+      path: '/builders'
+      fullPath: '/builders'
+      preLoaderRoute: typeof AppBuildersRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/messages/$conversationId': {
-      id: '/_app/messages/$conversationId'
-      path: '/$conversationId'
-      fullPath: '/messages/$conversationId'
-      preLoaderRoute: typeof AppMessagesConversationIdRouteImport
-      parentRoute: typeof AppMessagesRoute
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/hackathons/$hackathonId': {
-      id: '/_app/hackathons/$hackathonId'
-      path: '/$hackathonId'
-      fullPath: '/hackathons/$hackathonId'
-      preLoaderRoute: typeof AppHackathonsHackathonIdRouteImport
-      parentRoute: typeof AppHackathonsRoute
+    '/_app/design-system': {
+      id: '/_app/design-system'
+      path: '/design-system'
+      fullPath: '/design-system'
+      preLoaderRoute: typeof AppDesignSystemRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/builders/$builderId': {
-      id: '/_app/builders/$builderId'
-      path: '/$builderId'
-      fullPath: '/builders/$builderId'
-      preLoaderRoute: typeof AppBuildersBuilderIdRouteImport
-      parentRoute: typeof AppBuildersRoute
+    '/_app/feed': {
+      id: '/_app/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/admin/search-analytics': {
-      id: '/_app/admin/search-analytics'
-      path: '/search-analytics'
-      fullPath: '/admin/search-analytics'
-      preLoaderRoute: typeof AppAdminSearchAnalyticsRouteImport
-      parentRoute: typeof AppAdminRoute
+    '/_app/flares': {
+      id: '/_app/flares'
+      path: '/flares'
+      fullPath: '/flares'
+      preLoaderRoute: typeof AppFlaresRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/admin/notifications': {
-      id: '/_app/admin/notifications'
+    '/_app/graph': {
+      id: '/_app/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof AppGraphRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/hackathons': {
+      id: '/_app/hackathons'
+      path: '/hackathons'
+      fullPath: '/hackathons'
+      preLoaderRoute: typeof AppHackathonsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/insights': {
+      id: '/_app/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof AppInsightsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/leaderboard': {
+      id: '/_app/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof AppLeaderboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/loading-states': {
+      id: '/_app/loading-states'
+      path: '/loading-states'
+      fullPath: '/loading-states'
+      preLoaderRoute: typeof AppLoadingStatesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/messages': {
+      id: '/_app/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AppMessagesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notifications': {
+      id: '/_app/notifications'
       path: '/notifications'
-      fullPath: '/admin/notifications'
-      preLoaderRoute: typeof AppAdminNotificationsRouteImport
-      parentRoute: typeof AppAdminRoute
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/admin/maintenance': {
-      id: '/_app/admin/maintenance'
-      path: '/maintenance'
-      fullPath: '/admin/maintenance'
-      preLoaderRoute: typeof AppAdminMaintenanceRouteImport
-      parentRoute: typeof AppAdminRoute
+    '/_app/organizations': {
+      id: '/_app/organizations'
+      path: '/organizations'
+      fullPath: '/organizations'
+      preLoaderRoute: typeof AppOrganizationsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/admin/jobs': {
-      id: '/_app/admin/jobs'
-      path: '/jobs'
-      fullPath: '/admin/jobs'
-      preLoaderRoute: typeof AppAdminJobsRouteImport
-      parentRoute: typeof AppAdminRoute
+    '/_app/profile-analytics': {
+      id: '/_app/profile-analytics'
+      path: '/profile-analytics'
+      fullPath: '/profile-analytics'
+      preLoaderRoute: typeof AppProfileAnalyticsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/admin/email-templates': {
-      id: '/_app/admin/email-templates'
-      path: '/email-templates'
-      fullPath: '/admin/email-templates'
-      preLoaderRoute: typeof AppAdminEmailTemplatesRouteImport
-      parentRoute: typeof AppAdminRoute
+    '/_app/projects': {
+      id: '/_app/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AppProjectsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/admin/community-stats': {
-      id: '/_app/admin/community-stats'
-      path: '/community-stats'
-      fullPath: '/admin/community-stats'
-      preLoaderRoute: typeof AppAdminCommunityStatsRouteImport
+    '/_app/repository-quality': {
+      id: '/_app/repository-quality'
+      path: '/repository-quality'
+      fullPath: '/repository-quality'
+      preLoaderRoute: typeof AppRepositoryQualityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/search': {
+      id: '/_app/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AppSearchRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/templates': {
+      id: '/_app/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof AppTemplatesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/portfolio/$username': {
+      id: '/portfolio/$username'
+      path: '/portfolio/$username'
+      fullPath: '/portfolio/$username'
+      preLoaderRoute: typeof PortfolioUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/admin/api-request-analytics': {
+      id: '/_app/admin/api-request-analytics'
+      path: '/api-request-analytics'
+      fullPath: '/admin/api-request-analytics'
+      preLoaderRoute: typeof AppAdminApiRequestAnalyticsRouteImport
       parentRoute: typeof AppAdminRoute
     }
     '/_app/admin/audit-logs': {
@@ -962,18 +911,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminAuditLogsRouteImport
       parentRoute: typeof AppAdminRoute
     }
-    '/_app/admin/api-request-analytics': {
-      id: '/_app/admin/api-request-analytics'
-      path: '/api-request-analytics'
-      fullPath: '/admin/api-request-analytics'
-      preLoaderRoute: typeof AppAdminApiRequestAnalyticsRouteImport
+    '/_app/admin/community-stats': {
+      id: '/_app/admin/community-stats'
+      path: '/community-stats'
+      fullPath: '/admin/community-stats'
+      preLoaderRoute: typeof AppAdminCommunityStatsRouteImport
       parentRoute: typeof AppAdminRoute
     }
-    '/_app/projects/$projectId/issues': {
-      id: '/_app/projects/$projectId/issues'
-      path: '/issues'
-      fullPath: '/projects/$projectId/issues'
-      preLoaderRoute: typeof AppProjectsProjectIdIssuesRouteImport
+    '/_app/admin/email-templates': {
+      id: '/_app/admin/email-templates'
+      path: '/email-templates'
+      fullPath: '/admin/email-templates'
+      preLoaderRoute: typeof AppAdminEmailTemplatesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/jobs': {
+      id: '/_app/admin/jobs'
+      path: '/jobs'
+      fullPath: '/admin/jobs'
+      preLoaderRoute: typeof AppAdminJobsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/maintenance': {
+      id: '/_app/admin/maintenance'
+      path: '/maintenance'
+      fullPath: '/admin/maintenance'
+      preLoaderRoute: typeof AppAdminMaintenanceRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/notifications': {
+      id: '/_app/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AppAdminNotificationsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/search-analytics': {
+      id: '/_app/admin/search-analytics'
+      path: '/search-analytics'
+      fullPath: '/admin/search-analytics'
+      preLoaderRoute: typeof AppAdminSearchAnalyticsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/builders/$builderId': {
+      id: '/_app/builders/$builderId'
+      path: '/$builderId'
+      fullPath: '/builders/$builderId'
+      preLoaderRoute: typeof AppBuildersBuilderIdRouteImport
+      parentRoute: typeof AppBuildersRoute
+    }
+    '/_app/hackathons/$hackathonId': {
+      id: '/_app/hackathons/$hackathonId'
+      path: '/$hackathonId'
+      fullPath: '/hackathons/$hackathonId'
+      preLoaderRoute: typeof AppHackathonsHackathonIdRouteImport
+      parentRoute: typeof AppHackathonsRoute
+    }
+    '/_app/messages/$conversationId': {
+      id: '/_app/messages/$conversationId'
+      path: '/$conversationId'
+      fullPath: '/messages/$conversationId'
+      preLoaderRoute: typeof AppMessagesConversationIdRouteImport
+      parentRoute: typeof AppMessagesRoute
+    }
+    '/_app/organizations/': {
+      id: '/_app/organizations/'
+      path: '/'
+      fullPath: '/organizations/'
+      preLoaderRoute: typeof AppOrganizationsIndexRouteImport
+      parentRoute: typeof AppOrganizationsRoute
+    }
+    '/_app/organizations/$orgId': {
+      id: '/_app/organizations/$orgId'
+      path: '/$orgId'
+      fullPath: '/organizations/$orgId'
+      preLoaderRoute: typeof AppOrganizationsOrgIdRouteImport
+      parentRoute: typeof AppOrganizationsRoute
+    }
+    '/_app/profile/$username': {
+      id: '/_app/profile/$username'
+      path: '/profile/$username'
+      fullPath: '/profile/$username'
+      preLoaderRoute: typeof AppProfileUsernameRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/projects/$projectId': {
+      id: '/_app/projects/$projectId'
+      path: '/$projectId'
+      fullPath: '/projects/$projectId'
+      preLoaderRoute: typeof AppProjectsProjectIdRouteImport
+      parentRoute: typeof AppProjectsRoute
+    }
+    '/_app/settings/notifications': {
+      id: '/_app/settings/notifications'
+      path: '/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof AppSettingsNotificationsRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/_app/projects/$projectId/activity': {
+      id: '/_app/projects/$projectId/activity'
+      path: '/activity'
+      fullPath: '/projects/$projectId/activity'
+      preLoaderRoute: typeof AppProjectsProjectIdActivityRouteImport
       parentRoute: typeof AppProjectsProjectIdRoute
     }
     '/_app/projects/$projectId/collaboration-metrics': {
@@ -983,11 +1023,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsProjectIdCollaborationMetricsRouteImport
       parentRoute: typeof AppProjectsProjectIdRoute
     }
-    '/_app/projects/$projectId/activity': {
-      id: '/_app/projects/$projectId/activity'
-      path: '/activity'
-      fullPath: '/projects/$projectId/activity'
-      preLoaderRoute: typeof AppProjectsProjectIdActivityRouteImport
+    '/_app/projects/$projectId/issues': {
+      id: '/_app/projects/$projectId/issues'
+      path: '/issues'
+      fullPath: '/projects/$projectId/issues'
+      preLoaderRoute: typeof AppProjectsProjectIdIssuesRouteImport
       parentRoute: typeof AppProjectsProjectIdRoute
     }
   }
@@ -1172,18 +1212,10 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   MaintenanceRoute: MaintenanceRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ShowcaseRoute: ShowcaseRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   PortfolioUsernameRoute: PortfolioUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

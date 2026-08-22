@@ -6,7 +6,6 @@ import { Card, EmptyState } from "@/components/shared/primitives";
 import { CreateTeamDialog } from "./CreateTeamDialog";
 import { hackathonsService } from "@/services";
 import type { HackathonTeam } from "@/services";
-import { TypoCaption } from "@/components/shared/Typography";
 
 interface Props {
   hackathonId: string;
@@ -57,11 +56,11 @@ export function TeamsTab({ hackathonId, maxTeamSize }: Props) {
     <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <TypoCaption as="p">
+        <p className="text-[13px] text-muted-foreground">
           {teams.length === 0
             ? "No teams yet — be the first to create one."
             : `${teams.length} team${teams.length !== 1 ? "s" : ""} · up to ${maxTeamSize} members each`}
-        </TypoCaption>
+        </p>
         <button
           onClick={() => setCreateOpen(true)}
           className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground hover:opacity-90"
@@ -138,9 +137,9 @@ function TeamCard({
             )}
           </div>
           {team.description && (
-            <TypoCaption as="p">
+            <p className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">
               {team.description}
-            </TypoCaption>
+            </p>
           )}
         </div>
       </div>
@@ -162,9 +161,9 @@ function TeamCard({
               />
             ))}
           </div>
-          <TypoCaption>
+          <span className="text-[11px] text-muted-foreground">
             {team.member_count}/{maxTeamSize}
-          </TypoCaption>
+          </span>
         </div>
 
         <button

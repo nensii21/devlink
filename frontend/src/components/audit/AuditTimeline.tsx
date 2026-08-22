@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { auditService } from "@/services";
 import type { AuditLog } from "@/api";
 import { Activity } from "lucide-react";
-import { TypoCaption } from "@/components/shared/Typography";
 
 interface AuditTimelineProps {
   entityType: string;
@@ -46,11 +45,11 @@ export function AuditTimeline({ entityType, entityId }: AuditTimelineProps) {
               <span className="font-semibold text-sm">
                 {log.action.replace(/_/g, " ").toUpperCase()}
               </span>
-              <TypoCaption>
+              <span className="text-xs text-muted-foreground">
                 {format(new Date(log.created_at), "MMM d, yyyy HH:mm")}
-              </TypoCaption>
+              </span>
             </div>
-            <TypoCaption as="p">By User {log.actor_id || "System"}</TypoCaption>
+            <p className="text-sm text-muted-foreground mt-1">By User {log.actor_id || "System"}</p>
           </div>
         </div>
       ))}

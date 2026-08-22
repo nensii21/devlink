@@ -5,6 +5,12 @@ import { Card } from "@/components/shared/primitives";
 import { UserAvatar } from "@/components/user-avatar";
 import { ImageCropUploadModal } from "@/components/shared/ImageCropUploadModal";
 import { DeleteAccountModal } from "@/components/settings/DeleteAccountModal";
+import { OAuthAccountsSection } from "@/components/settings/OAuthAccountsSection";
+import { MFASection } from "@/features/settings/components/MFASection";
+import { UserSessionsActivity } from "@/components/settings/UserSessionsActivity";
+import { AvailabilitySettings } from "@/components/availability/AvailabilitySettings";
+
+
 import { SecurityDashboard } from "@/features/settings/components/security/SecurityDashboard";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -24,6 +30,7 @@ import {
   Save,
   ChevronRight,
   ExternalLink,
+  Calendar,
   HelpCircle,
   Lock,
 } from "lucide-react";
@@ -39,6 +46,7 @@ const tabs = [
   { id: "account", label: "Account", icon: User },
   { id: "appearance", label: "Appearance", icon: Palette },
   { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "availability", label: "Availability", icon: Calendar },
   { id: "privacy", label: "Privacy", icon: Lock },
   { id: "security", label: "Security", icon: Shield },
   { id: "billing", label: "Billing", icon: CreditCard },
@@ -600,8 +608,13 @@ function SettingsPage() {
               </div>
             )}
 
-            {tab === "security" && <SecurityDashboard userEmail="nancy@example.com" />}
+            {tab === "availability" && (
+              <div className="p-6 space-y-6">
+                <AvailabilitySettings />
+              </div>
+            )}
 
+            {tab === "security" && <SecurityDashboard userEmail="nancy@example.com" />}
             {tab === "privacy" && (
               <div className="p-6 space-y-6">
                 <div>

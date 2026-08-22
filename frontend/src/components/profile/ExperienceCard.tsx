@@ -57,16 +57,16 @@ export function ExperienceCard({
             <BriefcaseBusiness size={16} />
           </div>
           <div>
-            <TypoHeading as="h2">Experience</TypoHeading>
-            <TypoCaption as="p">Share your current role and background</TypoCaption>
+            <h2 className="text-sm font-semibold text-foreground">Experience</h2>
+            <p className="text-xs text-muted-foreground">Share your current role and background</p>
           </div>
         </div>
 
         <div className="mt-4 space-y-4">
           <label className="block text-sm">
-            <TypoCaption>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Role
-            </TypoCaption>
+            </span>
             <input
               value={formValues?.role ?? ""}
               onChange={(event) => onFieldChange?.("role", event.target.value)}
@@ -75,9 +75,9 @@ export function ExperienceCard({
             />
           </label>
           <label className="block text-sm">
-            <TypoCaption>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Company
-            </TypoCaption>
+            </span>
             <input
               value={formValues?.company ?? ""}
               onChange={(event) => onFieldChange?.("company", event.target.value)}
@@ -86,9 +86,9 @@ export function ExperienceCard({
             />
           </label>
           <label className="block text-sm">
-            <TypoCaption>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
               Experience Level
-            </TypoCaption>
+            </span>
             <input
               value={formValues?.experienceLevel ?? ""}
               onChange={(event) => onFieldChange?.("experienceLevel", event.target.value)}
@@ -111,8 +111,8 @@ export function ExperienceCard({
           <BriefcaseBusiness size={16} />
         </div>
         <div>
-          <TypoHeading as="h2">Experience</TypoHeading>
-          <TypoCaption as="p">Current role and background</TypoCaption>
+          <h2 className="text-sm font-semibold text-foreground">Experience</h2>
+          <p className="text-xs text-muted-foreground">Current role and background</p>
         </div>
       </div>
 
@@ -133,21 +133,21 @@ export function ExperienceCard({
                 <p className="text-sm font-semibold text-foreground">
                   {entry.title ?? role ?? "Current role"}
                 </p>
-                <TypoCaption as="p">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {entry.company ?? company ?? "Independent"}
-                </TypoCaption>
+                </p>
                 {entry.experienceLevel || experienceLevel ? (
                   <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">
                     <BadgeCheck size={12} /> {entry.experienceLevel ?? experienceLevel}
                   </div>
                 ) : null}
                 {entry.period ? (
-                  <TypoCaption as="p">{entry.period}</TypoCaption>
+                  <p className="mt-2 text-xs text-muted-foreground">{entry.period}</p>
                 ) : null}
                 {entry.description ? (
-                  <TypoCaption as="p">
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
                     {entry.description}
-                  </TypoCaption>
+                  </p>
                 ) : null}
               </div>
             </div>

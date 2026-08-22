@@ -21,7 +21,7 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0); // Mock progress if needed
 
@@ -67,7 +67,7 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
 
     try {
       let finalResumeUrl = undefined;
-      
+
       if (resumeFile) {
         setIsUploading(true);
         // We do a simple mock progress or just await
@@ -124,7 +124,9 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
                 onChange={(e) => setSelectedFlareId(e.target.value)}
                 className="w-full rounded-md border border-border bg-background p-2 text-sm text-foreground focus:border-primary focus:outline-none"
               >
-                <option value="" disabled>Select a role</option>
+                <option value="" disabled>
+                  Select a role
+                </option>
                 {openRoles.map((role) => (
                   <option key={role.id} value={role.id}>
                     {role.role} - {role.title}
@@ -192,11 +194,20 @@ export function ApplyModal({ isOpen, onClose, projectId }: ApplyModalProps) {
             </div>
 
             <div className="pt-4 flex items-center justify-end gap-2 border-t border-border mt-6">
-              <Button type="button" variant="ghost" onClick={onClose} disabled={isUploading || applyMutation.isPending}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                disabled={isUploading || applyMutation.isPending}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isUploading || applyMutation.isPending}>
-                {isUploading ? "Uploading Resume..." : applyMutation.isPending ? "Submitting..." : "Submit Application"}
+                {isUploading
+                  ? "Uploading Resume..."
+                  : applyMutation.isPending
+                    ? "Submitting..."
+                    : "Submit Application"}
               </Button>
             </div>
           </form>

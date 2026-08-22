@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useWithdrawApplication } from "@/hooks/useApplications";
 
-import { TypoCaption, TypoHeading } from "@/components/shared/Typography";
 import {
   Pagination,
   PaginationContent,
@@ -31,8 +30,7 @@ export default function MyApplicationsPage() {
     queryFn: () => getMyApplications(),
   });
 
-  // const withdrawMutation = useWithdrawApplication();
-  const withdrawMutation = {} as any;
+  const withdrawMutation = useWithdrawApplication();
 
   const apps = useMemo(() => {
     const list = data ?? [];
@@ -83,10 +81,10 @@ export default function MyApplicationsPage() {
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <TypoHeading as="h1">My Applications</TypoHeading>
-          <TypoCaption as="p">
+          <h1 className="text-[22px] font-bold tracking-tight text-foreground">My Applications</h1>
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Track your status and withdraw pending applications.
-          </TypoCaption>
+          </p>
         </div>
 
         <div className="min-w-0 w-[280px] max-w-[280px]">
@@ -117,9 +115,9 @@ export default function MyApplicationsPage() {
           <p className="text-[13px] font-semibold text-destructive">
             Failed to load your applications
           </p>
-          <TypoCaption as="p">
+          <p className="mt-1 text-[12px] text-muted-foreground">
             {error instanceof Error ? error.message : "Unknown error"}
-          </TypoCaption>
+          </p>
         </Card>
       ) : apps.length === 0 ? (
         <EmptyState
@@ -206,7 +204,7 @@ function ApplicationCard({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <ApplicationStatusBadge status={app.status} />
-            <TypoCaption>{app.id}</TypoCaption>
+            <span className="text-[12px] text-muted-foreground truncate">{app.id}</span>
           </div>
 
           {app.message && (

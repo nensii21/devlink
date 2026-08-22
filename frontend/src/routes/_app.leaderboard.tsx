@@ -20,8 +20,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, EmptyState } from "@/components/shared/primitives";
 import { UserAvatar } from "@/components/user-avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { reputationApi, type LeaderboardEntry, type ReputationSummary } from "@/api";
@@ -31,7 +43,10 @@ export const Route = createFileRoute("/_app/leaderboard")({
   head: () => ({
     meta: [
       { title: "Community Leaderboard & Reputation — DevLink" },
-      { name: "description", content: "Track community reputation scores, rank tiers, and top contributors." },
+      {
+        name: "description",
+        content: "Track community reputation scores, rank tiers, and top contributors.",
+      },
     ],
   }),
   component: LeaderboardPage,
@@ -103,13 +118,25 @@ function LeaderboardPage() {
 
   const getRankBadge = (rank: number) => {
     if (rank === 1) {
-      return <Badge className="bg-amber-500 text-white font-bold gap-1"><Crown size={12} /> #1 Gold</Badge>;
+      return (
+        <Badge className="bg-amber-500 text-white font-bold gap-1">
+          <Crown size={12} /> #1 Gold
+        </Badge>
+      );
     }
     if (rank === 2) {
-      return <Badge className="bg-slate-400 text-white font-bold gap-1"><Medal size={12} /> #2 Silver</Badge>;
+      return (
+        <Badge className="bg-slate-400 text-white font-bold gap-1">
+          <Medal size={12} /> #2 Silver
+        </Badge>
+      );
     }
     if (rank === 3) {
-      return <Badge className="bg-amber-700 text-white font-bold gap-1"><Award size={12} /> #3 Bronze</Badge>;
+      return (
+        <Badge className="bg-amber-700 text-white font-bold gap-1">
+          <Award size={12} /> #3 Bronze
+        </Badge>
+      );
     }
     return <TypoCaption>#{rank}</TypoCaption>;
   };
@@ -121,12 +148,11 @@ function LeaderboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Trophy className="h-6 w-6 text-primary animate-bounce" />
-            <TypoHeading as="h1">
-              Community Leaderboard & Reputation
-            </TypoHeading>
+            <TypoHeading as="h1">Community Leaderboard & Reputation</TypoHeading>
           </div>
           <TypoCaption as="p">
-            Earn reputation points for merging pull requests, completing projects, and helping fellow builders.
+            Earn reputation points for merging pull requests, completing projects, and helping
+            fellow builders.
           </TypoCaption>
         </div>
 
@@ -141,9 +167,7 @@ function LeaderboardPage() {
         <Card className="p-5 flex flex-col justify-between border-l-4 border-l-primary">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <TypoCaption>
-                My Reputation
-              </TypoCaption>
+              <TypoCaption>My Reputation</TypoCaption>
               <Badge variant="outline" className="font-semibold text-xs">
                 {mySummary?.rank_tier || "Novice 🥉"}
               </Badge>
@@ -161,7 +185,10 @@ function LeaderboardPage() {
             {mySummary?.recent_logs && mySummary.recent_logs.length > 0 ? (
               <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                 {mySummary.recent_logs.slice(0, 3).map((log) => (
-                  <div key={log.id} className="flex items-center justify-between text-xs p-1.5 rounded bg-muted/40">
+                  <div
+                    key={log.id}
+                    className="flex items-center justify-between text-xs p-1.5 rounded bg-muted/40"
+                  >
                     <span className="truncate max-w-[170px] text-foreground font-medium">
                       {log.description || log.action}
                     </span>
@@ -191,7 +218,10 @@ function LeaderboardPage() {
             {Object.entries(ACTION_POINTS_LABEL).map(([key, item]) => {
               const IconComp = item.icon;
               return (
-                <div key={key} className="p-2.5 rounded-lg border border-border bg-card flex flex-col justify-between">
+                <div
+                  key={key}
+                  className="p-2.5 rounded-lg border border-border bg-card flex flex-col justify-between"
+                >
                   <div className="flex items-center gap-1.5 mb-1 font-medium text-foreground">
                     <IconComp className="h-3.5 w-3.5 text-primary shrink-0" />
                     <span className="truncate">{item.label}</span>
@@ -211,7 +241,9 @@ function LeaderboardPage() {
             <TypoHeading as="h2">
               <Flame className="h-5 w-5 text-orange-500" /> Top Community Members
             </TypoHeading>
-            <TypoCaption as="p">Showing {leaderboard.length} of {total} registered builders</TypoCaption>
+            <TypoCaption as="p">
+              Showing {leaderboard.length} of {total} registered builders
+            </TypoCaption>
           </div>
         </div>
 
@@ -302,7 +334,9 @@ function LeaderboardPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-foreground">Description / Reference (Optional)</label>
+              <label className="text-xs font-semibold text-foreground">
+                Description / Reference (Optional)
+              </label>
               <Input
                 placeholder="e.g., Merged PR #868 in DevLink repo"
                 value={actionDesc}

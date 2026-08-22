@@ -20,7 +20,8 @@ const templates: ProjectTemplate[] = [
     fields: {
       stage: "idea",
       max_team_size: 4,
-      description: "A fast-paced project built for a hackathon. We need to move quickly and build an MVP.",
+      description:
+        "A fast-paced project built for a hackathon. We need to move quickly and build an MVP.",
     },
   },
   {
@@ -76,7 +77,11 @@ interface ProjectTemplateSelectProps {
   onTemplateIdChange: (id: string) => void;
 }
 
-export function ProjectTemplateSelect({ onSelect, selectedTemplateId, onTemplateIdChange }: ProjectTemplateSelectProps) {
+export function ProjectTemplateSelect({
+  onSelect,
+  selectedTemplateId,
+  onTemplateIdChange,
+}: ProjectTemplateSelectProps) {
   return (
     <div className="space-y-2">
       <label className="text-[12px] font-semibold text-muted-foreground uppercase">
@@ -97,18 +102,28 @@ export function ProjectTemplateSelect({ onSelect, selectedTemplateId, onTemplate
                 "flex flex-col items-start p-3 text-left rounded-xl transition-all border",
                 isSelected
                   ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/20"
-                  : "border-border bg-surface hover:border-primary/50 hover:bg-muted"
+                  : "border-border bg-surface hover:border-primary/50 hover:bg-muted",
               )}
             >
               <div className="flex items-center gap-2 mb-1.5">
                 <div className={cn("p-1.5 rounded-md", isSelected ? "bg-background" : "bg-muted")}>
                   {template.icon}
                 </div>
-                <span className={cn("font-semibold text-[13px]", isSelected ? "text-primary" : "text-foreground")}>
+                <span
+                  className={cn(
+                    "font-semibold text-[13px]",
+                    isSelected ? "text-primary" : "text-foreground",
+                  )}
+                >
                   {template.name}
                 </span>
               </div>
-              <p className={cn("text-[11px] leading-snug line-clamp-2", isSelected ? "text-primary/80" : "text-muted-foreground")}>
+              <p
+                className={cn(
+                  "text-[11px] leading-snug line-clamp-2",
+                  isSelected ? "text-primary/80" : "text-muted-foreground",
+                )}
+              >
                 {template.description}
               </p>
             </button>

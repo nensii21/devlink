@@ -152,9 +152,7 @@ export function EmptyState({
         )}
       </div>
       <TypoSection>{title}</TypoSection>
-      {desc && (
-        <TypoCaption as="p">{desc}</TypoCaption>
-      )}
+      {desc && <TypoCaption as="p">{desc}</TypoCaption>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );

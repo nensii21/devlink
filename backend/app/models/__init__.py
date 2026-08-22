@@ -72,6 +72,9 @@ from .post import Post  # noqa: F401
 from .pinned_project import PinnedProject  # noqa: F401
 
 from .project_comment import ProjectComment  # noqa: F401
+from .project_time_log import ProjectTimeLog  # noqa: F401
+from .user_availability import UserAvailability  # noqa: F401
+from .connection import Connection, ConnectionStatus  # noqa: F401
 from .feature_announcement import (  # noqa: F401
     FeatureAnnouncement,
     FeatureAnnouncementRead,

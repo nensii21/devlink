@@ -20,9 +20,7 @@ export const AttachmentPreview: React.FC<AttachmentPreviewProps> = ({
   useEffect(() => {
     return () => {
       if (
-        (attachment.type === "image" ||
-          attachment.type === "video" ||
-          attachment.type === "gif") &&
+        (attachment.type === "image" || attachment.type === "video" || attachment.type === "gif") &&
         attachment.previewUrl
       ) {
         URL.revokeObjectURL(attachment.previewUrl);
@@ -104,11 +102,16 @@ export const AttachmentPreview: React.FC<AttachmentPreviewProps> = ({
   return (
     <div className="relative group border rounded-md p-2 mt-2 bg-background">
       <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full shadow-md" onClick={onRemove}>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="h-8 w-8 rounded-full shadow-md"
+          onClick={onRemove}
+        >
           <X className="w-4 h-4" />
         </Button>
       </div>
-      
+
       {renderContent()}
 
       {uploadState && uploadState.status !== "idle" && (
@@ -129,7 +132,10 @@ export const AttachmentPreview: React.FC<AttachmentPreviewProps> = ({
             <div className="mt-1 text-destructive flex items-center justify-between">
               <span>Upload failed</span>
               {onRetry && (
-                <button onClick={onRetry} className="text-primary hover:underline flex items-center gap-1">
+                <button
+                  onClick={onRetry}
+                  className="text-primary hover:underline flex items-center gap-1"
+                >
                   <RefreshCw className="w-3 h-3" /> Retry
                 </button>
               )}

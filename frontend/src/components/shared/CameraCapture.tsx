@@ -103,12 +103,12 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
         }
 
         const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
-        
+
         // Stop stream before triggering capture callback
         if (streamRef.current) {
           streamRef.current.getTracks().forEach((track) => track.stop());
         }
-        
+
         onCapture(file);
       },
       "image/jpeg",
@@ -146,7 +146,7 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
         className="w-full h-[400px] object-cover"
         style={{ transform: facingMode === "user" ? "scaleX(-1)" : "none" }}
       />
-      
+
       {/* Overlay Controls */}
       <div className="absolute inset-0 flex flex-col justify-between p-4 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none">
         {/* Top bar */}
@@ -165,7 +165,7 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
         {/* Bottom bar */}
         <div className="flex items-center justify-center gap-6 pointer-events-auto pb-2">
           <div className="flex-1 flex justify-end">
-             {hasMultipleCameras && (
+            {hasMultipleCameras && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -177,7 +177,7 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
               </Button>
             )}
           </div>
-          
+
           <button
             onClick={handleCapture}
             className="h-16 w-16 rounded-full border-4 border-white/80 bg-white/30 flex items-center justify-center hover:bg-white/50 transition-colors focus:outline-none focus:ring-4 focus:ring-primary/50"
@@ -187,7 +187,7 @@ export function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
               <Camera size={24} />
             </div>
           </button>
-          
+
           <div className="flex-1" />
         </div>
       </div>

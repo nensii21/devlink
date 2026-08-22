@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { I18nProvider, useTranslation } from "@/context/I18nContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const STORAGE_KEY = "devlink-locale";
 
@@ -202,9 +203,7 @@ describe("translated components", () => {
   // in context; exercising them here would be a router test wearing an i18n
   // costume. LanguageSwitcher has no router dependency and covers the same
   // ground: a real component reading from the provider.
-  it("labels the switcher in the active locale", async () => {
-    const { LanguageSwitcher } = await import("@/components/LanguageSwitcher");
-
+  it("labels the switcher in the active locale", () => {
     localStorage.setItem(STORAGE_KEY, "es");
 
     render(
@@ -216,9 +215,7 @@ describe("translated components", () => {
     expect(screen.getByLabelText("Cambiar idioma")).toBeInTheDocument();
   });
 
-  it("shows each language in its own name", async () => {
-    const { LanguageSwitcher } = await import("@/components/LanguageSwitcher");
-
+  it("shows each language in its own name", () => {
     render(
       <I18nProvider>
         <LanguageSwitcher />

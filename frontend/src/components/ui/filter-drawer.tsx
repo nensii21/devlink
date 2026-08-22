@@ -179,7 +179,6 @@ export function FilterDrawer({
     onOpenChange(false);
   };
 
-  // Render a single filter pill
   const renderPill = (
     sectionId: string,
     optionValue: string,
@@ -292,23 +291,23 @@ export function FilterDrawer({
     if (type === "range") {
       const min = section.min ?? 0;
       const max = section.max ?? 100;
-      const stepValue = section.step ?? 1;
+      const step = section.step ?? 1;
       const val = asNumber(draftValues[section.id], min);
 
       return (
         <div className="mt-2 space-y-2">
           <div className="flex items-center justify-between text-[12px] text-muted-foreground">
             <span>{min}</span>
-            <span className="font-semibold text-foreground">{val as any}</span>
+            <span className="font-semibold text-foreground">{val}</span>
             <span>{max}</span>
           </div>
           <input
             type="range"
             min={min}
             max={max}
-            step={stepValue}
-            value={val as any}
-            onChange={(e) => handleTextChange(section.id, e.target.value as any)}
+            step={step}
+            value={val}
+            onChange={(e) => handleTextChange(section.id, Number(e.target.value))}
             className="w-full cursor-pointer accent-primary"
             aria-label={section.title}
           />
@@ -439,6 +438,7 @@ export function FilterDrawer({
       </Drawer>
     );
   }
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

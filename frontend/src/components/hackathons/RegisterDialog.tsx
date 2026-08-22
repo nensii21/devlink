@@ -10,7 +10,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { hackathonsService } from "@/services";
-import { TypoCaption } from "@/components/shared/Typography";
 
 interface Props {
   hackathonId: string;
@@ -68,7 +67,7 @@ export function RegisterDialog({
             className="mb-1.5 block text-[13px] font-medium text-foreground"
           >
             What are you hoping to build?{" "}
-            <TypoCaption>(optional)</TypoCaption>
+            <span className="font-normal text-muted-foreground">(optional)</span>
           </label>
           <textarea
             id="motivation"

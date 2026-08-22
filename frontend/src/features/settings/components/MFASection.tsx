@@ -338,9 +338,7 @@ export const MFASection: React.FC = () => {
       {showDisableModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="w-full max-w-sm bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4 shadow-2xl">
-            <TypoCard>
-              Disable Two-Factor Authentication
-            </TypoCard>
+            <TypoCard>Disable Two-Factor Authentication</TypoCard>
             <p className="text-xs text-gray-400">
               Enter your current 6-digit authenticator code or a recovery code to confirm disabling
               2FA.

@@ -70,7 +70,9 @@ export function ProjectFilters() {
 
   const handleTechToggle = (tech: string) => {
     const current = filters.tech || [];
-    const next = current.includes(tech) ? current.filter((t: string) => t !== tech) : [...current, tech];
+    const next = current.includes(tech)
+      ? current.filter((t: string) => t !== tech)
+      : [...current, tech];
     setFilters({ tech: next });
   };
 

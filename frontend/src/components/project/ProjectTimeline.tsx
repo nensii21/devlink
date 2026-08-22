@@ -169,11 +169,7 @@ export function ProjectTimeline({
                       In Progress
                     </span>
                   )}
-                  {event.status === "upcoming" && (
-                    <TypoCaption>
-                      Upcoming
-                    </TypoCaption>
-                  )}
+                  {event.status === "upcoming" && <TypoCaption>Upcoming</TypoCaption>}
                 </TypoCard>
                 <time
                   dateTime={event.timestamp}
@@ -188,11 +184,7 @@ export function ProjectTimeline({
                 </time>
               </div>
 
-              {event.description && (
-                <TypoCaption as="p">
-                  {event.description}
-                </TypoCaption>
-              )}
+              {event.description && <TypoCaption as="p">{event.description}</TypoCaption>}
 
               {event.actor && (
                 <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">

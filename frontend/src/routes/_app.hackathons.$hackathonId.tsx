@@ -129,9 +129,7 @@ function HackathonDetail() {
                 {hackathon.status.replace(/_/g, " ")}
               </TagChip>
             </div>
-            {hackathon.theme && (
-              <TypoCaption as="p">{hackathon.theme}</TypoCaption>
-            )}
+            {hackathon.theme && <TypoCaption as="p">{hackathon.theme}</TypoCaption>}
             <p className="mt-2 text-[13px] text-foreground line-clamp-3">{hackathon.description}</p>
             <div className="mt-3 flex flex-wrap gap-3 text-[12px] text-muted-foreground">
               <span className="inline-flex items-center gap-1">
@@ -212,9 +210,7 @@ function HackathonDetail() {
         <TabsContent value="overview">
           <Card className="p-4">
             <p className="text-[13px] font-semibold text-foreground">About</p>
-            <TypoCaption as="p">
-              {hackathon.description}
-            </TypoCaption>
+            <TypoCaption as="p">{hackathon.description}</TypoCaption>
           </Card>
           {hackathon.website_url && (
             <Card className="mt-3 p-4">
