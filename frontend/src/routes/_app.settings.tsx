@@ -11,21 +11,20 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
   User,
-  Palette,
-  Bell,
   Shield,
-  CreditCard,
+  Bell,
+  Palette,
+  Lock,
   Download,
   Trash2,
-  Eye,
-  EyeOff,
   Camera,
   Upload,
   Save,
-  ChevronRight,
-  ExternalLink,
-  HelpCircle,
-  Lock,
+  Sun,
+  Moon,
+  Monitor,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -36,13 +35,11 @@ import { usersService } from "@/services";
 import { TypoSection, TypoCaption, TypoHeading } from "@/components/shared/Typography";
 
 const tabs = [
-  { id: "account", label: "Account", icon: User },
-  { id: "appearance", label: "Appearance", icon: Palette },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "privacy", label: "Privacy", icon: Lock },
-  { id: "security", label: "Security", icon: Shield },
-  { id: "billing", label: "Billing", icon: CreditCard },
-  { id: "export", label: "Export Data", icon: Download },
+  { id: "account", label: "Account", icon: User, description: "Personal profile and public information" },
+  { id: "privacy", label: "Privacy", icon: Eye, description: "Visibility and data sharing settings" },
+  { id: "notifications", label: "Notifications", icon: Bell, description: "Email and push notification preferences" },
+  { id: "appearance", label: "Appearance", icon: Palette, description: "Theme and interface layout" },
+  { id: "security", label: "Security", icon: Lock, description: "Password, two-factor authentication, and sessions" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -50,19 +47,18 @@ type TabId = (typeof tabs)[number]["id"];
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — DevLink" },
+      { title: "User Settings — DevLink" },
       {
         name: "description",
-        content: "Manage your DevLink account, appearance, notifications and billing.",
+        content: "Centralized settings page for account, privacy, notifications, appearance, and security.",
       },
     ],
   }),
-  component: SettingsPage,
+  component: UserSettingsPage,
 });
 
-function SettingsPage() {
+export function UserSettingsPage() {
   const [tab, setTab] = useState<TabId>("account");
-  const [savingAccount, setSavingAccount] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -71,757 +67,506 @@ function SettingsPage() {
   const [bannerUrl, setBannerUrl] = useState<string | null>(
     "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=400&fit=crop&auto=format",
   );
+
+  // Profile / Account state
+  const [profileData, setProfileData] = useState({
+    first_name: "",
+    last_name: "",
+    username: "",
+    email: "",
+    headline: "Full-Stack Developer",
+    location: "San Francisco, CA",
+    website: "https://devlink.io",
+    bio: "",
+    version: 1,
+  });
+  const [fullNameInput, setFullNameInput] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving" | "error">("saved");
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // Privacy state
+  const [privacySettings, setPrivacySettings] = useState({
+    profilePublic: true,
+    showEmail: false,
+    showActivity: true,
+    allowMessagesFromAnyone: true,
+    showMatchScore: true,
+  });
+
+  // Notification state
   const [notificationSettings, setNotificationSettings] = useState({
     directMessages: true,
-    builderRequests: true,
-    projectMentions: false,
-    hackathonDeadlines: true,
+    collaborationInvites: true,
+    mentionsAndComments: true,
+    hackathonReminders: true,
     weeklyDigest: true,
-    marketingEmails: false,
+    productUpdates: false,
   });
 
-  // Profile Privacy States
-  const [isPrivateProfile, setIsPrivateProfile] = useState(false);
-  const [privacySettings, setPrivacySettings] = useState({
-    email: "private",
-    github: "public",
-    resume: "public",
-    social_links: "public",
-    availability: "public",
-    activity: "public",
-  });
-  const [loadingPrivacy, setLoadingPrivacy] = useState(false);
-  const [savingPrivacy, setSavingPrivacy] = useState(false);
+  // Appearance state
+  const [themeMode, setThemeMode] = useState<"light" | "dark" | "system">("system");
+  const [compactView, setCompactView] = useState(false);
 
   useEffect(() => {
-    async function loadPrivacy() {
-      setLoadingPrivacy(true);
+    async function loadProfile() {
+      setLoadingProfile(true);
       try {
-        const settings = await usersService.getPrivacySettings();
-        if (settings) {
-          setPrivacySettings((prev) => ({ ...prev, ...settings }));
-        }
-        const user = await authApi.me();
+        const user = await usersService.getMe();
         if (user) {
-          setIsPrivateProfile(!!(user as any).is_private);
+          const loadedData = {
+            first_name: user.first_name || "",
+            last_name: user.last_name || "",
+            username: user.username || user.handle || "",
+            email: user.email || "",
+            headline: (user as any).headline || "Full-Stack Developer",
+            location: (user as any).location || "San Francisco, CA",
+            website: (user as any).website || "https://devlink.io",
+            bio: user.bio || "",
+            version: user.version || 1,
+          };
+          setProfileData(loadedData);
+          setFullNameInput(`${loadedData.first_name} ${loadedData.last_name}`.trim());
+          setSaveStatus("saved");
         }
       } catch (err) {
-        console.error("Failed to load privacy settings:", err);
+        console.error("Failed to load user profile:", err);
       } finally {
-        setLoadingPrivacy(false);
+        setLoadingProfile(false);
       }
     }
-    loadPrivacy();
+    loadProfile();
   }, []);
 
-  const handleSavePrivacy = async () => {
-    setSavingPrivacy(true);
+  const handleSaveAccount = async () => {
+    setSaveStatus("saving");
     try {
-      await usersService.updatePrivacySettings(privacySettings);
-      await usersService.updateMe({ is_private: isPrivateProfile });
-      toast.success("Privacy settings updated successfully");
-    } catch (err) {
-      toast.error("Failed to update privacy settings");
-      console.error(err);
-    } finally {
-      setSavingPrivacy(false);
+      await usersService.updateMe({
+        first_name: profileData.first_name,
+        last_name: profileData.last_name,
+        username: profileData.username,
+        email: profileData.email,
+        bio: profileData.bio,
+      });
+      setSaveStatus("saved");
+      toast.success("Account settings updated successfully");
+    } catch {
+      setSaveStatus("error");
+      toast.error("Failed to update account settings");
     }
   };
 
-  const handleConfirmDelete = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    window.location.href = "/";
+  const handleNameChange = (val: string) => {
+    setFullNameInput(val);
+    const parts = val.trim().split(/\s+/);
+    const firstName = parts[0] || "";
+    const lastName = parts.slice(1).join(" ") || "";
+    setProfileData((prev) => ({
+      ...prev,
+      first_name: firstName,
+      last_name: lastName,
+    }));
+    setSaveStatus("unsaved");
   };
 
   const inp =
-    "w-full rounded-md border border-border bg-surface px-3 py-[9px] text-[14px] text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground transition-all";
-  const lbl = "mb-1.5 block text-[13px] font-medium text-foreground";
-  const sectionTitle =
-    "text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mb-4";
+    "w-full rounded-md border border-border bg-surface px-3 py-2 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 placeholder:text-muted-foreground transition-all";
+  const lbl = "mb-1 block text-xs font-medium text-foreground";
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 py-6">
-      <div className="px-0">
-        <TypoHeading as="h1">Settings</TypoHeading>
-        <TypoCaption as="p">Manage your account settings and preferences</TypoCaption>
+    <div className="mx-auto max-w-5xl space-y-4 py-2">
+      {/* Header */}
+      <div>
+        <TypoHeading as="h1">User Settings</TypoHeading>
+        <TypoCaption as="p">Manage your account, privacy, notifications, appearance, and security</TypoCaption>
       </div>
 
       <Separator />
 
-      <div className="grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside className="space-y-1">
-          <nav className="sticky top-20 space-y-1">
+      <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)] items-start">
+        {/* Navigation Sidebar with 5 Tabs */}
+        <aside>
+          <nav className="sticky top-20 space-y-1 rounded-xl border border-border bg-card p-1.5">
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium transition-all",
+                  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-all text-left",
                   tab === t.id
-                    ? "bg-primary-soft text-primary font-semibold"
+                    ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
-                <t.icon size={16} className="shrink-0" />
-                {t.label}
+                <t.icon size={15} className="shrink-0" />
+                <span className="truncate">{t.label}</span>
               </button>
             ))}
-
-            <div className="pt-6">
-              <div className="rounded-xl border border-border/70 bg-primary/5 p-4 space-y-2.5">
-                <p className="text-xs font-semibold text-foreground">Need help?</p>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Visit our help center for security guides and FAQs.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-xs font-medium border-border hover:bg-muted justify-between h-8 px-2.5"
-                  onClick={() => toast.info("Help center guides opening...")}
-                >
-                  <span>Visit Help Center</span>
-                  <ExternalLink size={12} className="text-muted-foreground" />
-                </Button>
-              </div>
-            </div>
           </nav>
         </aside>
 
+        {/* Tab Content Panel */}
         <main className="min-h-[500px]">
-          <Card className="divide-y divide-border">
+          <Card className="p-5 space-y-5">
+            {/* 1. ACCOUNT TAB */}
             {tab === "account" && (
-              <div className="p-6 space-y-6">
-                <div>
-                  <TypoHeading as="h2">Profile</TypoHeading>
-                  <TypoCaption as="p">Manage your public profile information</TypoCaption>
+              <div className="space-y-4">
+                <div className="border-b border-border pb-3">
+                  <TypoHeading as="h2">Account Information</TypoHeading>
+                  <TypoCaption as="p">Manage your public persona, avatar, and personal details</TypoCaption>
                 </div>
 
-                <div className="rounded-lg border border-border bg-muted/30 p-5 space-y-4">
-                  <TypoSection>Profile Media</TypoSection>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-5 text-center">
-                      <UserAvatar
-                        src={avatarUrl}
-                        name={currentUser.name}
-                        size="xl"
-                        editable
-                        onImageUpload={(url) => setAvatarUrl(url)}
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Avatar</p>
-                        <TypoCaption as="p">Recommended: 400x400px</TypoCaption>
-                        <p className="text-xs font-semibold text-foreground">Avatar Photo</p>
-                        <TypoCaption as="p">Drag & drop or crop before upload</TypoCaption>
-                      </div>
+                {/* Profile Media Cards */}
+                <div className="grid gap-3 sm:grid-cols-2 rounded-lg border border-border bg-muted/20 p-3.5">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar
+                      src={avatarUrl}
+                      name={currentUser.name}
+                      size="lg"
+                      editable
+                      onImageUpload={(url) => setAvatarUrl(url)}
+                    />
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">Avatar Photo</p>
+                      <TypoCaption as="p">PNG, JPG up to 5MB</TypoCaption>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => setIsAvatarModalOpen(true)}
-                        className="h-8 gap-1.5 text-xs"
+                        className="mt-1 h-7 text-[11px] px-2"
                       >
-                        <Upload size={13} />
-                        Change
+                        <Upload size={11} className="mr-1" /> Change Avatar
                       </Button>
                     </div>
-                    <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-5 text-center">
-                      <div className="relative h-16 w-full overflow-hidden rounded-md bg-muted">
-                        {bannerUrl ? (
-                          <img
-                            src={bannerUrl}
-                            alt="Banner preview"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="h-full w-full bg-gradient-to-r from-primary/30 to-purple-500/30" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Banner</p>
-                        <TypoCaption as="p">Recommended: 1200x400px</TypoCaption>
-                        <p className="text-xs font-semibold text-foreground">Header Banner</p>
-                        <TypoCaption as="p">3:1 aspect ratio landscape</TypoCaption>
-                      </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-12 w-20 shrink-0 overflow-hidden rounded-md bg-muted border border-border">
+                      {bannerUrl ? (
+                        <img src={bannerUrl} alt="Banner" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full bg-gradient-to-r from-primary/30 to-purple-500/30" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">Header Banner</p>
+                      <TypoCaption as="p">Profile header image</TypoCaption>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => setIsBannerModalOpen(true)}
-                        className="h-8 gap-1.5 text-xs"
+                        className="mt-1 h-7 text-[11px] px-2"
                       >
-                        <Camera size={13} />
-                        Edit
+                        <Camera size={11} className="mr-1" /> Edit Banner
                       </Button>
                     </div>
                   </div>
-                </div>                {loadingProfile ? (
-                  <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-                    Loading profile details...
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Conflict Resolution Banner */}
-                    {saveStatus === "conflict" && (
-                      <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-3">
-                        <div className="space-y-1">
-                          <p className="text-sm font-semibold text-destructive animate-pulse">Version Conflict Detected</p>
-                          <p className="text-[13px] text-muted-foreground">
-                            This profile has been modified on another device or session. What would you like to do?
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="text-xs h-8"
-                            onClick={() => performSave(true)}
-                          >
-                            Keep My Changes (Force Overwrite)
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs h-8"
-                            onClick={async () => {
-                              const user = await usersService.getMe();
-                              if (user) {
-                                const loadedData = {
-                                  first_name: user.first_name || "",
-                                  last_name: user.last_name || "",
-                                  username: user.username || user.handle || "",
-                                  email: user.email || "",
-                                  bio: user.bio || "",
-                                  version: user.version || 1,
-                                };
-                                setProfileData(loadedData);
-                                setOriginalProfileData(loadedData);
-                                setFullNameInput(`${loadedData.first_name} ${loadedData.last_name}`.trim());
-                                setSaveStatus("saved");
-                                setErrorMessage("");
-                                toast.success("Profile reloaded from server");
-                              }
-                            }}
-                          >
-                            Discard & Reload Latest
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+                </div>
 
-                    {/* Auto-Save Settings Row */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-muted/20 p-4">
-                      <div className="flex items-center gap-3">
-                        <Switch
-                          id="auto-save"
-                          checked={isAutoSaveEnabled}
-                          onCheckedChange={setIsAutoSaveEnabled}
-                        />
-                        <div>
-                          <Label htmlFor="auto-save" className="text-sm font-semibold text-foreground">
-                            Enable Auto-Save
-                          </Label>
-                          <TypoCaption as="p">Changes save automatically after typing stops</TypoCaption>
-                        </div>
-                      </div>
-                      {renderSaveStatusIndicator()}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSaveAccount();
+                  }}
+                  className="space-y-3.5"
+                >
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className={lbl}>Full Name</label>
+                      <input
+                        className={inp}
+                        value={fullNameInput}
+                        onChange={(e) => handleNameChange(e.target.value)}
+                        placeholder="Your full name"
+                      />
                     </div>
-
-                    <form
-                      onSubmit={async (e) => {
-                        e.preventDefault();
-                        if (saveStatus === "saving") return;
-                        await performSave(false);
-                      }}
-                      className="space-y-5"
-                    >
-                      <div className="grid gap-5 sm:grid-cols-2">
-                        <div>
-                          <label className={lbl}>Full name</label>
-                          <input
-                            className={inp}
-                            value={fullNameInput}
-                            onChange={(e) => handleNameChange(e.target.value)}
-                            placeholder="Your full name"
-                          />
-                        </div>
-                        <div>
-                          <label className={lbl}>Username</label>
-                          <input
-                            className={inp}
-                            value={profileData.username}
-                            onChange={(e) =>
-                              setProfileData((prev) => ({ ...prev, username: e.target.value }))
-                            }
-                            placeholder="username"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className={lbl}>Email</label>
-                        <input
-                          className={inp}
-                          value={profileData.email}
-                          onChange={(e) =>
-                            setProfileData((prev) => ({ ...prev, email: e.target.value }))
-                          }
-                          type="email"
-                          placeholder="email@example.com"
-                        />
-                      </div>
-                      <div>
-                        <label className={lbl}>Bio</label>
-                        <textarea
-                          rows={3}
-                          className={inp}
-                          value={profileData.bio}
-                          onChange={(e) =>
-                            setProfileData((prev) => ({ ...prev, bio: e.target.value }))
-                          }
-                          placeholder="Tell us about yourself"
-                        />
-                        <TypoCaption as="p">Brief description for your profile</TypoCaption>
-                      </div>
-
-                      {errorMessage && (
-                        <p className="text-xs font-medium text-destructive">{errorMessage}</p>
-                      )}
-
-                      <div className="flex items-center gap-3 pt-2">
-                        <Button type="submit" className="gap-2" disabled={saveStatus === "saving" || saveStatus === "saved" || saveStatus === "conflict"}>
-                          <Save size={15} />
-                          {saveStatus === "saving" ? "Saving..." : "Save changes"}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={handleDiscardChanges}
-                          disabled={saveStatus === "saving" || saveStatus === "saved"}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
+                    <div>
+                      <label className={lbl}>Username</label>
+                      <input
+                        className={inp}
+                        value={profileData.username}
+                        onChange={(e) => {
+                          setProfileData((prev) => ({ ...prev, username: e.target.value }));
+                          setSaveStatus("unsaved");
+                        }}
+                        placeholder="username"
+                      />
+                    </div>
                   </div>
-                )}
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className={lbl}>Email Address</label>
+                      <input
+                        className={inp}
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => {
+                          setProfileData((prev) => ({ ...prev, email: e.target.value }));
+                          setSaveStatus("unsaved");
+                        }}
+                        placeholder="email@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className={lbl}>Location</label>
+                      <input
+                        className={inp}
+                        value={profileData.location}
+                        onChange={(e) => {
+                          setProfileData((prev) => ({ ...prev, location: e.target.value }));
+                          setSaveStatus("unsaved");
+                        }}
+                        placeholder="City, Country"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className={lbl}>Professional Headline</label>
+                    <input
+                      className={inp}
+                      value={profileData.headline}
+                      onChange={(e) => {
+                        setProfileData((prev) => ({ ...prev, headline: e.target.value }));
+                        setSaveStatus("unsaved");
+                      }}
+                      placeholder="e.g. Senior Full Stack Engineer"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={lbl}>Bio</label>
+                    <textarea
+                      rows={3}
+                      className={inp}
+                      value={profileData.bio}
+                      onChange={(e) => {
+                        setProfileData((prev) => ({ ...prev, bio: e.target.value }));
+                        setSaveStatus("unsaved");
+                      }}
+                      placeholder="Brief overview about your experience..."
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                    <Button
+                      type="submit"
+                      size="sm"
+                      className="gap-1.5 text-xs h-8"
+                      disabled={saveStatus === "saving"}
+                    >
+                      <Save size={13} />
+                      {saveStatus === "saving" ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* 2. PRIVACY TAB */}
+            {tab === "privacy" && (
+              <div className="space-y-4">
+                <div className="border-b border-border pb-3">
+                  <TypoHeading as="h2">Privacy & Visibility</TypoHeading>
+                  <TypoCaption as="p">Control who can discover your profile, email, and activity</TypoCaption>
+                </div>
+
+                <div className="divide-y divide-border/60 rounded-lg border border-border bg-card">
+                  {[
+                    {
+                      key: "profilePublic",
+                      label: "Public Profile Visibility",
+                      desc: "Allow your profile to appear in search engines and global builder directories",
+                    },
+                    {
+                      key: "showEmail",
+                      label: "Show Email Address",
+                      desc: "Make your primary email address visible on your public developer profile",
+                    },
+                    {
+                      key: "showActivity",
+                      label: "Broadcast Activity Timeline",
+                      desc: "Display recent commits, flares, and hackathon milestones publicly",
+                    },
+                    {
+                      key: "allowMessagesFromAnyone",
+                      label: "Direct Messaging Access",
+                      desc: "Allow any registered builder to send you direct collaboration requests",
+                    },
+                    {
+                      key: "showMatchScore",
+                      label: "AI Match Score Display",
+                      desc: "Show automated skill compatibility scores to potential project leads",
+                    },
+                  ].map((item) => (
+                    <div key={item.key} className="flex items-center justify-between p-3.5">
+                      <div>
+                        <Label htmlFor={item.key} className="text-xs font-medium text-foreground cursor-pointer">
+                          {item.label}
+                        </Label>
+                        <TypoCaption as="p">{item.desc}</TypoCaption>
+                      </div>
+                      <Switch
+                        id={item.key}
+                        checked={privacySettings[item.key as keyof typeof privacySettings]}
+                        onCheckedChange={(checked) => {
+                          setPrivacySettings((prev) => ({ ...prev, [item.key]: checked }));
+                          toast.success("Privacy settings updated");
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3. NOTIFICATIONS TAB */}
+            {tab === "notifications" && (
+              <div className="space-y-4">
+                <div className="border-b border-border pb-3">
+                  <TypoHeading as="h2">Notification Preferences</TypoHeading>
+                  <TypoCaption as="p">Manage direct messaging alerts, invites, and digests</TypoCaption>
+                </div>
+
+                <div className="divide-y divide-border/60 rounded-lg border border-border bg-card">
+                  {[
+                    {
+                      key: "directMessages",
+                      label: "Direct Messages",
+                      desc: "Receive real-time alerts when another developer messages you",
+                    },
+                    {
+                      key: "collaborationInvites",
+                      label: "Collaboration & Team Invites",
+                      desc: "Notify when you are invited to join an active project team",
+                    },
+                    {
+                      key: "mentionsAndComments",
+                      label: "Mentions and Replies",
+                      desc: "Notify when tagged in project tasks, flares, or issue comments",
+                    },
+                    {
+                      key: "hackathonReminders",
+                      label: "Hackathon Deadlines",
+                      desc: "Reminders for upcoming team registrations and project submissions",
+                    },
+                    {
+                      key: "weeklyDigest",
+                      label: "Weekly Community Digest",
+                      desc: "A weekly summary of trending projects, matching builders, and discussions",
+                    },
+                    {
+                      key: "productUpdates",
+                      label: "DevLink Product Updates",
+                      desc: "Receive emails about major feature additions and developer news",
+                    },
+                  ].map((item) => (
+                    <div key={item.key} className="flex items-center justify-between p-3.5">
+                      <div>
+                        <Label htmlFor={item.key} className="text-xs font-medium text-foreground cursor-pointer">
+                          {item.label}
+                        </Label>
+                        <TypoCaption as="p">{item.desc}</TypoCaption>
+                      </div>
+                      <Switch
+                        id={item.key}
+                        checked={notificationSettings[item.key as keyof typeof notificationSettings]}
+                        onCheckedChange={(checked) => {
+                          setNotificationSettings((prev) => ({ ...prev, [item.key]: checked }));
+                          toast.success("Notification preferences saved");
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 4. APPEARANCE TAB */}
+            {tab === "appearance" && (
+              <div className="space-y-4">
+                <div className="border-b border-border pb-3">
+                  <TypoHeading as="h2">Appearance & Theme</TypoHeading>
+                  <TypoCaption as="p">Customize themes and interface layout density</TypoCaption>
+                </div>
+
+                <div className="space-y-3">
+                  <label className={lbl}>Color Theme</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { id: "light", label: "Light", icon: Sun },
+                      { id: "dark", label: "Dark", icon: Moon },
+                      { id: "system", label: "System", icon: Monitor },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => {
+                          setThemeMode(t.id as any);
+                          toast.success(`Theme set to ${t.label}`);
+                        }}
+                        className={cn(
+                          "flex flex-col items-center justify-center gap-2 rounded-lg border p-3.5 text-xs font-medium transition-all",
+                          themeMode === t.id
+                            ? "border-primary bg-primary/10 text-primary font-semibold ring-1 ring-primary"
+                            : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+                        )}
+                      >
+                        <t.icon size={18} />
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <Separator className="my-3" />
+
+                  <div className="flex items-center justify-between p-1">
+                    <div>
+                      <p className="text-xs font-medium text-foreground">Compact Mode</p>
+                      <TypoCaption as="p">Reduce padding for high-density information display</TypoCaption>
+                    </div>
+                    <Switch
+                      checked={compactView}
+                      onCheckedChange={(c) => {
+                        setCompactView(c);
+                        toast.success(c ? "Compact mode enabled" : "Standard mode enabled");
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 5. SECURITY TAB */}
+            {tab === "security" && (
+              <div className="space-y-4">
+                <div className="border-b border-border pb-3">
+                  <TypoHeading as="h2">Security & Authentication</TypoHeading>
+                  <TypoCaption as="p">Manage password, two-factor authentication, and active sessions</TypoCaption>
+                </div>
+
+                <SecurityDashboard userEmail={profileData.email || "user@devlink.io"} />
 
                 <Separator />
 
-                <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-5 space-y-3">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <TypoSection>
-                        <Trash2 size={15} /> Delete account
-                      </TypoSection>
-                      <TypoCaption as="p">
-                        Permanently delete your account and all associated data. This action cannot
-                        be undone.
-                      </TypoCaption>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setDeleteModalOpen(true)}
-                      className="shrink-0"
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-
-                <ImageCropUploadModal
-                  isOpen={isAvatarModalOpen}
-                  onClose={() => setIsAvatarModalOpen(false)}
-                  onUploadSuccess={(url) => setAvatarUrl(url)}
-                  mode="avatar"
-                  title="Upload Avatar Image"
-                />
-                <ImageCropUploadModal
-                  isOpen={isBannerModalOpen}
-                  onClose={() => setIsBannerModalOpen(false)}
-                  onUploadSuccess={(url) => setBannerUrl(url)}
-                  mode="banner"
-                  title="Upload Header Banner"
-                />
-              </div>
-            )}
-
-            {tab === "appearance" && (
-              <div className="p-6 space-y-6">
-                <div>
-                  <TypoHeading as="h2">Appearance</TypoHeading>
-                  <TypoCaption as="p">Customize how DevLink looks for you</TypoCaption>
-                </div>
-
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Theme</p>
-                      <TypoCaption as="p">Select your preferred color scheme</TypoCaption>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="default" size="sm" className="gap-2">
-                        <Palette size={14} /> Light
-                      </Button>
-                      <Button variant="outline" size="sm" className="gap-2">
-                        <Palette size={14} /> Dark
-                      </Button>
-                      <Button variant="outline" size="sm" className="gap-2">
-                        <Palette size={14} /> System
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Reduced motion</p>
-                      <TypoCaption as="p">Minimize animations across the interface</TypoCaption>
-                    </div>
-                    <Switch />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Compact mode</p>
-                      <TypoCaption as="p">Reduce spacing for a denser layout</TypoCaption>
-                    </div>
-                    <Switch />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {tab === "notifications" && (
-              <div className="p-6 space-y-6">
-                <div>
-                  <TypoHeading as="h2">Notifications</TypoHeading>
-                  <TypoCaption as="p">Choose what notifications you receive</TypoCaption>
-                </div>
-
-                <div className="space-y-5">
+                {/* Danger Zone */}
+                <div className="flex items-center justify-between rounded-lg border border-destructive/20 bg-destructive/5 p-3.5">
                   <div>
-                    <TypoSection>Push notifications</TypoSection>
-                    <div className="space-y-4">
-                      {[
-                        {
-                          key: "directMessages",
-                          label: "Direct messages",
-                          desc: "Someone sends you a direct message",
-                        },
-                        {
-                          key: "builderRequests",
-                          label: "Builder requests",
-                          desc: "Someone invites you to collaborate",
-                        },
-                        {
-                          key: "projectMentions",
-                          label: "Project mentions",
-                          desc: "You're mentioned in a project",
-                        },
-                        {
-                          key: "hackathonDeadlines",
-                          label: "Hackathon deadlines",
-                          desc: "Upcoming hackathon deadlines",
-                        },
-                      ].map((item) => (
-                        <div key={item.key} className="flex items-center justify-between">
-                          <div>
-                            <Label
-                              htmlFor={item.key}
-                              className="text-sm font-medium text-foreground"
-                            >
-                              {item.label}
-                            </Label>
-                            <TypoCaption as="p">{item.desc}</TypoCaption>
-                          </div>
-                          <Switch
-                            id={item.key}
-                            checked={
-                              notificationSettings[item.key as keyof typeof notificationSettings]
-                            }
-                            onCheckedChange={(checked) =>
-                              setNotificationSettings((prev) => ({ ...prev, [item.key]: checked }))
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-xs font-semibold text-destructive flex items-center gap-1.5">
+                      <Trash2 size={14} /> Delete DevLink Account
+                    </p>
+                    <TypoCaption as="p">Permanently delete your profile, workspaces, and personal data</TypoCaption>
                   </div>
-
-                  <Separator />
-
-                  <div>
-                    <TypoSection>Email notifications</TypoSection>
-                    <div className="space-y-4">
-                      {[
-                        {
-                          key: "weeklyDigest",
-                          label: "Weekly digest",
-                          desc: "Weekly summary of your activity",
-                        },
-                        {
-                          key: "marketingEmails",
-                          label: "Marketing emails",
-                          desc: "Product updates and tips",
-                        },
-                      ].map((item) => (
-                        <div key={item.key} className="flex items-center justify-between">
-                          <div>
-                            <Label
-                              htmlFor={item.key}
-                              className="text-sm font-medium text-foreground"
-                            >
-                              {item.label}
-                            </Label>
-                            <TypoCaption as="p">{item.desc}</TypoCaption>
-                          </div>
-                          <Switch
-                            id={item.key}
-                            checked={
-                              notificationSettings[item.key as keyof typeof notificationSettings]
-                            }
-                            onCheckedChange={(checked) =>
-                              setNotificationSettings((prev) => ({ ...prev, [item.key]: checked }))
-                            }
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                   <Button
-                    className="gap-2"
-                    onClick={() => toast.success("Notification preferences saved")}
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setDeleteModalOpen(true)}
+                    className="h-8 text-xs"
                   >
-                    <Save size={15} /> Save preferences
+                    Delete Account
                   </Button>
-                </div>
-              </div>
-            )}
-
-            {tab === "security" && <SecurityDashboard userEmail="nancy@example.com" />}
-
-            {tab === "privacy" && (
-              <div className="p-6 space-y-6">
-                <div>
-                  <TypoHeading as="h2">Privacy Settings</TypoHeading>
-                  <TypoCaption as="p">Control who can view your profile and activities</TypoCaption>
-                </div>
-
-                {loadingPrivacy ? (
-                  <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-                    Loading privacy settings...
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Public/Private Profile Toggle */}
-                    <div className="rounded-lg border border-border bg-muted/30 p-5 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5 pr-4">
-                          <Label className="text-sm font-semibold text-foreground">
-                            Private Profile
-                          </Label>
-                          <TypoCaption as="p">
-                            When enabled, your profile details will only be visible to you and followers.
-                          </TypoCaption>
-                        </div>
-                        <Switch
-                          checked={isPrivateProfile}
-                          onCheckedChange={setIsPrivateProfile}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Visibility Dropdowns */}
-                    <div className="space-y-4">
-                      <TypoSection>Visibility Controls</TypoSection>
-
-                      <div className="grid gap-5 sm:grid-cols-2">
-                        {/* Email Visibility */}
-                        <div className="flex flex-col space-y-1.5">
-                          <label className={lbl}>Email Visibility</label>
-                          <select
-                            className={inp}
-                            value={privacySettings.email}
-                            onChange={(e) =>
-                              setPrivacySettings((prev) => ({
-                                ...prev,
-                                email: e.target.value,
-                              }))
-                            }
-                          >
-                            <option value="public">Public</option>
-                            <option value="authenticated">Authenticated Users</option>
-                            <option value="followers">Followers Only</option>
-                            <option value="private">Private (Only Me)</option>
-                          </select>
-                          <TypoCaption>Who can see your public contact email address.</TypoCaption>
-                        </div>
-
-                        {/* Activity Visibility */}
-                        <div className="flex flex-col space-y-1.5">
-                          <label className={lbl}>Activity & Contribution History</label>
-                          <select
-                            className={inp}
-                            value={privacySettings.activity}
-                            onChange={(e) =>
-                              setPrivacySettings((prev) => ({
-                                ...prev,
-                                activity: e.target.value,
-                              }))
-                            }
-                          >
-                            <option value="public">Public</option>
-                            <option value="authenticated">Authenticated Users</option>
-                            <option value="followers">Followers Only</option>
-                            <option value="private">Private (Only Me)</option>
-                          </select>
-                          <TypoCaption>Who can view your reputation log & contribution heatmap.</TypoCaption>
-                        </div>
-
-                        {/* GitHub Visibility */}
-                        <div className="flex flex-col space-y-1.5">
-                          <label className={lbl}>GitHub Connection</label>
-                          <select
-                            className={inp}
-                            value={privacySettings.github}
-                            onChange={(e) =>
-                              setPrivacySettings((prev) => ({
-                                ...prev,
-                                github: e.target.value,
-                              }))
-                            }
-                          >
-                            <option value="public">Public</option>
-                            <option value="authenticated">Authenticated Users</option>
-                            <option value="followers">Followers Only</option>
-                            <option value="private">Private (Only Me)</option>
-                          </select>
-                          <TypoCaption>Visibility of your linked GitHub profile info.</TypoCaption>
-                        </div>
-
-                        {/* Resume Visibility */}
-                        <div className="flex flex-col space-y-1.5">
-                          <label className={lbl}>Resume / CV</label>
-                          <select
-                            className={inp}
-                            value={privacySettings.resume}
-                            onChange={(e) =>
-                              setPrivacySettings((prev) => ({
-                                ...prev,
-                                resume: e.target.value,
-                              }))
-                            }
-                          >
-                            <option value="public">Public</option>
-                            <option value="authenticated">Authenticated Users</option>
-                            <option value="followers">Followers Only</option>
-                            <option value="private">Private (Only Me)</option>
-                          </select>
-                          <TypoCaption>Who is allowed to view or download your uploaded resume.</TypoCaption>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 pt-4">
-                      <Button onClick={handleSavePrivacy} className="gap-2" disabled={savingPrivacy}>
-                        <Save size={15} />
-                        {savingPrivacy ? "Saving..." : "Save Privacy Settings"}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {tab === "billing" && (
-              <div className="p-6 space-y-6">
-                <div>
-                  <TypoHeading as="h2">Billing</TypoHeading>
-                  <TypoCaption as="p">Manage your subscription and payment methods</TypoCaption>
-                </div>
-
-                <div className="rounded-lg border border-border p-5 space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Current plan</p>
-                      <TypoCaption as="p">You are on the Pro plan</TypoCaption>
-                    </div>
-                    <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
-                      Pro
-                    </span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between text-sm">
-                    <TypoCaption>Next invoice</TypoCaption>
-                    <span className="font-medium text-foreground">November 4, 2026</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <TypoCaption>Amount</TypoCaption>
-                    <span className="font-medium text-foreground">$19.00/month</span>
-                  </div>
-                  <Separator />
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <ExternalLink size={14} /> View invoices
-                  </Button>
-                </div>
-
-                <div className="rounded-lg border border-border p-5 space-y-3">
-                  <TypoSection>Payment method</TypoSection>
-                  <TypoCaption as="p">No payment method on file</TypoCaption>
-                  <Button variant="outline" size="sm">
-                    Add payment method
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {tab === "export" && (
-              <div className="p-6 space-y-6">
-                <div>
-                  <TypoHeading as="h2">Export Data</TypoHeading>
-                  <TypoCaption as="p">Download a copy of your DevLink data</TypoCaption>
-                </div>
-
-                <div className="rounded-lg border border-border p-5 space-y-4">
-                  <div>
-                    <TypoSection>Export your data</TypoSection>
-                    <TypoCaption as="p">
-                      Your data will be exported as a JSON file including your profile, skills,
-                      projects, connections, messages, bookmarks, and activity history.
-                    </TypoCaption>
-                  </div>
-                  <LoadingButton
-                    className="gap-2"
-                    loading={exporting}
-                    loadingText="Preparing export..."
-                    onClick={async () => {
-                      setExporting(true);
-                      try {
-                        const res = await exportApi.exportData();
-                        const blob = new Blob([JSON.stringify(res.data, null, 2)], {
-                          type: "application/json",
-                        });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = `devlink-export-${new Date().toISOString().slice(0, 10)}.json`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        toast.success("Data exported successfully");
-                      } catch {
-                        toast.error("Failed to export data. Please try again.");
-                      } finally {
-                        setExporting(false);
-                      }
-                    }}
-                  >
-                    <Download size={16} className="mr-2" />
-                    Export data
-                  </LoadingButton>
                 </div>
               </div>
             )}
@@ -832,8 +577,26 @@ function SettingsPage() {
       <DeleteAccountModal
         open={deleteModalOpen}
         onOpenChange={setDeleteModalOpen}
-        onConfirmDelete={handleConfirmDelete}
-        userEmail="nancy@example.com"
+        onConfirmDelete={async () => {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          window.location.href = "/";
+        }}
+        userEmail={profileData.email || "user@devlink.io"}
+      />
+
+      <ImageCropUploadModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        onUploadSuccess={(url) => setAvatarUrl(url)}
+        mode="avatar"
+        title="Upload Avatar Image"
+      />
+      <ImageCropUploadModal
+        isOpen={isBannerModalOpen}
+        onClose={() => setIsBannerModalOpen(false)}
+        onUploadSuccess={(url) => setBannerUrl(url)}
+        mode="banner"
+        title="Upload Header Banner"
       />
     </div>
   );
