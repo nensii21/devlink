@@ -1,10 +1,52 @@
 name: Type Check
 
-on: [pull_request]
+# This workflow used to be `steps: - uses: actions/checkout@v4` and nothing
+# else. It cloned the repository and reported success, so every pull request
+# carried a green "Type Check" tick while `main` had eleven TypeScript errors
+# in it (#1248).
+#
+# A missing check prompts someone to look. A passing one that checks nothing
+# tells them not to, which is why this was worth fixing before adding anything
+# new.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
 
 jobs:
+  # The job id is the status-check context, and `typecheck` is a required one
+  # on `main`. Renaming this job silently drops the requirement -- the context
+  # simply stops reporting and every pull request blocks on a check that will
+  # never arrive. Leave the id alone.
   typecheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: frontend
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      # No build step on purpose. `vite build` regenerates src/routeTree.gen.ts
+      # before bundling, so building first would type check a tree that only
+      # exists on this runner. What matters is whether the repository as
+      # committed type checks -- that is what contributors and editors see.
+      #
+      # The drift check that keeps the committed tree honest lives in
+      # frontend-ci.yml, where a build has already happened and it costs
+      # nothing.
+      - name: Type check
+        run: npx tsc --noEmit

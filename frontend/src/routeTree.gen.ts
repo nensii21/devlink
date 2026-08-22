@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as ShowcaseRouteImport } from './routes/showcase'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MaintenanceRouteImport } from './routes/maintenance'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -60,6 +62,16 @@ import { Route as AppProjectsProjectIdIssuesRouteImport } from './routes/_app.pr
 import { Route as AppProjectsProjectIdCollaborationMetricsRouteImport } from './routes/_app.projects.$projectId.collaboration-metrics'
 import { Route as AppProjectsProjectIdActivityRouteImport } from './routes/_app.projects.$projectId.activity'
 
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseRoute = ShowcaseRouteImport.update({
+  id: '/showcase',
+  path: '/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -324,6 +336,8 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/admin': typeof AppAdminRouteWithChildren
   '/analytics': typeof AppAnalyticsRoute
   '/announcements': typeof AppAnnouncementsRoute
@@ -375,6 +389,8 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/admin': typeof AppAdminRouteWithChildren
   '/analytics': typeof AppAnalyticsRoute
   '/announcements': typeof AppAnnouncementsRoute
@@ -427,6 +443,8 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/_app/admin': typeof AppAdminRouteWithChildren
   '/_app/analytics': typeof AppAnalyticsRoute
   '/_app/announcements': typeof AppAnnouncementsRoute
@@ -480,6 +498,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
+    | '/verify-email'
     | '/admin'
     | '/analytics'
     | '/announcements'
@@ -531,6 +551,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
+    | '/verify-email'
     | '/admin'
     | '/analytics'
     | '/announcements'
@@ -582,6 +604,8 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
+    | '/verify-email'
     | '/_app/admin'
     | '/_app/analytics'
     | '/_app/announcements'
@@ -635,11 +659,27 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   MaintenanceRoute: typeof MaintenanceRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ShowcaseRoute: typeof ShowcaseRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   PortfolioUsernameRoute: typeof PortfolioUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase': {
+      id: '/showcase'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -1172,6 +1212,8 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   MaintenanceRoute: MaintenanceRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ShowcaseRoute: ShowcaseRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   PortfolioUsernameRoute: PortfolioUsernameRoute,
 }
 export const routeTree = rootRouteImport

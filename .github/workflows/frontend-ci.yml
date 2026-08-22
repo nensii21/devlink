@@ -30,3 +30,30 @@ jobs:
 
       - name: Build
         run: npm run build 2>&1
+
+      # src/routeTree.gen.ts is generated from the filenames in src/routes/ and
+      # committed. That only works if something fails when the two disagree,
+      # and nothing did -- `showcase.tsx` and `verify-email.tsx` were live
+      # routes that the committed tree had never heard of, which cost `tsc`
+      # eleven errors while the app itself was fine (#1248).
+      #
+      # The build above already regenerated it, so this is a free comparison
+      # rather than a second generation step.
+      - name: Check the committed route tree matches the generated one
+        run: |
+          if ! git diff --quiet -- src/routeTree.gen.ts; then
+            echo "::error::src/routeTree.gen.ts is out of date."
+            echo
+            echo "It is generated from the files in src/routes/, so adding or"
+            echo "renaming a route means regenerating and committing it:"
+            echo
+            echo "    cd frontend && npm run build"
+            echo "    git add src/routeTree.gen.ts"
+            echo
+            echo "Leaving it stale does not break the app -- the build"
+            echo "regenerates it -- but it breaks 'tsc' and every editor."
+            echo
+            git diff --stat -- src/routeTree.gen.ts
+            exit 1
+          fi
+          echo "Route tree is up to date."
