@@ -30,6 +30,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
+import { WorkspaceStatusIndicator } from "./WorkspaceStatusIndicator";
+
 export function TopNavbar() {
   const { isDark, toggleTheme } = useTheme();
   const { toggleMobile, toggleSidebar, isCollapsed } = useSidebar();
@@ -74,6 +76,11 @@ export function TopNavbar() {
             placeholder="Search developers, projects, posts, messages, hackathons, repos..."
             shortcut="⌘K"
           />
+        </div>
+
+        {/* Global Workspace Status Indicator in Navbar */}
+        <div className="hidden sm:flex items-center">
+          <WorkspaceStatusIndicator />
         </div>
 
         <div className="hidden items-center gap-2 md:flex">

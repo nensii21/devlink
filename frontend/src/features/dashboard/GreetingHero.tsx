@@ -20,8 +20,8 @@ export function GreetingHero() {
   const first = currentUser.name.split(" ")[0];
 
   return (
-    <Card className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between rounded-2xl bg-card border-border/60 shadow-xs relative overflow-hidden">
-      <div className="min-w-0 flex-1 flex flex-col gap-4">
+    <Card className="flex flex-col gap-4 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between rounded-xl bg-card border-border/60 shadow-xs relative overflow-hidden">
+      <div className="min-w-0 flex-1 flex flex-col gap-3">
         <div>
           <TypoHeading as="h1">
             {greeting}, {first}! 👋
@@ -30,46 +30,46 @@ export function GreetingHero() {
         </div>
 
         {/* Inline Stats Badges Row */}
-        <div className="flex flex-wrap gap-2.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
-            <Folder size={14} className="text-primary" />
+        <div className="flex flex-wrap gap-2">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
+            <Folder size={13} className="text-primary" />
             <span>2 Active Projects</span>
           </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
-            <Users2 size={14} className="text-emerald-500" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
+            <Users2 size={13} className="text-emerald-500" />
             <span>3 Pending Invites</span>
           </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
-            <Calendar size={14} className="text-violet-500" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
+            <Calendar size={13} className="text-violet-500" />
             <span>5 Tasks Due</span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3">
-          <Button asChild variant="primary" size="md" className="gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button asChild variant="primary" size="sm" className="gap-1.5">
             <Link to="/projects">
-              Continue Working <ArrowRight size={14} />
+              Continue Working <ArrowRight size={13} />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="md" className="gap-2">
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
             <Link to="/projects">
-              Create Project <Plus size={14} />
+              Create Project <Plus size={13} />
             </Link>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 sm:flex sm:w-auto sm:flex-row sm:shrink-0">
-        <MiniStat icon={<TrendingUp size={14} />} label="Progress" value="75%" progress={75} />
-        <MiniStat icon={<Flame size={14} />} label="Streak" value="12d" />
-        <MiniStat icon={<Sparkles size={14} />} label="AI Score" value="96" />
+      <div className="grid grid-cols-3 gap-2.5 sm:flex sm:w-auto sm:flex-row sm:shrink-0">
+        <MiniStat icon={<TrendingUp size={13} />} label="Progress" value="75%" progress={75} />
+        <MiniStat icon={<Flame size={13} />} label="Streak" value="12d" />
+        <MiniStat icon={<Sparkles size={13} />} label="AI Score" value="96" />
       </div>
 
       {/* SVG Laptop/Plant Illustration */}
       <svg
-        width="180"
-        height="130"
+        width="140"
+        height="100"
         viewBox="0 0 180 130"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

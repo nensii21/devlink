@@ -81,15 +81,15 @@ function AIMatchCard({ builder }: { builder: Builder }) {
 
   return (
     <motion.div
-      whileHover={{ y: -6, scale: 1.02 }}
+      whileHover={{ y: -4, scale: 1.01 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className="relative h-full flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card shadow-soft hover:shadow-card hover:border-primary/50 transition-all duration-300"
+      className="relative h-full flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-card shadow-xs hover:shadow-sm hover:border-primary/50 transition-all duration-300"
     >
       <div>
         {/* Header Banner */}
         <div className="relative">
-          <div className="h-28 w-full bg-gradient-to-tr from-amber-200 via-pink-400 via-purple-600 to-blue-700 rounded-t-2xl" />
-          <div className="px-4 -mt-10 flex justify-between items-end">
+          <div className="h-16 w-full bg-gradient-to-tr from-amber-200 via-pink-400 via-purple-600 to-blue-700 rounded-t-xl" />
+          <div className="px-3.5 -mt-7 flex justify-between items-end">
             <Link
               to="/builders/$builderId"
               params={{ builderId: builder.id }}
@@ -98,11 +98,11 @@ function AIMatchCard({ builder }: { builder: Builder }) {
               <img
                 src={builder.avatar}
                 alt={builder.name}
-                className="w-20 h-20 rounded-full border-4 border-card bg-muted object-cover shadow-sm hover:opacity-95 transition-opacity"
+                className="w-14 h-14 rounded-full border-2 border-card bg-muted object-cover shadow-xs hover:opacity-95 transition-opacity"
               />
               <span
                 className={cn(
-                  "absolute bottom-1 right-1 block h-3.5 w-3.5 rounded-full border-2 border-card",
+                  "absolute bottom-0.5 right-0.5 block h-3 w-3 rounded-full border-2 border-card",
                   builder.online ? "bg-success" : "bg-muted-foreground/40",
                 )}
               />
@@ -111,7 +111,7 @@ function AIMatchCard({ builder }: { builder: Builder }) {
         </div>
 
         {/* Profile Name, Role & Bookmark */}
-        <div className="px-4 pt-3 flex justify-between items-start">
+        <div className="px-3.5 pt-2 flex justify-between items-start">
           <div className="text-left min-w-0 flex-1">
             <Link
               to="/builders/$builderId"
@@ -123,7 +123,7 @@ function AIMatchCard({ builder }: { builder: Builder }) {
                 {builder.verified && (
                   <BadgeCheck
                     className={cn(
-                      "shrink-0 h-5 w-5",
+                      "shrink-0 h-4 w-4",
                       builder.premium
                         ? "text-amber-500 fill-amber-500/10 animate-pulse"
                         : "text-primary",
@@ -141,63 +141,63 @@ function AIMatchCard({ builder }: { builder: Builder }) {
             aria-pressed={bookmarked}
             onClick={() => setBookmarked(!bookmarked)}
             className={cn(
-              "w-10 h-10 rounded-full border border-border/80 flex items-center justify-center bg-card transition-all duration-200 cursor-pointer shrink-0 ml-2",
+              "w-8 h-8 rounded-full border border-border/80 flex items-center justify-center bg-card transition-all duration-200 cursor-pointer shrink-0 ml-2",
               bookmarked
                 ? "text-primary border-primary bg-primary/5"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted",
             )}
           >
-            <Bookmark size={16} fill={bookmarked ? "currentColor" : "none"} />
+            <Bookmark size={14} fill={bookmarked ? "currentColor" : "none"} />
           </button>
         </div>
 
         {/* Skill Tags / Matching Skills highlight */}
-        <div className="px-4 mt-4 flex flex-wrap gap-1.5 justify-start">
+        <div className="px-3.5 mt-2.5 flex flex-wrap gap-1 justify-start">
           {displaySkills.map((s: string) => {
             const isMatching = TARGET_SKILLS.includes(s);
             return (
               <span
                 key={s}
                 className={cn(
-                  "rounded-full text-[12px] font-semibold px-3 py-1.5 border transition-colors",
+                  "rounded-full text-[11px] font-semibold px-2.5 py-1 border transition-colors",
                   isMatching
                     ? "bg-success/10 border-success/20 text-success"
                     : "bg-muted/60 border-border/10 text-foreground/80",
                 )}
               >
                 {isMatching && (
-                  <Check size={10} strokeWidth={3} className="inline-block mr-1 shrink-0 -mt-0.5" />
+                  <Check size={9} strokeWidth={3} className="inline-block mr-1 shrink-0 -mt-0.5" />
                 )}
                 {s}
               </span>
             );
           })}
           {remainingCount > 0 && (
-            <span className="w-9 h-9 rounded-full border border-border/80 bg-card text-foreground text-[12px] font-bold flex items-center justify-center shrink-0">
+            <span className="h-7 w-7 rounded-full border border-border/80 bg-card text-foreground text-[11px] font-bold flex items-center justify-center shrink-0">
               +{remainingCount}
             </span>
           )}
         </div>
 
         {/* Stats Divider Grid */}
-        <div className="mx-4 mt-5 py-4 border-y border-border/50 grid grid-cols-3 text-center">
+        <div className="mx-3.5 mt-3 py-2.5 border-y border-border/50 grid grid-cols-3 text-center">
           <div>
-            <p className="text-[14px] font-bold text-foreground flex items-center justify-center gap-0.5">
-              <Sparkles size={14} className="text-primary shrink-0" />
+            <p className="text-[13px] font-bold text-foreground flex items-center justify-center gap-0.5">
+              <Sparkles size={13} className="text-primary shrink-0" />
               <span>{matchPercentage}</span>
             </p>
             <TypoCaption as="p">Match</TypoCaption>
           </div>
           <div className="border-x border-border/50">
-            <p className="text-[14px] font-bold text-foreground flex items-center justify-center gap-0.5">
-              <Briefcase size={14} className="text-primary shrink-0" />
+            <p className="text-[13px] font-bold text-foreground flex items-center justify-center gap-0.5">
+              <Briefcase size={13} className="text-primary shrink-0" />
               <span>{experienceText}</span>
             </p>
             <TypoCaption as="p">Experience</TypoCaption>
           </div>
           <div>
-            <p className="text-[14px] font-bold text-foreground flex items-center justify-center gap-0.5">
-              <Calendar size={14} className="text-primary shrink-0" />
+            <p className="text-[13px] font-bold text-foreground flex items-center justify-center gap-0.5">
+              <Calendar size={13} className="text-primary shrink-0" />
               <span>{availabilityText}</span>
             </p>
             <TypoCaption as="p">Availability</TypoCaption>
@@ -206,11 +206,11 @@ function AIMatchCard({ builder }: { builder: Builder }) {
       </div>
 
       {/* CTA Button */}
-      <div className="p-4 pt-0 mt-4">
+      <div className="p-3.5 pt-0 mt-3">
         <Link
           to="/builders/$builderId"
           params={{ builderId: builder.id }}
-          className="block w-full bg-[#111111] hover:bg-black text-white rounded-full py-3 text-[14px] font-bold text-center transition-all duration-200 shadow-sm cursor-pointer hover:shadow"
+          className="block w-full bg-[#111111] hover:bg-black text-white rounded-full py-2 text-[13px] font-bold text-center transition-all duration-200 shadow-xs cursor-pointer hover:shadow"
         >
           View Details
         </Link>
@@ -222,7 +222,7 @@ function AIMatchCard({ builder }: { builder: Builder }) {
 function BuilderRecommendationsEmptyState({ onExplore }: { onExplore: () => void }) {
   return (
     <section
-      className="relative overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-card px-6 py-12 text-center shadow-soft sm:px-12"
+      className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-card px-4 py-8 text-center shadow-xs sm:px-8"
       aria-labelledby="builder-recommendations-empty-title"
     >
       <div className="pointer-events-none absolute -left-12 top-0 h-36 w-36 rounded-full bg-primary/10 blur-3xl" />

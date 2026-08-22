@@ -54,7 +54,7 @@ export function DashboardLayout() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
+              className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-5 lg:px-6"
             >
               <SectionErrorBoundary sectionName="Page View">
                 <Outlet />
