@@ -93,9 +93,6 @@ api_v1_router.include_router(
     builder_flares.router, prefix="/flare", tags=["Builder's Flare"]
 )
 api_v1_router.include_router(messages.router, prefix="/messages", tags=["Messages"])
-api_v1_router.include_router(
-    organizations.router, prefix="/organizations", tags=["Organizations"]
-)
 api_v1_router.include_router(org_audit_logs.router)
 api_v1_router.include_router(webhooks.router)
 api_v1_router.include_router(
@@ -112,13 +109,11 @@ api_v1_router.include_router(
     profile_summary.router, prefix="/profile-summary", tags=["Profile Summary"]
 )
 api_v1_router.include_router(
-    profile_suggestions.router,
-    prefix="/profile-suggestions",
-    tags=["Profile Suggestions"],
+    profile_suggestions.router, tags=["Profile Suggestions"]
 )
 api_v1_router.include_router(
     profile_suggestions.router,
-    prefix="/users/me/profile-suggestions",
+    prefix="/users/me",
     tags=["Profile Suggestions"],
 )
 api_v1_router.include_router(
@@ -136,7 +131,7 @@ api_v1_router.include_router(
 )
 api_v1_router.include_router(repositories.router)
 api_v1_router.include_router(project_releases.router)
-api_v1_router.include_router(organizations.router)
+api_v1_router.include_router(organizations.router, tags=["Organizations"])
 api_v1_router.include_router(applications.router)
 api_v1_router.include_router(skills.router)
 api_v1_router.include_router(testimonials.router)

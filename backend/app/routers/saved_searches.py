@@ -18,7 +18,7 @@ from app.services.saved_search_service import (
 )
 
 router = APIRouter(
-    prefix="/api/saved-searches",
+    prefix="/saved-searches",
     tags=["Saved Searches"],
 )
 
