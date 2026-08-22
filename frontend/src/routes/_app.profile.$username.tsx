@@ -42,6 +42,8 @@ import { TypoSection, TypoCaption, TypoHeading } from "@/components/shared/Typog
 import { CollaborationStatusBadge } from "@/features/collaboration/components/CollaborationStatusBadge";
 import { CollaborationStatusPicker } from "@/features/collaboration/components/CollaborationStatusPicker";
 import { useCollaborationStatus } from "@/hooks/useCollaborationStatus";
+import DonationModal from "@/components/profile/DonationModal";
+import { HeartIcon } from "@heroicons/react/24/outline";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -175,6 +177,8 @@ function ProfilePage() {
     setStatus: setMyStatus,
     isLoading: isStatusLoading,
   } = useCollaborationStatus();
+
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
 
   // Profile banner & avatar state
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
@@ -399,6 +403,16 @@ function ProfilePage() {
             </div>
             <div className="flex items-center gap-2">
               {!me && <FollowButton userId={b.id} />}
+              {!me && (
+                <button
+                  type="button"
+                  onClick={() => setIsDonationModalOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-md bg-pink-600 px-3 py-2 text-[13px] font-semibold text-white transition-opacity hover:bg-pink-700"
+                >
+                  <HeartIcon className="w-4 h-4" />
+                  Sponsor
+                </button>
+              )}
               {!me && (
                 <button
                   type="button"
@@ -726,6 +740,15 @@ function ProfilePage() {
           }}
           mode="banner"
           title="Upload Cover Banner"
+        />
+      )}
+      
+      {!me && b.id && (
+        <DonationModal
+          isOpen={isDonationModalOpen}
+          onClose={() => setIsDonationModalOpen(false)}
+          recipientId={b.id}
+          recipientName={b.name}
         />
       )}
     </div>

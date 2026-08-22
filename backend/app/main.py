@@ -666,6 +666,9 @@ app.include_router(
 )
 app.include_router(posts.router, prefix="/api/posts", tags=["Posts"])
 
+from app.routers import donations
+app.include_router(donations.router, prefix="/api")
+
 from app.routers import project_templates
 
 app.include_router(
