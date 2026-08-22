@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 # pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, selectinload
 
 # pyrefly: ignore [missing-import]
-
 from app.models.application import (
     Application,
     ApplicationStatus,
@@ -39,6 +39,12 @@ class ApplicationService:
             ApplicationStatus.WITHDRAWN,
         },
         ApplicationStatus.REVIEWING: {
+            ApplicationStatus.INTERVIEWING,
+            ApplicationStatus.ACCEPTED,
+            ApplicationStatus.REJECTED,
+            ApplicationStatus.WITHDRAWN,
+        },
+        ApplicationStatus.INTERVIEWING: {
             ApplicationStatus.ACCEPTED,
             ApplicationStatus.REJECTED,
             ApplicationStatus.WITHDRAWN,
@@ -183,7 +189,7 @@ class ApplicationService:
         owner_id = db_application.project.owner_id if db_application.project else None
 
         # Create ProjectMember record for applicant if not already present
-        from app.models.project_member import ProjectMember, MemberRole
+        from app.models.project_member import MemberRole, ProjectMember
 
         existing_pm = db.scalar(
             select(ProjectMember).where(
@@ -277,6 +283,81 @@ class ApplicationService:
             notification=notification_data,
         )
 
+        return db_application
+
+    @staticmethod
+    def schedule_interview(
+        db: Session,
+        db_application: Application,
+        interview_scheduled_at: datetime,
+        interview_link: str | None = None,
+    ) -> Application:
+
+        ApplicationService._validate_status_transition(
+            db_application.status,
+            ApplicationStatus.INTERVIEWING,
+        )
+
+        db_application.status = ApplicationStatus.INTERVIEWING
+        db_application.interview_scheduled_at = interview_scheduled_at
+        db_application.interview_link = interview_link
+
+        db.flush()
+        db.refresh(db_application)
+
+        project_title = (
+            db_application.project.title if db_application.project else "Project"
+        )
+        owner_id = db_application.project.owner_id if db_application.project else None
+
+        notification_data = NotificationCreate(
+            recipient_id=db_application.applicant_id,
+            type=NotificationType.MESSAGE,
+            title="Interview Scheduled",
+            message=f"An interview for '{project_title}' has been scheduled.",
+            action_url=f"/applications/{db_application.id}",
+            project_id=db_application.project_id,
+            application_id=db_application.id,
+        )
+        NotificationService.create_notification(
+            db=db,
+            recipient_id=db_application.applicant_id,
+            sender_id=owner_id,
+            notification=notification_data,
+        )
+
+        return db_application
+
+    @staticmethod
+    def shortlist_application(
+        db: Session,
+        db_application: Application,
+        shortlisted: bool,
+    ) -> Application:
+        
+        db_application.shortlisted = shortlisted
+        
+        if shortlisted and db_application.status == ApplicationStatus.PENDING:
+            ApplicationService._validate_status_transition(
+                db_application.status,
+                ApplicationStatus.REVIEWING,
+            )
+            db_application.status = ApplicationStatus.REVIEWING
+
+        db.flush()
+        db.refresh(db_application)
+        return db_application
+
+    @staticmethod
+    def add_notes(
+        db: Session,
+        db_application: Application,
+        notes: str | None,
+    ) -> Application:
+
+        db_application.review_notes = notes
+        db.flush()
+        db.refresh(db_application)
         return db_application
 
     @staticmethod
