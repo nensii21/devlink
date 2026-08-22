@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ProjectCollaborationMetrics } from "@/components/project/ProjectCollaborationMetrics";
 
-export const Route = createFileRoute(
-  "/_app/projects/$projectId/collaboration-metrics"
-)({
+export const Route = createFileRoute("/_app/projects/$projectId/collaboration-metrics")({
   component: ProjectCollaborationMetricsPage,
 });
 

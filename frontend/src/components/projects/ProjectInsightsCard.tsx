@@ -92,11 +92,7 @@ export function ProjectInsightsCard({
 
         {expanded && insights && (
           <div className="mt-2 space-y-2">
-            {insights.summary && (
-              <TypoCaption as="p">
-                {insights.summary}
-              </TypoCaption>
-            )}
+            {insights.summary && <TypoCaption as="p">{insights.summary}</TypoCaption>}
 
             {insights.risk_alerts.length > 0 && (
               <div className="flex flex-wrap gap-1">
@@ -175,9 +171,7 @@ export function ProjectInsightsCard({
       {expanded && insights && (
         <div className="mt-3 space-y-4">
           {/* Summary */}
-          {insights.summary && (
-            <TypoCaption as="p">{insights.summary}</TypoCaption>
-          )}
+          {insights.summary && <TypoCaption as="p">{insights.summary}</TypoCaption>}
 
           {/* Suggested builders */}
           {insights.suggested_builders.length > 0 && (
@@ -190,9 +184,7 @@ export function ProjectInsightsCard({
                 {insights.suggested_builders.map((b, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <span className="text-[12px] text-foreground">{b.name}</span>
-                    <TypoCaption>
-                      {Math.round(b.match_score * 100)}% match
-                    </TypoCaption>
+                    <TypoCaption>{Math.round(b.match_score * 100)}% match</TypoCaption>
                   </div>
                 ))}
               </div>
@@ -202,9 +194,7 @@ export function ProjectInsightsCard({
           {/* Role gaps */}
           {insights.role_gaps.length > 0 && (
             <div>
-              <TypoCaption as="p">
-                Role Gaps
-              </TypoCaption>
+              <TypoCaption as="p">Role Gaps</TypoCaption>
               <div className="flex flex-wrap gap-1.5">
                 {insights.role_gaps.map((gap, i) => (
                   <span

@@ -40,12 +40,8 @@ export function EducationCard({ education = [] }: EducationCardProps) {
               className="rounded-lg border border-border/70 bg-background/70 p-3"
             >
               <p className="text-sm font-semibold text-foreground">{entry.school}</p>
-              {entry.degree ? (
-                <TypoCaption as="p">{entry.degree}</TypoCaption>
-              ) : null}
-              {entry.years ? (
-                <TypoCaption as="p">{entry.years}</TypoCaption>
-              ) : null}
+              {entry.degree ? <TypoCaption as="p">{entry.degree}</TypoCaption> : null}
+              {entry.years ? <TypoCaption as="p">{entry.years}</TypoCaption> : null}
             </div>
           ))}
         </div>

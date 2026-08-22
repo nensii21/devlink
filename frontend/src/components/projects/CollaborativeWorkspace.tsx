@@ -109,9 +109,7 @@ export function CollaborativeWorkspace({ projectId }: CollaborativeWorkspaceProp
                   )}
                 >
                   <span className="truncate pr-2">{doc.title}</span>
-                  <TypoCaption>
-                    v{doc.version}
-                  </TypoCaption>
+                  <TypoCaption>v{doc.version}</TypoCaption>
                 </button>
               ))
             )}
@@ -226,9 +224,7 @@ export function CollaborativeWorkspace({ projectId }: CollaborativeWorkspaceProp
             <div>
               <Sparkles size={32} className="mx-auto text-muted-foreground opacity-50 mb-2" />
               <p className="text-sm font-medium text-foreground">Select or create a document</p>
-              <TypoCaption as="p">
-                Collaborate with your team members in real time.
-              </TypoCaption>
+              <TypoCaption as="p">Collaborate with your team members in real time.</TypoCaption>
             </div>
           </div>
         )}

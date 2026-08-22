@@ -1,4 +1,4 @@
-import { OrganizationMemberRole, Permission } from './types';
+import { OrganizationMemberRole, Permission } from "./types";
 
 export const ROLE_PERMISSIONS: Record<OrganizationMemberRole, readonly Permission[]> = {
   owner: [
@@ -34,21 +34,10 @@ export const ROLE_PERMISSIONS: Record<OrganizationMemberRole, readonly Permissio
     "content:view",
     "organization:view",
   ],
-  maintainer: [
-    "content:manage",
-    "settings:manage",
-    "content:view",
-    "organization:view",
-  ],
-  member: [
-    "organization:view",
-    "content:view",
-  ],
+  maintainer: ["content:manage", "settings:manage", "content:view", "organization:view"],
+  member: ["organization:view", "content:view"],
 } as const;
 
-export function hasPermission(
-  role: OrganizationMemberRole,
-  permission: Permission
-): boolean {
+export function hasPermission(role: OrganizationMemberRole, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
 }

@@ -137,11 +137,7 @@ function TeamCard({
               <Crown size={11} className="shrink-0 text-warning" aria-label="New team" />
             )}
           </div>
-          {team.description && (
-            <TypoCaption as="p">
-              {team.description}
-            </TypoCaption>
-          )}
+          {team.description && <TypoCaption as="p">{team.description}</TypoCaption>}
         </div>
       </div>
 

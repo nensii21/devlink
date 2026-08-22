@@ -19,7 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, EmptyState } from "@/components/shared/primitives";
 import { UserAvatar } from "@/components/user-avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LoadingButton } from "@/components/shared/LoadingButton";
@@ -102,8 +108,8 @@ function TemplatesPage() {
         prev.map((t) =>
           t.id === templateId
             ? { ...t, is_favorited: res.is_favorited, stars_count: res.stars_count }
-            : t
-        )
+            : t,
+        ),
       );
       toast.success(res.is_favorited ? "Added to favorites" : "Removed from favorites");
     } catch {
@@ -120,8 +126,14 @@ function TemplatesPage() {
 
     setPublishing(true);
     try {
-      const stackList = newTechStack.split(",").map((s) => s.trim()).filter(Boolean);
-      const featureList = newFeatures.split("\n").map((f) => f.trim()).filter(Boolean);
+      const stackList = newTechStack
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const featureList = newFeatures
+        .split("\n")
+        .map((f) => f.trim())
+        .filter(Boolean);
 
       await projectTemplatesApi.createTemplate({
         title: newTitle,
@@ -177,15 +189,17 @@ function TemplatesPage() {
           <div className="flex items-center gap-2 text-primary font-semibold text-sm mb-1">
             <LayoutTemplate className="h-4 w-4" /> Templates Marketplace
           </div>
-          <TypoHeading as="h1">
-            Reusable Project Blueprints
-          </TypoHeading>
+          <TypoHeading as="h1">Reusable Project Blueprints</TypoHeading>
           <TypoCaption as="p">
-            Discover, share, and clone production-ready starters, fullstack templates, and scaffolding for your next build.
+            Discover, share, and clone production-ready starters, fullstack templates, and
+            scaffolding for your next build.
           </TypoCaption>
         </div>
 
-        <Button onClick={() => setPublishOpen(true)} className="gap-2 shrink-0 self-start md:self-auto">
+        <Button
+          onClick={() => setPublishOpen(true)}
+          className="gap-2 shrink-0 self-start md:self-auto"
+        >
           <Plus size={16} /> Publish Template
         </Button>
       </div>
@@ -241,7 +255,10 @@ function TemplatesPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-64 rounded-xl border border-border bg-muted/20 animate-pulse p-5" />
+            <div
+              key={i}
+              className="h-64 rounded-xl border border-border bg-muted/20 animate-pulse p-5"
+            />
           ))}
         </div>
       ) : templates.length === 0 ? (
@@ -255,40 +272,46 @@ function TemplatesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((tpl) => (
-            <Card key={tpl.id} className="p-5 flex flex-col justify-between hover:border-primary/50 transition-all shadow-sm">
+            <Card
+              key={tpl.id}
+              className="p-5 flex flex-col justify-between hover:border-primary/50 transition-all shadow-sm"
+            >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-2">
-                  <Badge variant="secondary" className="capitalize text-[11px] font-medium bg-primary/10 text-primary hover:bg-primary/15">
+                  <Badge
+                    variant="secondary"
+                    className="capitalize text-[11px] font-medium bg-primary/10 text-primary hover:bg-primary/15"
+                  >
                     {tpl.category.replace("-", " ")}
                   </Badge>
                   {tpl.is_featured && (
-                    <Badge variant="default" className="bg-amber-500 hover:bg-amber-600 text-[10px] gap-1">
+                    <Badge
+                      variant="default"
+                      className="bg-amber-500 hover:bg-amber-600 text-[10px] gap-1"
+                    >
                       <Sparkles size={10} /> Featured
                     </Badge>
                   )}
                 </div>
 
                 <div>
-                  <TypoSection>
-                    {tpl.title}
-                  </TypoSection>
-                  <TypoCaption as="p">
-                    {tpl.description}
-                  </TypoCaption>
+                  <TypoSection>{tpl.title}</TypoSection>
+                  <TypoCaption as="p">{tpl.description}</TypoCaption>
                 </div>
 
                 {/* Tech Stack Pills */}
                 {tpl.tech_stack && tpl.tech_stack.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {tpl.tech_stack.slice(0, 4).map((tech) => (
-                      <span key={tech} className="text-[10px] font-mono bg-muted px-2 py-0.5 rounded text-foreground/80">
+                      <span
+                        key={tech}
+                        className="text-[10px] font-mono bg-muted px-2 py-0.5 rounded text-foreground/80"
+                      >
                         {tech}
                       </span>
                     ))}
                     {tpl.tech_stack.length > 4 && (
-                      <TypoCaption>
-                        +{tpl.tech_stack.length - 4} more
-                      </TypoCaption>
+                      <TypoCaption>+{tpl.tech_stack.length - 4} more</TypoCaption>
                     )}
                   </div>
                 )}
@@ -311,15 +334,23 @@ function TemplatesPage() {
                   <button
                     onClick={() => handleFavoriteToggle(tpl.id)}
                     className={`flex items-center gap-1 text-xs transition-colors ${
-                      tpl.is_favorited ? "text-amber-500 font-semibold" : "text-muted-foreground hover:text-amber-500"
+                      tpl.is_favorited
+                        ? "text-amber-500 font-semibold"
+                        : "text-muted-foreground hover:text-amber-500"
                     }`}
                     title={tpl.is_favorited ? "Remove favorite" : "Star template"}
                   >
-                    <Star size={14} className={tpl.is_favorited ? "fill-amber-500 text-amber-500" : ""} />
+                    <Star
+                      size={14}
+                      className={tpl.is_favorited ? "fill-amber-500 text-amber-500" : ""}
+                    />
                     <span>{tpl.stars_count}</span>
                   </button>
 
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground" title="Total clones">
+                  <span
+                    className="flex items-center gap-1 text-xs text-muted-foreground"
+                    title="Total clones"
+                  >
                     <Copy size={13} />
                     <span>{tpl.clones_count}</span>
                   </span>
@@ -489,7 +520,12 @@ function TemplatesPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setCloneModalOpen(false)}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setCloneModalOpen(false)}
+              >
                 Cancel
               </Button>
               <LoadingButton type="submit" size="sm" loading={cloning} loadingText="Cloning...">

@@ -186,6 +186,7 @@ export function FilterDrawer({
     label: string,
     isSelected: boolean,
     hasSearchQuery: boolean,
+
   ) => {
     const section = sections.find((s) => s.id === sectionId);
     const isSearchMode = section?.type === "search";
@@ -337,6 +338,7 @@ export function FilterDrawer({
             option.label,
             isSelected,
             sectionSearchQuery !== "",
+
           );
         })}
       </div>
@@ -439,6 +441,7 @@ export function FilterDrawer({
       </Drawer>
     );
   }
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

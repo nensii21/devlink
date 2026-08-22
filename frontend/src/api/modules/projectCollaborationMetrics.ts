@@ -1,4 +1,4 @@
-import { api } from '../client';
+import { api } from "../client";
 
 export interface DailyActivityPoint {
   date: string;
@@ -20,17 +20,17 @@ export interface ProjectCollaborationMetricsResponse {
 }
 
 export const getProjectCollaborationMetrics = async (
-  projectId: number
+  projectId: number,
 ): Promise<ProjectCollaborationMetricsResponse> => {
   try {
     const res = await api.get<ProjectCollaborationMetricsResponse>(
-      `/projects/${projectId}/collaboration-metrics`
+      `/projects/${projectId}/collaboration-metrics`,
     );
     if (res && res.project_id) {
       return res;
     }
   } catch (e) {
-    console.warn('Backend API unavailable, using fallback mock metrics:', e);
+    console.warn("Backend API unavailable, using fallback mock metrics:", e);
   }
 
   // Fallback Mock Data
@@ -44,13 +44,13 @@ export const getProjectCollaborationMetrics = async (
     applications_received: 14,
     collaboration_score: 92,
     daily_activity: [
-      { date: '2026-08-04', activity_count: 12, messages: 45, tasks_completed: 4 },
-      { date: '2026-08-05', activity_count: 18, messages: 62, tasks_completed: 6 },
-      { date: '2026-08-06', activity_count: 15, messages: 50, tasks_completed: 3 },
-      { date: '2026-08-07', activity_count: 22, messages: 80, tasks_completed: 7 },
-      { date: '2026-08-08', activity_count: 14, messages: 40, tasks_completed: 2 },
-      { date: '2026-08-09', activity_count: 8, messages: 25, tasks_completed: 1 },
-      { date: '2026-08-10', activity_count: 25, messages: 95, tasks_completed: 6 },
+      { date: "2026-08-04", activity_count: 12, messages: 45, tasks_completed: 4 },
+      { date: "2026-08-05", activity_count: 18, messages: 62, tasks_completed: 6 },
+      { date: "2026-08-06", activity_count: 15, messages: 50, tasks_completed: 3 },
+      { date: "2026-08-07", activity_count: 22, messages: 80, tasks_completed: 7 },
+      { date: "2026-08-08", activity_count: 14, messages: 40, tasks_completed: 2 },
+      { date: "2026-08-09", activity_count: 8, messages: 25, tasks_completed: 1 },
+      { date: "2026-08-10", activity_count: 25, messages: 95, tasks_completed: 6 },
     ],
   };
 };

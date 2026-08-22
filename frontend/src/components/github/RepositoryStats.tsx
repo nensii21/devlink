@@ -1,6 +1,6 @@
-import React from 'react';
-import { GitHubRepository } from '../../lib/github';
-import { Star, GitFork, BookMarked } from 'lucide-react';
+import React from "react";
+import { GitHubRepository } from "../../lib/github";
+import { Star, GitFork, BookMarked } from "lucide-react";
 
 interface Props {
   repositories: GitHubRepository[] | undefined;
@@ -34,7 +34,9 @@ export const RepositoryStats: React.FC<Props> = ({ repositories, isLoading }) =>
   }
 
   // Sort by stars, then take top 3
-  const topRepos = [...repositories].sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 3);
+  const topRepos = [...repositories]
+    .sort((a, b) => b.stargazers_count - a.stargazers_count)
+    .slice(0, 3);
 
   return (
     <div className="flex h-full flex-col rounded-xl border border-border bg-card p-6">
@@ -44,10 +46,10 @@ export const RepositoryStats: React.FC<Props> = ({ repositories, isLoading }) =>
           {repositories.length} Total
         </span>
       </div>
-      
+
       <div className="flex flex-col gap-3 flex-1 justify-center">
-        {topRepos.map(repo => (
-          <a 
+        {topRepos.map((repo) => (
+          <a
             key={repo.id}
             href={repo.html_url}
             target="_blank"
@@ -74,9 +76,7 @@ export const RepositoryStats: React.FC<Props> = ({ repositories, isLoading }) =>
               </div>
             </div>
             {repo.description && (
-              <p className="text-sm text-surface-500 line-clamp-1 mb-2">
-                {repo.description}
-              </p>
+              <p className="text-sm text-surface-500 line-clamp-1 mb-2">{repo.description}</p>
             )}
             {repo.language && (
               <div className="flex items-center gap-1.5 text-xs text-surface-400 mt-1">

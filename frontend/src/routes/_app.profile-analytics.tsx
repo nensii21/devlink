@@ -42,7 +42,9 @@ export const Route = createFileRoute("/_app/profile-analytics")({
 });
 
 function ProfileAnalyticsPage() {
-  const [activeTab, setActiveTab] = useState<"all" | "views" | "search" | "connections" | "clicks">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "views" | "search" | "connections" | "clicks">(
+    "all",
+  );
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["profile-analytics"],
@@ -185,13 +187,9 @@ function ProfileAnalyticsPage() {
               </div>
 
               <div className="mt-4 space-y-1 relative z-10">
-                <TypoCaption as="p">
-                  {kpi.title}
-                </TypoCaption>
+                <TypoCaption as="p">{kpi.title}</TypoCaption>
                 <TypoSection>{kpi.value}</TypoSection>
-                <TypoCaption as="p">
-                  {kpi.description}
-                </TypoCaption>
+                <TypoCaption as="p">{kpi.description}</TypoCaption>
               </div>
             </Card>
           );
@@ -203,9 +201,7 @@ function ProfileAnalyticsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-4">
           <div className="space-y-1">
             <TypoSection>Performance Trends</TypoSection>
-            <TypoCaption as="p">
-              Analyze daily growth of your profile metrics.
-            </TypoCaption>
+            <TypoCaption as="p">Analyze daily growth of your profile metrics.</TypoCaption>
           </div>
 
           {/* Filtering tabs */}
@@ -347,7 +343,9 @@ function ProfileAnalyticsPage() {
         <div className="space-y-1">
           <TypoCard>About Profile Privacy & Analytics</TypoCard>
           <TypoCaption as="p">
-            We respect developer privacy opt-outs. Visitor profiles are anonymous if the viewer has enabled private browsing in their settings. Clicks are logged anonymously, and search appearances are tallied for every global multi-category search index query match.
+            We respect developer privacy opt-outs. Visitor profiles are anonymous if the viewer has
+            enabled private browsing in their settings. Clicks are logged anonymously, and search
+            appearances are tallied for every global multi-category search index query match.
           </TypoCaption>
         </div>
       </Card>

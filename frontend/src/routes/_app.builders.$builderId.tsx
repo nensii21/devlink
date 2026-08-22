@@ -54,8 +54,6 @@ function BuilderProfile() {
   const relatedProjectId = builderProjects[0]?.id ?? allProjects[0]?.id ?? "";
   const { data: match } = useTeamMatch(builderId, relatedProjectId);
 
-
-
   const handleTabChange = (value: string) => {
     setTab(value as Tab);
     const url = new URL(window.location.href);
@@ -176,8 +174,7 @@ function BuilderProfile() {
             <Card className="p-4">
               <p className="text-[13px] font-semibold text-foreground">Experience</p>
               <p className="mt-2 text-[36px] font-bold text-foreground">
-                {b.yearsExp}{" "}
-                <TypoCaption>yrs</TypoCaption>
+                {b.yearsExp} <TypoCaption>yrs</TypoCaption>
               </p>
             </Card>
             <Card className="p-4">
@@ -218,9 +215,7 @@ function BuilderProfile() {
                         <p className="truncate text-[14px] font-semibold text-foreground">
                           {p.name}
                         </p>
-                        <TypoCaption as="p">
-                          {p.description}
-                        </TypoCaption>
+                        <TypoCaption as="p">{p.description}</TypoCaption>
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-1">
@@ -289,9 +284,7 @@ function BuilderProfile() {
                     {a.highlight && (
                       <span className="ml-1 font-medium text-primary">{a.highlight}</span>
                     )}
-                    <TypoCaption>
-                      {a.ago}
-                    </TypoCaption>
+                    <TypoCaption>{a.ago}</TypoCaption>
                   </li>
                 ))}
               </ul>

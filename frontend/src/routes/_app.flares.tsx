@@ -53,7 +53,12 @@ function FlareCard({
   const isLiked = likedMap?.[flare.id] ?? false;
 
   return (
-    <Card className={cn("p-4 transition-all", isDraft && "border-amber-500/10 hover:border-amber-500/20")}>
+    <Card
+      className={cn(
+        "p-4 transition-all",
+        isDraft && "border-amber-500/10 hover:border-amber-500/20",
+      )}
+    >
       <div className="flex items-start gap-3">
         <Avatar
           src={flare.author?.avatar}
@@ -178,7 +183,8 @@ function FlaresPage() {
     try {
       const tags = Array.from(new Set(content.match(/#(\w+)/g)?.map((t) => t.slice(1)) ?? []));
       await flaresService.create({
-        content: content || (attachments.length > 0 ? `Shared ${attachments.length} attachment(s)` : ""),
+        content:
+          content || (attachments.length > 0 ? `Shared ${attachments.length} attachment(s)` : ""),
         tags,
         status: "published",
       });
@@ -355,9 +361,7 @@ function FlaresPage() {
         </Card>
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Community guidelines</p>
-          <TypoCaption as="p">
-            Be kind, credit sources, no spam. Ship generously.
-          </TypoCaption>
+          <TypoCaption as="p">Be kind, credit sources, no spam. Ship generously.</TypoCaption>
         </Card>
       </aside>
     </div>

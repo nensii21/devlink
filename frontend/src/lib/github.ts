@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import api from './api';
+import { useQuery } from "@tanstack/react-query";
+import api from "./api";
 
 export interface GitHubLanguage {
   name: string;
@@ -64,7 +64,7 @@ export const githubApi = {
 
 export const useGitHubProfile = (username?: string) => {
   return useQuery({
-    queryKey: ['github', 'profile', username],
+    queryKey: ["github", "profile", username],
     queryFn: () => githubApi.getProfile(username!),
     enabled: !!username,
     staleTime: STALE_TIME,
@@ -73,7 +73,7 @@ export const useGitHubProfile = (username?: string) => {
 
 export const useGitHubRepositories = (username?: string) => {
   return useQuery({
-    queryKey: ['github', 'repositories', username],
+    queryKey: ["github", "repositories", username],
     queryFn: () => githubApi.getRepositories(username!),
     enabled: !!username,
     staleTime: STALE_TIME,
@@ -82,7 +82,7 @@ export const useGitHubRepositories = (username?: string) => {
 
 export const useGitHubStats = (username?: string) => {
   return useQuery({
-    queryKey: ['github', 'stats', username],
+    queryKey: ["github", "stats", username],
     queryFn: () => githubApi.getStats(username!),
     enabled: !!username,
     staleTime: STALE_TIME,
@@ -91,7 +91,7 @@ export const useGitHubStats = (username?: string) => {
 
 export const useGitHubContributions = (username?: string) => {
   return useQuery({
-    queryKey: ['github', 'contributions', username],
+    queryKey: ["github", "contributions", username],
     queryFn: () => githubApi.getContributions(username!),
     enabled: !!username,
     staleTime: STALE_TIME,

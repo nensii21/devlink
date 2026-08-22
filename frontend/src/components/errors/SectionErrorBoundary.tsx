@@ -74,9 +74,7 @@ export class SectionErrorBoundary extends Component<
             </div>
 
             <div className="min-w-0 flex-1">
-              <TypoSection>
-                Something went wrong in {sectionName}
-              </TypoSection>
+              <TypoSection>Something went wrong in {sectionName}</TypoSection>
               <TypoCaption as="p">
                 An unexpected error occurred while loading this part of the application. You can try
                 reloading this section or refreshing the page.

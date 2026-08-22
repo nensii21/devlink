@@ -116,9 +116,7 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
                 <p className="text-[13px] font-semibold text-foreground">
                   Similar projects already exist
                 </p>
-                <TypoCaption as="p">
-                  Review these before creating a duplicate.
-                </TypoCaption>
+                <TypoCaption as="p">Review these before creating a duplicate.</TypoCaption>
               </div>
             </div>
 
@@ -171,10 +169,14 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
                 selectedTemplateId={selectedTemplateId}
                 onTemplateIdChange={setSelectedTemplateId}
                 onSelect={(fields) => {
-                  if (fields.description) setValue("description", fields.description, { shouldValidate: true });
-                  if (fields.stage) setValue("stage", fields.stage as any, { shouldValidate: true });
-                  if (fields.max_team_size) setValue("max_team_size", fields.max_team_size, { shouldValidate: true });
-                  if (fields.tech_stack) setValue("tech_stack", fields.tech_stack, { shouldValidate: true });
+                  if (fields.description)
+                    setValue("description", fields.description, { shouldValidate: true });
+                  if (fields.stage)
+                    setValue("stage", fields.stage as any, { shouldValidate: true });
+                  if (fields.max_team_size)
+                    setValue("max_team_size", fields.max_team_size, { shouldValidate: true });
+                  if (fields.tech_stack)
+                    setValue("tech_stack", fields.tech_stack, { shouldValidate: true });
                 }}
               />
             </div>
@@ -200,8 +202,8 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
               />
             </div>
 
-            <AIDescriptionGenerator 
-              onGenerated={(desc) => setValue("description", desc, { shouldValidate: true })} 
+            <AIDescriptionGenerator
+              onGenerated={(desc) => setValue("description", desc, { shouldValidate: true })}
             />
 
             <div className="space-y-1.5">

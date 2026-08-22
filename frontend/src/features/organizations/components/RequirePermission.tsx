@@ -1,6 +1,6 @@
-import React from 'react';
-import { usePermissions } from '../hooks/usePermissions';
-import { Permission } from '../types';
+import React from "react";
+import { usePermissions } from "../hooks/usePermissions";
+import { Permission } from "../types";
 
 interface RequirePermissionProps {
   orgId: string;
