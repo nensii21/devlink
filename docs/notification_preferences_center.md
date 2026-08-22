@@ -78,12 +78,74 @@ Features:
 
 ---
 
-## 4. Running Unit Tests
+## 4. How preferences are enforced
 
-Execute backend unit tests:
+Storing a preference and honouring it are separate things, and for a long time
+only the first half was true (#1247). The mapping from notification type to
+category now lives in one place, `app/services/notifications/preferences.py`,
+rather than in an `if` chain inside the dispatcher.
+
+### Gated categories
+
+| Notification type | Category | Email column |
+|---|---|---|
+| `message` | `messages` | `email_messages` |
+| `mention` | `mentions` | `email_mentions` |
+| `project_invite` | `team_invitations` | `email_team_invitations` |
+| `project_update` | `project_updates` | `email_project_updates` |
+| `application`, `application_accepted`, `application_rejected` | `project_updates` | `email_project_updates` |
+| `builder_flare` | `project_updates` | `email_project_updates` |
+| `system`, `welcome`, `ai` | `system_announcements` | `email_system_announcements` |
+| `role_change` | `role_changes` | *(none — follows `email_enabled` alone)* |
+
+Two gates, in order: the category switch decides whether the notification is
+sent at all, and `email_<category>` decides whether email is one of the
+channels that carries it. `email_enabled` sits above both as the master switch.
+
+### Not gated
+
+- `password_reset` and `security_alert` are **always delivered**. A user who
+  switches off system announcements should still be told their password was
+  reset. Channel switches still apply — turning email off means they see it
+  in-app, not that they see it twice.
+- `follow` has **no preference column anywhere in the model**, so there is
+  nothing to read and it is always delivered. This is a known gap rather than a
+  decision; adding a column means a migration and a settings row.
+
+### Legacy column names
+
+`invitations` and `system_alerts` predate the #586 rename to `team_invitations`
+and `system_announcements`. Both old and new columns still exist and both
+default to `true`, so a row written before the rename that opted out via
+`invitations` has `team_invitations = true`.
+
+A category is therefore enabled only if its own column **and** every legacy
+alias are enabled — any `false` is a no. Reading only the newer column would
+silently re-enable notifications that a user had already opted out of.
+
+### Adding a notification type
+
+Add it to `CATEGORY_BY_TYPE`, or to `ALWAYS_DELIVERED` / `UNGATED` with a
+comment saying why. `test_every_notification_type_is_accounted_for` fails on
+any `NotificationType` member that appears in none of the three.
+
+`should_deliver()` deliberately fails *open* for an unmapped type — dropping
+someone's notifications is a worse way to discover a missing entry than sending
+one too many — so that test is the thing standing between a forgotten entry and
+a silently ungated category.
+
+---
+
+## 5. Running Unit Tests
+
 ```bash
 cd backend
-./venv/bin/pytest tests/test_notification_preferences.py -v
+./venv/bin/pytest tests/test_notification_preferences.py \
+                  tests/test_notification_preference_enforcement.py -v
 ```
 
-Expected output: **4 passed**.
+`test_notification_preferences.py` covers storage and serialisation;
+`test_notification_preference_enforcement.py` covers whether the dispatcher
+acts on what was stored. Every case in the second file asserts both directions
+— off means silence, on means delivery — because a change that only checks the
+first passes just as well when the answer is silence for everybody.

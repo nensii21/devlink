@@ -14,6 +14,10 @@ from app.services.notifications.channels.base import NotificationChannel
 from app.services.notifications.channels.database_channel import DatabaseChannel
 from app.services.notifications.channels.email_channel import EmailChannel
 from app.services.notifications.channels.websocket_channel import WebSocketChannel
+from app.services.notifications.preferences import (
+    should_deliver,
+    should_deliver_by_email,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,30 +44,42 @@ class NotificationDispatcher:
         return prefs
 
     def _should_send_channel(
-        self, channel_name: str, prefs: NotificationPreference
+        self,
+        channel_name: str,
+        prefs: NotificationPreference,
+        n_type: NotificationType,
     ) -> bool:
+        """
+        Whether this channel carries this notification.
+
+        Two gates for email, not one. `email_enabled` is the master switch; the
+        per-category `email_<category>` columns are the ones the settings page
+        actually shows, and nothing read them before -- so "email me about
+        mentions but not messages" was on or off for everything.
+        """
         if channel_name == "database" and not prefs.database_enabled:
-            return False
-        if channel_name == "email" and not prefs.email_enabled:
             return False
         if channel_name == "websocket" and not prefs.websocket_enabled:
             return False
+        if channel_name == "email":
+            if not prefs.email_enabled:
+                return False
+            if not should_deliver_by_email(n_type, prefs):
+                return False
         return True
 
     def _should_send_type(
         self, n_type: NotificationType, prefs: NotificationPreference
     ) -> bool:
-        if n_type in (NotificationType.PROJECT_UPDATE, NotificationType.PROJECT_INVITE):
-            return prefs.project_updates or prefs.invitations
-        if n_type == NotificationType.ROLE_CHANGE:
-            return prefs.role_changes
-        if n_type in (
-            NotificationType.SYSTEM,
-            NotificationType.WELCOME,
-            NotificationType.PASSWORD_RESET,
-        ):
-            return prefs.system_alerts
-        return True
+        """
+        Whether the user wants this category at all.
+
+        The mapping lives in `preferences.py` rather than in an `if` chain
+        here: the chain's problem was that anything it did not name fell
+        through to `True`, so nine of the fifteen types were undeniable and
+        nothing made that visible.
+        """
+        return should_deliver(n_type, prefs)
 
     def dispatch(
         self,
@@ -93,7 +109,7 @@ class NotificationDispatcher:
 
         results = []
         for channel_name in channels:
-            if not self._should_send_channel(channel_name, prefs):
+            if not self._should_send_channel(channel_name, prefs, notification_type):
                 continue
 
             channel = self.channels.get(channel_name)
