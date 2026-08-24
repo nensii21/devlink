@@ -34,6 +34,7 @@ import type {
   IssueCreateInput,
   IssueUpdateInput,
   TechStackResponse,
+  CurrentUserProfile,
 } from "@/api";
 import type { Hackathon, Flare, Message } from "@/mocks/seed";
 
@@ -60,6 +61,23 @@ async function withFallback<T>(call: () => Promise<T>, fallback: T): Promise<T> 
     console.warn("[services] API call failed, using fallback:", err);
     return fallback;
   }
+}
+
+// A mutation has no fallback.
+//
+// `withFallback` exists so a *read* can degrade to an empty shape the page can
+// still render. There is no equivalent for a write: the only two honest
+// answers are "the server applied it" and "it failed", and manufacturing the
+// first is worse than any error state. `usersService.updateMe` used to be
+// `withFallback(..., {})`, which meant the settings page's 409 handling could
+// never run -- every failed save, conflict included, came back as a truthy
+// `{}` and was reported to the user as "Profile saved successfully" (#1315).
+//
+// Mock mode still needs an answer, so it gets one; a configured backend gets
+// the real call, errors and all.
+async function write<T>(call: () => Promise<T>, mockResult: T): Promise<T> {
+  if (!isBackendConfigured()) return mock(mockResult);
+  return call();
 }
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
@@ -140,8 +158,7 @@ export const projectsService = {
   updateDraft: (id: string, body: any) =>
     withFallback(() => projectsApi.updateDraft(id, body as any), {} as any),
 
-  clone: (id: string, body?: any) =>
-    projectsApi.clone(id, body),
+  clone: (id: string, body?: any) => projectsApi.clone(id, body),
 };
 
 export const buildersService = {
@@ -201,28 +218,32 @@ export const dashboardService = {
 };
 
 export const usersService = {
+  /**
+   * The caller's own profile, or `null` when it cannot be read.
+   *
+   * `null` rather than a fabricated user: the settings page renders whatever
+   * comes back into its form fields, so an invented profile would be shown as
+   * the user's own data and then saved back over the real row.
+   */
+  getMe: () => withFallback<CurrentUserProfile | null>(() => usersApi.me(), null),
   getPrivacySettings: () =>
-    withFallback(
-      () => usersApi.getPrivacySettings(),
-      {
-        email: "private",
-        github: "public",
-        resume: "public",
-        social_links: "public",
-        availability: "public",
-        activity: "public",
-      }
-    ),
+    withFallback(() => usersApi.getPrivacySettings(), {
+      email: "private",
+      github: "public",
+      resume: "public",
+      social_links: "public",
+      availability: "public",
+      activity: "public",
+    }),
   updatePrivacySettings: (body: Record<string, any>) =>
-    withFallback(
-      () => usersApi.updatePrivacySettings(body),
-      {}
-    ),
-  updateMe: (body: Record<string, any>) =>
-    withFallback(
-      () => usersApi.updateMe(body),
-      {}
-    ),
+    write(() => usersApi.updatePrivacySettings(body), body),
+  /**
+   * Write the caller's profile. Rejects on failure -- see `write` above.
+   *
+   * In particular a 409 from the optimistic-concurrency check reaches the
+   * caller, which is the whole reason `version` is sent.
+   */
+  updateMe: (body: Record<string, any>) => write<unknown>(() => usersApi.updateMe(body), body),
 };
 
 export const activitiesService = {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/shared/primitives";
@@ -101,6 +101,10 @@ export function SettingsPage() {
   const [saveStatus, setSaveStatus] = useState<"saved" | "unsaved" | "saving" | "error" | "conflict">("saved");
   const [errorMessage, setErrorMessage] = useState("");
   const [loadingProfile, setLoadingProfile] = useState(true);
+  // Distinct from `errorMessage`, which belongs to the save path. A profile
+  // that could not be read leaves the form blank, and a blank form that says
+  // nothing reads as "you have no name set" rather than "we could not ask".
+  const [loadError, setLoadError] = useState("");
 
   // Appearance States
   const [selectedTheme, setSelectedTheme] = useState<"light" | "dark" | "system">("system");
@@ -142,9 +146,9 @@ export function SettingsPage() {
             last_name: user.last_name || "",
             username: user.username || user.handle || "",
             email: user.email || "",
-            headline: (user as any).headline || "Full-Stack Developer & Open Source Contributor",
-            location: (user as any).location || "San Francisco, CA",
-            website: (user as any).website || "https://devlink.io",
+            headline: user.headline || "Full-Stack Developer & Open Source Contributor",
+            location: user.location || "San Francisco, CA",
+            website: user.website || "https://devlink.io",
             bio: user.bio || "",
             version: user.version || 1,
           };
@@ -152,9 +156,12 @@ export function SettingsPage() {
           setOriginalProfileData(loadedData);
           setFullNameInput(`${loadedData.first_name} ${loadedData.last_name}`.trim());
           setSaveStatus("saved");
+        } else {
+          setLoadError("Could not load your profile. Your details are not shown.");
         }
       } catch (err) {
         console.error("Failed to load user profile:", err);
+        setLoadError("Could not load your profile. Your details are not shown.");
       } finally {
         setLoadingProfile(false);
       }
@@ -563,6 +570,10 @@ export function SettingsPage() {
                         placeholder="Short summary about your developer background..."
                       />
                     </div>
+
+                    {loadError && (
+                      <p className="text-xs font-medium text-destructive">{loadError}</p>
+                    )}
 
                     {errorMessage && (
                       <p className="text-xs font-medium text-destructive">{errorMessage}</p>

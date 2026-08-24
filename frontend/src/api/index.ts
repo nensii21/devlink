@@ -5,6 +5,7 @@ export type { CollabEvent as WsEvent } from "./ws";
 
 export { authApi } from "./modules/auth";
 export { usersApi } from "./modules/users";
+export type { CurrentUserProfile } from "./modules/users";
 export { projectsApi } from "./modules/projects";
 export { buildersApi } from "./modules/builders";
 export { postsApi } from "./modules/posts";

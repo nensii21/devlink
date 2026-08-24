@@ -34,3 +34,27 @@ Object.defineProperty(window, "sessionStorage", {
   value: sessionStorageMock,
   writable: true,
 });
+
+// jsdom does not implement ResizeObserver, and several Radix primitives we use
+// (`Switch`, `Select`, `Popover`, anything built on `useSize`) construct one in
+// a layout effect. Without this, any test that waits for a component tree
+// containing one of them dies with `ReferenceError: ResizeObserver is not
+// defined` *after* the assertions have already passed -- an uncaught exception
+// attributed to whichever test happened to be running at the time, which is a
+// miserable thing to debug.
+//
+// A no-op is the right shape: nothing here is asserting on measured sizes, and
+// the components only need the constructor not to throw.
+class ResizeObserverStub implements ResizeObserver {
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+
+if (!("ResizeObserver" in globalThis)) {
+  Object.defineProperty(globalThis, "ResizeObserver", {
+    value: ResizeObserverStub,
+    writable: true,
+    configurable: true,
+  });
+}
