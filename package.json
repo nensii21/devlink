@@ -18,7 +18,7 @@
     "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@cyclonedx/cyclonedx-npm": "^1.12.0",
+    "@cyclonedx/cyclonedx-npm": "^6.0.1",
     "license-checker": "^25.0.1"
   }
 }
