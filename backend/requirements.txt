@@ -90,7 +90,7 @@ google-genai>=2.18.1
 # ----------------------------
 
 pypdf>=6.16.0
-python-docx>=1.1.0
+python-docx>=1.2.0
 
 # ----------------------------
 # Image Processing
