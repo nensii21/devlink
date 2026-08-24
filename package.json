@@ -12,7 +12,7 @@
     "@noble/curves": "1.4.0",
     "@noble/hashes": "1.4.0",
     "bcryptjs": "2.4.3",
-    "dompurify": "3.1.6",
+    "dompurify": "3.4.14",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-dom": "18.3.1"
