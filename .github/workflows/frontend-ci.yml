@@ -31,6 +31,21 @@ jobs:
       - name: Build
         run: npm run build 2>&1
 
+      # Building a component and running it are different questions. `vite
+      # build` bundled `_app.settings.tsx` happily while the module threw
+      # `ReferenceError` the moment React called it, and the test written to
+      # cover that page was red for four days under a green `frontend` tick,
+      # because nothing here ran it (#1316).
+      #
+      # After the build on purpose: a failing test is more useful to read than
+      # a failing test that might just be a bad bundle, and the install is
+      # already warm either way.
+      #
+      # e2e is excluded here, as in `npm run test` -- Playwright needs browsers
+      # and a server, which is a separate job when somebody wants it.
+      - name: Test
+        run: npm run test
+
       # src/routeTree.gen.ts is generated from the filenames in src/routes/ and
       # committed. That only works if something fails when the two disagree,
       # and nothing did -- `showcase.tsx` and `verify-email.tsx` were live
