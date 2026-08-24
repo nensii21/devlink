@@ -44,6 +44,7 @@ from app.schemas.auth import (
     LoginRequest,
     RegisterRequest,
 )
+from app.utils.time import is_expired
 from app.utils.validators import (
     validate_email,
     validate_name,
@@ -826,10 +827,7 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired refresh token.",
             )
-        expires_at = db_token.expires_at
-        if expires_at.tzinfo is None:
-            expires_at = expires_at.replace(tzinfo=timezone.utc)
-        if expires_at < now:
+        if is_expired(db_token.expires_at):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired refresh token.",
@@ -1107,7 +1105,7 @@ class AuthService:
                         "valid": False,
                         "message": "This recovery token has already been used.",
                     }
-                if t_rec.expires_at and t_rec.expires_at < datetime.now(timezone.utc):
+                if is_expired(t_rec.expires_at):
                     return {
                         "valid": False,
                         "message": "This recovery token has expired.",
@@ -1163,9 +1161,7 @@ class AuthService:
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="This reset token has already been used.",
                     )
-                if token_record.expires_at and token_record.expires_at < datetime.now(
-                    timezone.utc
-                ):
+                if is_expired(token_record.expires_at):
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
                         detail="This reset token has expired.",

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 
@@ -10,6 +9,7 @@ from app.schemas.global_announcement import (
     GlobalAnnouncementCreate,
     GlobalAnnouncementUpdate,
 )
+from app.utils.time import utcnow
 
 
 class GlobalAnnouncementService:
@@ -51,7 +51,10 @@ class GlobalAnnouncementService:
     def get_active_announcements_for_user(
         db: Session, user_role: str | None = None
     ) -> list[GlobalAnnouncement]:
-        now = datetime.utcnow()
+        # `start_date` and `end_date` are TIMESTAMP WITH TIME ZONE. A naive
+        # bound parameter is read in the session time zone, not as UTC, which
+        # moves the whole visibility window by the deployment's offset.
+        now = utcnow()
         stmt = select(GlobalAnnouncement).where(
             GlobalAnnouncement.is_active == True,
             GlobalAnnouncement.start_date <= now,

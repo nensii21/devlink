@@ -14,6 +14,7 @@ from app.core.security import (
 )
 from app.models.user import User
 from app.models.password_reset_token import PasswordResetToken
+from app.utils.time import is_expired
 
 
 def create_test_user(db, email="reset_test@example.com", username="resetuser"):
@@ -46,7 +47,11 @@ def test_forgot_password_success(client, db):
     )
     assert token_record is not None
     assert token_record.is_used is False
-    assert token_record.expires_at > datetime.now(timezone.utc)
+    # Not `token_record.expires_at > datetime.now(timezone.utc)`. The stored
+    # value comes back naive on any backend that does not round-trip tzinfo,
+    # and that comparison raises TypeError rather than failing -- the same
+    # mistake the service used to make (#1318).
+    assert is_expired(token_record.expires_at) is False
 
 
 def test_verify_recovery_token_success(client, db):

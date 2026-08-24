@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import uuid
-from datetime import datetime
 from sqlalchemy import func, select, or_
 from sqlalchemy.orm import Session, selectinload
 
@@ -17,6 +16,7 @@ from app.schemas.feature_announcement import (
     FeatureAnnouncementResponse,
     FeatureAnnouncementUpdate,
 )
+from app.utils.time import utcnow
 
 
 class FeatureAnnouncementService:
@@ -30,7 +30,7 @@ class FeatureAnnouncementService:
         admin_id: uuid.UUID,
         data: FeatureAnnouncementCreate,
     ) -> FeatureAnnouncement:
-        published_at = data.published_at or datetime.utcnow()
+        published_at = data.published_at or utcnow()
         announcement = FeatureAnnouncement(
             created_by_id=admin_id,
             title=data.title,
