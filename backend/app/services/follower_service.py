@@ -8,6 +8,9 @@ from sqlalchemy import and_, select, func
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
+# pyrefly: ignore [missing-import]
+from sqlalchemy.exc import IntegrityError
+
 from app.models.activity import ActivityType
 from app.models.follower import Follower
 from app.models.user import User
@@ -30,6 +33,23 @@ class FollowerService:
         follower_id: uuid.UUID,
         following_id: uuid.UUID,
     ) -> Follower:
+        """
+        Follow a user, once.
+
+        Idempotent: following someone you already follow returns the existing
+        relationship and does nothing else -- no second activity entry, no
+        second notification.
+
+        The insert runs inside a SAVEPOINT because a `SELECT` first is
+        check-then-act, and two concurrent requests from the same user both
+        pass it. Losing that race raises `IntegrityError` from the unique
+        constraint, and an unhandled one puts the whole `Session` into a
+        rolled-back state -- every later statement in the request, including
+        the response serialiser and the request-logging middleware, then fails
+        with `PendingRollbackError` instead. The savepoint confines the rollback
+        to the insert, so the outer transaction survives and the request can go
+        on to answer normally.
+        """
 
         if BlockService.is_blocked(db, follower_id, following_id):
             raise HTTPException(
@@ -37,13 +57,30 @@ class FollowerService:
                 detail="Cannot follow a user who has blocked you or whom you have blocked.",
             )
 
+        existing = FollowerService.get_relationship(db, follower_id, following_id)
+        if existing is not None:
+            return existing
+
         relationship = Follower(
             follower_id=follower_id,
             following_id=following_id,
         )
 
-        db.add(relationship)
-        db.flush()
+        try:
+            with db.begin_nested():
+                db.add(relationship)
+                db.flush()
+        except IntegrityError:
+            # Somebody else inserted the same pair between the check above and
+            # this flush. Their row is as good as ours, and they have already
+            # recorded the activity and sent the notification.
+            existing = FollowerService.get_relationship(db, follower_id, following_id)
+            if existing is None:
+                # A different constraint then -- a dangling user id, say. Not
+                # ours to swallow.
+                raise
+            return existing
+
         db.refresh(relationship)
 
         following_user = db.get(User, following_id)
@@ -63,7 +100,8 @@ class FollowerService:
             color="success",
         )
 
-        # Trigger notification
+        # The only place a follow notification is sent. The router used to send
+        # a second one of its own, with a different title and a different link.
         follower = db.get(User, follower_id)
         follower_name = (
             f"{follower.first_name} {follower.last_name}" if follower else "Someone"

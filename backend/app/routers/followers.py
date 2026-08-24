@@ -10,11 +10,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_database, get_optional_current_user
-from app.models.notification import NotificationType
 from app.models.user import User
 from app.schemas.follower import FollowerResponse, FollowStatusResponse
 from app.services.follower_service import FollowerService
-from app.services.notification_service import NotificationService
 
 router = APIRouter(
     tags=["Followers"],
@@ -50,26 +48,14 @@ def follow_user(
             detail="Already following this user",
         )
 
-    follow = FollowerService.follow_user(
+    # The notification is the service's job and has been all along. This used
+    # to enqueue a second one here -- same event, different title, different
+    # link -- so a follow put two rows in the recipient's list (#1317).
+    return FollowerService.follow_user(
         db,
         current_user.id,
         user_id,
     )
-
-    try:
-        NotificationService.enqueue(
-            db,
-            recipient_id=user_id,
-            sender_id=current_user.id,
-            type=NotificationType.FOLLOW,
-            title="New follower",
-            message=f"{current_user.username} started following you.",
-            action_url=f"/users/{current_user.id}",
-        )
-    except Exception as e:
-        print(f"ENQUEUE ERROR: {e}")
-
-    return follow
 
 
 @router.delete(
