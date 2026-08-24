@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as ShowcaseRouteImport } from './routes/showcase'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MaintenanceRouteImport } from './routes/maintenance'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -64,6 +65,11 @@ import { Route as AppProjectsProjectIdActivityRouteImport } from './routes/_app.
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseRoute = ShowcaseRouteImport.update({
+  id: '/showcase',
+  path: '/showcase',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -330,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin': typeof AppAdminRouteWithChildren
   '/analytics': typeof AppAnalyticsRoute
@@ -382,6 +389,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin': typeof AppAdminRouteWithChildren
   '/analytics': typeof AppAnalyticsRoute
@@ -435,6 +443,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/maintenance': typeof MaintenanceRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/showcase': typeof ShowcaseRoute
   '/verify-email': typeof VerifyEmailRoute
   '/_app/admin': typeof AppAdminRouteWithChildren
   '/_app/analytics': typeof AppAnalyticsRoute
@@ -489,6 +498,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
     | '/verify-email'
     | '/admin'
     | '/analytics'
@@ -541,6 +551,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
     | '/verify-email'
     | '/admin'
     | '/analytics'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/maintenance'
     | '/reset-password'
+    | '/showcase'
     | '/verify-email'
     | '/_app/admin'
     | '/_app/analytics'
@@ -647,6 +659,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   MaintenanceRoute: typeof MaintenanceRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ShowcaseRoute: typeof ShowcaseRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   PortfolioUsernameRoute: typeof PortfolioUsernameRoute
 }
@@ -658,6 +671,13 @@ declare module '@tanstack/react-router' {
       path: '/verify-email'
       fullPath: '/verify-email'
       preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase': {
+      id: '/showcase'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -1192,6 +1212,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   MaintenanceRoute: MaintenanceRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ShowcaseRoute: ShowcaseRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   PortfolioUsernameRoute: PortfolioUsernameRoute,
 }

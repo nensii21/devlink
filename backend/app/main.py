@@ -348,20 +348,31 @@ app.state.limiter = limiter
 
 from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from app.core.exceptions import AppException
 from app.core.error_handlers import (
+    app_exception_handler,
     http_exception_handler,
     validation_exception_handler,
     rate_limit_exception_handler,
     global_exception_handler,
     integrity_error_handler,
+    sqlalchemy_error_handler,
 )
 
+# Registration order does not decide which handler runs -- Starlette walks the
+# raised exception's MRO and picks the most specific class registered -- so
+# `IntegrityError` keeps its 409 even though `SQLAlchemyError` is also
+# registered, and `AppException` keeps its own status even though `Exception`
+# is. They are listed most-specific-first anyway, so reading the block tells
+# you the same thing.
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
+app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
+app.add_exception_handler(SQLAlchemyError, sqlalchemy_error_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 app.add_middleware(SlowAPIMiddleware)
 
@@ -530,9 +541,6 @@ from app.routers import project_milestones
 app.include_router(
     project_milestones.router, prefix="/api", tags=["Project Milestones"]
 )
-app.include_router(
-    project_milestones.router, prefix="/api", tags=["Project Milestones"]
-)
 from app.routers import project_time_logs
 
 app.include_router(
@@ -558,25 +566,20 @@ app.include_router(
 )
 
 app.include_router(followers.router, prefix="/api/followers", tags=["Followers"])
-app.include_router(bookmarks.router, prefix="/api/bookmarks", tags=["Bookmarks"])
+app.include_router(bookmarks.router, prefix="/api", tags=["Bookmarks"])
 app.include_router(
     bookmark_collections.router,
-    prefix="/api/bookmark-collections",
+    prefix="/api",
     tags=["Bookmark Collections"],
 )
 app.include_router(activities.router, prefix="/api/activities", tags=["Activities"])
 from app.routers import activity_heatmap
 
 app.include_router(activity_heatmap.router, prefix="/api", tags=["Activity Heatmap"])
-app.include_router(
-    conversations.router, prefix="/api/conversations", tags=["Conversations"]
-)
+app.include_router(conversations.router, prefix="/api", tags=["Conversations"])
 from app.routers import moderation
 
 app.include_router(moderation.router, prefix="/api", tags=["Moderation"])
-app.include_router(
-    conversations.router, prefix="/api/conversations", tags=["Conversations"]
-)
 from app.routers import audit
 
 app.include_router(audit.router, prefix="/api", tags=["Audit"])
@@ -596,12 +599,12 @@ from app.routers import profile_suggestions
 
 app.include_router(
     profile_suggestions.router,
-    prefix="/api/profile-suggestions",
+    prefix="/api",
     tags=["Profile Suggestions"],
 )
 app.include_router(
     profile_suggestions.router,
-    prefix="/api/users/me/profile-suggestions",
+    prefix="/api/users/me",
     tags=["Profile Suggestions"],
 )
 from app.routers import profile_views
@@ -621,12 +624,8 @@ app.include_router(
     prefix="/api/contributor-matching",
     tags=["Contributor Matching"],
 )
-app.include_router(
-    repositories.router, prefix="/api/repositories", tags=["Repositories"]
-)
-app.include_router(
-    organizations.router, prefix="/api/organizations", tags=["Organizations"]
-)
+app.include_router(repositories.router, prefix="/api", tags=["Repositories"])
+app.include_router(organizations.router, prefix="/api", tags=["Organizations"])
 
 from app.routers import workspace_api_tokens
 
@@ -637,25 +636,21 @@ app.include_router(
 app.include_router(
     applications.router, prefix="/api/applications", tags=["Applications"]
 )
-app.include_router(skills.router, prefix="/api/skills", tags=["Skills"])
+app.include_router(skills.router, prefix="/api", tags=["Skills"])
 # users.router already included above
-app.include_router(websockets.router, prefix="/api/ws", tags=["WebSockets"])
+app.include_router(websockets.router, prefix="/api", tags=["WebSockets"])
 app.include_router(graph.router, prefix="/api", tags=["Graph"])
 from app.routers import webhooks
 
 app.include_router(webhooks.router, prefix="/api", tags=["Webhooks"])
-app.include_router(
-    recommendations.router, prefix="/api/recommendations", tags=["Recommendations"]
-)
+app.include_router(recommendations.router, prefix="/api", tags=["Recommendations"])
 app.include_router(
     repository_quality.router, prefix="/api", tags=["Repository Quality"]
 )
-app.include_router(health.router, prefix="/api/health", tags=["Health"])
+app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(maintenance.router, prefix="/api", tags=["Maintenance"])
 app.include_router(search.router, prefix="/api/search", tags=["Search"])
-app.include_router(
-    saved_searches.router, prefix="/api/saved-searches", tags=["Saved Searches"]
-)
+app.include_router(saved_searches.router, prefix="/api", tags=["Saved Searches"])
 app.include_router(hackathons.router, prefix="/api/hackathons", tags=["Hackathons"])
 app.include_router(
     notification_templates.router, prefix="/api", tags=["Notification Templates"]
@@ -671,10 +666,6 @@ from app.routers import project_templates
 app.include_router(
     project_templates.router, prefix="/api", tags=["Project Templates Marketplace"]
 )
-
-from app.routers import background_jobs
-
-app.include_router(background_jobs.router, prefix="/api")
 
 from app.routers import badges
 

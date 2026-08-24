@@ -217,8 +217,8 @@ function Landing() {
             <Link to="/builders" className="hover:text-foreground">
               Builders
             </Link>
-            <a
-              href="#showcase"
+            <Link
+              to="/showcase"
               className={
                 activeSection === "showcase"
                   ? "text-foreground font-semibold"
@@ -226,7 +226,7 @@ function Landing() {
               }
             >
               Showcase
-            </a>
+            </Link>
             <a
               href="#pricing"
               className={
@@ -305,13 +305,13 @@ function Landing() {
                 Builders
               </Link>
 
-              <a
-                href="#showcase"
+              <Link
+                to="/showcase"
                 className="text-sm text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Showcase
-              </a>
+              </Link>
 
               <a
                 href="#pricing"

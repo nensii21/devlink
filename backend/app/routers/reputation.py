@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, get_optional_current_user
 from app.models.user import User
 from app.schemas.reputation import (
     LeaderboardResponse,
@@ -35,7 +35,7 @@ def get_my_reputation(
     """
     Returns the authenticated user's total reputation score, rank tier, and recent activity logs.
     """
-    return ReputationService.get_user_reputation_summary(db, current_user.id)
+    return ReputationService.get_user_reputation_summary(db, current_user.id, viewer=current_user)
 
 
 @router.get(
@@ -46,11 +46,12 @@ def get_my_reputation(
 def get_user_reputation(
     user_id: uuid.UUID,
     db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
     """
     Returns a specific user's total reputation score, rank tier, and recent activity logs.
     """
-    return ReputationService.get_user_reputation_summary(db, user_id)
+    return ReputationService.get_user_reputation_summary(db, user_id, viewer=current_user)
 
 
 @router.get(

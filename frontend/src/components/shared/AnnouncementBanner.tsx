@@ -17,18 +17,6 @@ export interface Announcement {
 
 const DISMISSED_STORAGE_KEY = "devlink_dismissed_announcements";
 
-const MOCK_ANNOUNCEMENTS: Announcement[] = [
-  {
-    id: "ann-1",
-    title: "Scheduled Maintenance",
-    content: "DevLink platform will undergo brief maintenance tonight from 2:00 AM to 3:00 AM UTC.",
-    severity: "warning",
-    target_audience: "all",
-    start_date: new Date().toISOString(),
-    is_active: true,
-  },
-];
-
 export function AnnouncementBanner() {
   const [dismissedIds, setDismissedIds] = useState<string[]>(() => {
     try {
@@ -39,17 +27,28 @@ export function AnnouncementBanner() {
     }
   });
 
-  const { data: announcements = MOCK_ANNOUNCEMENTS } = useQuery<Announcement[]>({
+  // An empty list is a valid answer meaning "nothing to announce", and a
+  // failure means we do not know. Both render nothing.
+  //
+  // This used to substitute a hardcoded "Scheduled Maintenance tonight from
+  // 2:00 AM to 3:00 AM UTC" for either case -- dated `new Date()`, so it was
+  // always tonight, on every page, for every user, forever. It was also the
+  // `useQuery` default, so it rendered during the first load before any
+  // request resolved (#1249).
+  //
+  // A fake maintenance notice is the piece of invented content users are most
+  // likely to act on.
+  const { data: announcements = [] } = useQuery<Announcement[]>({
     queryKey: ["global-announcements-active"],
     queryFn: async (): Promise<Announcement[]> => {
-      try {
-        const res = await api.get<Announcement[]>("/api/announcements/active");
-        return res && res.length > 0 ? res : MOCK_ANNOUNCEMENTS;
-      } catch {
-        return MOCK_ANNOUNCEMENTS;
-      }
+      const res = await api.get<Announcement[]>("/api/announcements/active");
+      return res ?? [];
     },
     refetchInterval: 60000,
+    // The banner is decoration on top of whatever page the user is on. A
+    // failure should cost them nothing, so it stays quiet and retries on the
+    // interval above rather than surfacing an error over their content.
+    retry: 1,
   });
 
   const activeAnnouncements = announcements.filter((item) => !dismissedIds.includes(item.id));

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import uuid
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -18,6 +19,7 @@ from app.schemas.analytics import (
     ProjectGrowthMetric,
     RetentionMetric,
 )
+from app.schemas.profile_analytics import ProfileAnalyticsResponse
 
 
 class AnalyticsService:

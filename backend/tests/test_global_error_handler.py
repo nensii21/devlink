@@ -144,6 +144,13 @@ def test_integrity_error_handling_sanitization(client):
 
 
 def test_unhandled_value_error_handling(client):
+    # `add_exception_handler(Exception, ...)` is installed on Starlette's
+    # ServerErrorMiddleware, which builds the response and *then* re-raises so
+    # the server still logs the fault. TestClient surfaces that re-raise unless
+    # it is told not to, so the response is unreachable through the default
+    # client. test_error_responses.py does the same thing for the same reason.
+    client = TestClient(client.app, raise_server_exceptions=False)
+
     response = client.get("/test-error-handler/general-exception")
     assert response.status_code == 500
     data = response.json()

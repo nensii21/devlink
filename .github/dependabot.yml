@@ -1,68 +1,24 @@
-# Dependabot Configuration (#477)
-# Automatic dependency updates for DevLink repository
-
 version: 2
 updates:
-  # Root npm dependencies (Husky, lint-staged, etc.)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "04:00"
-      timezone: "Etc/UTC"
     open-pull-requests-limit: 10
+    # Acceptance Criteria: Pin and segregate deep cryptographic primitives for manual audit
+    groups:
+      cryptographic-core:
+        patterns:
+          - "@noble/*"
+          - "bcryptjs"
+      framework-dependencies:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+      sanitization-tooling:
+        patterns:
+          - "dompurify"
     labels:
       - "dependencies"
-      - "javascript"
-    commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
-
-  # Frontend React & Vite npm dependencies
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "frontend"
-    commit-message:
-      prefix: "chore(deps-frontend)"
-      include: "scope"
-
-  # Backend FastAPI & Python dependencies
-  - package-ecosystem: "pip"
-    directory: "/backend"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "backend"
-    commit-message:
-      prefix: "chore(deps-backend)"
-      include: "scope"
-
-  # GitHub Actions workflow actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "github-actions"
-    commit-message:
-      prefix: "chore(deps-actions)"
-      include: "scope"
+      - "security-audit"

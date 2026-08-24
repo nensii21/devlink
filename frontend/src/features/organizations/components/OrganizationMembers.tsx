@@ -48,20 +48,20 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
     }
   });
 
-  if (isLoading) return <div className="text-gray-400">Loading members...</div>;
+  if (isLoading) return <div className="text-muted-foreground">Loading members...</div>;
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-white mb-2">Organization Members</h2>
-          <p className="text-gray-400 text-sm">Manage who has access to this organization.</p>
+          <h2 className="mb-2 text-xl font-semibold text-foreground">Organization Members</h2>
+          <p className="text-sm text-muted-foreground">Manage who has access to this organization.</p>
         </div>
       </div>
 
-      <div className="bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700">
-        <table className="w-full text-left text-sm text-gray-300">
-          <thead className="bg-gray-800 text-gray-400">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
+        <table className="w-full text-left text-sm text-foreground">
+          <thead className="bg-muted text-muted-foreground">
             <tr>
               <th className="px-6 py-4 font-medium">Member</th>
               <th className="px-6 py-4 font-medium">Joined</th>
@@ -69,19 +69,19 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
               <th className="px-6 py-4 font-medium text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700/50">
+          <tbody className="divide-y divide-border">
             {members?.map((member) => (
-              <tr key={member.id} className="hover:bg-gray-800/30 transition-colors">
+              <tr key={member.id} className="transition-colors hover:bg-muted/60">
                 <td className="px-6 py-4">
-                  <div className="font-medium text-gray-200">
+                  <div className="font-medium text-foreground">
                     {member.user?.full_name || member.user?.username || member.user_id}
                   </div>
                 </td>
-                <td className="px-6 py-4 text-gray-400">
+                <td className="px-6 py-4 text-muted-foreground">
                   {new Date(member.joined_at).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4">
-                  <span className="capitalize px-2.5 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium capitalize text-muted-foreground">
                     {member.role}
                   </span>
                 </td>
@@ -89,7 +89,7 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
                   <RequirePermission orgId={orgId} permission="members:manage">
                     <div className="flex justify-end gap-3 items-center">
                       <select
-                        className="bg-gray-700 border-none text-sm rounded focus:ring-indigo-500"
+                        className="rounded border border-input bg-background text-sm text-foreground focus:ring-2 focus:ring-ring"
                         value={member.role}
                         onChange={(e) => updateRoleMutation.mutate({ 
                           userId: member.user_id, 

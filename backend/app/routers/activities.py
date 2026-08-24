@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_user, get_database
+from app.dependencies import get_current_user, get_database, get_optional_current_user
 from app.models.activity import ActivityType
 from app.models.user import User
 from app.schemas.activity import (
@@ -24,6 +24,44 @@ router = APIRouter(
     prefix="",
     tags=["Activities"],
 )
+
+
+def check_activity_visibility(db: Session, actor_id: uuid.UUID, viewer: User | None) -> None:
+    from app.services.user_service import UserService
+    actor = UserService.get_user(db, actor_id)
+    if actor:
+        if actor.is_private:
+            if viewer is None or viewer.id != actor.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not have permission to view this private profile.",
+                )
+
+        settings = actor.get_privacy_settings()
+        activity_visibility = settings.get("activity", "public")
+        
+        is_visible = False
+        if activity_visibility == "public":
+            is_visible = True
+        elif activity_visibility == "authenticated" and viewer is not None:
+            is_visible = True
+        elif activity_visibility == "followers" and viewer is not None:
+            if viewer.id == actor.id or getattr(viewer, "is_superuser", False):
+                is_visible = True
+            else:
+                from app.services.follower_service import FollowerService
+                is_visible = FollowerService.is_following(
+                    db, follower_id=viewer.id, following_id=actor.id
+                )
+        elif activity_visibility == "private":
+            if viewer is not None and (viewer.id == actor.id or getattr(viewer, "is_superuser", False)):
+                is_visible = True
+        
+        if not is_visible:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This user's activity details are private.",
+            )
 
 
 @router.post(
@@ -84,7 +122,10 @@ def get_feed(
         None, description="Filter by activity types"
     ),
     db: Session = Depends(get_database),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
+    if actor_id:
+        check_activity_visibility(db, actor_id, current_user)
 
     return ActivityService.list_activities(
         db=db,
@@ -104,7 +145,9 @@ def get_feed(
 def user_activities(
     user_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
+    check_activity_visibility(db, user_id, current_user)
 
     return ActivityService.list_user_activities(
         db,

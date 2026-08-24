@@ -81,7 +81,7 @@ def get_user_activity_heatmap(
     current_user: User | None = Depends(get_optional_current_user),
 ) -> ActivityHeatmapResponse:
     subject = ActivityHeatmapService.get_user_or_404(db, username)
-    ActivityHeatmapService.require_visible(subject, current_user)
+    ActivityHeatmapService.require_visible(subject, current_user, db)
 
     types = ActivityHeatmapService.parse_activity_types(activity_types)
     return ActivityHeatmapService.build(

@@ -98,6 +98,7 @@ class ReputationService:
         db: Session,
         user_id: uuid.UUID,
         recent_logs_limit: int = 10,
+        viewer: User | None = None,
     ) -> ReputationSummaryResponse:
         """
         Retrieves a user's total reputation score, rank tier, and recent activity logs.
@@ -109,13 +110,37 @@ class ReputationService:
                 detail=f"User with ID {user_id} not found.",
             )
 
-        logs_stmt = (
-            select(ReputationLog)
-            .where(ReputationLog.user_id == user_id)
-            .order_by(desc(ReputationLog.created_at))
-            .limit(recent_logs_limit)
-        )
-        logs = list(db.scalars(logs_stmt).all())
+        # Check activity visibility settings
+        settings = user.get_privacy_settings()
+        activity_visibility = settings.get("activity", "public")
+
+        is_visible = False
+        if activity_visibility == "public":
+            is_visible = True
+        elif activity_visibility == "authenticated" and viewer is not None:
+            is_visible = True
+        elif activity_visibility == "followers" and viewer is not None:
+            if viewer.id == user.id or getattr(viewer, "is_superuser", False):
+                is_visible = True
+            else:
+                from app.services.follower_service import FollowerService
+                is_visible = FollowerService.is_following(
+                    db, follower_id=viewer.id, following_id=user.id
+                )
+        elif activity_visibility == "private":
+            if viewer is not None and (viewer.id == user.id or getattr(viewer, "is_superuser", False)):
+                is_visible = True
+
+        if is_visible:
+            logs_stmt = (
+                select(ReputationLog)
+                .where(ReputationLog.user_id == user_id)
+                .order_by(desc(ReputationLog.created_at))
+                .limit(recent_logs_limit)
+            )
+            logs = list(db.scalars(logs_stmt).all())
+        else:
+            logs = []
 
         score = user.reputation_score or 0
         tier = calculate_rank_tier(score)

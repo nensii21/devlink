@@ -56,20 +56,45 @@ class ActivityHeatmapService:
         return user
 
     @staticmethod
-    def require_visible(subject: User, viewer: User | None) -> None:
+    def require_visible(subject: User, viewer: User | None, db: Session | None = None) -> None:
         """
-        A private profile's heatmap is as revealing as the profile itself -- it
-        shows when someone works and when they stopped -- so it follows the same
-        rule the profile endpoint uses.
+        Check if the subject profile is private OR if their activity privacy settings
+        restrict the viewer from viewing.
         """
-        if not subject.is_private:
-            return
-        if viewer is not None and viewer.id == subject.id:
-            return
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to view this private profile.",
-        )
+        # 1. Profile visibility
+        if subject.is_private:
+            if viewer is None or viewer.id != subject.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not have permission to view this private profile.",
+                )
+
+        # 2. Activity visibility settings
+        settings = subject.get_privacy_settings()
+        activity_visibility = settings.get("activity", "public")
+
+        is_visible = False
+        if activity_visibility == "public":
+            is_visible = True
+        elif activity_visibility == "authenticated" and viewer is not None:
+            is_visible = True
+        elif activity_visibility == "followers" and viewer is not None and db is not None:
+            if viewer.id == subject.id or getattr(viewer, "is_superuser", False):
+                is_visible = True
+            else:
+                from app.services.follower_service import FollowerService
+                is_visible = FollowerService.is_following(
+                    db, follower_id=viewer.id, following_id=subject.id
+                )
+        elif activity_visibility == "private":
+            if viewer is not None and (viewer.id == subject.id or getattr(viewer, "is_superuser", False)):
+                is_visible = True
+
+        if not is_visible:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This user's activity details are private.",
+            )
 
     # ------------------------------------------------------------------
     # Window helpers

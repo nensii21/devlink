@@ -49,6 +49,7 @@ class ExportService:
         organizations = ExportService._get_organizations(db, user.id)
         activities = ExportService._get_activities(db, user.id)
         notifications = ExportService._get_notifications(db, user.id)
+        builder_flares = ExportService._get_builder_flares(db, user.id)
         return UserExportData(
             exported_at=now,
             profile=profile,

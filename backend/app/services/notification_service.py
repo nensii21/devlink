@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import uuid
+from typing import Any
+
 from app.utils.time import utcnow
 
 # pyrefly: ignore [missing-import]

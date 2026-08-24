@@ -61,6 +61,7 @@ class PrivacySettings(BaseModel):
     resume: PrivacyVisibility = PrivacyVisibility.PUBLIC
     social_links: PrivacyVisibility = PrivacyVisibility.PUBLIC
     availability: PrivacyVisibility = PrivacyVisibility.PUBLIC
+    activity: PrivacyVisibility = PrivacyVisibility.PUBLIC
 
 
 class PrivacySettingsUpdate(BaseModel):
@@ -69,6 +70,7 @@ class PrivacySettingsUpdate(BaseModel):
     resume: PrivacyVisibility | None = None
     social_links: PrivacyVisibility | None = None
     availability: PrivacyVisibility | None = None
+    activity: PrivacyVisibility | None = None
 
 
 # ==========================================================
