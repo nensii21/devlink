@@ -1,0 +1,34 @@
+name: Encoding
+
+# `backend/requirements.txt` reached main with its last line encoded UTF-16LE,
+# and `pip install -r requirements.txt` does not read past it:
+#
+#   ERROR: Invalid requirement: 'r\x00i\x00p\x00e\x00=\x00=\x002\x00...'
+#
+# Backend CI had been failing on that step, in 17 seconds, before it ran a
+# single test. Two frontend modules arrived the same way and TypeScript could
+# not parse either.
+#
+# None of the existing checks could see any of it. They are all `git grep`, and
+# Git classifies a file full of NUL bytes as binary and skips it -- so the guard
+# has to read the bytes rather than grep them. See #1345.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  encoding:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Every tracked text file must be UTF-8
+        run: python3 .github/scripts/check_encoding.py
