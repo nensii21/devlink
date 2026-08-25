@@ -54,16 +54,23 @@ export function ImageCropUploadModal({
   const cropPreset = CROP_PRESETS[mode === "banner" ? "banner" : "avatar"];
   const modalTitle = title ?? (mode === "banner" ? "Upload Banner Image" : "Upload Avatar Image");
 
-  // Reset state when modal opens/closes
+  // Reset state when modal opens/closes.
+  //
+  // This used to also call setZoom / setRotation / setPanX / setPanY. None of
+  // them exist here -- that state belongs to ImageCropper, which owns it and is
+  // reached through cropperRef -- so the effect threw ReferenceError on the
+  // first render, and the guard is `!isOpen`, which is true on mount. A modal
+  // that is rendered closed took the throwing branch before anyone could open
+  // it (#1347).
+  //
+  // Nothing replaces them: clearing previewUrl below unmounts ImageCropper,
+  // which takes its crop state with it, and the cropper re-centres on every
+  // `src` load regardless.
   useEffect(() => {
     if (!isOpen) {
       setSelectedFile(null);
       setPreviewUrl(null);
       setError(null);
-      setZoom(1.0);
-      setRotation(0);
-      setPanX(0);
-      setPanY(0);
       setIsCameraActive(false);
       setIsUploading(false);
       setUploadProgress(0);
