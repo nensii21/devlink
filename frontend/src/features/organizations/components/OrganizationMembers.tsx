@@ -18,8 +18,6 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
   const { data: members, isLoading } = useQuery({
     queryKey: ["organizations", orgId, "members"],
     queryFn: async () => {
-      return api.get<OrganizationMember[]>(`/organizations/${orgId}/members`);
-
       const res = await api.get<OrganizationMember[]>(`/organizations/${orgId}/members`);
       return res;
     },
@@ -27,11 +25,6 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
 
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: OrganizationMemberRole }) => {
- feat/organization-roles-987-v2
-
-      return api.patch<OrganizationMember>(`/organizations/${orgId}/members/${userId}`, { role });
-
- main
       const res = await api.patch<OrganizationMember>(`/organizations/${orgId}/members/${userId}`, {
         role,
       });
@@ -64,7 +57,9 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="mb-2 text-xl font-semibold text-foreground">Organization Members</h2>
-          <p className="text-sm text-muted-foreground">Manage who has access to this organization.</p>
+          <p className="text-sm text-muted-foreground">
+            Manage who has access to this organization.
+          </p>
         </div>
       </div>
 

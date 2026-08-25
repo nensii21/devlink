@@ -94,11 +94,7 @@ export const projectTemplatesApi = {
   toggleFavorite: async (
     templateId: string,
   ): Promise<{ success: boolean; is_favorited: boolean; stars_count: number }> => {
- feat/organization-roles-987-v2
-    return api.post<{ success: boolean; is_favorited: boolean; stars_count: number }>(
-
     return await api.post<{ success: boolean; is_favorited: boolean; stars_count: number }>(
- main
       `/api/templates/${templateId}/favorite`,
     );
   },

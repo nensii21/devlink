@@ -49,7 +49,7 @@ import { useCollaborationStatus } from "@/hooks/useCollaborationStatus";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
 import { ManageSkillsModal } from "@/components/profile/ManageSkillsModal";
 import DonationModal from "@/components/profile/DonationModal";
-import { HeartIcon } from "@heroicons/react/24/outline";
+import { Heart } from "lucide-react";
 
 export const Route = createFileRoute("/_app/profile/$username")({
   head: ({ params }) => ({
@@ -169,10 +169,7 @@ function ProfilePage() {
   }, [fetchedUser, username]);
 
   // Fetch real projects for this user
-  const {
-    data: userProjects = [],
-    isLoading: isProjectsLoading,
-  } = useQuery({
+  const { data: userProjects = [], isLoading: isProjectsLoading } = useQuery({
     queryKey: ["user-projects", b?.id],
     queryFn: async () => {
       if (!b?.id) return [];
@@ -205,7 +202,6 @@ function ProfilePage() {
   );
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(b.avatar);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isManageSkillsOpen, setIsManageSkillsOpen] = useState(false);
 
@@ -293,7 +289,8 @@ function ProfilePage() {
           User Profile Not Found
         </TypoHeading>
         <TypoCaption as="p">
-          We couldn't find a DevLink profile for @{username}. The user might not exist or the profile is private.
+          We couldn't find a DevLink profile for @{username}. The user might not exist or the
+          profile is private.
         </TypoCaption>
         <div className="pt-2">
           <Link
@@ -513,7 +510,7 @@ function ProfilePage() {
                   onClick={() => setIsDonationModalOpen(true)}
                   className="inline-flex items-center gap-2 rounded-md bg-pink-600 px-3 py-2 text-[13px] font-semibold text-white transition-opacity hover:bg-pink-700"
                 >
-                  <HeartIcon className="w-4 h-4" />
+                  <Heart className="w-4 h-4" />
                   Sponsor
                 </button>
               )}
@@ -730,7 +727,10 @@ function ProfilePage() {
                 desc="Complete projects and contribute to the community to earn badges."
                 action={
                   me ? (
-                    <Link to="/projects" className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+                    <Link
+                      to="/projects"
+                      className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                    >
                       Explore projects
                     </Link>
                   ) : undefined
@@ -749,7 +749,10 @@ function ProfilePage() {
                 desc="Share your profile and collaborate with other builders to grow your audience."
                 action={
                   me ? (
-                    <Link to="/builders" className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+                    <Link
+                      to="/builders"
+                      className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                    >
                       Find builders
                     </Link>
                   ) : undefined
@@ -889,10 +892,9 @@ function ProfilePage() {
         />
       )}
 
+      {me && <PortfolioExportDialog open={isExportModalOpen} onOpenChange={setIsExportModalOpen} />}
+
       {me && (
-        <PortfolioExportDialog
-          open={isExportModalOpen}
-          onOpenChange={setIsExportModalOpen}
         <EditProfileModal
           open={isEditProfileOpen}
           onOpenChange={setIsEditProfileOpen}
@@ -928,7 +930,9 @@ function ProfilePage() {
           onOpenChange={setIsManageSkillsOpen}
           initialSkills={b.profileSkills}
           username={b.handle}
-      
+        />
+      )}
+
       {!me && b.id && (
         <DonationModal
           isOpen={isDonationModalOpen}

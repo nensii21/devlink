@@ -1,5 +1,6 @@
 import { Card, EmptyState } from "@/components/shared/primitives";
 import { MapPin, Clock3, Sparkles } from "lucide-react";
+import { TypoCaption } from "@/components/shared/Typography";
 
 export interface BioCardProps {
   headline?: string | null;
@@ -45,13 +46,7 @@ export function BioCard({
 
         <div className="mt-4 space-y-4">
           <label className="block text-sm">
- feat/organization-roles-987-v2
             <TypoCaption>Headline</TypoCaption>
-
-            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              Headline
-            </span>
- main
             <input
               value={formValues?.headline ?? ""}
               onChange={(event) => onFieldChange?.("headline", event.target.value)}
@@ -65,13 +60,7 @@ export function BioCard({
           </label>
 
           <label className="block text-sm">
- feat/organization-roles-987-v2
             <TypoCaption>Bio</TypoCaption>
-
-            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              Bio
-            </span>
- main
             <textarea
               value={formValues?.bio ?? ""}
               onChange={(event) => onFieldChange?.("bio", event.target.value)}
@@ -94,13 +83,7 @@ export function BioCard({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block text-sm">
- feat/organization-roles-987-v2
               <TypoCaption>Location</TypoCaption>
-
-              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                Location
-              </span>
- main
               <input
                 value={formValues?.location ?? ""}
                 onChange={(event) => onFieldChange?.("location", event.target.value)}
@@ -109,13 +92,7 @@ export function BioCard({
               />
             </label>
             <label className="block text-sm">
- feat/organization-roles-987-v2
               <TypoCaption>Timezone</TypoCaption>
-
-              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                Timezone
-              </span>
- main
               <input
                 value={formValues?.timezone ?? ""}
                 onChange={(event) => onFieldChange?.("timezone", event.target.value)}

@@ -7,24 +7,6 @@ export function RightPanel() {
       aria-label="Activity panel"
     >
       <div className="p-5 flex flex-col gap-6">
-        {/* Workspace Status */}
-        <section>
- feat/organization-roles-987-v2
-          <TypoSection>Workspace Status</TypoSection>
-
-          <h3 className="text-[13px] font-semibold tracking-tight text-muted-foreground uppercase mb-3">
-            Workspace Status
-          </h3>
- main
-          <div className="rounded-xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[14px] font-medium text-foreground">DevLink Alpha</span>
-              <span className="inline-flex h-2 w-2 rounded-full bg-success"></span>
-            </div>
-            <p className="text-[12px] text-muted-foreground">All systems operational.</p>
-          </div>
-        </section>
-
         {/* AI Suggestions */}
         <section>
           <h3 className="text-[13px] font-semibold tracking-tight text-muted-foreground uppercase mb-3 flex items-center gap-1.5">

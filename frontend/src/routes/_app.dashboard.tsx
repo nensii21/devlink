@@ -24,7 +24,8 @@ export const Route = createFileRoute("/_app/dashboard")({
       { title: "Dashboard — DevLink" },
       {
         name: "description",
-        content: "Your customizable DevLink command center: projects, matches, messages and streaks.",
+        content:
+          "Your customizable DevLink command center: projects, matches, messages and streaks.",
       },
     ],
   }),
@@ -143,22 +144,20 @@ function Dashboard() {
   // Actions
   const handlePinToggle = (id: string) => {
     setLayouts((prev) => {
-      const next = prev.map((item) =>
-        item.id === id ? { ...item, pinned: !item.pinned } : item,
-      );
+      const next = prev.map((item) => (item.id === id ? { ...item, pinned: !item.pinned } : item));
       saveStoredLayout(next);
       return next;
     });
     const widget = WIDGET_REGISTRY[id];
     const isNowPinned = !layouts.find((l) => l.id === id)?.pinned;
-    toast.info(isNowPinned ? `Pinned ${widget?.title ?? "widget"}` : `Unpinned ${widget?.title ?? "widget"}`);
+    toast.info(
+      isNowPinned ? `Pinned ${widget?.title ?? "widget"}` : `Unpinned ${widget?.title ?? "widget"}`,
+    );
   };
 
   const handleHideWidget = (id: string) => {
     setLayouts((prev) => {
-      const next = prev.map((item) =>
-        item.id === id ? { ...item, visible: false } : item,
-      );
+      const next = prev.map((item) => (item.id === id ? { ...item, visible: false } : item));
       saveStoredLayout(next);
       return next;
     });
@@ -260,22 +259,12 @@ function Dashboard() {
       {/* Stats Row */}
       <StatsRow />
 
- feat/organization-roles-987-v2
-      {/* Main Grid Grouping (2-column layout on desktop) */}
-      <div className="grid gap-6 lg:grid-cols-12 items-start">
-        {/* Left/Main Column - 9 cols */}
-        <div className="lg:col-span-9 flex flex-col gap-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <CurrentProjects />
-            <AISuggestions />
-
       {/* PINNED WIDGETS SECTION */}
       {pinnedWidgets.length > 0 && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
             <Pin size={13} className="fill-current" />
             Pinned Widgets
- main
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {pinnedWidgets.map(({ def, layout }, index) => (
@@ -306,7 +295,11 @@ function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-12 items-start">
         {/* Main Column - 9 cols (or 12 if sidebar is empty) */}
         <div
-          className={sidebarWidgets.length > 0 ? "lg:col-span-9 flex flex-col gap-6" : "lg:col-span-12 flex flex-col gap-6"}
+          className={
+            sidebarWidgets.length > 0
+              ? "lg:col-span-9 flex flex-col gap-6"
+              : "lg:col-span-12 flex flex-col gap-6"
+          }
         >
           {mainWidgets.length === 0 && !isCustomizing ? (
             <div className="p-8 text-center rounded-2xl border border-dashed border-border bg-card">

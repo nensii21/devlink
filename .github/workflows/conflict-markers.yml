@@ -1,8 +1,17 @@
 name: Conflict Markers
 
-# Catches the failure mode where a conflict is "resolved" by committing the
-# markers themselves. It has happened twice, and both times it left main
-# unbuildable on both the backend and the frontend for several days.
+# Catches the failure mode where a conflict is "resolved" without being
+# resolved. It has happened four times now, and every time it left main
+# unbuildable for several days.
+#
+# The first three were the markers themselves, committed verbatim, and the grep
+# below is what was added in response. The fourth (#1344) was the markers
+# *stripped* and both sides kept, across 19 files. That grep went green on it,
+# on a branch that did not build, because the characters it looks for were the
+# characters that had been removed.
+#
+# So there are two checks: the markers, and what is left of a marker after
+# somebody has taken the angle brackets off it.
 #
 # This deliberately does not use pre-commit: contributors are not required to
 # install the hooks, and the whole point is that the check is unskippable.
@@ -35,3 +44,31 @@ jobs:
           fi
 
           echo "No conflict markers found."
+
+      - name: Fail if a conflict marker has been stripped of its angle brackets
+        run: |
+          # `<<<<<<< feat/some-branch` with the seven angle brackets deleted
+          # leaves ` feat/some-branch` alone on a line, and `>>>>>>> main`
+          # leaves ` main`. That is what #1344 looked like in all 19 files, and
+          # it is not something a formatter emits or a language parses -- in
+          # TypeScript it is an expression statement naming an undefined
+          # variable, which is why RightPanel.tsx started throwing
+          # "TypoSection is not defined" at runtime.
+          #
+          # Restricted to the labels Git actually writes -- HEAD, a default
+          # branch name, or a conventional branch prefix -- so an indented
+          # ordinary word does not match. This finds 62 lines on the commit that
+          # broke main and none on the commit that fixed it.
+          if git grep -nIE '^ (HEAD|main|master|(feat|feature|fix|hotfix|chore|docs|refactor|test|ci|perf|style|release)/[A-Za-z0-9._/-]+)$' \
+               -- . ':(exclude).github/workflows/conflict-markers.yml'; then
+            echo
+            echo "::error::What looks like a stripped conflict marker was found."
+            echo
+            echo "Those lines are the label half of a <<<<<<< or >>>>>>> marker"
+            echo "with the angle brackets removed. When that happens, both sides"
+            echo "of the conflict are usually still in the file. Redo the merge"
+            echo "and pick one side per hunk -- see #1344."
+            exit 1
+          fi
+
+          echo "No stripped conflict markers found."

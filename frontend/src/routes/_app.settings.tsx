@@ -10,7 +10,6 @@ import { MFASection } from "@/features/settings/components/MFASection";
 import { UserSessionsActivity } from "@/components/settings/UserSessionsActivity";
 import { AvailabilitySettings } from "@/components/availability/AvailabilitySettings";
 
-
 import { SecurityDashboard } from "@/features/settings/components/security/SecurityDashboard";
 import { BillingDashboard } from "@/features/settings/components/BillingDashboard";
 import { ConnectedAccountsCard } from "@/features/settings/components/security/ConnectedAccountsCard";
@@ -31,7 +30,6 @@ import {
   ExternalLink,
   Calendar,
   HelpCircle,
-  Lock,
   Key,
   Plus,
   Copy,
@@ -51,25 +49,42 @@ import { usersService } from "@/services";
 import { TypoSection, TypoCaption, TypoHeading } from "@/components/shared/Typography";
 
 const tabs = [
-  { id: "account", label: "Account", icon: User },
-  { id: "appearance", label: "Appearance", icon: Palette },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "availability", label: "Availability", icon: Calendar },
-  { id: "privacy", label: "Privacy", icon: Lock },
-  { id: "security", label: "Security", icon: Shield },
-  { id: "billing", label: "Billing", icon: CreditCard },
-  { id: "export", label: "Export Data", icon: Download },
-  { id: "profile", label: "Profile", icon: User, description: "Personal info and avatar" },
-  { id: "appearance", label: "Appearance", icon: Palette, description: "Theme and interface styling" },
-  { id: "notifications", label: "Notifications", icon: Bell, description: "Email and push notifications" },
-  { id: "security", label: "Security", icon: Shield, description: "Password, 2FA, and sessions" },
-  { id: "billing", label: "Billing", icon: CreditCard, description: "Plans, usage, and invoices" },
-  { id: "developer", label: "Developer Accounts", icon: Code2, description: "OAuth & API access tokens" },
-  { id: "account", label: "Account", icon: User, description: "Personal profile and public information" },
-  { id: "privacy", label: "Privacy", icon: Eye, description: "Visibility and data sharing settings" },
-  { id: "notifications", label: "Notifications", icon: Bell, description: "Email and push notification preferences" },
-  { id: "appearance", label: "Appearance", icon: Palette, description: "Theme and interface layout" },
-  { id: "security", label: "Security", icon: Lock, description: "Password, two-factor authentication, and sessions" },
+  {
+    id: "account",
+    label: "Account",
+    icon: User,
+    description: "Personal profile and public information",
+  },
+  {
+    id: "appearance",
+    label: "Appearance",
+    icon: Palette,
+    description: "Theme and interface layout",
+  },
+  {
+    id: "notifications",
+    label: "Notifications",
+    icon: Bell,
+    description: "Email and push notification preferences",
+  },
+  {
+    id: "availability",
+    label: "Availability",
+    icon: Calendar,
+    description: "Working hours and time zone",
+  },
+  {
+    id: "privacy",
+    label: "Privacy",
+    icon: Eye,
+    description: "Visibility and data sharing settings",
+  },
+  {
+    id: "security",
+    label: "Security",
+    icon: Shield,
+    description: "Password, two-factor authentication, and sessions",
+  },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -80,7 +95,8 @@ export const Route = createFileRoute("/_app/settings")({
       { title: "User Settings — DevLink" },
       {
         name: "description",
-        content: "Centralized settings page for account, privacy, notifications, appearance, and security.",
+        content:
+          "Centralized settings page for account, privacy, notifications, appearance, and security.",
       },
     ],
   }),
@@ -227,7 +243,9 @@ export function UserSettingsPage() {
       {/* Header */}
       <div>
         <TypoHeading as="h1">User Settings</TypoHeading>
-        <TypoCaption as="p">Manage your account, privacy, notifications, appearance, and security</TypoCaption>
+        <TypoCaption as="p">
+          Manage your account, privacy, notifications, appearance, and security
+        </TypoCaption>
       </div>
 
       <Separator />
@@ -262,7 +280,9 @@ export function UserSettingsPage() {
               <div className="space-y-4">
                 <div className="border-b border-border pb-3">
                   <TypoHeading as="h2">Account Information</TypoHeading>
-                  <TypoCaption as="p">Manage your public persona, avatar, and personal details</TypoCaption>
+                  <TypoCaption as="p">
+                    Manage your public persona, avatar, and personal details
+                  </TypoCaption>
                 </div>
 
                 {/* Profile Media Cards */}
@@ -420,7 +440,9 @@ export function UserSettingsPage() {
               <div className="space-y-4">
                 <div className="border-b border-border pb-3">
                   <TypoHeading as="h2">Privacy & Visibility</TypoHeading>
-                  <TypoCaption as="p">Control who can discover your profile, email, and activity</TypoCaption>
+                  <TypoCaption as="p">
+                    Control who can discover your profile, email, and activity
+                  </TypoCaption>
                 </div>
 
                 <div className="divide-y divide-border/60 rounded-lg border border-border bg-card">
@@ -453,7 +475,10 @@ export function UserSettingsPage() {
                   ].map((item) => (
                     <div key={item.key} className="flex items-center justify-between p-3.5">
                       <div>
-                        <Label htmlFor={item.key} className="text-xs font-medium text-foreground cursor-pointer">
+                        <Label
+                          htmlFor={item.key}
+                          className="text-xs font-medium text-foreground cursor-pointer"
+                        >
                           {item.label}
                         </Label>
                         <TypoCaption as="p">{item.desc}</TypoCaption>
@@ -477,7 +502,9 @@ export function UserSettingsPage() {
               <div className="space-y-4">
                 <div className="border-b border-border pb-3">
                   <TypoHeading as="h2">Notification Preferences</TypoHeading>
-                  <TypoCaption as="p">Manage direct messaging alerts, invites, and digests</TypoCaption>
+                  <TypoCaption as="p">
+                    Manage direct messaging alerts, invites, and digests
+                  </TypoCaption>
                 </div>
 
                 <div className="divide-y divide-border/60 rounded-lg border border-border bg-card">
@@ -515,14 +542,19 @@ export function UserSettingsPage() {
                   ].map((item) => (
                     <div key={item.key} className="flex items-center justify-between p-3.5">
                       <div>
-                        <Label htmlFor={item.key} className="text-xs font-medium text-foreground cursor-pointer">
+                        <Label
+                          htmlFor={item.key}
+                          className="text-xs font-medium text-foreground cursor-pointer"
+                        >
                           {item.label}
                         </Label>
                         <TypoCaption as="p">{item.desc}</TypoCaption>
                       </div>
                       <Switch
                         id={item.key}
-                        checked={notificationSettings[item.key as keyof typeof notificationSettings]}
+                        checked={
+                          notificationSettings[item.key as keyof typeof notificationSettings]
+                        }
                         onCheckedChange={(checked) => {
                           setNotificationSettings((prev) => ({ ...prev, [item.key]: checked }));
                           toast.success("Notification preferences saved");
@@ -575,7 +607,9 @@ export function UserSettingsPage() {
                   <div className="flex items-center justify-between p-1">
                     <div>
                       <p className="text-xs font-medium text-foreground">Compact Mode</p>
-                      <TypoCaption as="p">Reduce padding for high-density information display</TypoCaption>
+                      <TypoCaption as="p">
+                        Reduce padding for high-density information display
+                      </TypoCaption>
                     </div>
                     <Switch
                       checked={compactView}
@@ -595,19 +629,14 @@ export function UserSettingsPage() {
               </div>
             )}
 
-            {tab === "security" && <SecurityDashboard userEmail="nancy@example.com" />}
-            {tab === "privacy" && (
-              <div className="p-6 space-y-6">
-                <div>
-                  <TypoHeading as="h2">Privacy Settings</TypoHeading>
-                  <TypoCaption as="p">Control who can view your profile and activities</TypoCaption>
-            {/* 4. SECURITY TAB */}
             {/* 5. SECURITY TAB */}
             {tab === "security" && (
               <div className="space-y-4">
                 <div className="border-b border-border pb-3">
                   <TypoHeading as="h2">Security & Authentication</TypoHeading>
-                  <TypoCaption as="p">Manage password, two-factor authentication, and active sessions</TypoCaption>
+                  <TypoCaption as="p">
+                    Manage password, two-factor authentication, and active sessions
+                  </TypoCaption>
                 </div>
 
                 <SecurityDashboard userEmail={profileData.email || "user@devlink.io"} />
@@ -620,7 +649,9 @@ export function UserSettingsPage() {
                     <p className="text-xs font-semibold text-destructive flex items-center gap-1.5">
                       <Trash2 size={14} /> Delete DevLink Account
                     </p>
-                    <TypoCaption as="p">Permanently delete your profile, workspaces, and personal data</TypoCaption>
+                    <TypoCaption as="p">
+                      Permanently delete your profile, workspaces, and personal data
+                    </TypoCaption>
                   </div>
                   <Button
                     variant="destructive"

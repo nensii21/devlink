@@ -48,7 +48,14 @@ vi.mock("@/api", () => ({
 
 import { SettingsPage } from "@/routes/_app.settings";
 
-describe("Settings Page Refactor (#947)", () => {
+// The #947 refactor these tests describe -- an H1 of "Settings" and Profile /
+// Billing / Developer Accounts tabs -- is not what the settings page implements,
+// and cannot be: settings-574.test.tsx asserts an H1 of "User Settings" and a
+// different tab set for the same component, so the two files contradict each
+// other and only one can pass. The page matches #574, and the branches these
+// tests need do not exist. Skipped rather than deleted so whoever picks #947
+// back up has the acceptance criteria; see #1344.
+describe.skip("Settings Page Refactor (#947)", () => {
   it("renders 6 distinct navigation tabs for settings", async () => {
     render(<SettingsPage />);
 
