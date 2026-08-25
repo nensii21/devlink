@@ -200,7 +200,7 @@ function ProfilePage() {
   const [bannerUrl, setBannerUrl] = useState<string | null>(
     "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&h=400&fit=crop&auto=format",
   );
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(b.avatar);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isManageSkillsOpen, setIsManageSkillsOpen] = useState(false);

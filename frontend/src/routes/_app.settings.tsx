@@ -214,26 +214,6 @@ export function UserSettingsPage() {
     setSaveStatus("unsaved");
   };
 
-  const handleCreateToken = () => {
-    if (!newTokenName.trim()) return;
-    const newToken = {
-      id: `tok_${Date.now()}`,
-      name: newTokenName.trim(),
-      prefix: `dlk_live_${Math.random().toString(36).substring(2, 6)}...`,
-      created: "Just now",
-      lastUsed: "Never",
-    };
-    setApiTokens((prev) => [newToken, ...prev]);
-    setNewTokenName("");
-    setIsCreatingToken(false);
-    toast.success("Personal API token created successfully");
-  };
-
-  const handleDeleteToken = (id: string) => {
-    setApiTokens((prev) => prev.filter((t) => t.id !== id));
-    toast.success("API token revoked");
-  };
-
   const inp =
     "w-full rounded-md border border-border bg-surface px-3 py-2 text-xs text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 placeholder:text-muted-foreground transition-all";
   const lbl = "mb-1 block text-xs font-medium text-foreground";
