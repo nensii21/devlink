@@ -12,7 +12,8 @@ export type ProjectSearchResult = {
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
-export type ApplicationStatus = "pending" | "reviewing" | "accepted" | "rejected" | "withdrawn";
+export type ApplicationStatus =
+  "pending" | "reviewing" | "interviewing" | "accepted" | "rejected" | "withdrawn";
 
 export type UUID = string;
 
