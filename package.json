@@ -9,9 +9,9 @@
     "preinstall": "npx only-allow npm"
   },
   "dependencies": {
-    "@noble/curves": "^1.4.0",
-    "@noble/hashes": "^1.4.0",
-    "bcryptjs": "^2.4.3",
+    "@noble/curves": "^2.3.0",
+    "@noble/hashes": "^2.3.0",
+    "bcryptjs": "^3.0.3",
     "dompurify": "^3.2.4",
     "next": "^16.3.2",
     "react": "^18.3.1",
