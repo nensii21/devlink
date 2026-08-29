@@ -9,6 +9,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    field_validator,
     model_validator,
 )
 
@@ -94,11 +95,15 @@ class UserBase(BaseModel):
     timezone: SanitizedStr | None = None
 
     website: ValidURL | None = None
+    profile_image: ValidURL | None = None
     resume_url: ValidURL | None = None
     voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None
+    twitter_url: ValidURL | None = None
+
+    skills: list[str] = Field(default_factory=list)
 
     role: SanitizedStr | None = None
     experience_level: SanitizedStr | None = None
@@ -113,7 +118,13 @@ class UserBase(BaseModel):
     is_active: bool = True
     is_verified: bool = False
     privacy_settings: PrivacySettings | None = Field(default_factory=PrivacySettings)
-    availability: list[AvailabilitySlot] = Field(default_factory=list)
+    availability: list[AvailabilitySlot] | None = Field(default_factory=list)
+
+    @field_validator("availability", mode="before")
+    @classmethod
+    def set_availability(cls, v):
+        return v or []
+
     collaboration_status: CollaborationStatus | None = CollaborationStatus.AVAILABLE
 
 
@@ -152,6 +163,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     first_name: NameStr | None = None
     last_name: NameStr | None = None
+    username: UsernameStr | None = None
 
     headline: HeadlineStr | None = None
     bio: BioStr | None = None
@@ -161,11 +173,15 @@ class UserUpdate(BaseModel):
     public_email: ValidEmail | None = None
 
     website: ValidURL | None = None
+    profile_image: ValidURL | None = None
     resume_url: ValidURL | None = None
     voice_introduction_url: ValidURL | None = None
     portfolio_url: ValidURL | None = None
     github_url: ValidURL | None = None
     linkedin_url: ValidURL | None = None
+    twitter_url: ValidURL | None = None
+
+    skills: list[str] | None = None
 
     role: SanitizedStr | None = None
     experience_level: SanitizedStr | None = None
@@ -309,3 +325,32 @@ class ProfileCompletionResponse(BaseModel):
         default=None,
         description="Badge awarded for 100% profile completion",
     )
+
+
+# ==========================================================
+# Dashboard Layout Customization (#754)
+# ==========================================================
+
+
+class DashboardWidgetLayout(BaseModel):
+    id: str = Field(..., description="Unique widget identifier")
+    order: int = Field(default=0, description="Display order index")
+    pinned: bool = Field(
+        default=False, description="Whether the widget is pinned to top"
+    )
+    visible: bool = Field(default=True, description="Whether the widget is visible")
+    column: int = Field(
+        default=1, description="Grid column index (1 for main, 2 for sidebar)"
+    )
+
+
+class DashboardLayoutUpdate(BaseModel):
+    widgets: list[DashboardWidgetLayout] = Field(
+        default_factory=list,
+        description="List of configured dashboard widgets and layouts",
+    )
+
+
+class DashboardLayoutResponse(BaseModel):
+    widgets: list[DashboardWidgetLayout]
+    is_customized: bool = True

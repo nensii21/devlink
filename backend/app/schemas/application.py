@@ -5,7 +5,6 @@ import uuid
 
 # pyrefly: ignore [missing-import]
 from datetime import datetime
-from typing import Optional
 
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ConfigDict
@@ -14,10 +13,10 @@ from app.models.application import ApplicationStatus
 
 
 class ApplicationBase(BaseModel):
-    message: Optional[str] = None
-    portfolio_url: Optional[str] = None
-    github_url: Optional[str] = None
-    resume_url: Optional[str] = None
+    message: str | None = None
+    portfolio_url: str | None = None
+    github_url: str | None = None
+    resume_url: str | None = None
 
 
 class ApplicationCreate(ApplicationBase):
@@ -26,13 +25,15 @@ class ApplicationCreate(ApplicationBase):
 
 
 class ApplicationUpdate(BaseModel):
-    status: Optional[ApplicationStatus] = None
-    message: Optional[str] = None
-    portfolio_url: Optional[str] = None
-    github_url: Optional[str] = None
-    resume_url: Optional[str] = None
-    review_notes: Optional[str] = None
-    shortlisted: Optional[bool] = None
+    status: ApplicationStatus | None = None
+    message: str | None = None
+    portfolio_url: str | None = None
+    github_url: str | None = None
+    resume_url: str | None = None
+    review_notes: str | None = None
+    shortlisted: bool | None = None
+    interview_scheduled_at: datetime | None = None
+    interview_link: str | None = None
 
 
 class ApplicationResponse(ApplicationBase):
@@ -43,7 +44,9 @@ class ApplicationResponse(ApplicationBase):
     project_id: uuid.UUID
     flare_id: uuid.UUID
     status: ApplicationStatus
-    review_notes: Optional[str] = None
+    review_notes: str | None = None
     shortlisted: bool
+    interview_scheduled_at: datetime | None = None
+    interview_link: str | None = None
     created_at: datetime
     updated_at: datetime

@@ -146,9 +146,7 @@ function AnalyticsPage() {
       {/* Header & Timeframe Filter */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <TypoHeading as="h1">
-            Analytics Dashboard
-          </TypoHeading>
+          <TypoHeading as="h1">Analytics Dashboard</TypoHeading>
           <TypoCaption as="p">
             Tracking Daily Active Users, Retention, Conversions, and Project Growth.
           </TypoCaption>
@@ -175,9 +173,7 @@ function AnalyticsPage() {
         {/* DAU */}
         <Card className="relative overflow-hidden p-5 transition-all hover:border-primary/40">
           <div className="flex items-center justify-between">
-            <TypoCaption as="p">
-              DAU (Daily Active)
-            </TypoCaption>
+            <TypoCaption as="p">DAU (Daily Active)</TypoCaption>
             <span className="flex h-2.5 w-2.5 items-center justify-center">
               <span className="absolute inline-flex h-2.5 w-2.5 animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -193,35 +189,25 @@ function AnalyticsPage() {
 
         {/* WAU */}
         <Card className="p-5 transition-all hover:border-primary/40">
-          <TypoCaption as="p">
-            WAU (Weekly Active)
-          </TypoCaption>
+          <TypoCaption as="p">WAU (Weekly Active)</TypoCaption>
           <p className="mt-3 text-[28px] font-bold tracking-tight text-foreground">
             {loading ? "..." : data.active_users.wau}
           </p>
-          <TypoCaption as="p">
-            Active in last 7 days
-          </TypoCaption>
+          <TypoCaption as="p">Active in last 7 days</TypoCaption>
         </Card>
 
         {/* MAU */}
         <Card className="p-5 transition-all hover:border-primary/40">
-          <TypoCaption as="p">
-            MAU (Monthly Active)
-          </TypoCaption>
+          <TypoCaption as="p">MAU (Monthly Active)</TypoCaption>
           <p className="mt-3 text-[28px] font-bold tracking-tight text-foreground">
             {loading ? "..." : data.active_users.mau}
           </p>
-          <TypoCaption as="p">
-            Active in last 30 days
-          </TypoCaption>
+          <TypoCaption as="p">Active in last 30 days</TypoCaption>
         </Card>
 
         {/* Project Growth Overview */}
         <Card className="p-5 transition-all hover:border-primary/40">
-          <TypoCaption as="p">
-            Total Projects
-          </TypoCaption>
+          <TypoCaption as="p">Total Projects</TypoCaption>
           <div className="flex items-baseline gap-2">
             <p className="mt-3 text-[28px] font-bold tracking-tight text-foreground">
               {loading ? "..." : data.project_growth.total_projects}
@@ -230,9 +216,7 @@ function AnalyticsPage() {
               +{data.project_growth.new_projects_period} in period
             </span>
           </div>
-          <TypoCaption as="p">
-            Growth Rate: {data.project_growth.growth_rate_pct}%
-          </TypoCaption>
+          <TypoCaption as="p">Growth Rate: {data.project_growth.growth_rate_pct}%</TypoCaption>
         </Card>
       </div>
 
@@ -243,9 +227,7 @@ function AnalyticsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[14px] font-semibold text-foreground">Daily Active Users Trend</p>
-              <TypoCaption as="p">
-                User engagement over past {days} days
-              </TypoCaption>
+              <TypoCaption as="p">User engagement over past {days} days</TypoCaption>
             </div>
           </div>
           <div className="mt-4 h-64">

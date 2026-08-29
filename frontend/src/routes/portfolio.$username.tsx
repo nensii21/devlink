@@ -37,51 +37,15 @@ import {
 } from "@/mocks/seed";
 
 export const Route = createFileRoute("/portfolio/$username")({
-  loader: async ({ params }) => {
-    const me = params.username === currentUser.handle;
-    const b =
-      builders.find((x) => x.handle === params.username) ||
-      (me
-        ? {
-            id: "me",
-            name: currentUser.name,
-            handle: currentUser.handle,
-            role: "Developer",
-            avatar: currentUser.avatar,
-            country: "India",
-            yearsExp: 3,
-            matchScore: 96,
-            skills: ["React", "Next.js", "TypeScript", "Node.js", "Python", "TailwindCSS"],
-            online: true,
-            bio: "Product engineer. Ships fast, sleeps sometimes. Love crafting delightful UX.",
-          }
-        : null);
-
-    if (!b) throw notFound();
-    return { builder: b };
-  },
-  head: ({ loaderData, params }) => {
-    const b = loaderData?.builder;
-    const title = b
-      ? `${b.name} (@${b.handle}) | DevLink Portfolio`
-      : `@${params.username}'s Public Portfolio — DevLink`;
-    const desc = b?.bio || `Browse projects, skills, and get in touch with @${params.username}.`;
-
-    return {
-      meta: [
-        { title },
-        { name: "description", content: desc },
-        { property: "og:title", content: title },
-        { property: "og:description", content: desc },
-        ...(b?.avatar ? [{ property: "og:image", content: b.avatar }] : []),
-        { property: "og:type", content: "profile" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: title },
-        { name: "twitter:description", content: desc },
-        ...(b?.avatar ? [{ name: "twitter:image", content: b.avatar }] : []),
-      ],
-    };
-  },
+  head: ({ params }) => ({
+    meta: [
+      { title: `@${params.username}'s Public Portfolio — DevLink` },
+      {
+        name: "description",
+        content: `Browse projects, skills, and get in touch with @${params.username}.`,
+      },
+    ],
+  }),
   component: PortfolioPage,
 });
 
@@ -245,6 +209,12 @@ function PortfolioPage() {
     toast.success("Theme preferences saved as your personal default!");
   };
 
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}/portfolio/${username}?theme=${prefs.theme}&accent=${prefs.accent}&projects=${prefs.showProjects}&flares=${prefs.showFlares}&contact=${prefs.showContact}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Customized portfolio link copied to clipboard!");
+  };
+
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
@@ -335,9 +305,7 @@ function PortfolioPage() {
           </div>
           <div className="space-y-4 flex-1">
             <div>
-              <TypoHeading as="h1">
-                {b.name}
-              </TypoHeading>
+              <TypoHeading as="h1">{b.name}</TypoHeading>
               <p className={`text-base font-semibold mt-1 ${activeAccent.text}`}>{b.role}</p>
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mt-3 text-xs text-slate-400">
                 <span className="flex items-center gap-1">
@@ -613,9 +581,7 @@ function PortfolioPage() {
               className="w-24 h-24 rounded-full border border-stone-400 bg-stone-100 filter grayscale"
             />
             <div className="text-center md:text-left space-y-2">
-              <TypoHeading as="h1">
-                {b.name}
-              </TypoHeading>
+              <TypoHeading as="h1">{b.name}</TypoHeading>
               <p
                 className={`text-sm font-sans font-semibold tracking-wider uppercase ${activeAccent.text}`}
               >
@@ -670,9 +636,7 @@ function PortfolioPage() {
 
         {/* Skills Section */}
         <section className="space-y-4">
-          <TypoHeading as="h2">
-            Core Expertise
-          </TypoHeading>
+          <TypoHeading as="h2">Core Expertise</TypoHeading>
           <div className="flex flex-wrap gap-x-6 gap-y-3 font-sans text-sm">
             {b.skills.map((s) => (
               <span key={s} className="text-stone-800 hover:underline cursor-pointer">
@@ -685,9 +649,7 @@ function PortfolioPage() {
         {/* Projects Section */}
         {prefs.showProjects && (
           <section className="space-y-6">
-            <TypoHeading as="h2">
-              Selected Works
-            </TypoHeading>
+            <TypoHeading as="h2">Selected Works</TypoHeading>
             <div className="space-y-8">
               {displayProjects.map((p) => (
                 <div
@@ -839,9 +801,7 @@ function PortfolioPage() {
             />
             <div className="space-y-3">
               <div>
-                <TypoHeading as="h1">
-                  {b.name.toUpperCase()}
-                </TypoHeading>
+                <TypoHeading as="h1">{b.name.toUpperCase()}</TypoHeading>
                 <p className="text-xs mt-1 text-[#ff00ea]">&gt;&gt; {b.role.toUpperCase()}</p>
                 <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-[10px] text-[#00ff66]/80 mt-2">
                   <span>LOC: {b.country.toUpperCase()}</span>
@@ -888,9 +848,7 @@ function PortfolioPage() {
                         {p.status}
                       </span>
                     </div>
-                    <TypoSection>
-                      {p.name.toUpperCase()}
-                    </TypoSection>
+                    <TypoSection>{p.name.toUpperCase()}</TypoSection>
                     <p className="text-xs text-[#00ff66]/70 mt-2 line-clamp-3 leading-relaxed">
                       {p.description}
                     </p>
@@ -910,9 +868,7 @@ function PortfolioPage() {
         {prefs.showContact && (
           <section className="border-2 border-[#00ff66] p-6 shadow-[6px_6px_0px_rgba(0,255,102,0.2)] bg-black space-y-6">
             <div>
-              <TypoHeading as="h2">
-                [ // TERMINAL_COMMUNICATIONS ]
-              </TypoHeading>
+              <TypoHeading as="h2">[ // TERMINAL_COMMUNICATIONS ]</TypoHeading>
               <p className="text-[10px] text-[#00ff66]/80 mt-1">
                 ESTABLISH PORTFOLIO CONGESTION TUNNEL TO HOST DIRECTLY.
               </p>
@@ -1026,9 +982,7 @@ function PortfolioPage() {
           </div>
           <div className="space-y-4 flex-1">
             <div>
-              <TypoHeading as="h1">
-                {b.name}
-              </TypoHeading>
+              <TypoHeading as="h1">{b.name}</TypoHeading>
               <p className={`text-base font-semibold mt-1 ${activeAccent.text}`}>{b.role}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs text-white/60 mt-2">
                 <span>📍 {b.country}</span>
@@ -1275,9 +1229,7 @@ function PortfolioPage() {
 
         {/* Skills Section */}
         <section className="space-y-4 bg-slate-900 border border-slate-800 p-6 rounded-xl">
-          <TypoHeading as="h2">
-            Stack Expertise
-          </TypoHeading>
+          <TypoHeading as="h2">Stack Expertise</TypoHeading>
           <div className="flex flex-wrap gap-2">
             {b.skills.map((s) => (
               <span
@@ -1293,9 +1245,7 @@ function PortfolioPage() {
         {/* Projects Section */}
         {prefs.showProjects && (
           <section className="space-y-6">
-            <TypoHeading as="h2">
-              Featured Projects
-            </TypoHeading>
+            <TypoHeading as="h2">Featured Projects</TypoHeading>
             <div className="grid gap-4 md:grid-cols-2">
               {displayProjects.map((p) => (
                 <div
@@ -1554,17 +1504,12 @@ function PortfolioPage() {
                 >
                   Save as Default Template
                 </button>
-                <ShareProfileButton
-                  profileName={b.name}
-                  profileHandle={b.handle}
-                  profileBio={b.bio}
-                  profileUrl={
-                    typeof window !== "undefined"
-                      ? `${window.location.origin}/portfolio/${username}?theme=${prefs.theme}&accent=${prefs.accent}&projects=${prefs.showProjects}&flares=${prefs.showFlares}&contact=${prefs.showContact}`
-                      : undefined
-                  }
-                  className="w-full border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold py-2.5 rounded-lg text-xs transition-all cursor-pointer bg-transparent flex items-center justify-center h-auto"
-                />
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full border border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold py-2.5 rounded-lg text-xs transition-all cursor-pointer"
+                >
+                  Copy Shareable URL
+                </button>
                 <button
                   onClick={() => {
                     setCustomizerOpen(false);

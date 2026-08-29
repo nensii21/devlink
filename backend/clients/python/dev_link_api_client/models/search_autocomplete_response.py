@@ -121,7 +121,9 @@ class SearchAutocompleteResponse:
         if _organizations is not UNSET:
             organizations = []
             for organizations_item_data in _organizations:
-                organizations_item = SearchSuggestionOrganization.from_dict(organizations_item_data)
+                organizations_item = SearchSuggestionOrganization.from_dict(
+                    organizations_item_data
+                )
 
                 organizations.append(organizations_item)
 

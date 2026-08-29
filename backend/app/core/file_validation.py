@@ -239,9 +239,7 @@ def scan_bytes(data: bytes, filename: str = "upload") -> None:
 
     for signature, description in _EXECUTABLE_SIGNATURES:
         if data.startswith(signature):
-            raise UnsafeUpload(
-                f"{filename} was rejected: it is a {description}."
-            )
+            raise UnsafeUpload(f"{filename} was rejected: it is a {description}.")
 
 
 # ---------------------------------------------------------------------------
@@ -272,9 +270,7 @@ def validate_upload_bytes(
         )
 
     if detected in DANGEROUS_TYPES:
-        raise UnsafeUpload(
-            f"{filename} is a {detected} file, which cannot be stored."
-        )
+        raise UnsafeUpload(f"{filename} is a {detected} file, which cannot be stored.")
 
     normalised = {t.strip().lower() for t in allowed_types if t and t.strip()}
 
@@ -336,8 +332,6 @@ def safe_join(base: Path | str, *parts: str) -> Path:
     resolved = candidate.resolve()
 
     if resolved != base_path and base_path not in resolved.parents:
-        raise UnsafePath(
-            f"Path {'/'.join(parts)!r} resolves outside {base_path}."
-        )
+        raise UnsafePath(f"Path {'/'.join(parts)!r} resolves outside {base_path}.")
 
     return resolved

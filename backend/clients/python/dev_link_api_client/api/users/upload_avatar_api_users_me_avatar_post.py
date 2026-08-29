@@ -5,7 +5,9 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.body_upload_avatar_api_users_me_avatar_post import BodyUploadAvatarApiUsersMeAvatarPost
+from ...models.body_upload_avatar_api_users_me_avatar_post import (
+    BodyUploadAvatarApiUsersMeAvatarPost,
+)
 from ...models.http_validation_error import HTTPValidationError
 from ...models.user_response import UserResponse
 from ...types import Response

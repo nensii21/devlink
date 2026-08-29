@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
+    Index,
     UniqueConstraint,
     func,
 )
@@ -41,6 +42,7 @@ class OrganizationMember(Base):
             "user_id",
             name="uq_organization_member",
         ),
+        Index("idx_organization_members_org_role", "organization_id", "role"),
     )
 
     # ==========================================================

@@ -86,7 +86,7 @@ def test_revoked_token_cannot_be_reused_to_refresh(client, db):
 
 def test_refresh_token_reuse_revokes_all_sessions(client, db):
     user = create_test_user(db)
-    
+
     # Create two refresh tokens
     token_1_str = create_refresh_token(str(user.id))
     token_2_str = create_refresh_token(str(user.id))

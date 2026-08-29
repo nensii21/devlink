@@ -67,7 +67,9 @@ class TechStackResponse:
         recommendations = []
         _recommendations = d.pop("recommendations")
         for recommendations_item_data in _recommendations:
-            recommendations_item = TechStackRecommendation.from_dict(recommendations_item_data)
+            recommendations_item = TechStackRecommendation.from_dict(
+                recommendations_item_data
+            )
 
             recommendations.append(recommendations_item)
 

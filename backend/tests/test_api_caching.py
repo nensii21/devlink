@@ -50,16 +50,22 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def setup_teardown():
-    # Force cache manager to act normally, normally during pytest it disables itself
-    # We will temporarily turn it on for these tests by monkeypatching _is_testing
-    original = cache_manager._is_testing
-    cache_manager._is_testing = False
-    cache_manager._l1_cache.clear()
+    # The cache is off by default under pytest. These tests need it on.
+    #
+    # This used to be `cache_manager._is_testing = False` -- reaching into a
+    # private attribute, because there was no other way in: the flag was
+    # computed once at import from `"pytest" in sys.modules` and nothing could
+    # change it afterwards. `enable()` / `disable()` are that way in (#1402).
+    original = cache_manager.enabled
+    original_redis = cache_manager._redis_client
+    cache_manager.enable()
+    cache_manager.clear_l1()
 
     yield
 
-    cache_manager._is_testing = original
-    cache_manager._l1_cache.clear()
+    cache_manager._enabled = original
+    cache_manager._redis_client = original_redis
+    cache_manager.clear_l1()
 
 
 def test_caching_decorator_ignores_dependencies():
@@ -119,6 +125,13 @@ def test_l1_cache_expiry():
     """Test that items expire from L1 cache."""
     cache_manager.set("test_key", "value", ttl=-1)  # Already expired
     assert cache_manager.get("test_key") is None
+
+
+def test_l1_cache_expiry_stores_nothing():
+    """A non-positive TTL caches nothing rather than an entry that can only
+    ever miss."""
+    cache_manager.set("expired_key", "value", ttl=-1)
+    assert "expired_key" not in cache_manager._l1_cache
 
 
 def test_l2_redis_fallback():

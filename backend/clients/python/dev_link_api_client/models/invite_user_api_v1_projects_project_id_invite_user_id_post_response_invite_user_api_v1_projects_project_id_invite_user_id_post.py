@@ -28,9 +28,13 @@ class InviteUserApiV1ProjectsProjectIdInviteUserIdPostResponseInviteUserApiV1Pro
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        invite_user_api_v1_projects_project_id_invite_user_id_post_response_invite_user_api_v1_projects_project_id_invite_user_id_post = cls()
+        invite_user_api_v1_projects_project_id_invite_user_id_post_response_invite_user_api_v1_projects_project_id_invite_user_id_post = (
+            cls()
+        )
 
-        invite_user_api_v1_projects_project_id_invite_user_id_post_response_invite_user_api_v1_projects_project_id_invite_user_id_post.additional_properties = d
+        invite_user_api_v1_projects_project_id_invite_user_id_post_response_invite_user_api_v1_projects_project_id_invite_user_id_post.additional_properties = (
+            d
+        )
         return invite_user_api_v1_projects_project_id_invite_user_id_post_response_invite_user_api_v1_projects_project_id_invite_user_id_post
 
     @property

@@ -92,7 +92,9 @@ class EmailTemplateService:
         return results
 
     @classmethod
-    def render_template(cls, template_type: EmailTemplateType, context: Dict[str, Any]) -> EmailRenderResponse:
+    def render_template(
+        cls, template_type: EmailTemplateType, context: Dict[str, Any]
+    ) -> EmailRenderResponse:
         info = cls.TEMPLATES_INFO.get(template_type, {})
         sample_ctx = info.get("sample_context", {})
         ctx = {**sample_ctx, **context}
@@ -146,7 +148,9 @@ class EmailTemplateService:
             plain_content = f"Application Accepted!\n\nCongratulations {user_name}! You were accepted for '{ctx.get('project_name')}' as {ctx.get('role_title')}. Access project: {ctx.get('workspace_url', '#')}"
 
         elif template_type == EmailTemplateType.PROJECT_REJECTED:
-            subject = f"Update regarding your application for '{ctx.get('project_name')}'"
+            subject = (
+                f"Update regarding your application for '{ctx.get('project_name')}'"
+            )
             body_content = f"""
                 <h2>Application Status Update</h2>
                 <p>Hello {user_name}, thank you for your interest in <strong>{ctx.get('project_name')}</strong>. Although your profile was impressive, the team chose to proceed with another applicant for this specific role.</p>
@@ -156,7 +160,9 @@ class EmailTemplateService:
 
         else:  # WEEKLY_DIGEST
             subject = f"Your DevLink Weekly Digest ({ctx.get('profile_views', 0)} Profile Views) 📈"
-            projects_list = "".join([f"<li>{p}</li>" for p in ctx.get("trending_projects", [])])
+            projects_list = "".join(
+                [f"<li>{p}</li>" for p in ctx.get("trending_projects", [])]
+            )
             body_content = f"""
                 <h2>Weekly Digest for {user_name}</h2>
                 <p>Here is your weekly collaboration summary:</p>

@@ -14,21 +14,43 @@ from sqlalchemy.orm import Session
 from app.models.reputation import ReputationLog
 from app.models.user import User
 from app.schemas.reputation import (
+    MAX_POINTS_PER_AWARD,
     LeaderboardEntry,
     LeaderboardResponse,
+    ReputationAction,
     ReputationLogResponse,
     ReputationSummaryResponse,
 )
 
-# Points awarded per action source
+# Points awarded per action source.
+#
+# Keyed by the wire values of :class:`ReputationAction`. Every member must
+# appear here -- ``_assert_action_table_is_complete`` below enforces that at
+# import time, so adding an enum member without a point value is a startup
+# error rather than a silent fallback to ten points.
 ACTION_POINTS: dict[str, int] = {
-    "merged_pull_request": 50,
-    "completed_project": 100,
-    "community_contribution": 25,
-    "helpful_discussion": 15,
-    "profile_completion": 10,
-    "mentor_recognition": 30,
+    ReputationAction.MERGED_PULL_REQUEST.value: 50,
+    ReputationAction.COMPLETED_PROJECT.value: 100,
+    ReputationAction.COMMUNITY_CONTRIBUTION.value: 25,
+    ReputationAction.HELPFUL_DISCUSSION.value: 15,
+    ReputationAction.PROFILE_COMPLETION.value: 10,
+    ReputationAction.MENTOR_RECOGNITION.value: 30,
+    # A correction applied by hand. Zero on its own: it exists so that an
+    # explicit `points` override has an action to travel under, rather than
+    # being smuggled in under "merged_pull_request".
+    ReputationAction.MANUAL_ADJUSTMENT.value: 0,
 }
+
+
+def _assert_action_table_is_complete() -> None:
+    missing = {a.value for a in ReputationAction} - set(ACTION_POINTS)
+    if missing:
+        raise RuntimeError(
+            f"ACTION_POINTS is missing point values for: {sorted(missing)}"
+        )
+
+
+_assert_action_table_is_complete()
 
 # Rank Tier thresholds
 RANK_TIERS: list[tuple[int, str]] = [
@@ -50,15 +72,53 @@ def calculate_rank_tier(score: int) -> str:
 
 class ReputationService:
     @staticmethod
+    def resolve_points(action: str, points_override: Optional[int]) -> int:
+        """How many points an award is worth.
+
+        ``ACTION_POINTS.get(action.lower(), 10)`` used to accept any string and
+        fall back to ten, so a typo scored. The action is validated against the
+        table instead, and an override is bounded on both sides -- the schema
+        enforces the same range, and this repeats it because the service is
+        also called from places that do not go through the schema.
+        """
+        if points_override is not None:
+            if abs(points_override) > MAX_POINTS_PER_AWARD:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=(
+                        f"points must be between -{MAX_POINTS_PER_AWARD} and "
+                        f"{MAX_POINTS_PER_AWARD}."
+                    ),
+                )
+            return points_override
+
+        normalised = action.lower()
+        if normalised not in ACTION_POINTS:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    f"Unknown reputation action '{action}'. "
+                    f"Valid actions: {sorted(ACTION_POINTS)}"
+                ),
+            )
+        return ACTION_POINTS[normalised]
+
+    @staticmethod
     def award_reputation(
         db: Session,
         user_id: uuid.UUID,
         action: str,
         points_override: Optional[int] = None,
         description: Optional[str] = None,
+        granted_by_id: Optional[uuid.UUID] = None,
     ) -> Tuple[User, ReputationLog]:
         """
         Awards (or deducts) reputation points to a user and logs the transaction.
+
+        ``granted_by_id`` records the administrator behind a manual
+        adjustment. It is optional so the platform can award points to itself
+        later, without a human actor, but the award endpoint always supplies it
+        -- an adjustment nobody is named on is not auditable.
         """
         user = db.scalar(select(User).where(User.id == user_id))
         if not user:
@@ -67,11 +127,7 @@ class ReputationService:
                 detail=f"User with ID {user_id} not found.",
             )
 
-        # Determine points to award
-        if points_override is not None:
-            pts = points_override
-        else:
-            pts = ACTION_POINTS.get(action.lower(), 10)
+        pts = ReputationService.resolve_points(action, points_override)
 
         # Update user's aggregate reputation score
         user.reputation_score = (user.reputation_score or 0) + pts
@@ -85,6 +141,7 @@ class ReputationService:
             points=pts,
             description=description
             or f"Earned {pts} pts for {action.replace('_', ' ')}",
+            granted_by_id=granted_by_id,
         )
         db.add(log_entry)
         db.commit()
@@ -124,11 +181,14 @@ class ReputationService:
                 is_visible = True
             else:
                 from app.services.follower_service import FollowerService
+
                 is_visible = FollowerService.is_following(
                     db, follower_id=viewer.id, following_id=user.id
                 )
         elif activity_visibility == "private":
-            if viewer is not None and (viewer.id == user.id or getattr(viewer, "is_superuser", False)):
+            if viewer is not None and (
+                viewer.id == user.id or getattr(viewer, "is_superuser", False)
+            ):
                 is_visible = True
 
         if is_visible:
@@ -161,11 +221,22 @@ class ReputationService:
         """
         Fetches the community leaderboard sorted by reputation_score descending.
         """
-        total_stmt = select(func.count(User.id))
-        total = db.scalar(total_stmt) or 0
+        # Both statements share one predicate so the count and the page are
+        # drawn from the same set. Neither used to filter at all, so the
+        # leaderboard ranked deactivated and soft-deleted accounts alongside
+        # live ones -- publishing their username, name and avatar -- and
+        # ``total`` was the count of every row in ``users``, which made the
+        # client's page count wrong.
+        ranked = (
+            User.is_active.is_(True),
+            User.deleted_at.is_(None),
+        )
+
+        total = db.scalar(select(func.count(User.id)).where(*ranked)) or 0
 
         users_stmt = (
             select(User)
+            .where(*ranked)
             .order_by(desc(User.reputation_score), desc(User.created_at))
             .offset(skip)
             .limit(limit)

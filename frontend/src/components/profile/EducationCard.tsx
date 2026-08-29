@@ -1,11 +1,11 @@
 import { Card, EmptyState } from "@/components/shared/primitives";
 import { GraduationCap } from "lucide-react";
-import { TypoCaption, TypoHeading } from "@/components/shared/Typography";
+import { TypoCaption } from "@/components/shared/Typography";
 
 export interface EducationEntry {
   school: string;
-  degree?: string | null;
-  years?: string | null;
+  degree?: string;
+  years?: string;
 }
 
 export interface EducationCardProps {
@@ -13,6 +13,8 @@ export interface EducationCardProps {
 }
 
 export function EducationCard({ education = [] }: EducationCardProps) {
+  const hasContent = education.length > 0;
+
   return (
     <Card className="p-5">
       <div className="flex items-center gap-2">
@@ -20,12 +22,12 @@ export function EducationCard({ education = [] }: EducationCardProps) {
           <GraduationCap size={16} />
         </div>
         <div>
-          <TypoHeading as="h2">Education</TypoHeading>
-          <TypoCaption as="p">Academic background</TypoCaption>
+          <h2 className="text-sm font-semibold text-foreground">Education</h2>
+          <p className="text-xs text-muted-foreground">Academic background</p>
         </div>
       </div>
 
-      {education.length === 0 ? (
+      {!hasContent ? (
         <EmptyState
           icon={GraduationCap}
           title="Add your learning journey"
@@ -41,10 +43,14 @@ export function EducationCard({ education = [] }: EducationCardProps) {
             >
               <p className="text-sm font-semibold text-foreground">{entry.school}</p>
               {entry.degree ? (
-                <TypoCaption as="p">{entry.degree}</TypoCaption>
+                <TypoCaption as="p" className="mt-1 text-sm text-muted-foreground">
+                  {entry.degree}
+                </TypoCaption>
               ) : null}
               {entry.years ? (
-                <TypoCaption as="p">{entry.years}</TypoCaption>
+                <TypoCaption as="p" className="mt-1 text-xs text-muted-foreground">
+                  {entry.years}
+                </TypoCaption>
               ) : null}
             </div>
           ))}

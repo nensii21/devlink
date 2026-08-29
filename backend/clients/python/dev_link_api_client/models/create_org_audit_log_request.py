@@ -9,7 +9,9 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.create_org_audit_log_request_metadata_info_type_0 import CreateOrgAuditLogRequestMetadataInfoType0
+    from ..models.create_org_audit_log_request_metadata_info_type_0 import (
+        CreateOrgAuditLogRequestMetadataInfoType0,
+    )
 
 
 T = TypeVar("T", bound="CreateOrgAuditLogRequest")
@@ -36,7 +38,9 @@ class CreateOrgAuditLogRequest:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.create_org_audit_log_request_metadata_info_type_0 import CreateOrgAuditLogRequestMetadataInfoType0
+        from ..models.create_org_audit_log_request_metadata_info_type_0 import (
+            CreateOrgAuditLogRequestMetadataInfoType0,
+        )
 
         action = self.action
 
@@ -90,7 +94,9 @@ class CreateOrgAuditLogRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_org_audit_log_request_metadata_info_type_0 import CreateOrgAuditLogRequestMetadataInfoType0
+        from ..models.create_org_audit_log_request_metadata_info_type_0 import (
+            CreateOrgAuditLogRequestMetadataInfoType0,
+        )
 
         d = dict(src_dict)
         action = d.pop("action")
@@ -124,7 +130,9 @@ class CreateOrgAuditLogRequest:
 
         description = _parse_description(d.pop("description", UNSET))
 
-        def _parse_metadata_info(data: object) -> CreateOrgAuditLogRequestMetadataInfoType0 | None | Unset:
+        def _parse_metadata_info(
+            data: object,
+        ) -> CreateOrgAuditLogRequestMetadataInfoType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -132,7 +140,9 @@ class CreateOrgAuditLogRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_info_type_0 = CreateOrgAuditLogRequestMetadataInfoType0.from_dict(data)
+                metadata_info_type_0 = (
+                    CreateOrgAuditLogRequestMetadataInfoType0.from_dict(data)
+                )
 
                 return metadata_info_type_0
             except (TypeError, ValueError, AttributeError, KeyError):

@@ -26,12 +26,18 @@ def test_render_all_email_templates(client: TestClient, register_and_login):
     for t_type in EmailTemplateType:
         payload = {
             "template_type": t_type.value,
-            "context": {"user_name": "Test Developer", "project_name": "Test Project"}
+            "context": {"user_name": "Test Developer", "project_name": "Test Project"},
         }
-        response = client.post("/api/email-templates/render", json=payload, headers=headers)
+        response = client.post(
+            "/api/email-templates/render", json=payload, headers=headers
+        )
         assert response.status_code == 200
         res = response.json()
         assert res["template_type"] == t_type.value
         assert len(res["subject"]) > 0
-        assert "Test Developer" in res["html_content"] or "Test Project" in res["html_content"] or "DevLink" in res["html_content"]
+        assert (
+            "Test Developer" in res["html_content"]
+            or "Test Project" in res["html_content"]
+            or "DevLink" in res["html_content"]
+        )
         assert len(res["text_content"]) > 0

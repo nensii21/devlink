@@ -1,4 +1,3 @@
-
 def test_get_active_announcements(client, register_and_login):
     res = client.get("/api/announcements/active")
     assert res.status_code == 200

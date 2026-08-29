@@ -15,7 +15,10 @@ class MilestoneCreate(BaseModel):
     due_date: Optional[datetime] = Field(
         default=None, description="When the milestone is due"
     )
-    owner_id: Optional[uuid.UUID] = Field(default=None, description="ID of the user assigned to the milestone")
+    owner_id: Optional[uuid.UUID] = Field(
+        default=None, description="ID of the user assigned to the milestone"
+    )
+
 
 class MilestoneOwner(BaseModel):
     id: uuid.UUID
@@ -23,7 +26,7 @@ class MilestoneOwner(BaseModel):
     first_name: str
     last_name: str
     profile_image: Optional[str] = None
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 

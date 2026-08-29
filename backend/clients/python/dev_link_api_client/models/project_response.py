@@ -418,7 +418,9 @@ class ProjectResponse:
 
         is_opensource = d.pop("is_opensource", UNSET)
 
-        def _parse_scheduled_publish_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_scheduled_publish_at(
+            data: object,
+        ) -> datetime.datetime | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -433,7 +435,9 @@ class ProjectResponse:
                 pass
             return cast(datetime.datetime | None | Unset, data)
 
-        scheduled_publish_at = _parse_scheduled_publish_at(d.pop("scheduled_publish_at", UNSET))
+        scheduled_publish_at = _parse_scheduled_publish_at(
+            d.pop("scheduled_publish_at", UNSET)
+        )
 
         is_published = d.pop("is_published", UNSET)
 

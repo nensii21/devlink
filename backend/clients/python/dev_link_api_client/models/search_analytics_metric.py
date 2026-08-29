@@ -7,9 +7,15 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.search_analytics_metric_category_distribution import SearchAnalyticsMetricCategoryDistribution
-    from ..models.search_analytics_metric_top_queries_item import SearchAnalyticsMetricTopQueriesItem
-    from ..models.search_analytics_metric_zero_result_queries_item import SearchAnalyticsMetricZeroResultQueriesItem
+    from ..models.search_analytics_metric_category_distribution import (
+        SearchAnalyticsMetricCategoryDistribution,
+    )
+    from ..models.search_analytics_metric_top_queries_item import (
+        SearchAnalyticsMetricTopQueriesItem,
+    )
+    from ..models.search_analytics_metric_zero_result_queries_item import (
+        SearchAnalyticsMetricZeroResultQueriesItem,
+    )
 
 
 T = TypeVar("T", bound="SearchAnalyticsMetric")
@@ -66,9 +72,15 @@ class SearchAnalyticsMetric:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.search_analytics_metric_category_distribution import SearchAnalyticsMetricCategoryDistribution
-        from ..models.search_analytics_metric_top_queries_item import SearchAnalyticsMetricTopQueriesItem
-        from ..models.search_analytics_metric_zero_result_queries_item import SearchAnalyticsMetricZeroResultQueriesItem
+        from ..models.search_analytics_metric_category_distribution import (
+            SearchAnalyticsMetricCategoryDistribution,
+        )
+        from ..models.search_analytics_metric_top_queries_item import (
+            SearchAnalyticsMetricTopQueriesItem,
+        )
+        from ..models.search_analytics_metric_zero_result_queries_item import (
+            SearchAnalyticsMetricZeroResultQueriesItem,
+        )
 
         d = dict(src_dict)
         total_searches = d.pop("total_searches")
@@ -78,20 +90,26 @@ class SearchAnalyticsMetric:
         top_queries = []
         _top_queries = d.pop("top_queries")
         for top_queries_item_data in _top_queries:
-            top_queries_item = SearchAnalyticsMetricTopQueriesItem.from_dict(top_queries_item_data)
+            top_queries_item = SearchAnalyticsMetricTopQueriesItem.from_dict(
+                top_queries_item_data
+            )
 
             top_queries.append(top_queries_item)
 
         zero_result_queries = []
         _zero_result_queries = d.pop("zero_result_queries")
         for zero_result_queries_item_data in _zero_result_queries:
-            zero_result_queries_item = SearchAnalyticsMetricZeroResultQueriesItem.from_dict(
-                zero_result_queries_item_data
+            zero_result_queries_item = (
+                SearchAnalyticsMetricZeroResultQueriesItem.from_dict(
+                    zero_result_queries_item_data
+                )
             )
 
             zero_result_queries.append(zero_result_queries_item)
 
-        category_distribution = SearchAnalyticsMetricCategoryDistribution.from_dict(d.pop("category_distribution"))
+        category_distribution = SearchAnalyticsMetricCategoryDistribution.from_dict(
+            d.pop("category_distribution")
+        )
 
         search_analytics_metric = cls(
             total_searches=total_searches,

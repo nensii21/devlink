@@ -25,7 +25,6 @@ celery_app.conf.update(
     task_time_limit=300,
     task_soft_time_limit=240,
     task_always_eager=settings.CELERY_TASK_ALWAYS_EAGER,
-    
     # Reliability & Execution Controls
     task_acks_late=True,
     task_reject_on_worker_lost=True,

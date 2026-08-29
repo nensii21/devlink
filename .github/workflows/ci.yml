@@ -46,3 +46,17 @@ jobs:
 
       - name: Every workflow must actually run something
         run: python3 .github/scripts/check_workflows.py
+
+      # The level below check_workflows.py: a workflow that does run a real
+      # command, against the wrong tree. `dependency-security.yml` audited,
+      # license-checked and built an SBOM for `cryptoviz-core`, a project that
+      # is not in this repository, and passed every time (#1401).
+      #
+      # The self-test runs first and here rather than under `tests/`, which no
+      # workflow invokes -- a suite nothing runs is the same failure one
+      # directory over.
+      - name: Manifest checker self-test
+        run: python3 .github/scripts/check_manifests.py --self-test
+
+      - name: Every dependency manifest is built and watched
+        run: python3 .github/scripts/check_manifests.py

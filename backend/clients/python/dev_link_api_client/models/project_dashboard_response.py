@@ -137,7 +137,9 @@ class ProjectDashboardResponse:
         pending_invitations = []
         _pending_invitations = d.pop("pending_invitations")
         for pending_invitations_item_data in _pending_invitations:
-            pending_invitations_item = DashboardInvitation.from_dict(pending_invitations_item_data)
+            pending_invitations_item = DashboardInvitation.from_dict(
+                pending_invitations_item_data
+            )
 
             pending_invitations.append(pending_invitations_item)
 

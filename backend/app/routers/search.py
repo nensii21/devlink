@@ -56,19 +56,28 @@ def full_search(
     skills: Optional[str] = Query(
         None, description="Comma-separated list of skill names to filter developers by"
     ),
-    location: Optional[str] = Query(None, max_length=150, description="Filter developers by location"),
+    location: Optional[str] = Query(
+        None, max_length=150, description="Filter developers by location"
+    ),
     experience: Optional[str] = Query(
-        None, max_length=50, description="Filter developers by experience level (e.g. beginner, intermediate, advanced, expert)"
+        None,
+        max_length=50,
+        description="Filter developers by experience level (e.g. beginner, intermediate, advanced, expert)",
     ),
     availability: Optional[bool] = Query(
         None, description="Filter developers by open-to-work availability"
     ),
     organization: Optional[str] = Query(
-        None, max_length=150, description="Filter developers by company/organization name"
+        None,
+        max_length=150,
+        description="Filter developers by company/organization name",
     ),
-    remote: Optional[bool] = Query(None, description="Filter developers open to remote work"),
+    remote: Optional[bool] = Query(
+        None, description="Filter developers open to remote work"
+    ),
     sort: Optional[str] = Query(
-        None, description="Sort order for developers: relevance, name, experience, recent"
+        None,
+        description="Sort order for developers: relevance, name, experience, recent",
     ),
     db: Session = Depends(get_database),
     user: Optional[User] = Depends(get_optional_current_user),
@@ -81,7 +90,9 @@ def full_search(
     """
     start_time = time.time()
 
-    skills_list = [s.strip() for s in skills.split(",") if s.strip()] if skills else None
+    skills_list = (
+        [s.strip() for s in skills.split(",") if s.strip()] if skills else None
+    )
 
     results = SearchService.search(
         db=db,

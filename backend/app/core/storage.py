@@ -98,8 +98,7 @@ def read_upload(file: UploadFile, max_bytes: Optional[int] = None) -> bytes:
         total += len(chunk)
         if total > limit:
             raise UploadTooLarge(
-                f"File size exceeds maximum limit of "
-                f"{limit // (1024 * 1024)}MB"
+                f"File size exceeds maximum limit of " f"{limit // (1024 * 1024)}MB"
             )
 
         chunks.append(chunk)

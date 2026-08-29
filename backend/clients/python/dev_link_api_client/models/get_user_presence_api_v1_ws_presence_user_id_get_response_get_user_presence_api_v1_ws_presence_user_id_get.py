@@ -6,7 +6,10 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="GetUserPresenceApiV1WsPresenceUserIdGetResponseGetUserPresenceApiV1WsPresenceUserIdGet")
+T = TypeVar(
+    "T",
+    bound="GetUserPresenceApiV1WsPresenceUserIdGetResponseGetUserPresenceApiV1WsPresenceUserIdGet",
+)
 
 
 @_attrs_define
@@ -29,10 +32,10 @@ class GetUserPresenceApiV1WsPresenceUserIdGetResponseGetUserPresenceApiV1WsPrese
             cls()
         )
 
-        get_user_presence_api_v1_ws_presence_user_id_get_response_get_user_presence_api_v1_ws_presence_user_id_get.additional_properties = d
-        return (
-            get_user_presence_api_v1_ws_presence_user_id_get_response_get_user_presence_api_v1_ws_presence_user_id_get
+        get_user_presence_api_v1_ws_presence_user_id_get_response_get_user_presence_api_v1_ws_presence_user_id_get.additional_properties = (
+            d
         )
+        return get_user_presence_api_v1_ws_presence_user_id_get_response_get_user_presence_api_v1_ws_presence_user_id_get
 
     @property
     def additional_keys(self) -> list[str]:

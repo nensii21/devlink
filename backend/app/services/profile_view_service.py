@@ -23,7 +23,7 @@ class ProfileViewService:
     ) -> Optional[ProfileView]:
         """
         Records a visit from viewer to viewed_user.
-        Self-views are ignored. Updates timestamp if visited recently.
+        Self-views are ignored. Updates timestamp and increments visit_count if visited recently.
         """
         if viewed_user_id == viewer_id:
             return None
@@ -54,6 +54,7 @@ class ProfileViewService:
         if existing_view:
             existing_view.created_at = datetime.now(timezone.utc)
             existing_view.is_anonymous = is_anonymous
+            existing_view.visit_count = (getattr(existing_view, "visit_count", 1) or 1) + 1
             db.commit()
             db.refresh(existing_view)
             return existing_view
@@ -62,6 +63,7 @@ class ProfileViewService:
             viewed_user_id=viewed_user_id,
             viewer_id=viewer_id,
             is_anonymous=is_anonymous,
+            visit_count=1,
             created_at=datetime.now(timezone.utc),
         )
         db.add(view)
@@ -104,6 +106,7 @@ class ProfileViewService:
         items: List[ProfileViewResponse] = []
 
         for view, viewer in results:
+            visit_count = getattr(view, "visit_count", 1) or 1
             if view.is_anonymous:
                 items.append(
                     ProfileViewResponse(
@@ -113,6 +116,7 @@ class ProfileViewService:
                         viewer_username="anonymous",
                         viewer_avatar=None,
                         viewed_at=view.created_at,
+                        visit_count=visit_count,
                         is_anonymous=True,
                     )
                 )
@@ -124,8 +128,9 @@ class ProfileViewService:
                         viewer_name=f"{viewer.first_name} {viewer.last_name}".strip()
                         or viewer.username,
                         viewer_username=viewer.username,
-                        viewer_avatar=getattr(viewer, "avatar_url", None),
+                        viewer_avatar=getattr(viewer, "profile_image", None) or getattr(viewer, "avatar_url", None),
                         viewed_at=view.created_at,
+                        visit_count=visit_count,
                         is_anonymous=False,
                     )
                 )

@@ -130,7 +130,15 @@ class PluginDispatchItem(BaseModel):
     plugin_id: uuid.UUID
     plugin_slug: str
     installation_id: uuid.UUID
-    webhook_url: Optional[str] = None
+    has_webhook: bool = Field(
+        default=False,
+        description=(
+            "Whether the plugin's manifest declares a webhook destination. "
+            "The URL itself is not returned: an integration webhook is a "
+            "bearer credential in practice, and a dispatch result does not "
+            "need to repeat the destination to report what happened."
+        ),
+    )
     status: str = Field(
         description="Dispatch status: 'queued', 'skipped', 'no_webhook'"
     )

@@ -47,7 +47,9 @@ def test_feature_announcements_crud_and_read(client, register_and_login, db):
     assert any(item["id"] == ann_id for item in list_json["items"])
 
     # 3. Filter by category
-    filter_res = client.get("/api/feature-announcements?category=feature", headers=headers)
+    filter_res = client.get(
+        "/api/feature-announcements?category=feature", headers=headers
+    )
     assert filter_res.status_code == 200
     assert len(filter_res.json()["items"]) >= 1
 

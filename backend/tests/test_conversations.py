@@ -130,9 +130,11 @@ def test_router_prevent_self_messaging_integration(client):
     token = login_resp.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
-    # Create direct conversation via router
+    # Create direct conversation via router. The router is mounted under
+    # `/api` (app/main.py), so the un-prefixed path this used to post to was a
+    # 404 and the assertion below had never actually run.
     conv_resp = client.post(
-        "/conversations/",
+        "/api/conversations/",
         json={
             "type": "direct",
         },
@@ -144,7 +146,7 @@ def test_router_prevent_self_messaging_integration(client):
 
     # Try to add creator as member (which represents self-messaging)
     add_resp = client.post(
-        f"/conversations/{conv_id}/members/{creator_id}",
+        f"/api/conversations/{conv_id}/members/{creator_id}",
         headers=headers,
     )
     assert add_resp.status_code == 400

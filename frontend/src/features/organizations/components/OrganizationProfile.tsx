@@ -51,8 +51,12 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
         socialLinks={organizationData.socialLinks}
       />
 
+ feature/account-deactivation-1306
+      <div className="flex border-b border-gray-800 mb-6 gap-6 overflow-x-auto">
+
       {/* Tabs */}
       <div className="mb-6 flex gap-6 overflow-x-auto border-b border-border">
+ main
         {(
           ["about", "members", "team", "projects", "hiring", "tokens", "audit", "activity"] as const
         ).map((tab) => (
@@ -81,19 +85,31 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
         {activeTab === "about" && (
           <div>
             <TypoHeading as="h2">About Us</TypoHeading>
+ feature/account-deactivation-1306
+            <p className="text-gray-300 leading-relaxed mb-6">
+
             <p className="mb-6 leading-relaxed text-foreground">
+ main
               {organizationData.description || "No description provided."}
             </p>
             {organizationData.technologies && organizationData.technologies.length > 0 && (
               <div className="mt-6">
+ feature/account-deactivation-1306
+                <TypoHeading as="h3" className="text-sm font-semibold text-gray-400 mb-3">
+
                 <TypoHeading as="h3" className="mb-3 text-sm font-semibold text-muted-foreground">
+ main
                   Technologies We Use
                 </TypoHeading>
                 <div className="flex flex-wrap gap-2">
                   {organizationData.technologies.map((tech) => (
                     <span
                       key={tech}
+ feature/account-deactivation-1306
+                      className="px-3 py-1 bg-gray-800 text-gray-300 text-xs rounded-full border border-gray-700"
+
                       className="rounded-full border border-border bg-muted px-3 py-1 text-xs text-muted-foreground"
+ main
                     >
                       {tech}
                     </span>
@@ -149,12 +165,27 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
                 organizationData.activityFeed.map((activity) => (
                   <div
                     key={activity.id}
+ feature/account-deactivation-1306
+                    className="p-4 rounded-lg bg-gray-800/50 border border-gray-700/50 flex flex-col gap-1"
+
                     className="flex flex-col gap-1 rounded-lg border border-border bg-muted/50 p-4"
+ main
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-indigo-400 capitalize">
                         {activity.type}
                       </span>
+ feature/account-deactivation-1306
+                      <span className="text-xs text-gray-500">
+                        {new Date(activity.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-300">{activity.content}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400 text-sm">No recent activity found.</p>
+
                       <span className="text-xs text-muted-foreground">
                         {new Date(activity.date).toLocaleDateString()}
                       </span>
@@ -164,6 +195,7 @@ export const OrganizationProfile: React.FC<OrganizationProfileProps> = ({
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">No recent activity found.</p>
+ main
               )}
             </div>
           </div>

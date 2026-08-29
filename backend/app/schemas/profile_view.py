@@ -13,6 +13,7 @@ class ProfileViewResponse(BaseModel):
     viewer_username: str
     viewer_avatar: Optional[str] = None
     viewed_at: datetime
+    visit_count: int = 1
     is_anonymous: bool
 
 

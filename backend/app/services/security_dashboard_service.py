@@ -580,9 +580,11 @@ class SecurityDashboardService:
         items = [
             SecurityAlertItem(
                 id=log.id,
-                action=log.action.value
-                if hasattr(log.action, "value")
-                else str(log.action),
+                action=(
+                    log.action.value
+                    if hasattr(log.action, "value")
+                    else str(log.action)
+                ),
                 description=log.description,
                 ip_address=log.ip_address,
                 actor_id=log.actor_id,

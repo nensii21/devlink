@@ -11,6 +11,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select, or_
 from sqlalchemy.orm import Session, selectinload
 
+from app.core.rbac import ORG_MANAGE_PLUGINS, has_org_permission
 from app.models.plugin import (
     Plugin,
     PluginInstallation,
@@ -219,6 +220,69 @@ class PluginService:
     # Installation & Uninstallation Management
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Authorization
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def assert_can_manage_org_plugins(
+        db: Session,
+        user: User,
+        organization_id: uuid.UUID,
+    ) -> None:
+        """Raise 403 unless ``user`` may manage plugins for that organization.
+
+        ``organization_id`` arrives from the request -- in the body for
+        install, as a query parameter for uninstall and list -- and was used
+        unvalidated. Any logged-in user could therefore install a plugin into
+        any organization, and since an installation is what ``dispatch_event``
+        fans out over, that was also how an attacker attached a webhook
+        destination of their choosing to somebody else's event stream.
+        Uninstall was the mirror image: a one-request removal of an
+        organization's integrations.
+        """
+        if not has_org_permission(db, user.id, organization_id, ORG_MANAGE_PLUGINS):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to manage plugins for this organization.",
+            )
+
+    @staticmethod
+    def can_manage_installation(
+        db: Session,
+        user: User,
+        installation: PluginInstallation,
+    ) -> bool:
+        """Whether ``user`` may enable, disable or reconfigure an installation.
+
+        Mirrors the two owner shapes on the row itself. The previous check was
+
+            if installation.user_id != user.id and not is_admin:
+
+        which is correct for a personal installation and wrong for an
+        organization one: ``user_id`` is ``None`` there, so ``None != user.id``
+        held for everybody -- including the organization's own admins, who were
+        left with no way to disable a plugin somebody else had installed on
+        them.
+        """
+        if getattr(user, "is_superuser", False):
+            return True
+        if getattr(user, "system_role", None) == "admin":
+            return True
+
+        if installation.user_id is not None:
+            return installation.user_id == user.id
+
+        if installation.organization_id is not None:
+            return has_org_permission(
+                db,
+                user.id,
+                installation.organization_id,
+                ORG_MANAGE_PLUGINS,
+            )
+
+        return False
+
     @staticmethod
     def install_plugin(
         db: Session,
@@ -235,6 +299,9 @@ class PluginService:
             )
 
         org_id = install_in.organization_id
+
+        if org_id:
+            PluginService.assert_can_manage_org_plugins(db, user, org_id)
 
         # Check existing installation
         if org_id:
@@ -294,6 +361,8 @@ class PluginService:
         plugin = PluginService.get_plugin_or_404(db, plugin_id)
 
         if organization_id:
+            PluginService.assert_can_manage_org_plugins(db, user, organization_id)
+
             installation = db.scalar(
                 select(PluginInstallation).where(
                     PluginInstallation.plugin_id == plugin.id,
@@ -333,6 +402,11 @@ class PluginService:
         )
 
         if organization_id:
+            # Listing an organization's installations discloses which
+            # third-party integrations it runs and how they are configured, so
+            # it needs the same permission as changing them.
+            PluginService.assert_can_manage_org_plugins(db, user, organization_id)
+
             stmt = stmt.where(PluginInstallation.organization_id == organization_id)
         else:
             stmt = stmt.where(
@@ -363,8 +437,7 @@ class PluginService:
                 detail="Plugin installation not found.",
             )
 
-        is_admin = getattr(user, "system_role", None) == "admin"
-        if installation.user_id != user.id and not is_admin:
+        if not PluginService.can_manage_installation(db, user, installation):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not authorized to update this installation.",
@@ -430,12 +503,17 @@ class PluginService:
                     else None
                 )
                 dispatched_status = "queued" if webhook_url else "no_webhook"
+                # The URL itself is deliberately not echoed back. An
+                # integration webhook is a bearer credential in practice -- a
+                # Slack or Discord hook URL is postable by anyone holding the
+                # string -- and a dispatch result has no need to repeat the
+                # destination to tell the caller what happened.
                 dispatches.append(
                     PluginDispatchItem(
                         plugin_id=inst.plugin.id,
                         plugin_slug=inst.plugin.slug,
                         installation_id=inst.id,
-                        webhook_url=webhook_url,
+                        has_webhook=bool(webhook_url),
                         status=dispatched_status,
                     )
                 )

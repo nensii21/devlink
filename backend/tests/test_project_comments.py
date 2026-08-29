@@ -23,7 +23,6 @@ from app.schemas.project_comment import (
 )
 from app.services.project_comment_service import ProjectCommentService as Svc
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

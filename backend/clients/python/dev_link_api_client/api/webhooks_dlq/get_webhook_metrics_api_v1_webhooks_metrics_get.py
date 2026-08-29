@@ -19,7 +19,9 @@ def _get_kwargs() -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> WebhookMetricsResponse | None:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> WebhookMetricsResponse | None:
     if response.status_code == 200:
         response_200 = WebhookMetricsResponse.from_dict(response.json())
 

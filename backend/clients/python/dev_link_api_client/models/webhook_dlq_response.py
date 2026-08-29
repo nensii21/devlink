@@ -11,7 +11,9 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.webhook_dlq_response_headers_type_0 import WebhookDLQResponseHeadersType0
+    from ..models.webhook_dlq_response_headers_type_0 import (
+        WebhookDLQResponseHeadersType0,
+    )
     from ..models.webhook_dlq_response_payload import WebhookDLQResponsePayload
 
 
@@ -49,7 +51,9 @@ class WebhookDLQResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.webhook_dlq_response_headers_type_0 import WebhookDLQResponseHeadersType0
+        from ..models.webhook_dlq_response_headers_type_0 import (
+            WebhookDLQResponseHeadersType0,
+        )
 
         id = str(self.id)
 
@@ -109,7 +113,9 @@ class WebhookDLQResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.webhook_dlq_response_headers_type_0 import WebhookDLQResponseHeadersType0
+        from ..models.webhook_dlq_response_headers_type_0 import (
+            WebhookDLQResponseHeadersType0,
+        )
         from ..models.webhook_dlq_response_payload import WebhookDLQResponsePayload
 
         d = dict(src_dict)
@@ -131,7 +137,9 @@ class WebhookDLQResponse:
 
         is_replayed = d.pop("is_replayed")
 
-        def _parse_headers(data: object) -> None | Unset | WebhookDLQResponseHeadersType0:
+        def _parse_headers(
+            data: object,
+        ) -> None | Unset | WebhookDLQResponseHeadersType0:
             if data is None:
                 return data
             if isinstance(data, Unset):

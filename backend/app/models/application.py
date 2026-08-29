@@ -25,6 +25,7 @@ from app.database.base import Base
 class ApplicationStatus(str, Enum):
     PENDING = "pending"
     REVIEWING = "reviewing"
+    INTERVIEWING = "interviewing"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
     WITHDRAWN = "withdrawn"
@@ -40,7 +41,8 @@ class Application(Base):
         UniqueConstraint(
             "applicant_id",
             "project_id",
-            name="uq_applicant_project",
+            "status",
+            name="uq_applicant_project_status",
         ),
     )
     # ==========================================================
@@ -117,6 +119,14 @@ class Application(Base):
         Boolean,
         default=False,
         nullable=False,
+    )
+
+    interview_scheduled_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+    )
+
+    interview_link: Mapped[str | None] = mapped_column(
+        String(500),
     )
 
     # ==========================================================

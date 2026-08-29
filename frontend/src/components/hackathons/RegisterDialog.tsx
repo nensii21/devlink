@@ -68,7 +68,7 @@ export function RegisterDialog({
             className="mb-1.5 block text-[13px] font-medium text-foreground"
           >
             What are you hoping to build?{" "}
-            <TypoCaption>(optional)</TypoCaption>
+            <TypoCaption className="font-normal text-muted-foreground">(optional)</TypoCaption>
           </label>
           <textarea
             id="motivation"

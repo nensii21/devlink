@@ -13,7 +13,10 @@ from app.dependencies import (
     get_optional_current_user,
 )
 from app.models.user import User
-from app.schemas.analytics import PlatformAnalyticsResponse
+from app.schemas.analytics import (
+    PlatformAnalyticsResponse,
+    PlatformSocialProofResponse,
+)
 from app.schemas.community_stats import CommunityStatsResponse
 from app.services.analytics_service import AnalyticsService
 from app.services.community_stats_service import CommunityStatsService
@@ -79,6 +82,25 @@ def get_analytics_overview(
         "total_projects": analytics.project_growth.total_projects,
         "project_growth_rate_pct": analytics.project_growth.growth_rate_pct,
     }
+
+
+@router.get(
+    "/social-proof",
+    response_model=PlatformSocialProofResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get Public Social Proof & Platform Growth Stats (#761)",
+    description="Returns platform adoption numbers for the landing page social proof counters: developers, projects, teams, organizations, and hackathons.",
+)
+@router.get(
+    "/social-proof/",
+    response_model=PlatformSocialProofResponse,
+    status_code=status.HTTP_200_OK,
+    include_in_schema=False,
+)
+def get_social_proof(
+    db: Annotated[Session, Depends(get_db)],
+) -> PlatformSocialProofResponse:
+    return AnalyticsService.get_social_proof(db=db)
 
 
 @router.get(

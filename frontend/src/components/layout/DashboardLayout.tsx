@@ -13,12 +13,13 @@ import { cn } from "@/lib/utils";
 export function DashboardLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isDashboard = pathname.endsWith("/dashboard") || pathname === "/";
+  const isMessages = pathname.startsWith("/messages");
 
   return (
     <div
       className={cn(
         "grid h-screen w-full bg-background overflow-hidden grid-cols-1 md:grid-cols-[max-content_1fr]",
-        isDashboard ? "" : "xl:grid-cols-[max-content_1fr_max-content]",
+        (isDashboard || isMessages) ? "" : "xl:grid-cols-[max-content_1fr_max-content]",
       )}
     >
       {/* ─── Desktop & Tablet Sidebar ─────────────────────────────── */}
@@ -30,7 +31,13 @@ export function DashboardLayout() {
       {/* ─── Main content column ──────────────────────────────────── */}
       <div className="flex min-w-0 flex-col relative h-screen overflow-hidden">
         <AnnouncementBanner />
-        <TopNavbar />
+        {isMessages ? (
+          <div className="hidden md:block">
+            <TopNavbar />
+          </div>
+        ) : (
+          <TopNavbar />
+        )}
 
         <main
           // The skip link's destination. tabIndex={-1} makes it focusable so
@@ -65,7 +72,7 @@ export function DashboardLayout() {
       </div>
 
       {/* ─── Desktop Right Activity Panel ─────────────────────────── */}
-      {!isDashboard && (
+      {!isDashboard && !isMessages && (
         <SectionErrorBoundary sectionName="Right Activity Panel">
           <RightPanel />
         </SectionErrorBoundary>
@@ -73,7 +80,7 @@ export function DashboardLayout() {
 
       {/* ─── Mobile-only: Bottom Navigation & FAB ─────────────────── */}
       <BottomNavigation />
-      <FAB to="/flares" ariaLabel="Create a new post" />
+      {!isMessages && <FAB to="/flares" ariaLabel="Create a new post" />}
     </div>
   );
 }

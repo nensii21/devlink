@@ -53,13 +53,17 @@ class ConversationStarterResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.conversation_starter_suggestion import ConversationStarterSuggestion
+        from ..models.conversation_starter_suggestion import (
+            ConversationStarterSuggestion,
+        )
 
         d = dict(src_dict)
         suggestions = []
         _suggestions = d.pop("suggestions")
         for suggestions_item_data in _suggestions:
-            suggestions_item = ConversationStarterSuggestion.from_dict(suggestions_item_data)
+            suggestions_item = ConversationStarterSuggestion.from_dict(
+                suggestions_item_data
+            )
 
             suggestions.append(suggestions_item)
 

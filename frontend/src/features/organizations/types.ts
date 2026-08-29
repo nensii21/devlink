@@ -1,17 +1,17 @@
-export type OrganizationMemberRole = 'owner' | 'admin' | 'recruiter' | 'maintainer' | 'member';
+export type OrganizationMemberRole = "owner" | "admin" | "recruiter" | "maintainer" | "member";
 
-export type Permission = 
-  | 'organization:manage'
-  | 'members:manage'
-  | 'roles:manage'
-  | 'settings:manage'
-  | 'jobs:create'
-  | 'jobs:manage'
-  | 'candidates:view'
-  | 'candidates:manage'
-  | 'content:manage'
-  | 'content:view'
-  | 'organization:view';
+export type Permission =
+  | "organization:manage"
+  | "members:manage"
+  | "roles:manage"
+  | "settings:manage"
+  | "jobs:create"
+  | "jobs:manage"
+  | "candidates:view"
+  | "candidates:manage"
+  | "content:manage"
+  | "content:view"
+  | "organization:view";
 
 export interface OrganizationMember {
   id: string;

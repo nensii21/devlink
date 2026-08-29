@@ -1,3 +1,18 @@
+"""
+API key routes.
+
+A key belongs either to a user or to an organisation, never both. The routes
+below are shared by the two shapes: there are no organisation-scoped read,
+update, regenerate or revoke routes, so an organisation key is managed through
+`/api/api-keys/{key_id}` like any other.
+
+That is why every one of them delegates the ownership decision to
+`ApiKeyService.assert_can_manage` rather than checking `key.user_id` inline.
+The inline version short-circuited on organisation keys -- where `user_id` is
+NULL -- and let any authenticated caller regenerate someone else's
+organisation secret and be handed the plaintext.
+"""
+
 from __future__ import annotations
 
 import uuid
@@ -99,11 +114,19 @@ def create_api_key(
 def list_api_keys(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
+    include_revoked: bool = Query(
+        False,
+        description="Include keys that have been revoked. Off by default.",
+    ),
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ) -> PaginatedApiKeysResponse:
     res = ApiKeyService.list_api_keys(
-        db, user_id=current_user.id, page=page, limit=limit
+        db,
+        user_id=current_user.id,
+        page=page,
+        limit=limit,
+        include_revoked=include_revoked,
     )
     items = [ApiKeyResponse.model_validate(k) for k in res["items"]]
     return PaginatedApiKeysResponse(
@@ -119,18 +142,21 @@ def list_api_keys(
     "/{key_id}",
     response_model=ApiKeyResponse,
     summary="Get API Key Details",
-    description="Retrieve metadata for a specific API key.",
+    description=(
+        "Retrieve metadata for a specific API key. Personal keys are readable "
+        "by their owner; organisation keys by anyone holding "
+        "`org:manage_tokens` in that organisation."
+    ),
 )
 def get_api_key(
     key_id: uuid.UUID,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ) -> ApiKeyResponse:
-    key = ApiKeyService.get_api_key(db, key_id)
-    if key.user_id and key.user_id != current_user.id and not current_user.is_superuser:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
-        )
+    # This route used to carry its own copy of the ownership condition, and
+    # the copy had the same short-circuit bug as the three in the service.
+    # One helper, one place to get it wrong.
+    key = ApiKeyService.get_manageable_api_key(db, key_id, current_user)
     return ApiKeyResponse.model_validate(key)
 
 
@@ -236,10 +262,18 @@ def list_org_api_keys(
     organization_id: uuid.UUID,
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
+    include_revoked: bool = Query(
+        False,
+        description="Include keys that have been revoked. Off by default.",
+    ),
     db: Session = Depends(get_database),
 ) -> PaginatedApiKeysResponse:
     res = ApiKeyService.list_api_keys(
-        db, organization_id=organization_id, page=page, limit=limit
+        db,
+        organization_id=organization_id,
+        page=page,
+        limit=limit,
+        include_revoked=include_revoked,
     )
     items = [ApiKeyResponse.model_validate(k) for k in res["items"]]
     return PaginatedApiKeysResponse(

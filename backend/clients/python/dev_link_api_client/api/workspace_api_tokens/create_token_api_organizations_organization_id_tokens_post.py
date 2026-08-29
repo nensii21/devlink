@@ -9,7 +9,9 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.workspace_api_token_create import WorkspaceApiTokenCreate
-from ...models.workspace_api_token_create_response import WorkspaceApiTokenCreateResponse
+from ...models.workspace_api_token_create_response import (
+    WorkspaceApiTokenCreateResponse,
+)
 from ...types import Response
 
 

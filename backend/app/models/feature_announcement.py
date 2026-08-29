@@ -4,7 +4,16 @@ import uuid
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -149,5 +158,7 @@ class FeatureAnnouncementRead(Base):
     user = relationship("User")
 
     __table_args__ = (
-        UniqueConstraint("user_id", "announcement_id", name="uq_user_feature_announcement_read"),
+        UniqueConstraint(
+            "user_id", "announcement_id", name="uq_user_feature_announcement_read"
+        ),
     )

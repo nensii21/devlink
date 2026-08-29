@@ -1,5 +1,5 @@
-import { TypoSection, TypoCaption } from "@/components/shared/Typography";
 import { Sparkles, Calendar, Activity } from "lucide-react";
+import { TypoSection, TypoCaption } from "@/components/shared/Typography";
 
 export function RightPanel() {
   return (
@@ -10,7 +10,7 @@ export function RightPanel() {
       <div className="p-5 flex flex-col gap-6">
         {/* AI Suggestions */}
         <section>
-          <TypoSection>
+          <TypoSection as="h3" className="text-[13px] font-semibold tracking-tight text-muted-foreground uppercase mb-3 flex items-center gap-1.5">
             <Sparkles size={14} className="text-primary" /> AI Suggestions
           </TypoSection>
           <div className="rounded-xl border border-primary/20 bg-primary-soft p-4">
@@ -25,24 +25,24 @@ export function RightPanel() {
 
         {/* Upcoming Events */}
         <section>
-          <TypoSection>
+          <TypoSection as="h3" className="text-[13px] font-semibold tracking-tight text-muted-foreground uppercase mb-3 flex items-center gap-1.5">
             <Calendar size={14} /> Upcoming Events
           </TypoSection>
           <div className="space-y-3">
             <div className="rounded-xl border border-border bg-card p-3 hover:border-primary/40 transition-colors cursor-pointer">
               <p className="text-[13px] font-medium text-foreground">Web3 Hackathon</p>
-              <TypoCaption as="p">Tomorrow, 10:00 AM</TypoCaption>
+              <TypoCaption as="p" className="text-[11px] text-muted-foreground mt-1">Tomorrow, 10:00 AM</TypoCaption>
             </div>
             <div className="rounded-xl border border-border bg-card p-3 hover:border-primary/40 transition-colors cursor-pointer">
               <p className="text-[13px] font-medium text-foreground">React Meetup</p>
-              <TypoCaption as="p">Fri, 4:00 PM</TypoCaption>
+              <TypoCaption as="p" className="text-[11px] text-muted-foreground mt-1">Fri, 4:00 PM</TypoCaption>
             </div>
           </div>
         </section>
 
         {/* Recent Activity */}
         <section>
-          <TypoSection>
+          <TypoSection as="h3" className="text-[13px] font-semibold tracking-tight text-muted-foreground uppercase mb-3 flex items-center gap-1.5">
             <Activity size={14} /> Recent Activity
           </TypoSection>
           <div className="space-y-4">
@@ -52,7 +52,7 @@ export function RightPanel() {
                 <p className="text-[13px] text-foreground">
                   You starred <strong>devlink-ui</strong>
                 </p>
-                <TypoCaption as="p">2 hours ago</TypoCaption>
+                <TypoCaption as="p" className="text-[11px] text-muted-foreground">2 hours ago</TypoCaption>
               </div>
             </div>
             <div className="flex gap-3">
@@ -61,7 +61,7 @@ export function RightPanel() {
                 <p className="text-[13px] text-foreground">
                   <strong>Alex</strong> commented on your flare
                 </p>
-                <TypoCaption as="p">5 hours ago</TypoCaption>
+                <TypoCaption as="p" className="text-[11px] text-muted-foreground">5 hours ago</TypoCaption>
               </div>
             </div>
           </div>

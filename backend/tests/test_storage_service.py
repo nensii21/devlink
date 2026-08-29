@@ -210,9 +210,7 @@ def test_delete_refuses_to_escape_the_upload_directory(
     assert victim.read_text() == "do not delete me"
 
 
-def test_delete_refuses_an_absolute_object_name(
-    local_service, tmp_path: Path
-) -> None:
+def test_delete_refuses_an_absolute_object_name(local_service, tmp_path: Path) -> None:
     """An absolute second argument makes ``join`` discard the base entirely."""
     victim = tmp_path.parent / "absolute-target.txt"
     victim.write_text("still here")

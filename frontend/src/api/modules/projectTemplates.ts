@@ -68,22 +68,23 @@ export const projectTemplatesApi = {
     skip?: number;
     limit?: number;
   }): Promise<ProjectTemplateListResponse> => {
-    return api.get<ProjectTemplateListResponse>("/api/templates", { query: params });
+    const queryParams = params ? `?${new URLSearchParams(params as any).toString()}` : "";
+    return await api.get<ProjectTemplateListResponse>(`/api/templates${queryParams}`);
   },
 
   getTemplate: async (templateId: string): Promise<ProjectTemplate> => {
-    return api.get<ProjectTemplate>(`/api/templates/${templateId}`);
+    return await api.get<ProjectTemplate>(`/api/templates/${templateId}`);
   },
 
   createTemplate: async (data: ProjectTemplateCreateInput): Promise<ProjectTemplate> => {
-    return api.post<ProjectTemplate>("/api/templates", data);
+    return await api.post<ProjectTemplate>("/api/templates", data);
   },
 
   updateTemplate: async (
     templateId: string,
-    data: ProjectTemplateUpdateInput
+    data: ProjectTemplateUpdateInput,
   ): Promise<ProjectTemplate> => {
-    return api.patch<ProjectTemplate>(`/api/templates/${templateId}`, data);
+    return await api.patch<ProjectTemplate>(`/api/templates/${templateId}`, data);
   },
 
   deleteTemplate: async (templateId: string): Promise<void> => {
@@ -91,20 +92,20 @@ export const projectTemplatesApi = {
   },
 
   toggleFavorite: async (
-    templateId: string
+    templateId: string,
   ): Promise<{ success: boolean; is_favorited: boolean; stars_count: number }> => {
-    return api.post<{ success: boolean; is_favorited: boolean; stars_count: number }>(
-      `/api/templates/${templateId}/favorite`
+    return await api.post<{ success: boolean; is_favorited: boolean; stars_count: number }>(
+      `/api/templates/${templateId}/favorite`,
     );
   },
 
   cloneTemplate: async (
     templateId: string,
-    data?: ProjectTemplateCloneInput
+    data?: ProjectTemplateCloneInput,
   ): Promise<{ id: string; title: string; slug: string }> => {
-    return api.post<{ id: string; title: string; slug: string }>(
+    return await api.post<{ id: string; title: string; slug: string }>(
       `/api/templates/${templateId}/clone`,
-      data
+      data,
     );
   },
 };

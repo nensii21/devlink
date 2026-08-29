@@ -1,39 +1,37 @@
-import React from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/api';
-import { OrganizationMember, OrganizationMemberRole } from '../types';
-import { usePermissions } from '../hooks/usePermissions';
-import { RequirePermission } from './RequirePermission';
+import React from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/api";
+import { OrganizationMember, OrganizationMemberRole } from "../types";
+import { usePermissions } from "../hooks/usePermissions";
+import { RequirePermission } from "./RequirePermission";
 
 interface OrganizationMembersProps {
   orgId: string;
 }
 
-const ROLES: OrganizationMemberRole[] = ['owner', 'admin', 'recruiter', 'maintainer', 'member'];
+const ROLES: OrganizationMemberRole[] = ["owner", "admin", "recruiter", "maintainer", "member"];
 
 export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
   const queryClient = useQueryClient();
   const { can } = usePermissions(orgId);
 
   const { data: members, isLoading } = useQuery({
-    queryKey: ['organizations', orgId, 'members'],
+    queryKey: ["organizations", orgId, "members"],
     queryFn: async () => {
-      const res = await api.get<OrganizationMember[]>(`/organizations/${orgId}/members`);
-      return res;
+      return api.get<OrganizationMember[]>(`/organizations/${orgId}/members`);
     },
   });
 
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: OrganizationMemberRole }) => {
-      const res = await api.patch<OrganizationMember>(`/organizations/${orgId}/members/${userId}`, { role });
-      return res;
+      return api.patch<OrganizationMember>(`/organizations/${orgId}/members/${userId}`, { role });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organizations', orgId, 'members'] });
+      queryClient.invalidateQueries({ queryKey: ["organizations", orgId, "members"] });
     },
     onError: (error: any) => {
       alert(error.response?.data?.detail || "Failed to update role");
-    }
+    },
   });
 
   const removeMemberMutation = useMutation({
@@ -41,11 +39,11 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
       await api.delete(`/organizations/${orgId}/members/${userId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organizations', orgId, 'members'] });
+      queryClient.invalidateQueries({ queryKey: ["organizations", orgId, "members"] });
     },
     onError: (error: any) => {
       alert(error.response?.data?.detail || "Failed to remove member");
-    }
+    },
   });
 
   if (isLoading) return <div className="text-muted-foreground">Loading members...</div>;
@@ -91,14 +89,18 @@ export function OrganizationMembers({ orgId }: OrganizationMembersProps) {
                       <select
                         className="rounded border border-input bg-background text-sm text-foreground focus:ring-2 focus:ring-ring"
                         value={member.role}
-                        onChange={(e) => updateRoleMutation.mutate({ 
-                          userId: member.user_id, 
-                          role: e.target.value as OrganizationMemberRole 
-                        })}
+                        onChange={(e) =>
+                          updateRoleMutation.mutate({
+                            userId: member.user_id,
+                            role: e.target.value as OrganizationMemberRole,
+                          })
+                        }
                         disabled={updateRoleMutation.isPending}
                       >
-                        {ROLES.map(role => (
-                          <option key={role} value={role}>{role}</option>
+                        {ROLES.map((role) => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
                         ))}
                       </select>
                       <button

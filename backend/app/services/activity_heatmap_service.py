@@ -56,7 +56,9 @@ class ActivityHeatmapService:
         return user
 
     @staticmethod
-    def require_visible(subject: User, viewer: User | None, db: Session | None = None) -> None:
+    def require_visible(
+        subject: User, viewer: User | None, db: Session | None = None
+    ) -> None:
         """
         Check if the subject profile is private OR if their activity privacy settings
         restrict the viewer from viewing.
@@ -78,16 +80,21 @@ class ActivityHeatmapService:
             is_visible = True
         elif activity_visibility == "authenticated" and viewer is not None:
             is_visible = True
-        elif activity_visibility == "followers" and viewer is not None and db is not None:
+        elif (
+            activity_visibility == "followers" and viewer is not None and db is not None
+        ):
             if viewer.id == subject.id or getattr(viewer, "is_superuser", False):
                 is_visible = True
             else:
                 from app.services.follower_service import FollowerService
+
                 is_visible = FollowerService.is_following(
                     db, follower_id=viewer.id, following_id=subject.id
                 )
         elif activity_visibility == "private":
-            if viewer is not None and (viewer.id == subject.id or getattr(viewer, "is_superuser", False)):
+            if viewer is not None and (
+                viewer.id == subject.id or getattr(viewer, "is_superuser", False)
+            ):
                 is_visible = True
 
         if not is_visible:
@@ -304,12 +311,12 @@ class ActivityHeatmapService:
             total_days=total_days,
             busiest_day=busiest_day,
             busiest_day_count=busiest_count,
-            daily_average=round(total_activities / total_days, 2)
-            if total_days
-            else 0.0,
-            active_day_average=round(total_activities / len(active), 2)
-            if active
-            else 0.0,
+            daily_average=(
+                round(total_activities / total_days, 2) if total_days else 0.0
+            ),
+            active_day_average=(
+                round(total_activities / len(active), 2) if active else 0.0
+            ),
         )
 
     @staticmethod

@@ -65,12 +65,16 @@ class AuditLogService:
                     res[k] = _sanitize_json(v)
                 elif isinstance(v, list):
                     res[k] = [
-                        _sanitize_json(i)
-                        if isinstance(i, dict)
-                        else (
-                            str(i)
-                            if not isinstance(i, (int, float, bool, str, type(None)))
-                            else i
+                        (
+                            _sanitize_json(i)
+                            if isinstance(i, dict)
+                            else (
+                                str(i)
+                                if not isinstance(
+                                    i, (int, float, bool, str, type(None))
+                                )
+                                else i
+                            )
                         )
                         for i in v
                     ]

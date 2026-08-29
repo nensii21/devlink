@@ -7,6 +7,7 @@ class AppException(Exception):
     """
     Base exception for all application exceptions.
     """
+
     def __init__(
         self,
         message: str,
@@ -25,6 +26,7 @@ class AuthException(AppException):
     """
     Exception raised for authentication or authorization failures (401/403).
     """
+
     def __init__(
         self,
         message: str = "Authentication failed.",
@@ -44,6 +46,7 @@ class DatabaseException(AppException):
     """
     Exception raised for database-related errors (500).
     """
+
     def __init__(
         self,
         message: str = "A database error occurred.",
@@ -63,6 +66,7 @@ class ValidationException(AppException):
     """
     Exception raised for business validation failures (422).
     """
+
     def __init__(
         self,
         message: str = "Validation failed.",

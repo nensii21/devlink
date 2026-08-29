@@ -66,13 +66,13 @@ import { SettingsPage } from "@/routes/_app.settings";
 
 /** Type into the bio field, which is the simplest way to make the form dirty. */
 function editBio(value: string) {
-  const bio = screen.getByPlaceholderText(/short summary about your developer background/i);
+  const bio = screen.getByPlaceholderText(/brief overview about your experience/i);
   fireEvent.change(bio, { target: { value } });
   return bio;
 }
 
 function submit() {
-  fireEvent.click(screen.getByRole("button", { name: /save profile/i }));
+  fireEvent.click(screen.getByRole("button", { name: /save changes/i }));
 }
 
 describe("Settings profile tab (#1315)", () => {

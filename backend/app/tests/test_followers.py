@@ -10,13 +10,11 @@ Covers:
 - Mutual followers
 """
 
-
 from fastapi.testclient import TestClient
 
 from app.models.follower import Follower  # noqa: F401
 from app.models.user import User
 from app.services.follower_service import FollowerService
-
 
 # ---------------------------------------------------------------------------
 # Helpers

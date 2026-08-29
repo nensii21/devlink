@@ -41,9 +41,7 @@ def private_thread(db: Session, register_and_login) -> dict:
     db.refresh(conversation)
 
     db.add(
-        ConversationMember(
-            conversation_id=conversation.id, user_id=uuid.UUID(alice_id)
-        )
+        ConversationMember(conversation_id=conversation.id, user_id=uuid.UUID(alice_id))
     )
     db.add(
         ConversationMember(conversation_id=conversation.id, user_id=uuid.UUID(bob_id))
@@ -126,15 +124,14 @@ def test_unauthenticated_read_routes_are_closed(
 
     response = _call(client, method, path, None, headers=None)
 
-    assert response.status_code in (401, 403), (
-        f"{method} {path} answered {response.status_code} to an anonymous caller"
-    )
+    assert response.status_code in (
+        401,
+        403,
+    ), f"{method} {path} answered {response.status_code} to an anonymous caller"
     assert SECRET not in response.text
 
 
-def test_anonymous_caller_cannot_send(
-    client: TestClient, private_thread: dict
-) -> None:
+def test_anonymous_caller_cannot_send(client: TestClient, private_thread: dict) -> None:
     response = client.post(
         "/api/messages/",
         json={
@@ -163,9 +160,9 @@ def test_non_member_is_refused_every_conversation_route(
         response = _call(client, method, path, body, thread_with_message["eve"])
         refused.append((method, path, response.status_code))
 
-        assert response.status_code == 403, (
-            f"{method} {path} answered {response.status_code} to a non-member"
-        )
+        assert (
+            response.status_code == 403
+        ), f"{method} {path} answered {response.status_code} to a non-member"
         assert SECRET not in response.text
 
     assert len(refused) == 8, "route list drifted; update the test"
@@ -232,7 +229,9 @@ def test_non_member_cannot_mark_messages_read_or_delivered(
     eve = thread_with_message["eve"]
     cid = str(thread_with_message["conversation_id"])
 
-    assert client.patch(f"/api/messages/{message_id}/read", headers=eve).status_code == 403
+    assert (
+        client.patch(f"/api/messages/{message_id}/read", headers=eve).status_code == 403
+    )
     assert (
         client.post(f"/api/messages/{message_id}/deliver", headers=eve).status_code
         == 403
@@ -385,7 +384,8 @@ def test_removed_member_loses_access_to_their_own_messages(
     membership = (
         db.query(ConversationMember)
         .filter(
-            ConversationMember.conversation_id == thread_with_message["conversation_id"],
+            ConversationMember.conversation_id
+            == thread_with_message["conversation_id"],
             ConversationMember.user_id == uuid.UUID(thread_with_message["alice_id"]),
         )
         .one()
@@ -403,7 +403,9 @@ def test_removed_member_loses_access_to_their_own_messages(
         ).status_code
         == 403
     )
-    assert client.delete(f"/api/messages/{message_id}", headers=alice).status_code == 403
+    assert (
+        client.delete(f"/api/messages/{message_id}", headers=alice).status_code == 403
+    )
 
 
 def test_unknown_conversation_is_refused_not_leaked(

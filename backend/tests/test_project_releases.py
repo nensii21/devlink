@@ -25,7 +25,6 @@ from app.models.user import User
 from app.schemas.project_release import ReleaseCreate, ReleaseUpdate
 from app.services.project_release_service import ProjectReleaseService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

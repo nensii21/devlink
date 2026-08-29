@@ -12,8 +12,12 @@ from ..models.webhook_delivery_status import WebhookDeliveryStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.webhook_delivery_response_headers_type_0 import WebhookDeliveryResponseHeadersType0
-    from ..models.webhook_delivery_response_payload import WebhookDeliveryResponsePayload
+    from ..models.webhook_delivery_response_headers_type_0 import (
+        WebhookDeliveryResponseHeadersType0,
+    )
+    from ..models.webhook_delivery_response_payload import (
+        WebhookDeliveryResponsePayload,
+    )
 
 
 T = TypeVar("T", bound="WebhookDeliveryResponse")
@@ -58,7 +62,9 @@ class WebhookDeliveryResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.webhook_delivery_response_headers_type_0 import WebhookDeliveryResponseHeadersType0
+        from ..models.webhook_delivery_response_headers_type_0 import (
+            WebhookDeliveryResponseHeadersType0,
+        )
 
         id = str(self.id)
 
@@ -152,8 +158,12 @@ class WebhookDeliveryResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.webhook_delivery_response_headers_type_0 import WebhookDeliveryResponseHeadersType0
-        from ..models.webhook_delivery_response_payload import WebhookDeliveryResponsePayload
+        from ..models.webhook_delivery_response_headers_type_0 import (
+            WebhookDeliveryResponseHeadersType0,
+        )
+        from ..models.webhook_delivery_response_payload import (
+            WebhookDeliveryResponsePayload,
+        )
 
         d = dict(src_dict)
         id = UUID(d.pop("id"))
@@ -174,7 +184,9 @@ class WebhookDeliveryResponse:
 
         updated_at = datetime.datetime.fromisoformat(d.pop("updated_at"))
 
-        def _parse_headers(data: object) -> None | Unset | WebhookDeliveryResponseHeadersType0:
+        def _parse_headers(
+            data: object,
+        ) -> None | Unset | WebhookDeliveryResponseHeadersType0:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -232,7 +244,9 @@ class WebhookDeliveryResponse:
                 return data
             return cast(int | None | Unset, data)
 
-        response_status_code = _parse_response_status_code(d.pop("response_status_code", UNSET))
+        response_status_code = _parse_response_status_code(
+            d.pop("response_status_code", UNSET)
+        )
 
         def _parse_response_body(data: object) -> None | str | Unset:
             if data is None:

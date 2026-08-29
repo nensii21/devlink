@@ -72,4 +72,4 @@ def downgrade() -> None:
     # Drop enum if postgresql
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
-        op.execute("DROP TYPE jobstatus")
+        op.execute("DROP TYPE IF EXISTS jobstatus")

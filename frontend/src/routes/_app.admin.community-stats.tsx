@@ -138,9 +138,7 @@ function CommunityStatsDashboard() {
     <div className="p-6" role="main" aria-label="Community Statistics Dashboard">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <TypoHeading as="h1">
-            Community Statistics Dashboard
-          </TypoHeading>
+          <TypoHeading as="h1">Community Statistics Dashboard</TypoHeading>
           <TypoCaption as="p">
             Platform-wide metrics for the last {data.timeframe_days} days. Updated:{" "}
             {new Date(data.generated_at).toLocaleString()}

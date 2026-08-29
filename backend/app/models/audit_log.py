@@ -49,6 +49,7 @@ class AuditAction(str, Enum):
     USER_ACTIVATED = "user_activated"
     USER_BANNED = "user_banned"
     USER_UNBANNED = "user_unbanned"
+    USER_EMAIL_VERIFIED = "user_email_verified"
     SETTINGS_CHANGED = "settings_changed"
 
     # Project

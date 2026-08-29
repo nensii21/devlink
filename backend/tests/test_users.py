@@ -2,6 +2,29 @@ import uuid
 
 from fastapi.testclient import TestClient
 
+from app.models.user import User
+
+
+def _promote_to_admin(db, user_id) -> None:
+    """Give an already-registered user the system admin role.
+
+    The administrative routes on this router are guarded by
+    ``require_roles(SystemRole.ADMIN)``. There is no API for handing out that
+    role, so tests set it directly -- the same thing a deployment does with a
+    seed script.
+    """
+    user = db.get(User, uuid.UUID(str(user_id)))
+    user.system_role = "admin"
+    db.add(user)
+    db.commit()
+
+
+def _admin_headers(client: TestClient, register_and_login, db) -> dict[str, str]:
+    """Register an administrator and return their auth header."""
+    uid, token = register_and_login("root@example.com", "rootadmin")
+    _promote_to_admin(db, uid)
+    return {"Authorization": f"Bearer {token}"}
+
 
 def test_check_username_available(client: TestClient):
     response = client.get("/api/users/check-username?username=newuser123")
@@ -21,9 +44,11 @@ def test_check_username_invalid(client: TestClient):
     assert response.status_code == 400
 
 
-def test_create_user(client: TestClient):
+def test_create_user(client: TestClient, register_and_login, db):
+    headers = _admin_headers(client, register_and_login, db)
     response = client.post(
         "/api/users/",
+        headers=headers,
         json={
             "first_name": "Create",
             "last_name": "User",
@@ -36,10 +61,42 @@ def test_create_user(client: TestClient):
     assert response.json()["username"] == "createuser"
 
 
-def test_create_user_duplicate_email(client: TestClient, register_and_login):
-    register_and_login("dupem@example.com", "dupem1")
+def test_create_user_requires_authentication(client: TestClient):
     response = client.post(
         "/api/users/",
+        json={
+            "first_name": "Anon",
+            "last_name": "User",
+            "email": "anon@example.com",
+            "username": "anonuser",
+            "password": "Vermilion-Kestrel97!",
+        },
+    )
+    assert response.status_code == 401
+
+
+def test_create_user_rejects_non_admin(client: TestClient, register_and_login):
+    _, token = register_and_login("plain@example.com", "plainuser")
+    response = client.post(
+        "/api/users/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "first_name": "Nope",
+            "last_name": "User",
+            "email": "nope@example.com",
+            "username": "nopeuser",
+            "password": "Vermilion-Kestrel97!",
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_create_user_duplicate_email(client: TestClient, register_and_login, db):
+    register_and_login("dupem@example.com", "dupem1")
+    headers = _admin_headers(client, register_and_login, db)
+    response = client.post(
+        "/api/users/",
+        headers=headers,
         json={
             "first_name": "Dup",
             "last_name": "User",
@@ -52,10 +109,12 @@ def test_create_user_duplicate_email(client: TestClient, register_and_login):
     assert "email" in response.json()["detail"].lower()
 
 
-def test_create_user_duplicate_username(client: TestClient, register_and_login):
+def test_create_user_duplicate_username(client: TestClient, register_and_login, db):
     register_and_login("dupusr1@example.com", "dupusr")
+    headers = _admin_headers(client, register_and_login, db)
     response = client.post(
         "/api/users/",
+        headers=headers,
         json={
             "first_name": "Dup",
             "last_name": "User",
@@ -131,42 +190,51 @@ def test_delete_me(client: TestClient, register_and_login):
     assert me_resp.status_code == 404
 
 
-def test_activate_user(client: TestClient, register_and_login):
+def test_activate_user(client: TestClient, register_and_login, db):
     uid, _ = register_and_login("act@example.com", "actuser")
-    # Deactivate first
-    client.patch(f"/api/users/{uid}/deactivate")
+    headers = _admin_headers(client, register_and_login, db)
 
-    response = client.patch(f"/api/users/{uid}/activate")
+    # Deactivate first
+    client.patch(f"/api/users/{uid}/deactivate", headers=headers)
+
+    response = client.patch(f"/api/users/{uid}/activate", headers=headers)
     assert response.status_code == 200
     assert response.json()["is_active"] is True
 
 
-def test_activate_user_not_found(client: TestClient):
-    response = client.patch(f"/api/users/{uuid.uuid4()}/activate")
+def test_activate_user_not_found(client: TestClient, register_and_login, db):
+    headers = _admin_headers(client, register_and_login, db)
+    response = client.patch(f"/api/users/{uuid.uuid4()}/activate", headers=headers)
     assert response.status_code == 404
 
 
-def test_deactivate_user(client: TestClient, register_and_login):
+def test_deactivate_user(client: TestClient, register_and_login, db):
     uid, _ = register_and_login("deact@example.com", "deactuser")
-    response = client.patch(f"/api/users/{uid}/deactivate")
+    headers = _admin_headers(client, register_and_login, db)
+
+    response = client.patch(f"/api/users/{uid}/deactivate", headers=headers)
     assert response.status_code == 200
     assert response.json()["is_active"] is False
 
 
-def test_deactivate_user_not_found(client: TestClient):
-    response = client.patch(f"/api/users/{uuid.uuid4()}/deactivate")
+def test_deactivate_user_not_found(client: TestClient, register_and_login, db):
+    headers = _admin_headers(client, register_and_login, db)
+    response = client.patch(f"/api/users/{uuid.uuid4()}/deactivate", headers=headers)
     assert response.status_code == 404
 
 
-def test_verify_user(client: TestClient, register_and_login):
+def test_verify_user(client: TestClient, register_and_login, db):
     uid, _ = register_and_login("ver@example.com", "veruser")
-    response = client.patch(f"/api/users/{uid}/verify")
+    headers = _admin_headers(client, register_and_login, db)
+
+    response = client.patch(f"/api/users/{uid}/verify", headers=headers)
     assert response.status_code == 200
     assert response.json()["is_verified"] is True
 
 
-def test_verify_user_not_found(client: TestClient):
-    response = client.patch(f"/api/users/{uuid.uuid4()}/verify")
+def test_verify_user_not_found(client: TestClient, register_and_login, db):
+    headers = _admin_headers(client, register_and_login, db)
+    response = client.patch(f"/api/users/{uuid.uuid4()}/verify", headers=headers)
     assert response.status_code == 404
 
 

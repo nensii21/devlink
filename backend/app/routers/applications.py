@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
-
-# pyrefly: ignore [missing-import]
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_database
@@ -247,6 +247,104 @@ def reject_application(
         db.rollback()
 
     return rejected
+
+
+class ShortlistRequest(BaseModel):
+    shortlisted: bool
+
+
+@router.patch(
+    "/{application_id}/shortlist",
+    response_model=ApplicationResponse,
+)
+def shortlist_application(
+    application_id: uuid.UUID,
+    request: ShortlistRequest,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    db_application = ApplicationService.get_application(db, application_id)
+    if db_application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    project = db.query(Project).filter(Project.id == db_application.project_id).first()
+    if project and project.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can shortlist applications",
+        )
+
+    return ApplicationService.shortlist_application(
+        db,
+        db_application,
+        request.shortlisted,
+    )
+
+
+class ScheduleInterviewRequest(BaseModel):
+    interview_scheduled_at: datetime
+    interview_link: str | None = None
+
+
+@router.patch(
+    "/{application_id}/schedule_interview",
+    response_model=ApplicationResponse,
+)
+def schedule_interview(
+    application_id: uuid.UUID,
+    request: ScheduleInterviewRequest,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    db_application = ApplicationService.get_application(db, application_id)
+    if db_application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    project = db.query(Project).filter(Project.id == db_application.project_id).first()
+    if project and project.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can schedule interviews",
+        )
+
+    return ApplicationService.schedule_interview(
+        db,
+        db_application,
+        request.interview_scheduled_at,
+        request.interview_link,
+    )
+
+
+class NotesRequest(BaseModel):
+    notes: str | None = None
+
+
+@router.patch(
+    "/{application_id}/notes",
+    response_model=ApplicationResponse,
+)
+def update_application_notes(
+    application_id: uuid.UUID,
+    request: NotesRequest,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    db_application = ApplicationService.get_application(db, application_id)
+    if db_application is None:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    project = db.query(Project).filter(Project.id == db_application.project_id).first()
+    if project and project.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can update notes",
+        )
+
+    return ApplicationService.add_notes(
+        db,
+        db_application,
+        request.notes,
+    )
 
 
 @router.patch(

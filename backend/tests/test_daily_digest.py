@@ -20,8 +20,8 @@ def test_digest_disabled_by_preferences():
 
 def test_digest_deduplication_detection():
     mock_session = MagicMock()
-    mock_session.execute.return_value.scalar_one_or_none.return_value = (
-        DailyDigestLog(user_id="user_1", digest_date=date(2026, 8, 14))
+    mock_session.execute.return_value.scalar_one_or_none.return_value = DailyDigestLog(
+        user_id="user_1", digest_date=date(2026, 8, 14)
     )
 
     is_sent = DailyDigestService.has_digest_been_sent(
@@ -49,9 +49,7 @@ def test_task_executes_and_delivers_successfully():
         "new_messages_count": 2,
     }
 
-    with patch(
-        "app.tasks.digest_tasks.SessionLocal", return_value=mock_session
-    ), patch(
+    with patch("app.tasks.digest_tasks.SessionLocal", return_value=mock_session), patch(
         "app.services.digest_service.DailyDigestService.has_digest_been_sent",
         return_value=False,
     ), patch(

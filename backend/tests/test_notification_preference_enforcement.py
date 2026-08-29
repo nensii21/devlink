@@ -160,9 +160,9 @@ def test_disabling_the_category_stops_the_notification(
 
     _dispatch(db, user, n_type)
 
-    assert _stored(db, user) == 0, (
-        f"{category.enabled_field}=False did not stop {n_type.value}"
-    )
+    assert (
+        _stored(db, user) == 0
+    ), f"{category.enabled_field}=False did not stop {n_type.value}"
 
 
 @pytest.mark.parametrize("n_type,category", GATED_CASES, ids=GATED_IDS)

@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, DateTime, ForeignKey, Boolean, Index
+from sqlalchemy import Column, DateTime, ForeignKey, Boolean, Index, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -28,6 +28,7 @@ class ProfileView(Base):
         index=True,
     )
     is_anonymous = Column(Boolean, default=False, nullable=False)
+    visit_count = Column(Integer, default=1, nullable=False)
     created_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

@@ -10,7 +10,6 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict
 
-
 # ---------------------------------------------------------------------------
 # Shared audit log response
 # ---------------------------------------------------------------------------

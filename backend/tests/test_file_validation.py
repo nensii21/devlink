@@ -172,7 +172,7 @@ def test_scan_allows_ordinary_media() -> None:
 
 
 def test_executable_signatures_are_only_matched_at_the_start() -> None:
-    """"MZ" is two ASCII letters and appears in ordinary binary data.
+    """ "MZ" is two ASCII letters and appears in ordinary binary data.
 
     Matching it anywhere would reject legitimate uploads.
     """

@@ -123,7 +123,9 @@ class RepositoryQualityResponse:
         if _suggestions is not UNSET:
             suggestions = []
             for suggestions_item_data in _suggestions:
-                suggestions_item = ImprovementSuggestion.from_dict(suggestions_item_data)
+                suggestions_item = ImprovementSuggestion.from_dict(
+                    suggestions_item_data
+                )
 
                 suggestions.append(suggestions_item)
 

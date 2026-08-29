@@ -97,9 +97,7 @@ function ApiRequestAnalyticsDashboard() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <TypoHeading as="h2">
-            API Request Analytics
-          </TypoHeading>
+          <TypoHeading as="h2">API Request Analytics</TypoHeading>
           <TypoCaption as="p">
             Request volume, latency, and error tracking across the API.
           </TypoCaption>
@@ -133,9 +131,7 @@ function ApiRequestAnalyticsDashboard() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
-            <TypoCaption as="p">
-              {s.label}
-            </TypoCaption>
+            <TypoCaption as="p">{s.label}</TypoCaption>
             <p className={cn("mt-2 text-[28px] font-bold tracking-tight", s.accent)}>{s.value}</p>
           </div>
         ))}
@@ -173,9 +169,7 @@ function ApiRequestAnalyticsDashboard() {
       <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
         <TypoSection>Requests by Endpoint</TypoSection>
         {data.requests_by_endpoint.length === 0 ? (
-          <TypoCaption as="p">
-            No request data recorded yet.
-          </TypoCaption>
+          <TypoCaption as="p">No request data recorded yet.</TypoCaption>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[13px]">
@@ -197,9 +191,7 @@ function ApiRequestAnalyticsDashboard() {
                   >
                     <td className="p-3 font-medium text-foreground">{e.endpoint}</td>
                     <td className="p-3">
-                      <TypoCaption>
-                        {e.method}
-                      </TypoCaption>
+                      <TypoCaption>{e.method}</TypoCaption>
                     </td>
                     <td className="p-3 text-right">{e.requests.toLocaleString()}</td>
                     <td className="p-3 text-right">{e.avg_response_time_ms}</td>

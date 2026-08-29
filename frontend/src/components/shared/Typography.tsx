@@ -44,7 +44,7 @@ export function TypoHero({
   children,
   className,
   ...props
-}: PolymorphicProps<"h1" | "h2" | "div">) {
+}: PolymorphicProps<"h1" | "h2" | "h3" | "div">) {
   return (
     <Tag
       className={cn(
@@ -73,7 +73,7 @@ export function TypoHeading({
   children,
   className,
   ...props
-}: PolymorphicProps<"h1" | "h2" | "h3" | "div">) {
+}: PolymorphicProps<"h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div" | "p" | "span">) {
   return (
     <Tag
       className={cn(
@@ -100,7 +100,7 @@ export function TypoSection({
   children,
   className,
   ...props
-}: PolymorphicProps<"h2" | "h3" | "h4" | "div">) {
+}: PolymorphicProps<"h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div" | "p" | "span">) {
   return (
     <Tag
       className={cn("font-semibold leading-snug text-foreground", "text-xl sm:text-2xl", className)}
@@ -123,7 +123,7 @@ export function TypoCard({
   children,
   className,
   ...props
-}: PolymorphicProps<"h3" | "h4" | "h5" | "h6" | "div" | "span">) {
+}: PolymorphicProps<"h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div" | "p" | "span">) {
   return (
     <Tag
       className={cn(
@@ -150,7 +150,7 @@ export function TypoBody({
   children,
   className,
   ...props
-}: PolymorphicProps<"p" | "div" | "span" | "li">) {
+}: PolymorphicProps<"p" | "div" | "span" | "li" | "article" | "section">) {
   return (
     <Tag
       className={cn(
@@ -177,7 +177,7 @@ export function TypoCaption({
   children,
   className,
   ...props
-}: PolymorphicProps<"span" | "p" | "small" | "div" | "time">) {
+}: PolymorphicProps<"span" | "p" | "small" | "div" | "time" | "label">) {
   return (
     <Tag
       className={cn(

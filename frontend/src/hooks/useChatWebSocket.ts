@@ -1,10 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { tokenStore } from "@/api/tokens";
 
 export interface ChatWebSocketEvent {
   type: string;
   conversation_id: string;
   user_id: string;
   content?: string;
+}
+
+const BASE_RECONNECT_DELAY_MS = 1_000;
+const MAX_RECONNECT_DELAY_MS = 30_000;
+const MAX_RECONNECT_ATTEMPTS = 10;
+
+export function getReconnectDelay(attempt: number): number {
+  const ceiling = Math.min(BASE_RECONNECT_DELAY_MS * 2 ** attempt, MAX_RECONNECT_DELAY_MS);
+  return Math.round(Math.random() * ceiling);
 }
 
 export function useChatWebSocket(
@@ -15,74 +25,182 @@ export function useChatWebSocket(
   const [isConnected, setIsConnected] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const isUnmountedRef = useRef(false);
+  const onNewMessageRef = useRef(onNewMessage);
+  const currentUserIdRef = useRef(currentUserId);
+  const typingTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
+  // Keep latest callbacks without triggering WebSocket re-instantiation
+  useEffect(() => {
+    onNewMessageRef.current = onNewMessage;
+  }, [onNewMessage]);
 
   useEffect(() => {
-    if (!conversationId) return;
+    currentUserIdRef.current = currentUserId;
+  }, [currentUserId]);
 
-    // Use the existing collab endpoint which handles auth via token
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    // Assuming the token is available or we use a demo token for this prototype.
-    // In a real app we would get the actual token from auth context
-    const token = localStorage.getItem("devlink_access_token") || "demo-token";
-    const wsUrl = `${protocol}//${window.location.host}/api/v1/ws/collab?token=${token}`;
+  useEffect(() => {
+    isUnmountedRef.current = false;
+    const typingTimers = typingTimersRef.current;
 
-    try {
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
+    // Clear existing timers for previous conversation
+    typingTimers.forEach((timer) => clearTimeout(timer));
+    typingTimers.clear();
 
-      ws.onopen = () => {
-        setIsConnected(true);
-        // Join the conversation room
-        ws.send(JSON.stringify({ type: "chat.join", conversation_id: conversationId }));
-      };
+    // Reset reconnect attempts on conversation change
+    reconnectAttemptsRef.current = 0;
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
 
-      ws.onmessage = (evt) => {
+    if (!conversationId) {
+      return;
+    }
+
+    function cleanupSocket(socket: WebSocket | null) {
+      if (!socket) return;
+      socket.onopen = null;
+      socket.onmessage = null;
+      socket.onclose = null;
+      socket.onerror = null;
+
+      if (socket.readyState === WebSocket.OPEN) {
         try {
-          const msg = JSON.parse(evt.data);
+          socket.send(JSON.stringify({ type: "chat.leave", conversation_id: conversationId }));
+        } catch {
+          // Ignore send errors during cleanup
+        }
+      }
 
-          if (msg.type === "chat.message.new" && msg.conversation_id === conversationId) {
-            onNewMessage(msg);
-          } else if (msg.type === "chat.typing" && msg.conversation_id === conversationId) {
-            if (msg.user_id !== currentUserId) {
-              setTypingUsers((prev) => {
-                const newSet = new Set(prev);
-                newSet.add(msg.user_id);
-                return newSet;
-              });
+      try {
+        socket.close();
+      } catch {
+        // Ignore close errors
+      }
+    }
 
-              // Clear typing indicator after 3 seconds
-              setTimeout(() => {
+    function connect() {
+      if (isUnmountedRef.current || !conversationId) return;
+
+      const protocol =
+        typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = typeof window !== "undefined" ? window.location.host : "localhost";
+      const token =
+        tokenStore.getAccess() ||
+        (typeof localStorage !== "undefined"
+          ? localStorage.getItem("devlink_access_token")
+          : null) ||
+        "demo-token";
+      const wsUrl = `${protocol}//${host}/api/v1/ws/collab?token=${encodeURIComponent(token)}`;
+
+      try {
+        const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          if (isUnmountedRef.current || wsRef.current !== ws) {
+            cleanupSocket(ws);
+            return;
+          }
+          reconnectAttemptsRef.current = 0;
+          setIsConnected(true);
+          // Join the conversation room
+          try {
+            ws.send(JSON.stringify({ type: "chat.join", conversation_id: conversationId }));
+          } catch {
+            // Ignore send errors
+          }
+        };
+
+        ws.onmessage = (evt) => {
+          if (isUnmountedRef.current || wsRef.current !== ws) return;
+
+          try {
+            const msg = JSON.parse(evt.data);
+
+            if (msg.type === "chat.message.new" && msg.conversation_id === conversationId) {
+              onNewMessageRef.current?.(msg);
+            } else if (msg.type === "chat.typing" && msg.conversation_id === conversationId) {
+              const userId = msg.user_id;
+              if (userId && userId !== currentUserIdRef.current) {
                 setTypingUsers((prev) => {
                   const newSet = new Set(prev);
-                  newSet.delete(msg.user_id);
+                  newSet.add(userId);
                   return newSet;
                 });
-              }, 3000);
+
+                // Clear any existing typing timer for this user
+                const prevTimer = typingTimers.get(userId);
+                if (prevTimer) clearTimeout(prevTimer);
+
+                // Clear typing indicator after 3 seconds
+                const timer = setTimeout(() => {
+                  typingTimers.delete(userId);
+                  if (isUnmountedRef.current) return;
+                  setTypingUsers((prev) => {
+                    const newSet = new Set(prev);
+                    newSet.delete(userId);
+                    return newSet;
+                  });
+                }, 3000);
+
+                typingTimers.set(userId, timer);
+              }
             }
-          }
-        } catch {
-          // Ignore
-        }
-      };
-
-      ws.onclose = () => {
-        setIsConnected(false);
-      };
-
-      return () => {
-        if (ws.readyState === WebSocket.OPEN) {
-          try {
-            ws.send(JSON.stringify({ type: "chat.leave", conversation_id: conversationId }));
           } catch {
-            // Ignore send errors during cleanup
+            // Ignore parse errors
           }
-        }
-        ws.close();
-      };
-    } catch {
-      setIsConnected(false);
+        };
+
+        ws.onclose = () => {
+          if (isUnmountedRef.current || wsRef.current !== ws) return;
+          setIsConnected(false);
+
+          // Auto-reconnect with exponential backoff if not unmounted
+          if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+            const delay = getReconnectDelay(reconnectAttemptsRef.current);
+            reconnectAttemptsRef.current += 1;
+            reconnectTimerRef.current = setTimeout(() => {
+              reconnectTimerRef.current = null;
+              connect();
+            }, delay);
+          }
+        };
+
+        ws.onerror = () => {
+          if (isUnmountedRef.current || wsRef.current !== ws) return;
+          try {
+            ws.close();
+          } catch {
+            // Ignore
+          }
+        };
+      } catch {
+        setIsConnected(false);
+      }
     }
-  }, [conversationId, currentUserId, onNewMessage]);
+
+    connect();
+
+    return () => {
+      isUnmountedRef.current = true;
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      typingTimers.forEach((timer) => clearTimeout(timer));
+      typingTimers.clear();
+
+      const ws = wsRef.current;
+      wsRef.current = null;
+      cleanupSocket(ws);
+      setIsConnected(false);
+      setTypingUsers(new Set());
+    };
+  }, [conversationId]);
 
   const broadcastMessage = useCallback(
     (content: string) => {

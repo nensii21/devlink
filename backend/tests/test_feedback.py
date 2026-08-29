@@ -1,4 +1,3 @@
-
 def test_submit_feedback_success(db, client, register_and_login):
     auth = register_and_login("fb1@example.com", "fbuser1")
     headers = auth["headers"]

@@ -284,9 +284,9 @@ def test_the_restored_paths_actually_answer(client, register_and_login):
         "/api/skills/",
     ):
         response = client.get(path, headers=headers)
-        assert response.status_code == 200, (
-            f"{path} -> {response.status_code} {response.text[:200]}"
-        )
+        assert (
+            response.status_code == 200
+        ), f"{path} -> {response.status_code} {response.text[:200]}"
 
 
 def test_the_doubled_paths_stop_serving_the_collection(client, register_and_login):

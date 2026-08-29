@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { currentUser } from "@/mocks/seed";
 import { Link } from "@tanstack/react-router";
-import { TypoCaption, TypoHeading } from "@/components/shared/Typography";
+import { TypoCaption, TypoHeading, TypoCard } from "@/components/shared/Typography";
 
 export function GreetingHero() {
   const hour = new Date().getHours();
@@ -23,36 +23,38 @@ export function GreetingHero() {
     <Card className="flex flex-col gap-4 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between rounded-xl bg-card border-border/60 shadow-xs relative overflow-hidden">
       <div className="min-w-0 flex-1 flex flex-col gap-3">
         <div>
-          <TypoHeading as="h1">
+          <TypoHeading as="h1" className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             {greeting}, {first}! 👋
           </TypoHeading>
-          <TypoCaption as="p">Here's what's happening with your workspace today.</TypoCaption>
+          <TypoCaption as="p" className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Here's what's happening with your workspace today.
+          </TypoCaption>
         </div>
 
         {/* Inline Stats Badges Row */}
         <div className="flex flex-wrap gap-2">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface shadow-2xs">
             <Folder size={13} className="text-primary" />
-            <span>2 Active Projects</span>
+            <TypoCaption className="text-xs font-semibold text-foreground">2 Active Projects</TypoCaption>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface shadow-2xs">
             <Users2 size={13} className="text-emerald-500" />
-            <span>3 Pending Invites</span>
+            <TypoCaption className="text-xs font-semibold text-foreground">3 Pending Invites</TypoCaption>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface text-xs font-semibold text-foreground shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border bg-surface shadow-2xs">
             <Calendar size={13} className="text-violet-500" />
-            <span>5 Tasks Due</span>
+            <TypoCaption className="text-xs font-semibold text-foreground">5 Tasks Due</TypoCaption>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <Button asChild variant="primary" size="sm" className="gap-1.5">
+          <Button asChild variant="primary" size="sm" className="gap-1.5 font-medium">
             <Link to="/projects">
               Continue Working <ArrowRight size={13} />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="gap-1.5">
+          <Button asChild variant="outline" size="sm" className="gap-1.5 font-medium">
             <Link to="/projects">
               Create Project <Plus size={13} />
             </Link>
@@ -65,7 +67,6 @@ export function GreetingHero() {
         <MiniStat icon={<Flame size={13} />} label="Streak" value="12d" />
         <MiniStat icon={<Sparkles size={13} />} label="AI Score" value="96" />
       </div>
-
       {/* SVG Laptop/Plant Illustration */}
       <svg
         width="140"
@@ -121,10 +122,14 @@ function MiniStat({
     <div className="flex flex-col justify-between gap-1.5 rounded-xl border border-border/50 bg-muted/20 p-3 sm:min-w-[120px] sm:shrink-0">
       <div className="flex items-center gap-1.5 text-muted-foreground">
         {icon}
-        <p className="text-[10px] font-medium uppercase tracking-wider truncate">{label}</p>
+        <TypoCaption as="p" className="text-[10px] font-medium uppercase tracking-wider truncate">
+          {label}
+        </TypoCaption>
       </div>
       <div>
-        <p className="text-lg font-semibold tracking-tight text-foreground">{value}</p>
+        <TypoCard as="p" className="text-lg font-semibold tracking-tight text-foreground">
+          {value}
+        </TypoCard>
         {progress !== undefined && (
           <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted/50">
             <div

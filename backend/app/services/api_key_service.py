@@ -10,6 +10,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.rbac import ORG_MANAGE_TOKENS, has_org_permission
 from app.models.api_key import ApiKey
 from app.models.audit_log import AuditAction
 from app.models.user import User
@@ -24,6 +25,17 @@ from app.services.audit_log_service import AuditLogService
 class ApiKeyService:
     """
     Business logic for API Key Management (#605)
+
+    A key has exactly one owner, expressed as one of two mutually exclusive
+    columns: a personal key sets ``user_id`` and leaves ``organization_id``
+    NULL, an organisation key does the opposite. Every ownership check used to
+    be spelled ``if key.user_id and key.user_id != actor.id and not
+    actor.is_superuser`` -- which, for an organisation key, short-circuits on
+    the first operand and skips the check entirely.
+
+    All four management operations now route through
+    :meth:`assert_can_manage`, which branches on which owner column is set
+    instead of assuming there is only one.
     """
 
     @staticmethod
@@ -35,6 +47,69 @@ class ApiKeyService:
         # codeql[py/weak-sensitive-data-hashing] These are high entropy tokens, not passwords
         hashed_key = hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
         return raw_key, prefix, hashed_key
+
+    # ------------------------------------------------------------------
+    # Authorization
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def can_manage(db: Session, key: ApiKey, actor: User) -> bool:
+        """Whether ``actor`` may read or change ``key``.
+
+        Three cases, in the order they are cheapest to answer:
+
+        * a superuser may manage anything;
+        * a personal key is managed by the user it belongs to;
+        * an organisation key is managed by anyone holding
+          ``org:manage_tokens`` in that organisation -- the same grant the
+          create and list routes already require.
+
+        A key with neither owner column set is a data error, not a free-for-all.
+        It falls through to ``False`` deliberately: the previous expression
+        treated it as unowned and therefore unguarded, which is the opposite of
+        what an unattributable credential deserves.
+        """
+        if getattr(actor, "is_superuser", False):
+            return True
+
+        if key.user_id is not None:
+            return key.user_id == actor.id
+
+        if key.organization_id is not None:
+            return has_org_permission(
+                db,
+                actor.id,
+                key.organization_id,
+                ORG_MANAGE_TOKENS,
+            )
+
+        return False
+
+    @classmethod
+    def assert_can_manage(cls, db: Session, key: ApiKey, actor: User) -> None:
+        """Raise 403 unless ``actor`` may manage ``key``."""
+        if not cls.can_manage(db, key, actor):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission denied",
+            )
+
+    @classmethod
+    def get_manageable_api_key(
+        cls,
+        db: Session,
+        key_id: uuid.UUID,
+        actor: User,
+    ) -> ApiKey:
+        """Load a key the actor is allowed to touch, or fail.
+
+        One call site for the two steps, so a route cannot fetch a key and
+        then forget to check it -- which is how ``GET /api/api-keys/{key_id}``
+        ended up with its own hand-rolled copy of the broken condition.
+        """
+        key = cls.get_api_key(db, key_id)
+        cls.assert_can_manage(db, key, actor)
+        return key
 
     @classmethod
     def validate_scopes(cls, scopes: List[str]) -> List[str]:
@@ -114,8 +189,20 @@ class ApiKeyService:
         organization_id: Optional[uuid.UUID] = None,
         page: int = 1,
         limit: int = 20,
+        include_revoked: bool = False,
     ) -> Dict[str, Any]:
-        """List API keys for user or organization."""
+        """List API keys for user or organization.
+
+        Revoked keys are excluded by default. The filter used to be a comment
+        and an unrelated ``order_by``::
+
+            # Exclude revoked/deleted keys or order active first
+            stmt = stmt.order_by(ApiKey.created_at.desc())
+
+        so a revoked key stayed in the list looking much like a live one, and
+        the pagination totals counted it. ``include_revoked`` keeps the audit
+        view available for a management UI that wants the history.
+        """
         stmt = select(ApiKey)
 
         if organization_id:
@@ -128,7 +215,9 @@ class ApiKeyService:
                 detail="Must provide user_id or organization_id",
             )
 
-        # Exclude revoked/deleted keys or order active first
+        if not include_revoked:
+            stmt = stmt.where(ApiKey.is_active.is_(True))
+
         stmt = stmt.order_by(ApiKey.created_at.desc())
 
         count_stmt = select(func.count()).select_from(stmt.subquery())
@@ -166,10 +255,7 @@ class ApiKeyService:
         key = cls.get_api_key(db, key_id)
 
         # Authorization check
-        if key.user_id and key.user_id != actor.id and not actor.is_superuser:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
-            )
+        cls.assert_can_manage(db, key, actor)
 
         if payload.name is not None:
             key.name = payload.name
@@ -210,10 +296,7 @@ class ApiKeyService:
         """
         key = cls.get_api_key(db, key_id)
 
-        if key.user_id and key.user_id != actor.id and not actor.is_superuser:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
-            )
+        cls.assert_can_manage(db, key, actor)
 
         raw_key, prefix, hashed_key = cls.generate_raw_key()
         key.prefix = prefix
@@ -248,10 +331,7 @@ class ApiKeyService:
         """Revoke API Key immediately."""
         key = cls.get_api_key(db, key_id)
 
-        if key.user_id and key.user_id != actor.id and not actor.is_superuser:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied"
-            )
+        cls.assert_can_manage(db, key, actor)
 
         key.is_active = False
         key.updated_at = datetime.now(timezone.utc)

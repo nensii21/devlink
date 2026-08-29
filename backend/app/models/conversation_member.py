@@ -15,7 +15,7 @@ from sqlalchemy import (
     Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
 from app.database.base import Base
 
@@ -108,7 +108,20 @@ class ConversationMember(Base):
 
     conversation = relationship(
         "Conversation",
-        backref="members",
+        # The foreign key declares ``ondelete="CASCADE"``, but the ORM does not
+        # know that and defaults to disassociating children when the parent is
+        # deleted -- it issued ``UPDATE conversation_members SET
+        # conversation_id = NULL``, which the NOT NULL constraint then rejected,
+        # so deleting a conversation failed with a 409 rather than deleting it.
+        #
+        # ``passive_deletes`` tells the ORM to leave the rows to the database's
+        # cascade instead of loading and rewriting them, and the delete cascade
+        # keeps the identity map consistent for members already in the session.
+        backref=backref(
+            "members",
+            cascade="all, delete-orphan",
+            passive_deletes=True,
+        ),
     )
 
     user = relationship(

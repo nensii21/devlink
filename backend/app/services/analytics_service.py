@@ -4,11 +4,14 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
-from sqlalchemy import func, select
+from sqlalchemy import distinct, func, select
 from sqlalchemy.orm import Session
 
 from app.models.application import Application, ApplicationStatus
+from app.models.hackathon import Hackathon
+from app.models.organization import Organization
 from app.models.project import Project
+from app.models.project_member import ProjectMember
 from app.models.user import User
 from app.schemas.analytics import (
     ActiveUsersOverview,
@@ -16,6 +19,7 @@ from app.schemas.analytics import (
     DAUMetric,
     DailyProjectMetric,
     PlatformAnalyticsResponse,
+    PlatformSocialProofResponse,
     ProjectGrowthMetric,
     RetentionMetric,
 )
@@ -505,3 +509,54 @@ class AnalyticsService:
             )
 
         return ProfileAnalyticsResponse(summary=summary, trends=trends)
+
+    @staticmethod
+    def get_social_proof(db: Session) -> PlatformSocialProofResponse:
+        """
+        Compute platform growth and adoption numbers for the landing page social proof section:
+        - Developers (registered active users)
+        - Projects (total published projects)
+        - Teams (teams formed / projects with active members)
+        - Organizations (registered organizations)
+        - Hackathons (hosted hackathon events)
+        """
+        total_developers = (
+            db.scalar(
+                select(func.count(User.id)).where(
+                    User.is_active.is_(True),
+                    User.deleted_at.is_(None),
+                )
+            )
+            or 0
+        )
+
+        total_projects = (
+            db.scalar(
+                select(func.count(Project.id)).where(
+                    Project.deleted_at.is_(None),
+                )
+            )
+            or 0
+        )
+
+        teams_formed = (
+            db.scalar(
+                select(func.count(distinct(ProjectMember.project_id))).where(
+                    ProjectMember.is_active.is_(True)
+                )
+            )
+            or 0
+        )
+
+        total_organizations = db.scalar(select(func.count(Organization.id))) or 0
+
+        total_hackathons = db.scalar(select(func.count(Hackathon.id))) or 0
+
+        return PlatformSocialProofResponse(
+            developers=total_developers,
+            projects=total_projects,
+            teams=teams_formed,
+            organizations=total_organizations,
+            hackathons=total_hackathons,
+            last_updated=datetime.now(timezone.utc).isoformat(),
+        )

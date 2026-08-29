@@ -35,17 +35,23 @@ def route_app_exception():
 
 @app.get("/test-error-handler/auth-exception")
 def route_auth_exception():
-    raise AuthException(message="Custom auth error", status_code=401, code="CUSTOM_AUTH_ERROR")
+    raise AuthException(
+        message="Custom auth error", status_code=401, code="CUSTOM_AUTH_ERROR"
+    )
 
 
 @app.get("/test-error-handler/database-exception")
 def route_database_exception():
-    raise DatabaseException(message="Custom database error", status_code=500, code="CUSTOM_DB_ERROR")
+    raise DatabaseException(
+        message="Custom database error", status_code=500, code="CUSTOM_DB_ERROR"
+    )
 
 
 @app.get("/test-error-handler/validation-exception")
 def route_validation_exception():
-    raise ValidationException(message="Custom validation error", status_code=422, code="CUSTOM_VAL_ERROR")
+    raise ValidationException(
+        message="Custom validation error", status_code=422, code="CUSTOM_VAL_ERROR"
+    )
 
 
 @app.get("/test-error-handler/sqlalchemy-error")
@@ -58,7 +64,7 @@ def route_integrity_error():
     class MockOrigException:
         def __str__(self):
             return 'duplicate key value violates unique constraint "ix_users_email"\nDETAIL: Key (email)=(test@example.com) already exists.'
-    
+
     raise IntegrityError("select 1", {}, MockOrigException())
 
 
@@ -126,7 +132,9 @@ def test_generic_sqlalchemy_error_handling(client):
     data = response.json()
     assert "error" in data
     assert data["error"]["code"] == "DATABASE_ERROR"
-    assert data["error"]["message"] == "A database error occurred. Please try again later."
+    assert (
+        data["error"]["message"] == "A database error occurred. Please try again later."
+    )
     # Ensure raw DB failure message is NOT exposed to client
     assert "Generic database failure" not in str(data)
 

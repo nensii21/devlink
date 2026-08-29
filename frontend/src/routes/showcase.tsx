@@ -123,7 +123,7 @@ function ProjectShowcasePage() {
   // Update query state safely
   const updateSearch = (updates: Partial<z.infer<typeof showcaseSearchSchema>>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: any) => ({
         ...prev,
         ...updates,
         // Reset to page 1 on filter/tab changes

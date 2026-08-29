@@ -46,11 +46,9 @@ export function AuditTimeline({ entityType, entityId }: AuditTimelineProps) {
               <span className="font-semibold text-sm">
                 {log.action.replace(/_/g, " ").toUpperCase()}
               </span>
-              <TypoCaption>
-                {format(new Date(log.created_at), "MMM d, yyyy HH:mm")}
-              </TypoCaption>
+              <TypoCaption className="text-xs text-muted-foreground">{format(new Date(log.created_at), "MMM d, yyyy HH:mm")}</TypoCaption>
             </div>
-            <TypoCaption as="p">By User {log.actor_id || "System"}</TypoCaption>
+            <p className="text-sm text-muted-foreground mt-1">By User {log.actor_id || "System"}</p>
           </div>
         </div>
       ))}

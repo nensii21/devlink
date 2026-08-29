@@ -71,7 +71,6 @@ from app.models.project import Project
 from app.models.project_member import MemberRole, ProjectMember
 from app.models.user import User
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -433,9 +432,7 @@ def test_an_org_admin_cannot_transfer_ownership_of_an_org_project(db) -> None:
     project = make_project(db, founder, org=org)
 
     assert (
-        has_project_permission(
-            db, org_admin.id, project.id, PROJECT_TRANSFER_OWNERSHIP
-        )
+        has_project_permission(db, org_admin.id, project.id, PROJECT_TRANSFER_OWNERSHIP)
         is False
     )
 
@@ -677,13 +674,12 @@ def test_frontend_permission_tables_match_the_backend() -> None:
         role.value: sorted(perms) for role, perms in PROJECT_ROLE_PERMISSIONS.items()
     }
 
-    assert frontend_org == backend_org, (
-        "frontend ORG_ROLE_PERMISSIONS disagrees with app/core/rbac.py:\n"
-        + json.dumps(
-            {"frontend": frontend_org, "backend": backend_org},
-            indent=2,
-            sort_keys=True,
-        )
+    assert (
+        frontend_org == backend_org
+    ), "frontend ORG_ROLE_PERMISSIONS disagrees with app/core/rbac.py:\n" + json.dumps(
+        {"frontend": frontend_org, "backend": backend_org},
+        indent=2,
+        sort_keys=True,
     )
 
     assert frontend_project == backend_project, (

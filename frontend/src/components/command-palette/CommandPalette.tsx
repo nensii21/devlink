@@ -237,7 +237,7 @@ export function CommandPalette<TItem extends CommandPaletteItemBase>(
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">{item.title}</span>
                           {item.description ? (
-                            <TypoCaption>
+                            <TypoCaption className="mt-0.5 block truncate text-xs text-muted-foreground">
                               {item.description}
                             </TypoCaption>
                           ) : null}

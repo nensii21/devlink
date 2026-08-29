@@ -7,7 +7,9 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.template_preview_request_variables import TemplatePreviewRequestVariables
+    from ..models.template_preview_request_variables import (
+        TemplatePreviewRequestVariables,
+    )
 
 
 T = TypeVar("T", bound="TemplatePreviewRequest")
@@ -48,7 +50,9 @@ class TemplatePreviewRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.template_preview_request_variables import TemplatePreviewRequestVariables
+        from ..models.template_preview_request_variables import (
+            TemplatePreviewRequestVariables,
+        )
 
         d = dict(src_dict)
         title_template = d.pop("title_template")

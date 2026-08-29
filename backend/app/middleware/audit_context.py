@@ -3,6 +3,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.core.client_address import client_address
+
 # Context variables to hold request-scoped data for audit logging
 audit_ip_address = contextvars.ContextVar("audit_ip_address", default=None)
 audit_user_agent = contextvars.ContextVar("audit_user_agent", default=None)
@@ -18,11 +20,11 @@ class AuditContextMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next) -> Response:
-        ip = request.client.host if request.client else None
-        # if behind a proxy, we'd check x-forwarded-for here, but let's just use a simple check
-        forwarded_for = request.headers.get("x-forwarded-for")
-        if forwarded_for:
-            ip = forwarded_for.split(",")[0].strip()
+        # This used the leftmost `X-Forwarded-For` entry, which is the one
+        # the client fully controls -- so the IP on every audit record was
+        # whatever the caller claimed it was. `client_address` honours the
+        # header only for requests that arrived through a trusted proxy.
+        ip = client_address(request)
 
         ua = request.headers.get("user-agent")
 

@@ -41,9 +41,7 @@ def test_set_collaboration_status(client, register_and_login):
     body = response.json()
     assert body["status"] == "coding"
 
-    get_response = client.get(
-        "/api/v1/users/me/collaboration-status", headers=headers
-    )
+    get_response = client.get("/api/v1/users/me/collaboration-status", headers=headers)
     assert get_response.json()["status"] == "coding"
 
 

@@ -141,12 +141,18 @@ def list_installed_plugins(
 @router.post(
     "/dispatch-event",
     response_model=PluginEventDispatchResult,
-    summary="Dispatch Plugin Extension Event",
-    description="Trigger an extension point event across active and enabled plugin integrations.",
+    summary="Dispatch Plugin Extension Event (administrators only)",
+    description=(
+        "Trigger an extension point event across active and enabled plugin "
+        "integrations. This is a platform-internal fan-out primitive: it "
+        "enumerates every enabled installation on the platform, not just the "
+        "caller's, so it is restricted to administrators."
+    ),
 )
 def dispatch_plugin_event(
     event_in: PluginEventDispatch,
     db: Session = Depends(get_database),
+    _actor: User = Depends(require_admin),
 ) -> PluginEventDispatchResult:
     return PluginService.dispatch_event(
         db, event=event_in.event, payload=event_in.payload

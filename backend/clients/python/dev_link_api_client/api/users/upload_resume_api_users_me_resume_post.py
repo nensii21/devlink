@@ -5,7 +5,9 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.body_upload_resume_api_users_me_resume_post import BodyUploadResumeApiUsersMeResumePost
+from ...models.body_upload_resume_api_users_me_resume_post import (
+    BodyUploadResumeApiUsersMeResumePost,
+)
 from ...models.http_validation_error import HTTPValidationError
 from ...models.user_response import UserResponse
 from ...types import Response

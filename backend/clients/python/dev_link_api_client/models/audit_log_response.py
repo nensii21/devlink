@@ -11,9 +11,15 @@ from attrs import field as _attrs_field
 from ..models.audit_action import AuditAction
 
 if TYPE_CHECKING:
-    from ..models.audit_log_response_metadata_info_type_0 import AuditLogResponseMetadataInfoType0
-    from ..models.audit_log_response_new_values_type_0 import AuditLogResponseNewValuesType0
-    from ..models.audit_log_response_old_values_type_0 import AuditLogResponseOldValuesType0
+    from ..models.audit_log_response_metadata_info_type_0 import (
+        AuditLogResponseMetadataInfoType0,
+    )
+    from ..models.audit_log_response_new_values_type_0 import (
+        AuditLogResponseNewValuesType0,
+    )
+    from ..models.audit_log_response_old_values_type_0 import (
+        AuditLogResponseOldValuesType0,
+    )
 
 
 T = TypeVar("T", bound="AuditLogResponse")
@@ -68,9 +74,15 @@ class AuditLogResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.audit_log_response_metadata_info_type_0 import AuditLogResponseMetadataInfoType0
-        from ..models.audit_log_response_new_values_type_0 import AuditLogResponseNewValuesType0
-        from ..models.audit_log_response_old_values_type_0 import AuditLogResponseOldValuesType0
+        from ..models.audit_log_response_metadata_info_type_0 import (
+            AuditLogResponseMetadataInfoType0,
+        )
+        from ..models.audit_log_response_new_values_type_0 import (
+            AuditLogResponseNewValuesType0,
+        )
+        from ..models.audit_log_response_old_values_type_0 import (
+            AuditLogResponseOldValuesType0,
+        )
 
         id = str(self.id)
 
@@ -179,9 +191,15 @@ class AuditLogResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.audit_log_response_metadata_info_type_0 import AuditLogResponseMetadataInfoType0
-        from ..models.audit_log_response_new_values_type_0 import AuditLogResponseNewValuesType0
-        from ..models.audit_log_response_old_values_type_0 import AuditLogResponseOldValuesType0
+        from ..models.audit_log_response_metadata_info_type_0 import (
+            AuditLogResponseMetadataInfoType0,
+        )
+        from ..models.audit_log_response_new_values_type_0 import (
+            AuditLogResponseNewValuesType0,
+        )
+        from ..models.audit_log_response_old_values_type_0 import (
+            AuditLogResponseOldValuesType0,
+        )
 
         d = dict(src_dict)
         id = UUID(d.pop("id"))
@@ -294,7 +312,9 @@ class AuditLogResponse:
 
         new_values = _parse_new_values(d.pop("new_values"))
 
-        def _parse_metadata_info(data: object) -> AuditLogResponseMetadataInfoType0 | None:
+        def _parse_metadata_info(
+            data: object,
+        ) -> AuditLogResponseMetadataInfoType0 | None:
             if data is None:
                 return data
             try:

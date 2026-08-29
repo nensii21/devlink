@@ -91,6 +91,7 @@ export const ORG_ROLE_PERMISSIONS: Record<OrgRole, readonly string[]> = {
     "org:manage_jobs",
     "org:manage_candidates",
     "org:manage_content",
+    "org:manage_plugins",
     "org:view_content",
   ],
   admin: [
@@ -101,6 +102,7 @@ export const ORG_ROLE_PERMISSIONS: Record<OrgRole, readonly string[]> = {
     "org:manage_jobs",
     "org:manage_candidates",
     "org:manage_content",
+    "org:manage_plugins",
     "org:view_content",
   ],
   recruiter: ["org:manage_jobs", "org:manage_candidates", "org:view_content"],

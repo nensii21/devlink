@@ -118,3 +118,14 @@ class PlatformAnalyticsResponse(BaseModel):
     project_growth: ProjectGrowthMetric = Field(
         ..., description="Project growth metrics and trend"
     )
+
+
+class PlatformSocialProofResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    developers: int = Field(..., description="Total registered active developers")
+    projects: int = Field(..., description="Total published projects")
+    teams: int = Field(..., description="Total teams formed")
+    organizations: int = Field(..., description="Total partner organizations")
+    hackathons: int = Field(..., description="Total hosted hackathons")
+    last_updated: str = Field(..., description="ISO timestamp of stats calculation")

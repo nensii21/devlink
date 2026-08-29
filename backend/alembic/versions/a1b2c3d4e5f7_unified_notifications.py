@@ -165,9 +165,9 @@ def downgrade() -> None:
     op.drop_column("notifications", "status")
     op.drop_column("notifications", "channel")
 
-    op.execute("DROP TYPE notificationpriority")
-    op.execute("DROP TYPE notificationstatus")
-    op.execute("DROP TYPE notificationchannel")
+    op.execute("DROP TYPE IF EXISTS notificationpriority")
+    op.execute("DROP TYPE IF EXISTS notificationstatus")
+    op.execute("DROP TYPE IF EXISTS notificationchannel")
 
     op.drop_index(
         op.f("ix_notification_preferences_user_id"),

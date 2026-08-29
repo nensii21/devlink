@@ -52,10 +52,32 @@ class ReputationLog(Base):
         nullable=True,
     )
 
+    #: The administrator who applied a manual adjustment.
+    #:
+    #: The log recorded who *received* points and never who granted them, so
+    #: an entry could not be attributed to anyone. Nullable because entries
+    #: the platform awards itself have no human actor -- and because every row
+    #: that already exists has none either.
+    granted_by_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
 
-    user = relationship("User", backref="reputation_logs")
+    user = relationship(
+        "User",
+        foreign_keys=[user_id],
+        backref="reputation_logs",
+    )
+
+    granted_by = relationship(
+        "User",
+        foreign_keys=[granted_by_id],
+    )

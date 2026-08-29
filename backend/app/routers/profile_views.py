@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_database
@@ -51,7 +51,19 @@ def get_my_profile_views(
     """
     Retrieves paginated history of users who recently visited your profile.
     Anonymous viewers will have masked credentials.
+    Feature is exclusive to premium members.
     """
+    is_premium = (
+        getattr(current_user, "premium", False)
+        or getattr(current_user, "is_premium", False)
+        or getattr(current_user, "is_superuser", False)
+    )
+    if not is_premium:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Recent profile visitors feature is only available for premium members.",
+        )
+
     return ProfileViewService.get_profile_views(
         db=db,
         user_id=current_user.id,

@@ -48,9 +48,15 @@ export function CollectionSidebar({
   return (
     <nav aria-label="Bookmark collections" className="space-y-1">
       <div className="flex items-center justify-between px-1 pb-2">
-        <TypoSection>
+ feature/account-deactivation-1306
+        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Collections
+        </h3>
+
+        <TypoSection as="h3" className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
           Collections
         </TypoSection>
+ main
         <Button
           variant="ghost"
           size="icon"
@@ -93,9 +99,15 @@ export function CollectionSidebar({
       )}
 
       {collections.filter((c) => !c.is_default).length === 0 && !isLoading && (
-        <TypoCaption as="p">
+ feature/account-deactivation-1306
+        <p className="px-1 py-2 text-[12px] text-muted-foreground">
+          No collections yet. Create one to organize your bookmarks.
+        </p>
+
+        <TypoCaption as="p" className="px-1 py-2 text-[12px] text-muted-foreground">
           No collections yet. Create one to organize your bookmarks.
         </TypoCaption>
+ main
       )}
     </nav>
   );

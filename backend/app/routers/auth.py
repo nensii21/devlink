@@ -1,4 +1,3 @@
-
 # pyrefly: ignore [missing-import]
 import uuid
 import redis

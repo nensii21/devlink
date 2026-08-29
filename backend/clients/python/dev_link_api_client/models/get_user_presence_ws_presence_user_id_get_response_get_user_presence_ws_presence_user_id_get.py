@@ -6,7 +6,10 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="GetUserPresenceWsPresenceUserIdGetResponseGetUserPresenceWsPresenceUserIdGet")
+T = TypeVar(
+    "T",
+    bound="GetUserPresenceWsPresenceUserIdGetResponseGetUserPresenceWsPresenceUserIdGet",
+)
 
 
 @_attrs_define
@@ -25,9 +28,13 @@ class GetUserPresenceWsPresenceUserIdGetResponseGetUserPresenceWsPresenceUserIdG
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        get_user_presence_ws_presence_user_id_get_response_get_user_presence_ws_presence_user_id_get = cls()
+        get_user_presence_ws_presence_user_id_get_response_get_user_presence_ws_presence_user_id_get = (
+            cls()
+        )
 
-        get_user_presence_ws_presence_user_id_get_response_get_user_presence_ws_presence_user_id_get.additional_properties = d
+        get_user_presence_ws_presence_user_id_get_response_get_user_presence_ws_presence_user_id_get.additional_properties = (
+            d
+        )
         return get_user_presence_ws_presence_user_id_get_response_get_user_presence_ws_presence_user_id_get
 
     @property

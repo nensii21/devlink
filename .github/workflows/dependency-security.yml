@@ -1,42 +1,88 @@
+# Supply-chain checks for the dependencies this repository actually ships.
+#
+# Every step below used to run at the repository root, against
+# `cryptoviz-core`'s `package.json` -- a manifest for a project that is not
+# here (#1401). So `npm audit --audit-level=high` gated merges on the
+# vulnerability status of seven packages nobody imports, `license-checker`
+# cleared the same seven, and the artifact uploaded as
+# `software-bill-of-materials` described software this repository does not
+# contain. All three passed, under names that said otherwise.
+#
+# `frontend/` is where the third-party JavaScript is. The root manifest is
+# gone; `.github/scripts/check_manifests.py` fails the build if one comes back
+# without a workflow that installs it.
+
 name: Supply Chain & Dependency Security
+
 on:
   push:
     branches: [main, release/*]
   pull_request:
     branches: [main]
+
+defaults:
+  run:
+    working-directory: frontend
+
 jobs:
   audit-and-scan:
     name: Dependency Audit & License Verification
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
       - name: Checkout Codebase
         uses: actions/checkout@v4
+
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          node-with-registry: 'https://npmjs.org'
-          cache: 'npm'
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
       - name: Validate Lockfile Integrity
-        # Acceptance Criteria: Enforce lockfile synchronization to prevent dependency confusion attacks
+        # `npm ci` fails outright when the lockfile and the manifest disagree,
+        # which is the check: an install that silently resolves something the
+        # lockfile did not pin is the shape of a dependency-confusion attack.
         run: npm ci --ignore-scripts
+
       - name: Audit Vulnerability Risk Thresholds
-        # Acceptance Criteria: Scan vulnerabilities and fail the build if High or Critical bugs exist
         run: npm audit --audit-level=high
+
       - name: Continuous License Compliance Verification
-        # Blocks unauthorized or restrictive software licenses (e.g. GPL-3.0) from entering production
+        # Blocks copyleft licences from entering a distributed bundle.
         run: |
-          npx license-checker --summary --production --failOn "GPLv3;AGPLv3;LGPLv3"
+          npx license-checker --summary --production \
+            --failOn "GPLv3;AGPLv3;LGPLv3"
+
   sbom-generation:
     name: SBOM Generation Asset Builder
     runs-on: ubuntu-latest
     needs: audit-and-scan
+    timeout-minutes: 10
+
     steps:
       - name: Checkout Codebase
         uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+
       - name: Generate CycloneDX SBOM File
-        # Acceptance Criteria: Auto-generates standard SPDX/CycloneDX bill-of-materials on release paths
         run: |
-          npx @cyclonedx/cyclonedx-npm --output-file public/sbom.json --output-format JSON
+          mkdir -p ../public
+          npx @cyclonedx/cyclonedx-npm \
+            --output-file ../public/sbom.json \
+            --output-format JSON
+
       - name: Upload SBOM Artifact Bundle
         uses: actions/upload-artifact@v4
         with:

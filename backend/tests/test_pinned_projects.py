@@ -18,7 +18,6 @@ from app.models.user import User
 from app.schemas.pinned_project import PinnedProjectReorder
 from app.services.pinned_project_service import PinnedProjectService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

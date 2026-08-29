@@ -160,6 +160,7 @@ def test_profile_analytics_endpoints():
     app.dependency_overrides.pop(get_current_user, None)
     app.dependency_overrides.pop(get_optional_current_user, None)
 
+
 def test_profile_analytics_trends_have_expected_days():
     db = TestingSessionLocal()
     user_id = uuid.uuid4()

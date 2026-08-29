@@ -9,12 +9,13 @@ class BaseTask(Task):
     Standard base task with exponential backoff retries,
     structured lifecycle logging, and custom failure reporting.
     """
+
     # Automatic retry configuration
     autoretry_for = (Exception,)
     retry_kwargs = {"max_retries": 5}
-    retry_backoff = True         # Exponential backoff (e.g., 2s, 4s, 8s, 16s...)
-    retry_backoff_max = 600      # Cap backoff delay at 10 minutes
-    retry_jitter = True          # Prevent thundering herds
+    retry_backoff = True  # Exponential backoff (e.g., 2s, 4s, 8s, 16s...)
+    retry_backoff_max = 600  # Cap backoff delay at 10 minutes
+    retry_jitter = True  # Prevent thundering herds
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """Called when the task has exhausted all retries or failed fatally."""
@@ -42,5 +43,7 @@ class BaseTask(Task):
 
     def on_success(self, retval, task_id, args, kwargs):
         """Called upon successful task completion."""
-        logger.info("Task completed successfully | Task: %s | ID: %s", self.name, task_id)
+        logger.info(
+            "Task completed successfully | Task: %s | ID: %s", self.name, task_id
+        )
         super().on_success(retval, task_id, args, kwargs)

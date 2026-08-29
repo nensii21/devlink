@@ -75,7 +75,7 @@ export function AnnouncementBanner() {
           <div
             key={ann.id}
             className={cn(
-              "flex items-center justify-between px-4 py-2.5 text-xs sm:text-sm font-medium transition-all shadow-sm",
+              "flex items-center justify-between px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold transition-all shadow-sm select-none",
               isCritical
                 ? "bg-destructive text-destructive-foreground"
                 : isWarning
@@ -83,25 +83,25 @@ export function AnnouncementBanner() {
                   : "bg-primary text-primary-foreground",
             )}
           >
-            <div className="flex items-center gap-2.5 flex-1 min-w-0 pr-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0 pr-3">
               {isCritical ? (
-                <AlertCircle className="h-4 w-4 shrink-0" />
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
               ) : isWarning ? (
-                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
               ) : (
-                <Info className="h-4 w-4 shrink-0" />
+                <Info className="h-3.5 w-3.5 shrink-0" />
               )}
-              <div className="truncate">
-                <span className="font-bold mr-1.5">{ann.title}:</span>
+              <div className="truncate text-left leading-normal">
+                <span className="font-bold mr-1">{ann.title}:</span>
                 <span>{ann.content}</span>
               </div>
             </div>
             <button
               onClick={() => handleDismiss(ann.id)}
-              className="p-1 rounded-md hover:bg-black/10 transition-colors shrink-0"
+              className="p-1 rounded-md hover:bg-black/10 transition-colors shrink-0 cursor-pointer ml-1"
               aria-label="Dismiss banner"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
         );

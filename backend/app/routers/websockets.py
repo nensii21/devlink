@@ -523,7 +523,10 @@ async def websocket_collab(websocket: WebSocket, token: str = ""):
                 }
                 if status_val not in allowed_statuses:
                     await manager.send_personal_message(
-                        _event("error", message=f"Invalid collaboration status: {status_val}"),
+                        _event(
+                            "error",
+                            message=f"Invalid collaboration status: {status_val}",
+                        ),
                         user_id,
                     )
                 else:

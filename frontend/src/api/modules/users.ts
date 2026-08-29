@@ -28,19 +28,37 @@ export interface CurrentUserProfile {
   version?: number;
 }
 
+export interface UserProfileUpdateData {
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  headline?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  profile_image?: string;
+  github_url?: string;
+  linkedin_url?: string;
+  twitter_url?: string;
+  portfolio_url?: string;
+  role?: string;
+  experience_level?: string;
+  company?: string;
+  skills?: string[];
+}
+
 export const usersApi = {
-  /**
-   * The caller's own profile.
-   *
-   * `auth-context.tsx` reached for this endpoint with a hand-rolled
-   * `api.get("/api/users/me")` because there was nothing here to call, and the
-   * settings page called a `usersService.getMe` that did not exist (#1315).
-   */
-  me: () => api.get<CurrentUserProfile>("/api/users/me"),
   list: (query?: { page?: number; limit?: number; q?: string }) =>
     api.get<unknown[]>("/api/users", { query }),
   get: (id: string) => api.get<unknown>(`/api/users/${id}`),
+  /**
+   * The caller's own profile. Typed, so the settings page's reads of
+   * `version` and the legacy `handle` are checked rather than `any` (#1315).
+   */
+  getMe: () => api.get<CurrentUserProfile>("/api/users/me"),
+  getByUsername: (username: string) => api.get<any>(`/api/users/by-username/${username}`),
   update: (id: string, body: Record<string, unknown>) => api.put<unknown>(`/api/users/${id}`, body),
+  updateProfile: (body: UserProfileUpdateData) => api.put<unknown>("/api/users/me", body),
   updateMe: (body: Record<string, unknown>) => api.put<unknown>("/api/users/me", body),
   getPrivacySettings: () => api.get<any>("/api/users/me/privacy"),
   updatePrivacySettings: (body: Record<string, any>) =>

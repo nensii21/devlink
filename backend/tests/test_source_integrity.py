@@ -173,9 +173,9 @@ def test_sources_are_utf8(path: Path) -> None:
         "UTF-16. Re-save it as UTF-8."
     )
 
-    assert not raw.startswith(b"\xef\xbb\xbf"), (
-        f"{_relative(path)} starts with a UTF-8 BOM. Save it without one."
-    )
+    assert not raw.startswith(
+        b"\xef\xbb\xbf"
+    ), f"{_relative(path)} starts with a UTF-8 BOM. Save it without one."
 
     try:
         raw.decode("utf-8")
@@ -278,9 +278,10 @@ def test_no_duplicate_methods(path: Path) -> None:
 
     duplicates = _class_method_bindings(tree)
 
-    assert not duplicates, (
-        f"{_relative(path)} defines these methods more than once: "
-        + ", ".join(f"{cls}.{method}" for cls, method in sorted(duplicates))
+    assert (
+        not duplicates
+    ), f"{_relative(path)} defines these methods more than once: " + ", ".join(
+        f"{cls}.{method}" for cls, method in sorted(duplicates)
     )
 
 

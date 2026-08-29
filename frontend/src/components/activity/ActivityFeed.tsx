@@ -67,14 +67,12 @@ export function ActivityItem({ activity }: { activity: BackendActivity }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-semibold text-foreground">{activity.title}</p>
-        <TypoCaption as="p">
+        <p className="truncate text-[12px] text-muted-foreground">
           {activity.description ?? activity.activity_type.replaceAll("_", " ")}
           {actorName && <span> by {actorName}</span>}
-        </TypoCaption>
+        </p>
       </div>
-      <TypoCaption>
-        {getActivityTime(activity.created_at)}
-      </TypoCaption>
+      <TypoCaption className="whitespace-nowrap text-[11px] text-muted-foreground">{getActivityTime(activity.created_at)}</TypoCaption>
     </li>
   );
 }

@@ -42,7 +42,8 @@ export function AIDescriptionGenerator({ onGenerated }: AIDescriptionGeneratorPr
           AI Description Generator
         </Label>
         <p className="text-xs text-muted-foreground mt-1 mb-3">
-          Describe your project idea briefly, and our AI will generate a comprehensive description for you.
+          Describe your project idea briefly, and our AI will generate a comprehensive description
+          for you.
         </p>
       </div>
       <div className="flex gap-2">
@@ -60,9 +61,9 @@ export function AIDescriptionGenerator({ onGenerated }: AIDescriptionGeneratorPr
           disabled={isGenerating}
           className="flex-1"
         />
-        <Button 
-          type="button" 
-          onClick={handleGenerate} 
+        <Button
+          type="button"
+          onClick={handleGenerate}
           disabled={isGenerating || !prompt.trim()}
           variant="secondary"
         >

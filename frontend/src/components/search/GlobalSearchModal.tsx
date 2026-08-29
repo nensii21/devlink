@@ -124,7 +124,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
         badge: "Action",
       },
     ],
-    [toggleTheme],
+    [],
   );
 
   // Load recent searches on mount
@@ -306,7 +306,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
     });
 
     return results;
-  }, [debouncedQuery]);
+  }, [debouncedQuery, commands]);
 
   // Filtered results based on category filter tab
   const filteredResults = useMemo(() => {
@@ -501,11 +501,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           {/* Results List (both empty query commands & actual search results) */}
           {filteredResults.length > 0 && (
             <div className="space-y-1 p-2">
-              {!query.trim() && (
-                <TypoCaption as="p">
-                  Navigation & Actions
-                </TypoCaption>
-              )}
+              {!query.trim() && <TypoCaption as="p">Navigation & Actions</TypoCaption>}
               {filteredResults.map((item, idx) => (
                 <div
                   key={item.id}
@@ -529,15 +525,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                         <p className="truncate text-[13.5px] font-semibold text-foreground">
                           {item.title}
                         </p>
-                        {item.badge && (
-                          <TypoCaption>
-                            {item.badge}
-                          </TypoCaption>
-                        )}
+                        {item.badge && <TypoCaption>{item.badge}</TypoCaption>}
                       </div>
-                      <TypoCaption as="p">
-                        {item.subtitle}
-                      </TypoCaption>
+                      <TypoCaption as="p">{item.subtitle}</TypoCaption>
                     </div>
                   </div>
                   {idx === selectedIndex && (
@@ -551,9 +541,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           {/* Popular Suggestions (only if query is empty) */}
           {!query.trim() && (
             <div className="p-2 pt-4">
-              <TypoCaption as="p">
-                Popular Suggestions
-              </TypoCaption>
+              <TypoCaption as="p">Popular Suggestions</TypoCaption>
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {[
                   { label: "React", icon: <Users size={13} /> },

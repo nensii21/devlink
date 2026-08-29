@@ -122,7 +122,10 @@ class TestApiKeyManagement:
 
             assert new_raw_key.startswith("dlk_live_")
             # codeql[py/weak-sensitive-data-hashing] These are high entropy tokens, not passwords
-            assert regenerated.hashed_key == hashlib.sha256(new_raw_key.encode("utf-8")).hexdigest()
+            assert (
+                regenerated.hashed_key
+                == hashlib.sha256(new_raw_key.encode("utf-8")).hexdigest()
+            )
             assert regenerated.last_used_at is None
             mock_audit.assert_called_once()
             assert (

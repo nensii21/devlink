@@ -114,9 +114,13 @@ def test_untyped_token_is_rejected_when_a_type_is_expected():
 
     from app.core.config import settings
 
-    payload = jwt.decode(untyped, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+    payload = jwt.decode(
+        untyped, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+    )
     payload.pop("type")
-    stripped = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    stripped = jwt.encode(
+        payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
 
     with pytest.raises(InvalidTokenType):
         decode_access_token(stripped)
@@ -155,7 +159,9 @@ def test_reset_token_accepts_the_legacy_alias():
         token_type="reset",
     )
 
-    assert decode_token(legacy, expected_type=TokenType.RESET_PASSWORD)["sub"] == USER_ID
+    assert (
+        decode_token(legacy, expected_type=TokenType.RESET_PASSWORD)["sub"] == USER_ID
+    )
 
     # The alias is one-directional: a reset token is not an access token.
     with pytest.raises(InvalidTokenType):

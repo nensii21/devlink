@@ -218,7 +218,9 @@ class IssueDetailResponse:
                 return data
             return cast(float | None | Unset, data)
 
-        difficulty_confidence = _parse_difficulty_confidence(d.pop("difficulty_confidence", UNSET))
+        difficulty_confidence = _parse_difficulty_confidence(
+            d.pop("difficulty_confidence", UNSET)
+        )
 
         difficulty_manual_override = d.pop("difficulty_manual_override", UNSET)
 
@@ -246,7 +248,9 @@ class IssueDetailResponse:
         if _duplicate_suggestions is not UNSET:
             duplicate_suggestions = []
             for duplicate_suggestions_item_data in _duplicate_suggestions:
-                duplicate_suggestions_item = DuplicateSuggestionResponse.from_dict(duplicate_suggestions_item_data)
+                duplicate_suggestions_item = DuplicateSuggestionResponse.from_dict(
+                    duplicate_suggestions_item_data
+                )
 
                 duplicate_suggestions.append(duplicate_suggestions_item)
 

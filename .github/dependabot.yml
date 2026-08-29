@@ -1,24 +1,96 @@
+# Dependabot configuration for DevLink.
+#
+# The four ecosystems below are the ones this repository actually has. They
+# were configured in #477 and then removed in 4661ea27, which replaced this
+# file with a single `/` npm entry grouping `@noble/*`, `bcryptjs`, `next`,
+# `react`, `react-dom` and `dompurify` -- the dependencies of `cryptoviz-core`,
+# a project that is not in this repository (#1401).
+#
+# The effect was not extra noise but silence: for the weeks that entry stood,
+# nothing watched `frontend/`, `backend/`, or the workflow actions. Ten pull
+# request slots a week went to packages nobody imports, labelled
+# `security-audit`.
+#
+# The root `package.json` is gone, so there is no `/` npm entry here. If one
+# ever comes back, `.github/scripts/check_manifests.py` requires it to be
+# listed here and installed by a workflow.
+
 version: 2
 updates:
+  # Frontend: React 19 + TanStack Start. The bulk of this repository's
+  # third-party code.
   - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Etc/UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(deps-frontend)"
+      include: "scope"
+    groups:
+      # Radix ships thirty-odd separately versioned packages that move
+      # together. One pull request rather than thirty.
+      radix-ui:
+        patterns:
+          - "@radix-ui/*"
+      # Bundler and test runner, which have to be upgraded in step.
+      build-tooling:
+        patterns:
+          - "vite"
+          - "vitest"
+          - "@vitejs/*"
+
+  # Backend: FastAPI + SQLAlchemy.
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Etc/UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps-backend)"
+      include: "scope"
+
+  # Workflow actions. Pinned by major tag, so these are the updates that carry
+  # the Node runtime bumps.
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
-    # Acceptance Criteria: Pin and segregate deep cryptographic primitives for manual audit
-    groups:
-      cryptographic-core:
-        patterns:
-          - "@noble/*"
-          - "bcryptjs"
-      framework-dependencies:
-        patterns:
-          - "next"
-          - "react"
-          - "react-dom"
-      sanitization-tooling:
-        patterns:
-          - "dompurify"
+      day: "monday"
+      time: "04:00"
+      timezone: "Etc/UTC"
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
-      - "security-audit"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(deps-actions)"
+      include: "scope"
+
+  # Container base images.
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Etc/UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(deps-docker)"
+      include: "scope"

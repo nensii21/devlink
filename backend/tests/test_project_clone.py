@@ -14,7 +14,6 @@ from app.schemas.project import ProjectCreate
 from app.services.project_service import ProjectService
 from app.core.security import create_access_token
 
-
 # SQLite setup for tests
 engine = create_engine(
     "sqlite://",

@@ -62,6 +62,7 @@ def test_verify_recovery_token_success(client, db):
         extra={"jti": jti, "hash_frag": pwd_hash_frag},
     )
 
+    # codeql[py/weak-sensitive-data-hashing] These are high entropy tokens, not passwords
     token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
     token_record = PasswordResetToken(
         id=uuid.uuid4(),
@@ -95,6 +96,7 @@ def test_reset_password_success(client, db):
         extra={"jti": jti, "hash_frag": pwd_hash_frag},
     )
 
+    # codeql[py/weak-sensitive-data-hashing] These are high entropy tokens, not passwords
     token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
     token_record = PasswordResetToken(
         id=uuid.uuid4(),
@@ -135,11 +137,12 @@ def test_reset_password_expired(client, db):
     expires_at = datetime.now(timezone.utc) - timedelta(minutes=5)
     token = _create_token(
         subject=str(user.id),
-        expires_delta=timedelta(minutes=-5), # negative delta causes expired claim
+        expires_delta=timedelta(minutes=-5),  # negative delta causes expired claim
         token_type="reset_password",
         extra={"jti": jti, "hash_frag": pwd_hash_frag},
     )
 
+    # codeql[py/weak-sensitive-data-hashing] These are high entropy tokens, not passwords
     token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
     token_record = PasswordResetToken(
         id=uuid.uuid4(),
@@ -175,6 +178,7 @@ def test_reset_password_already_used(client, db):
         extra={"jti": jti, "hash_frag": pwd_hash_frag},
     )
 
+    # codeql[py/weak-sensitive-data-hashing] These are high entropy tokens, not passwords
     token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
     token_record = PasswordResetToken(
         id=uuid.uuid4(),
@@ -211,6 +215,7 @@ def test_reset_password_reused_password(client, db):
         extra={"jti": jti, "hash_frag": pwd_hash_frag},
     )
 
+    # codeql[py/weak-sensitive-data-hashing] These are high entropy tokens, not passwords
     token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
     token_record = PasswordResetToken(
         id=uuid.uuid4(),

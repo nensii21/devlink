@@ -26,8 +26,11 @@ router = APIRouter(
 )
 
 
-def check_activity_visibility(db: Session, actor_id: uuid.UUID, viewer: User | None) -> None:
+def check_activity_visibility(
+    db: Session, actor_id: uuid.UUID, viewer: User | None
+) -> None:
     from app.services.user_service import UserService
+
     actor = UserService.get_user(db, actor_id)
     if actor:
         if actor.is_private:
@@ -39,7 +42,7 @@ def check_activity_visibility(db: Session, actor_id: uuid.UUID, viewer: User | N
 
         settings = actor.get_privacy_settings()
         activity_visibility = settings.get("activity", "public")
-        
+
         is_visible = False
         if activity_visibility == "public":
             is_visible = True
@@ -50,13 +53,16 @@ def check_activity_visibility(db: Session, actor_id: uuid.UUID, viewer: User | N
                 is_visible = True
             else:
                 from app.services.follower_service import FollowerService
+
                 is_visible = FollowerService.is_following(
                     db, follower_id=viewer.id, following_id=actor.id
                 )
         elif activity_visibility == "private":
-            if viewer is not None and (viewer.id == actor.id or getattr(viewer, "is_superuser", False)):
+            if viewer is not None and (
+                viewer.id == actor.id or getattr(viewer, "is_superuser", False)
+            ):
                 is_visible = True
-        
+
         if not is_visible:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

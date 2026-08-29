@@ -1,9 +1,23 @@
+"""
+Conversation routes.
+
+Every route below that names a ``conversation_id`` requires an authenticated
+caller who is a member of that conversation. That was not previously true: the
+create and list routes took ``current_user``, and the seven that read, mutated
+or destroyed a named conversation took only ``get_database``.
+
+The membership check is not cosmetic. ``POST /{id}/members/{user_id}`` grants
+exactly the predicate that ``app/routers/messages.py`` uses to authorise
+reads -- so an open add-member route meant anyone could join a private thread
+and then read all of it through the correctly-guarded messages API.
+"""
+
 from __future__ import annotations
 
 import uuid
 
 # pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
@@ -45,22 +59,18 @@ def create_conversation(
 @router.get(
     "/{conversation_id}",
     response_model=ConversationResponse,
+    summary="Get a conversation you are a member of",
 )
 def get_conversation(
     conversation_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
-
-    conversation = ConversationService.get_conversation(
+    conversation, _ = ConversationService.require_membership(
         db,
         conversation_id,
+        current_user.id,
     )
-
-    if conversation is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Conversation not found",
-        )
 
     return conversation
 
@@ -83,23 +93,19 @@ def list_my_conversations(
 @router.put(
     "/{conversation_id}",
     response_model=ConversationResponse,
+    summary="Rename or reconfigure a conversation (owner or admin)",
 )
 def update_conversation(
     conversation_id: uuid.UUID,
     conversation: ConversationUpdate,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
-
-    db_conversation = ConversationService.get_conversation(
+    db_conversation, _ = ConversationService.require_admin(
         db,
         conversation_id,
+        current_user.id,
     )
-
-    if db_conversation is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Conversation not found",
-        )
 
     return ConversationService.update_conversation(
         db,
@@ -111,12 +117,24 @@ def update_conversation(
 @router.post(
     "/{conversation_id}/members/{user_id}",
     status_code=status.HTTP_201_CREATED,
+    summary="Add someone to a conversation (owner or admin)",
+    description=(
+        "Membership is what the messages API checks before returning a "
+        "thread, so this route hands out read access to everything already "
+        "said in it. Restricted to the conversation's owner and admins."
+    ),
 )
 def add_member(
     conversation_id: uuid.UUID,
     user_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
+    ConversationService.require_admin(
+        db,
+        conversation_id,
+        current_user.id,
+    )
 
     return ConversationService.add_member(
         db,
@@ -128,12 +146,29 @@ def add_member(
 @router.delete(
     "/{conversation_id}/members/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Remove a member, or leave the conversation yourself",
 )
 def remove_member(
     conversation_id: uuid.UUID,
     user_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
+    # Leaving is not an administrative act. Requiring an admin role to remove
+    # yourself would trap a plain member in a thread they want no part of,
+    # with no route out of it.
+    if user_id == current_user.id:
+        ConversationService.require_membership(
+            db,
+            conversation_id,
+            current_user.id,
+        )
+    else:
+        ConversationService.require_admin(
+            db,
+            conversation_id,
+            current_user.id,
+        )
 
     ConversationService.remove_member(
         db,
@@ -145,22 +180,18 @@ def remove_member(
 @router.patch(
     "/{conversation_id}/archive",
     response_model=ConversationResponse,
+    summary="Archive a conversation (owner or admin)",
 )
 def archive_conversation(
     conversation_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
-
-    conversation = ConversationService.get_conversation(
+    conversation, _ = ConversationService.require_admin(
         db,
         conversation_id,
+        current_user.id,
     )
-
-    if conversation is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Conversation not found",
-        )
 
     return ConversationService.archive_conversation(
         db,
@@ -171,22 +202,18 @@ def archive_conversation(
 @router.patch(
     "/{conversation_id}/restore",
     response_model=ConversationResponse,
+    summary="Restore an archived conversation (owner or admin)",
 )
 def restore_conversation(
     conversation_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
-
-    conversation = ConversationService.get_conversation(
+    conversation, _ = ConversationService.require_admin(
         db,
         conversation_id,
+        current_user.id,
     )
-
-    if conversation is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Conversation not found",
-        )
 
     return ConversationService.restore_conversation(
         db,
@@ -197,22 +224,22 @@ def restore_conversation(
 @router.delete(
     "/{conversation_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a conversation (owner only)",
+    description=(
+        "Irreversible. `conversation_members` and `messages` both cascade "
+        "from the conversation row, so this destroys the whole history."
+    ),
 )
 def delete_conversation(
     conversation_id: uuid.UUID,
     db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
-
-    conversation = ConversationService.get_conversation(
+    conversation, _ = ConversationService.require_owner(
         db,
         conversation_id,
+        current_user.id,
     )
-
-    if conversation is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Conversation not found",
-        )
 
     ConversationService.delete_conversation(
         db,

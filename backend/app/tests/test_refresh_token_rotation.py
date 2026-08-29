@@ -68,7 +68,7 @@ def test_refresh_token_rotation_success(client, db):
 
 def test_revoked_token_reuse_protection(client, db):
     user = create_test_user(db)
-    
+
     # Create two refresh tokens (e.g. two concurrent active devices)
     token_1_str = create_refresh_token(str(user.id))
     token_2_str = create_refresh_token(str(user.id))
@@ -86,7 +86,7 @@ def test_revoked_token_reuse_protection(client, db):
         token_str=token_2_str,
         expires_at=expires_at,
     )
-    
+
     # Revoke token_1 to simulate it already having been rotated/reused
     db_token_1.is_revoked = True
     db_token_1.revoked_at = datetime.now(timezone.utc)

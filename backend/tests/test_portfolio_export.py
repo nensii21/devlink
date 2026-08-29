@@ -1,4 +1,3 @@
-
 def test_portfolio_export_markdown(db, client, register_and_login):
     headers = register_and_login("export_user@example.com", "exportuser")["headers"]
     response = client.get(

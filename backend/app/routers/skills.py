@@ -43,25 +43,19 @@ def create_skill(
 
 
 @router.get(
-    "/{skill_id}",
-    response_model=SkillResponse,
+    "/search/{keyword}",
+    response_model=list[SkillResponse],
 )
-def get_skill(
-    skill_id: uuid.UUID,
+@limiter.limit(SEARCH_LIMIT)
+def search_skills(
+    request: Request,
+    keyword: str,
     db: Session = Depends(get_database),
 ):
-    skill = SkillService.get_skill(
+    return SkillService.search_skills(
         db,
-        skill_id,
+        keyword,
     )
-
-    if skill is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Skill not found",
-        )
-
-    return skill
 
 
 @router.get(
@@ -105,19 +99,25 @@ def list_skills(
 
 
 @router.get(
-    "/search/{keyword}",
-    response_model=list[SkillResponse],
+    "/{skill_id}",
+    response_model=SkillResponse,
 )
-@limiter.limit(SEARCH_LIMIT)
-def search_skills(
-    request: Request,
-    keyword: str,
+def get_skill(
+    skill_id: uuid.UUID,
     db: Session = Depends(get_database),
 ):
-    return SkillService.search_skills(
+    skill = SkillService.get_skill(
         db,
-        keyword,
+        skill_id,
     )
+
+    if skill is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Skill not found",
+        )
+
+    return skill
 
 
 @router.put(

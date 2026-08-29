@@ -102,7 +102,9 @@ def _apply_user_filters(
         query = query.filter(User.location.ilike(_ilike_pattern(location)))
 
     if experience and experience.strip():
-        query = query.filter(func.lower(User.experience_level) == experience.strip().lower())
+        query = query.filter(
+            func.lower(User.experience_level) == experience.strip().lower()
+        )
 
     if organization and organization.strip():
         query = query.filter(User.company.ilike(_ilike_pattern(organization)))
@@ -135,7 +137,9 @@ def _sort_users(users: List[User], sort: Optional[str]) -> List[User]:
     if key == "experience":
         return sorted(
             users,
-            key=lambda u: _EXPERIENCE_RANK.get((u.experience_level or "").strip().lower(), 0),
+            key=lambda u: _EXPERIENCE_RANK.get(
+                (u.experience_level or "").strip().lower(), 0
+            ),
             reverse=True,
         )
     if key == "recent":
@@ -351,7 +355,9 @@ def search_users(
             remote=remote,
         )
         results = (
-            query.order_by(User.is_verified.desc(), User.premium.desc(), User.username.asc())
+            query.order_by(
+                User.is_verified.desc(), User.premium.desc(), User.username.asc()
+            )
             .limit(fetch_limit)
             .all()
         )
@@ -820,9 +826,9 @@ class SearchService:
                     experience_level=u.experience_level,
                     company=u.company,
                     open_to_work=u.open_to_work,
-                    skills=[
-                        us.skill.name for us in (u.user_skills or []) if us.skill
-                    ][:6],
+                    skills=[us.skill.name for us in (u.user_skills or []) if us.skill][
+                        :6
+                    ],
                 )
                 for u in users
             ],

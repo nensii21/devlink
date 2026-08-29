@@ -168,9 +168,7 @@ function IssuesPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <TypoSection>
-                        {issue.title}
-                      </TypoSection>
+                      <TypoSection>{issue.title}</TypoSection>
                       <span
                         className={cn(
                           "rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase",
@@ -181,9 +179,7 @@ function IssuesPage() {
                         {statusConfig.label}
                       </span>
                     </div>
-                    <TypoCaption as="p">
-                      {issue.description}
-                    </TypoCaption>
+                    <TypoCaption as="p">{issue.description}</TypoCaption>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                       <span className={cn("font-medium", priorityConfig.color)}>
                         {priorityConfig.label} Priority
@@ -264,9 +260,7 @@ function DuplicateCheckModal({ projectId, onClose }: { projectId: string; onClos
             <X size={18} />
           </button>
         </div>
-        <TypoCaption as="p">
-          Use AI to detect similar issues before creating a new one.
-        </TypoCaption>
+        <TypoCaption as="p">Use AI to detect similar issues before creating a new one.</TypoCaption>
 
         <div className="mt-4 space-y-3">
           <div>

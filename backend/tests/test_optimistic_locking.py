@@ -11,7 +11,9 @@ from app.services.user_service import UserService
 
 
 def test_project_optimistic_locking_success(client: TestClient, register_and_login):
-    owner_id, token = register_and_login("opt_project_owner@example.com", "optprojowner")
+    owner_id, token = register_and_login(
+        "opt_project_owner@example.com", "optprojowner"
+    )
     headers = {"Authorization": f"Bearer {token}"}
 
     # 1. Create project
@@ -53,7 +55,9 @@ def test_project_optimistic_locking_success(client: TestClient, register_and_log
 
 
 def test_project_optimistic_locking_conflict(client: TestClient, register_and_login):
-    owner_id, token = register_and_login("opt_conflict_owner@example.com", "optconfowner")
+    owner_id, token = register_and_login(
+        "opt_conflict_owner@example.com", "optconfowner"
+    )
     headers = {"Authorization": f"Bearer {token}"}
 
     # 1. Create project
@@ -91,8 +95,12 @@ def test_project_optimistic_locking_conflict(client: TestClient, register_and_lo
     assert "Version conflict" in upd_stale.json()["detail"]
 
 
-def test_user_profile_optimistic_locking_success(client: TestClient, register_and_login):
-    user_id, token = register_and_login("opt_user_success@example.com", "optusersuccess")
+def test_user_profile_optimistic_locking_success(
+    client: TestClient, register_and_login
+):
+    user_id, token = register_and_login(
+        "opt_user_success@example.com", "optusersuccess"
+    )
     headers = {"Authorization": f"Bearer {token}"}
 
     # 1. Get initial profile -> version 1
@@ -111,8 +119,12 @@ def test_user_profile_optimistic_locking_success(client: TestClient, register_an
     assert upd1.json()["headline"] == "Updated Headline V1"
 
 
-def test_user_profile_optimistic_locking_conflict(client: TestClient, register_and_login):
-    user_id, token = register_and_login("opt_user_conflict@example.com", "optuserconflict")
+def test_user_profile_optimistic_locking_conflict(
+    client: TestClient, register_and_login
+):
+    user_id, token = register_and_login(
+        "opt_user_conflict@example.com", "optuserconflict"
+    )
     headers = {"Authorization": f"Bearer {token}"}
 
     # 1. First update succeeds (version 1 -> 2)

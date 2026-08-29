@@ -16,10 +16,16 @@ if TYPE_CHECKING:
     from ..models.exported_project import ExportedProject
     from ..models.exported_skill import ExportedSkill
     from ..models.user_export_data_activities_item import UserExportDataActivitiesItem
-    from ..models.user_export_data_builder_flares_item import UserExportDataBuilderFlaresItem
-    from ..models.user_export_data_notifications_item import UserExportDataNotificationsItem
+    from ..models.user_export_data_builder_flares_item import (
+        UserExportDataBuilderFlaresItem,
+    )
+    from ..models.user_export_data_notifications_item import (
+        UserExportDataNotificationsItem,
+    )
     from ..models.user_export_data_profile import UserExportDataProfile
-    from ..models.user_export_data_project_memberships_item import UserExportDataProjectMembershipsItem
+    from ..models.user_export_data_project_memberships_item import (
+        UserExportDataProjectMembershipsItem,
+    )
 
 
 T = TypeVar("T", bound="UserExportData")
@@ -150,11 +156,19 @@ class UserExportData:
         from ..models.exported_organization import ExportedOrganization
         from ..models.exported_project import ExportedProject
         from ..models.exported_skill import ExportedSkill
-        from ..models.user_export_data_activities_item import UserExportDataActivitiesItem
-        from ..models.user_export_data_builder_flares_item import UserExportDataBuilderFlaresItem
-        from ..models.user_export_data_notifications_item import UserExportDataNotificationsItem
+        from ..models.user_export_data_activities_item import (
+            UserExportDataActivitiesItem,
+        )
+        from ..models.user_export_data_builder_flares_item import (
+            UserExportDataBuilderFlaresItem,
+        )
+        from ..models.user_export_data_notifications_item import (
+            UserExportDataNotificationsItem,
+        )
         from ..models.user_export_data_profile import UserExportDataProfile
-        from ..models.user_export_data_project_memberships_item import UserExportDataProjectMembershipsItem
+        from ..models.user_export_data_project_memberships_item import (
+            UserExportDataProjectMembershipsItem,
+        )
 
         d = dict(src_dict)
         exported_at = datetime.datetime.fromisoformat(d.pop("exported_at"))
@@ -178,7 +192,9 @@ class UserExportData:
         project_memberships = []
         _project_memberships = d.pop("project_memberships")
         for project_memberships_item_data in _project_memberships:
-            project_memberships_item = UserExportDataProjectMembershipsItem.from_dict(project_memberships_item_data)
+            project_memberships_item = UserExportDataProjectMembershipsItem.from_dict(
+                project_memberships_item_data
+            )
 
             project_memberships.append(project_memberships_item)
 
@@ -220,21 +236,27 @@ class UserExportData:
         activities = []
         _activities = d.pop("activities")
         for activities_item_data in _activities:
-            activities_item = UserExportDataActivitiesItem.from_dict(activities_item_data)
+            activities_item = UserExportDataActivitiesItem.from_dict(
+                activities_item_data
+            )
 
             activities.append(activities_item)
 
         notifications = []
         _notifications = d.pop("notifications")
         for notifications_item_data in _notifications:
-            notifications_item = UserExportDataNotificationsItem.from_dict(notifications_item_data)
+            notifications_item = UserExportDataNotificationsItem.from_dict(
+                notifications_item_data
+            )
 
             notifications.append(notifications_item)
 
         builder_flares = []
         _builder_flares = d.pop("builder_flares")
         for builder_flares_item_data in _builder_flares:
-            builder_flares_item = UserExportDataBuilderFlaresItem.from_dict(builder_flares_item_data)
+            builder_flares_item = UserExportDataBuilderFlaresItem.from_dict(
+                builder_flares_item_data
+            )
 
             builder_flares.append(builder_flares_item)
 

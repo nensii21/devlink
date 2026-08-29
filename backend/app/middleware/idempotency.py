@@ -350,9 +350,7 @@ class IdempotentRoute(APIRoute):
             # request, so the handler downstream still receives it.
             body = await request.body()
 
-            cache_key = build_cache_key(
-                user_id, request.method, path, idempotency_key
-            )
+            cache_key = build_cache_key(user_id, request.method, path, idempotency_key)
             fingerprint = build_fingerprint(request.method, path, body)
 
             # ---- Replay, if we have one ------------------------------------

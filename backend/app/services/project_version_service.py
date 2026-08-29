@@ -220,12 +220,16 @@ class ProjectVersionService:
                 "requirements": project.requirements,
                 "language": project.language,
                 "experience": project.experience,
-                "stage": project.stage.value
-                if hasattr(project.stage, "value")
-                else str(project.stage),
-                "visibility": project.visibility.value
-                if hasattr(project.visibility, "value")
-                else str(project.visibility),
+                "stage": (
+                    project.stage.value
+                    if hasattr(project.stage, "value")
+                    else str(project.stage)
+                ),
+                "visibility": (
+                    project.visibility.value
+                    if hasattr(project.visibility, "value")
+                    else str(project.visibility)
+                ),
                 "team_roles": team_roles_current,
             }
             v2_num = "current"
@@ -320,9 +324,11 @@ class ProjectVersionService:
             "description": project.description,
             "tech_stack": project.tech_stack,
             "requirements": project.requirements,
-            "stage": project.stage.value
-            if hasattr(project.stage, "value")
-            else str(project.stage),
+            "stage": (
+                project.stage.value
+                if hasattr(project.stage, "value")
+                else str(project.stage)
+            ),
         }
 
         # 2. Revert project fields

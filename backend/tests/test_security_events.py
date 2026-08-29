@@ -23,7 +23,6 @@ from app.schemas.security_event import (
 )
 from app.services.security_event_service import SecurityEventService
 
-
 # ---------------------------------------------------------------------------
 # Test Fixtures / Mock Helpers
 # ---------------------------------------------------------------------------

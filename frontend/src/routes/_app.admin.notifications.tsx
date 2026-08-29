@@ -123,9 +123,7 @@ function AdminNotificationsPage() {
                       <Badge variant="outline">{notification.channel}</Badge>
                     </TypoCard>
                     <TypoCaption as="p">{notification.message}</TypoCaption>
-                    <TypoCaption as="p">
-                      Recipient: {notification.recipient_id}
-                    </TypoCaption>
+                    <TypoCaption as="p">Recipient: {notification.recipient_id}</TypoCaption>
                   </div>
                   <Button
                     variant="outline"

@@ -185,7 +185,9 @@ class IssueResponse:
                 return data
             return cast(float | None | Unset, data)
 
-        difficulty_confidence = _parse_difficulty_confidence(d.pop("difficulty_confidence", UNSET))
+        difficulty_confidence = _parse_difficulty_confidence(
+            d.pop("difficulty_confidence", UNSET)
+        )
 
         difficulty_manual_override = d.pop("difficulty_manual_override", UNSET)
 

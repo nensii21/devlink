@@ -7,7 +7,9 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.template_render_request_variables import TemplateRenderRequestVariables
+    from ..models.template_render_request_variables import (
+        TemplateRenderRequestVariables,
+    )
 
 
 T = TypeVar("T", bound="TemplateRenderRequest")
@@ -43,7 +45,9 @@ class TemplateRenderRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.template_render_request_variables import TemplateRenderRequestVariables
+        from ..models.template_render_request_variables import (
+            TemplateRenderRequestVariables,
+        )
 
         d = dict(src_dict)
         event_type = d.pop("event_type")

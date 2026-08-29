@@ -19,7 +19,9 @@ def _get_kwargs() -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> SearchAnalyticsMetric | None:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> SearchAnalyticsMetric | None:
     if response.status_code == 200:
         response_200 = SearchAnalyticsMetric.from_dict(response.json())
 

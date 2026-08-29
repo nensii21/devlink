@@ -34,10 +34,7 @@ from typing import Sequence, Union
 
 revision: str = "zzzz00000001"
 down_revision: Union[str, Sequence[str], None] = (
-    "366aca8c8494",
-    "a1b2c3d4e5f8",
     "ea6d6738e0b0",
-    "ffff00000004",
     "video_intro_url_001",
 )
 branch_labels: Union[str, Sequence[str], None] = None

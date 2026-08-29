@@ -37,6 +37,7 @@ export interface Builder {
   portfolioUrl?: string;
   githubUrl?: string;
   linkedinUrl?: string;
+  twitterUrl?: string;
   experienceLevel?: string;
   company?: string;
   profileSkills?: { name: string; level?: string; category?: string; yearsOfExperience?: number }[];
@@ -121,6 +122,12 @@ export interface Flare {
   ago: string;
   status?: string;
   publish_at?: string;
+  /**
+   * Whether the current viewer has liked this flare, as reported by the
+   * server. Optional so the seed fixtures need not set it; absent is treated
+   * as not liked.
+   */
+  liked_by_me?: boolean;
 }
 export interface Conversation {
   id: ID;

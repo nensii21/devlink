@@ -19,6 +19,7 @@ from app.models.user import User  # noqa: E402
 from app.schemas.auth import CurrentUserResponse  # noqa: E402
 from app.schemas.user import CurrentUser, UserResponse  # noqa: E402
 
+from tests.conftest import TestingSessionLocal
 
 @pytest.fixture()
 def db():

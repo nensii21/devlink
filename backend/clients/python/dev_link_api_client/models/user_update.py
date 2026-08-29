@@ -391,7 +391,9 @@ class UserUpdate:
 
         is_private = _parse_is_private(d.pop("is_private", UNSET))
 
-        def _parse_privacy_settings(data: object) -> None | PrivacySettingsUpdate | Unset:
+        def _parse_privacy_settings(
+            data: object,
+        ) -> None | PrivacySettingsUpdate | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -419,7 +421,9 @@ class UserUpdate:
                 availability_type_0 = []
                 _availability_type_0 = data
                 for availability_type_0_item_data in _availability_type_0:
-                    availability_type_0_item = AvailabilitySlot.from_dict(availability_type_0_item_data)
+                    availability_type_0_item = AvailabilitySlot.from_dict(
+                        availability_type_0_item_data
+                    )
 
                     availability_type_0.append(availability_type_0_item)
 

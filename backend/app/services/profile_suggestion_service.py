@@ -466,9 +466,9 @@ Return ONLY valid JSON matching this exact schema:
         skills = [
             {
                 "name": us.skill.name,
-                "level": us.level.value
-                if hasattr(us.level, "value")
-                else str(us.level),
+                "level": (
+                    us.level.value if hasattr(us.level, "value") else str(us.level)
+                ),
                 "years": us.years_of_experience,
             }
             for us in user_skills_rows

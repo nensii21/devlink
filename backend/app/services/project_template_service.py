@@ -91,7 +91,9 @@ class ProjectTemplateService:
         skip: int = 0,
         limit: int = 20,
     ) -> tuple[list[ProjectTemplateResponse], int]:
-        stmt = select(ProjectTemplate).where(ProjectTemplate.is_published == True)  # noqa: E712
+        stmt = select(ProjectTemplate).where(
+            ProjectTemplate.is_published == True
+        )  # noqa: E712
 
         if search:
             search_pattern = f"%{search.strip()}%"
@@ -241,9 +243,11 @@ class ProjectTemplateService:
             description=proj_desc,
             tagline=f"Cloned from template: {template.title}",
             owner_id=user_id,
-            tech_stack=", ".join(template.tech_stack)
-            if isinstance(template.tech_stack, list)
-            else str(template.tech_stack or ""),
+            tech_stack=(
+                ", ".join(template.tech_stack)
+                if isinstance(template.tech_stack, list)
+                else str(template.tech_stack or "")
+            ),
         )
 
         db.add(project)

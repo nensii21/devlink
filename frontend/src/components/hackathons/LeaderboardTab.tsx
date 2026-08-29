@@ -56,10 +56,10 @@ export function LeaderboardTab({ hackathonId }: Props) {
 
   return (
     <div className="space-y-3">
-      <TypoCaption as="p">
+      <p className="text-[13px] text-muted-foreground">
         Ranked by average judge score · {entries.length} team
         {entries.length !== 1 ? "s" : ""}
-      </TypoCaption>
+      </p>
 
       {/* Desktop table */}
       <div className="hidden w-full overflow-x-auto rounded-xl border border-border sm:block">
@@ -156,14 +156,12 @@ export function LeaderboardTab({ hackathonId }: Props) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[14px] font-semibold text-foreground">{entry.team_name}</p>
-                  <TypoCaption as="p">
-                    {entry.submission_title}
-                  </TypoCaption>
+                  <TypoCaption as="p" className="mt-0.5 text-[12px] text-muted-foreground">{entry.submission_title}</TypoCaption>
                   <div className="mt-2 flex items-center justify-between">
                     <ScoreBar score={entry.avg_score} />
-                    <TypoCaption>
+                    <span className="text-[11px] text-muted-foreground">
                       {entry.judge_count} judge{entry.judge_count !== 1 ? "s" : ""}
-                    </TypoCaption>
+                    </span>
                   </div>
                 </div>
               </div>

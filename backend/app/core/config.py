@@ -99,6 +99,27 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    # ----------------------------------------------------------
+    # In-process (L1) response cache
+    # ----------------------------------------------------------
+    #
+    # The tier in front of Redis. It used to be an unbounded dict, which on a
+    # worker that runs for weeks is a leak: the keys `@cached` builds are
+    # per-caller and per-argument, so the key space is the product of every
+    # user id and every set of query arguments the decorated routes see
+    # (#1402).
+    #
+    # A ceiling on entries rather than on bytes -- measuring an arbitrary
+    # decoded JSON structure costs more than the cache saves. Raise it if
+    # `cache_manager.stats()["evictions"]` climbs steadily, which means the
+    # working set is larger than the ceiling.
+    CACHE_L1_MAX_ENTRIES: int = 1000
+
+    # How often expired entries are reclaimed. Eviction handles a cache that
+    # fills up; the sweep handles the other shape -- entries that expire and
+    # are never read again, which nothing else would ever remove.
+    CACHE_L1_SWEEP_SECONDS: float = 60.0
+
     # ==========================================================
     # CORS
     # ==========================================================
@@ -189,6 +210,13 @@ class Settings(BaseSettings):
 
     ENABLE_RATE_LIMIT: bool = True
     DEFAULT_RATE_LIMIT: str = "100/minute"
+    RATE_LIMIT_ANONYMOUS: str = "60/minute"
+    RATE_LIMIT_AUTHENTICATED: str = "300/minute"
+    RATE_LIMIT_PREMIUM: str = "1000/minute"
+    RATE_LIMIT_ADMIN: str = "5000/minute"
+    RATE_LIMIT_BYPASS_IPS: str = "127.0.0.1,::1"
+    RATE_LIMIT_BYPASS_TOKEN: str = ""
+    RATE_LIMIT_ALGORITHM: str = "sliding_window"
     AUTH_RATE_LIMIT: str = "5/minute"
     LOGIN_RATE_LIMIT: str = "5/minute"
     REGISTER_RATE_LIMIT: str = "3/hour"
@@ -201,6 +229,40 @@ class Settings(BaseSettings):
     MFA_RATE_LIMIT: str = "5/minute"
     COMMENT_RATE_LIMIT: str = "30/minute"
     RECOMMENDATION_RATE_LIMIT: str = "20/minute"
+
+    #: Where the limiter keeps its counters. Empty means in-memory, which is
+    #: per worker process -- with N workers the effective limit is N times what
+    #: is configured, and every counter resets on deploy. Point this at Redis
+    #: in any deployment running more than one process.
+    #:
+    #: Left empty rather than defaulting to REDIS_URL so that a developer
+    #: without Redis running gets working limits rather than a boot failure.
+    RATE_LIMIT_STORAGE_URI: str = ""
+
+    @property
+    def rate_limit_bypass_ip_list(self) -> list[str]:
+        """`RATE_LIMIT_BYPASS_IPS` split into individual IP strings."""
+        return [ip.strip() for ip in self.RATE_LIMIT_BYPASS_IPS.split(",") if ip.strip()]
+
+    #: Comma-separated CIDRs for the proxies in front of this application.
+    #: `X-Forwarded-For` is honoured only for requests whose immediate peer
+    #: falls inside one of these; from anywhere else the header is ignored,
+    #: because a client can send one and claim any address it likes.
+    #:
+    #: Empty by default: trusting nothing is the safe end of this setting, and
+    #: it matches the behaviour before the setting existed.
+    #:
+    #: Typical values -- Kubernetes ingress: the pod CIDR, e.g.
+    #: "10.42.0.0/16". Docker Compose: the bridge network, e.g.
+    #: "172.16.0.0/12". A single host proxy: "10.0.0.7".
+    TRUSTED_PROXY_CIDRS: str = ""
+
+    @property
+    def trusted_proxy_cidr_list(self) -> list[str]:
+        """`TRUSTED_PROXY_CIDRS` split into entries."""
+        return [
+            part.strip() for part in self.TRUSTED_PROXY_CIDRS.split(",") if part.strip()
+        ]
 
     # ==========================================================
     # Request Tracing / Correlation IDs
@@ -240,7 +302,9 @@ class Settings(BaseSettings):
     REFERRER_POLICY_VALUE: str = "strict-origin-when-cross-origin"
 
     ENABLE_PERMISSIONS_POLICY: bool = True
-    PERMISSIONS_POLICY_VALUE: str = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    PERMISSIONS_POLICY_VALUE: str = (
+        "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    )
 
     ENABLE_DNS_PREFETCH_CONTROL: bool = True
     ENABLE_CROSS_DOMAIN_POLICIES: bool = True

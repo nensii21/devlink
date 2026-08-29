@@ -136,6 +136,55 @@ class UserService:
                     {k: v for k, v in privacy_data.items() if v is not None}
                 )
                 db_user.privacy_settings = current_settings
+
+        # Username update validation
+        if (
+            "username" in data
+            and data["username"]
+            and data["username"] != db_user.username
+        ):
+            new_username = data.pop("username").strip()
+            existing_user = UserService.get_by_username(db, new_username)
+            if existing_user and existing_user.id != db_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Username is already taken.",
+                )
+            db_user.username = new_username
+
+        # Skills update handling
+        if "skills" in data:
+            new_skills = data.pop("skills")
+            if new_skills is not None:
+                from app.models.skill import Skill
+                from app.models.user_skill import UserSkill
+
+                db.query(UserSkill).filter(UserSkill.user_id == db_user.id).delete(
+                    synchronize_session=False
+                )
+
+                for skill_name in new_skills:
+                    s_name = str(skill_name).strip()
+                    if not s_name:
+                        continue
+                    norm_name = s_name.lower()
+                    slug = norm_name.replace(" ", "-")
+
+                    skill_obj = (
+                        db.query(Skill)
+                        .filter(Skill.normalized_name == norm_name)
+                        .first()
+                    )
+                    if not skill_obj:
+                        skill_obj = Skill(
+                            name=s_name, normalized_name=norm_name, slug=slug
+                        )
+                        db.add(skill_obj)
+                        db.flush()
+
+                    user_skill = UserSkill(user_id=db_user.id, skill_id=skill_obj.id)
+                    db.add(user_skill)
+
         for key, value in data.items():
             setattr(db_user, key, value)
         db_user.version = (db_user.version or 1) + 1

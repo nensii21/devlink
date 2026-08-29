@@ -19,9 +19,21 @@ from sqlalchemy.orm import Session
 
 from app.core.security import hash_password
 from app.core.cache import cache_manager, cached
-from app.dependencies import get_current_user, get_database, get_optional_current_user
+from app.core.rbac import SystemRole
+from app.dependencies import (
+    get_current_user,
+    get_database,
+    get_optional_current_user,
+    require_roles,
+)
 from app.middleware.rate_limit import SEARCH_LIMIT, limiter
 from app.models.user import User
+from app.schemas.user_account_state import AccountStateChangeRequest
+from app.services.account_state_service import (
+    AccountStateService,
+    RequestContext,
+    resolve_target_user,
+)
 from app.services.block_service import BlockService
 from app.schemas.user import (
     CollaborationStatus,
@@ -35,6 +47,9 @@ from app.schemas.user import (
     UserResponse,
     UserStats,
     UserUpdate,
+    DashboardWidgetLayout,
+    DashboardLayoutUpdate,
+    DashboardLayoutResponse,
 )
 from app.schemas.user_report import (
     UserReportCreate,
@@ -95,10 +110,19 @@ def check_username(
     "/",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
+    summary="Create a user (administrators only)",
+    description=(
+        "Provision an account directly. This is not the sign-up route -- "
+        "`POST /api/auth/register` is, and it is the one that rate-limits, "
+        "screens the password against the breach list, and sends the "
+        "confirmation email. This route skips all three, so it is restricted "
+        "to administrators."
+    ),
 )
 def create_user(
     user: UserCreate,
     db: Session = Depends(get_database),
+    _actor: User = Depends(require_roles(SystemRole.ADMIN)),
 ):
 
     if UserService.get_by_email(db, user.email):
@@ -209,6 +233,44 @@ def get_user_profile_completion(
             detail="User not found",
         )
     return UserService.get_profile_completion(db, user)
+
+
+@router.get(
+    "/by-username/{username}",
+    response_model=UserResponse,
+    summary="Get User Profile by Username",
+)
+def get_user_by_username(
+    username: str,
+    online_threshold: int | None = Query(
+        None, description="Online threshold in seconds"
+    ),
+    db: Session = Depends(get_database),
+    current_user: User | None = Depends(get_optional_current_user),
+):
+    user = UserService.get_by_username(db, username)
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    # Check private profile and blocking restrictions
+    if user.is_private:
+        if not current_user or (
+            current_user.id != user.id
+            and BlockService.is_blocked(db, user.id, current_user.id)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to view this private profile.",
+            )
+
+    if online_threshold is not None:
+        user._online_threshold = online_threshold
+
+    user = UserService.apply_privacy_filters(db, user, current_user)
+    return user
 
 
 @router.get(
@@ -659,69 +721,83 @@ def hard_delete_user(
     )
 
 
+# ==========================================================
+# Administrative account state
+#
+# These three routes decide whether somebody can sign in and what the platform
+# vouches for about them, so each requires an administrator and each is
+# recorded. The transitions themselves live in ``AccountStateService`` -- the
+# router's job here is to authenticate, resolve the target, and hand over the
+# request context for the audit row.
+# ==========================================================
+
+
 @router.patch(
     "/{user_id}/activate",
     response_model=UserResponse,
+    summary="Re-enable a disabled account (administrators only)",
 )
 def activate_user(
     user_id: uuid.UUID,
+    request: Request,
+    payload: AccountStateChangeRequest | None = None,
     db: Session = Depends(get_database),
+    actor: User = Depends(require_roles(SystemRole.ADMIN)),
 ):
+    user = resolve_target_user(db, user_id)
 
-    user = UserService.get_user(db, user_id)
-
-    if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-    return UserService.activate_user(
+    return AccountStateService.activate(
         db,
-        user,
+        actor=actor,
+        target=user,
+        reason=payload.reason if payload else None,
+        context=RequestContext.from_request(request),
     )
 
 
 @router.patch(
     "/{user_id}/deactivate",
     response_model=UserResponse,
+    summary="Disable an account and revoke its sessions (administrators only)",
 )
 def deactivate_user(
     user_id: uuid.UUID,
+    request: Request,
+    payload: AccountStateChangeRequest | None = None,
     db: Session = Depends(get_database),
+    actor: User = Depends(require_roles(SystemRole.ADMIN)),
 ):
+    user = resolve_target_user(db, user_id)
 
-    user = UserService.get_user(db, user_id)
-
-    if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-    return UserService.deactivate_user(
+    return AccountStateService.deactivate(
         db,
-        user,
+        actor=actor,
+        target=user,
+        reason=payload.reason if payload else None,
+        context=RequestContext.from_request(request),
     )
 
 
 @router.patch(
     "/{user_id}/verify",
     response_model=UserResponse,
+    summary="Mark an address verified without a token (administrators only)",
 )
 def verify_user(
     user_id: uuid.UUID,
+    request: Request,
+    payload: AccountStateChangeRequest | None = None,
     db: Session = Depends(get_database),
+    actor: User = Depends(require_roles(SystemRole.ADMIN)),
 ):
+    user = resolve_target_user(db, user_id)
 
-    user = UserService.get_user(db, user_id)
-
-    if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-    return UserService.verify_email(
+    return AccountStateService.mark_email_verified(
         db,
-        user,
+        actor=actor,
+        target=user,
+        reason=payload.reason if payload else None,
+        context=RequestContext.from_request(request),
     )
 
 
@@ -743,3 +819,68 @@ def report_user(
         raise HTTPException(status_code=400, detail="You cannot report yourself")
 
     return UserService.create_user_report(db, current_user.id, target_user.id, report)
+
+
+# ==========================================================
+# Dashboard Layout Customization (#754)
+# ==========================================================
+
+
+@router.get(
+    "/me/dashboard-layout",
+    response_model=DashboardLayoutResponse,
+    summary="Get Current User Dashboard Layout",
+)
+def get_dashboard_layout(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    if (
+        not current_user.dashboard_layout
+        or "widgets" not in current_user.dashboard_layout
+    ):
+        return DashboardLayoutResponse(widgets=[], is_customized=False)
+    return DashboardLayoutResponse(
+        widgets=[
+            DashboardWidgetLayout(**w) for w in current_user.dashboard_layout["widgets"]
+        ],
+        is_customized=True,
+    )
+
+
+@router.put(
+    "/me/dashboard-layout",
+    response_model=DashboardLayoutResponse,
+    summary="Save Current User Dashboard Layout",
+)
+def update_dashboard_layout(
+    layout: DashboardLayoutUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    payload = {"widgets": [w.model_dump() for w in layout.widgets]}
+    current_user.dashboard_layout = payload
+    db.commit()
+    db.refresh(current_user)
+    return DashboardLayoutResponse(
+        widgets=layout.widgets,
+        is_customized=True,
+    )
+
+
+@router.delete(
+    "/me/dashboard-layout",
+    response_model=DashboardLayoutResponse,
+    summary="Reset Current User Dashboard Layout to Default",
+)
+def reset_dashboard_layout(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    current_user.dashboard_layout = None
+    db.commit()
+    db.refresh(current_user)
+    return DashboardLayoutResponse(
+        widgets=[],
+        is_customized=False,
+    )

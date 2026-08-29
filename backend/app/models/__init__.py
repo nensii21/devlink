@@ -26,6 +26,7 @@ from .organization import Organization  # noqa: F401
 from .organization_member import OrganizationMember, OrgMemberRole  # noqa: F401
 from .password_reset_token import PasswordResetToken  # noqa: F401
 from .project import Project  # noqa: F401
+from .project_calendar_event import ProjectCalendarEvent  # noqa: F401
 from .project_document import ProjectDocument  # noqa: F401
 from .project_template import ProjectTemplate, ProjectTemplateFavorite  # noqa: F401
 from .project_view import ProjectView  # noqa: F401
@@ -62,7 +63,10 @@ from .testimonial import (  # noqa: F401
 )
 from .badge import Badge, UserBadge  # noqa: F401
 from .project_release import ProjectRelease, ReleaseStatus, ReleaseType  # noqa: F401
-from .centralized_analytics import CentralizedAnalyticsEvent, AnalyticsEventType  # noqa: F401
+from .centralized_analytics import (
+    CentralizedAnalyticsEvent,
+    AnalyticsEventType,
+)  # noqa: F401
 from .global_announcement import (
     GlobalAnnouncement,
     AnnouncementSeverity,
@@ -72,9 +76,15 @@ from .post import Post  # noqa: F401
 from .pinned_project import PinnedProject  # noqa: F401
 
 from .project_comment import ProjectComment  # noqa: F401
+from .project_time_log import ProjectTimeLog  # noqa: F401
+from .user_availability import UserAvailability  # noqa: F401
+from .connection import Connection, ConnectionStatus  # noqa: F401
 from .feature_announcement import (  # noqa: F401
     FeatureAnnouncement,
     FeatureAnnouncementRead,
     AnnouncementCategory,
 )
 
+from .stripe_webhook_event import StripeWebhookEvent  # noqa: F401
+from .post_like import PostLike  # noqa: F401
+from .post_comment import PostComment  # noqa: F401

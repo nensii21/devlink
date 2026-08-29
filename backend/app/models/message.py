@@ -16,7 +16,7 @@ from sqlalchemy import (
     Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, backref, mapped_column, relationship
 
 from app.database.base import Base
 
@@ -168,7 +168,14 @@ class Message(Base):
 
     conversation = relationship(
         "Conversation",
-        backref="messages",
+        # Same as ``ConversationMember.conversation``: the column is NOT NULL
+        # with an ON DELETE CASCADE, so the ORM must not try to null it out
+        # when the conversation goes.
+        backref=backref(
+            "messages",
+            cascade="all, delete-orphan",
+            passive_deletes=True,
+        ),
     )
 
     sender = relationship(

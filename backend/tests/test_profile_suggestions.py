@@ -18,7 +18,6 @@ from app.schemas.profile_suggestion import (
 )
 from app.services.profile_suggestion_service import ProfileSuggestionService
 
-
 # ---------------------------------------------------------------------------
 # Test Fixtures / Mock Helpers
 # ---------------------------------------------------------------------------

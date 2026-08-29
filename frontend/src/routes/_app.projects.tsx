@@ -113,7 +113,7 @@ function ProjectsPage() {
       setCreateOpen(true);
       // Remove query param to keep the URL clean
       navigate({
-        search: (prev) => {
+        search: (prev: any) => {
           const next = { ...prev };
           delete next.create;
           return next;
@@ -182,9 +182,7 @@ function ProjectsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <TypoHeading as="h1">Projects</TypoHeading>
-          <TypoCaption as="p">
-            Everything you're building, in one place.
-          </TypoCaption>
+          <TypoCaption as="p">Everything you're building, in one place.</TypoCaption>
         </div>
         <button
           onClick={() => setCreateOpen(true)}
@@ -214,9 +212,7 @@ function ProjectsPage() {
                       <p className="truncate text-[14px] font-semibold text-foreground">
                         {project.name}
                       </p>
-                      <TypoCaption as="p">
-                        {project.description}
-                      </TypoCaption>
+                      <TypoCaption as="p">{project.description}</TypoCaption>
                     </div>
                   </div>
 
@@ -426,9 +422,7 @@ function ProjectsPage() {
           <p className="text-[14px] font-semibold text-foreground">
             No projects match your filters
           </p>
-          <TypoCaption as="p">
-            Try adjusting or resetting your filters.
-          </TypoCaption>
+          <TypoCaption as="p">Try adjusting or resetting your filters.</TypoCaption>
           {hasActiveFilters && (
             <button
               onClick={handleClearAllFilters}

@@ -2,6 +2,7 @@ import * as React from "react";
 import { ArrowUpRight, ArrowDownRight, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { TypoHeading, TypoCaption } from "@/components/shared/Typography";
 
 export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   icon: React.ComponentType<{ size?: number; className?: string }> | React.ReactNode;
@@ -51,26 +52,27 @@ export function StatCard({
 
         {/* Right: Value & Label */}
         <div className="min-w-0 flex-1">
-          <p className="text-2xl font-bold tracking-tight text-foreground leading-none">
+          <TypoHeading as="p" className="text-2xl font-bold tracking-tight text-foreground leading-none">
             {value}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1 truncate">
+          </TypoHeading>
+          <TypoCaption as="p" className="text-xs text-muted-foreground mt-1 truncate">
             {label}
-          </p>
+          </TypoCaption>
         </div>
       </div>
 
       {/* Optional description */}
       {description && (
-        <p className="text-xs text-muted-foreground leading-relaxed">
+        <TypoCaption as="p" className="text-xs text-muted-foreground leading-relaxed">
           {description}
-        </p>
+        </TypoCaption>
       )}
 
       {/* Bottom: Trend indicator */}
       {trend && (
         <div className="flex items-center gap-1.5 pt-2 border-t border-border/40 mt-auto">
-          <span
+          <TypoCaption
+            as="span"
             className={cn(
               "inline-flex items-center text-[11px] font-semibold gap-0.5",
               trendType === "positive" && "text-success",
@@ -82,7 +84,7 @@ export function StatCard({
             {trendType === "negative" && <ArrowDownRight size={13} className="shrink-0" />}
             {trendType === "neutral" && <Minus size={13} className="shrink-0" />}
             {trend}
-          </span>
+          </TypoCaption>
         </div>
       )}
     </Card>

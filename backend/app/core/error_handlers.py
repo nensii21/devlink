@@ -354,7 +354,9 @@ async def app_exception_handler(
 
     That is why nothing in the codebase raises them: they did not work.
     """
-    status_code = getattr(exc, "status_code", None) or status.HTTP_500_INTERNAL_SERVER_ERROR
+    status_code = (
+        getattr(exc, "status_code", None) or status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
     message = getattr(exc, "message", None) or str(exc) or "An error occurred."
     code = getattr(exc, "code", None) or DEFAULT_STATUS_CODES.get(status_code, "ERROR")
 

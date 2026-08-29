@@ -42,7 +42,6 @@ from app.middleware.idempotency import (
     filter_headers,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fake Redis
 # ---------------------------------------------------------------------------
@@ -441,9 +440,7 @@ def test_two_users_with_the_same_key_do_not_share_a_response(
     assert first.json()["id"] != second.json()["id"]
 
 
-def test_unauthenticated_requests_bypass_idempotency(
-    client, calls, fake_redis
-) -> None:
+def test_unauthenticated_requests_bypass_idempotency(client, calls, fake_redis) -> None:
     """No identity means no safe way to scope the entry, so no caching.
 
     The old code bucketed every anonymous caller under the literal string
@@ -660,9 +657,7 @@ def test_set_cookie_is_not_replayed(fake_redis, token) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_redis_unavailable_bypasses_cleanly(
-    client, calls, monkeypatch, token
-) -> None:
+def test_redis_unavailable_bypasses_cleanly(client, calls, monkeypatch, token) -> None:
     async def _no_redis():
         return None
 

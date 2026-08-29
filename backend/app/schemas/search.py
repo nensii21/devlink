@@ -137,7 +137,9 @@ class SearchResponse(BaseModel):
     skills: List[SearchResultSkill] = []
     tags: List[SearchResultTag] = []
     counts: SearchCounts = Field(default_factory=SearchCounts)
-    search_method: str = Field(..., description="Either 'semantic' or 'keyword_fallback'")
+    search_method: str = Field(
+        ..., description="Either 'semantic' or 'keyword_fallback'"
+    )
     search_method: str = Field(
         ..., description="Either 'semantic' or 'keyword_fallback'"
     )

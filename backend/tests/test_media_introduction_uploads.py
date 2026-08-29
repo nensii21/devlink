@@ -205,9 +205,7 @@ def test_voice_and_video_do_not_share_a_directory(
     assert video_files[0].read_bytes() == b"video"
 
 
-def test_each_upload_gets_a_unique_name(
-    upload_root: Path, user_id: uuid.UUID
-) -> None:
+def test_each_upload_gets_a_unique_name(upload_root: Path, user_id: uuid.UUID) -> None:
     """Two uploads of the same filename must not overwrite each other."""
     first = save_video_introduction_upload(b"one", "intro.mp4", user_id)
     second = save_video_introduction_upload(b"two", "intro.mp4", user_id)

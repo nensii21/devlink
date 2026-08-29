@@ -24,18 +24,33 @@ const PROFILE = {
 
 // `withFallback` short-circuits to mock data when VITE_API_BASE_URL is empty,
 // which would make every assertion below vacuous. Point it at something.
-vi.mock("@/api", async () => {
-  const actual = await vi.importActual<typeof import("@/api")>("@/api");
+//
+// The factory builds the module rather than spreading `importActual`, so this
+// test does not load the real `@/api` barrel. `@/services` imports a name from
+// most modules under it, and pulling all of them in to exercise two methods
+// makes this test fail for reasons that have nothing to do with users.
+vi.mock("@/api", () => {
+  const stub = () => new Proxy({}, { get: () => vi.fn() });
   return {
-    ...actual,
     isBackendConfigured: () => true,
     usersApi: {
-      ...actual.usersApi,
-      me: vi.fn(),
+      getMe: vi.fn(),
       updateMe: vi.fn(),
       updatePrivacySettings: vi.fn(),
       getPrivacySettings: vi.fn(),
     },
+    api: stub(),
+    tokenStore: stub(),
+    ws: stub(),
+    authApi: stub(),
+    projectsApi: stub(),
+    buildersApi: stub(),
+    postsApi: stub(),
+    messagesApi: stub(),
+    notificationsApi: stub(),
+    analyticsApi: stub(),
+    hackathonsApi: stub(),
+    searchApi: stub(),
   };
 });
 
@@ -44,7 +59,7 @@ import { usersService } from "@/services";
 
 describe("usersService.getMe", () => {
   beforeEach(() => {
-    vi.mocked(usersApi.me).mockReset();
+    vi.mocked(usersApi.getMe).mockReset();
   });
 
   afterEach(() => {
@@ -52,17 +67,17 @@ describe("usersService.getMe", () => {
   });
 
   it("exists, and reads the caller's own profile", async () => {
-    vi.mocked(usersApi.me).mockResolvedValue(PROFILE);
+    vi.mocked(usersApi.getMe).mockResolvedValue(PROFILE);
 
     await expect(usersService.getMe()).resolves.toEqual(PROFILE);
-    expect(usersApi.me).toHaveBeenCalledTimes(1);
+    expect(usersApi.getMe).toHaveBeenCalledTimes(1);
   });
 
   it("answers null when the profile cannot be read, not an invented user", async () => {
     // A fabricated profile here would be rendered into the form fields as the
     // user's own data, and then written back over the real row on the next
     // save. `null` is the only shape the page can tell apart from an answer.
-    vi.mocked(usersApi.me).mockRejectedValue(new Error("network"));
+    vi.mocked(usersApi.getMe).mockRejectedValue(new Error("network"));
     vi.spyOn(console, "warn").mockImplementation(() => {});
 
     await expect(usersService.getMe()).resolves.toBeNull();

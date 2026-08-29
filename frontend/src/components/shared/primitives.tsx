@@ -30,15 +30,15 @@ export function SectionHeader({
             aria-hidden="true"
           />
         )}
-        <h3 className="text-base sm:text-[17px] font-semibold leading-tight text-foreground tracking-tight">
+        <TypoSection as="h3" className="text-base sm:text-[17px] font-semibold leading-tight text-foreground tracking-tight">
           {title}
-        </h3>
+        </TypoSection>
       </div>
       {action &&
         (actionTo ? (
           <Link
             to={actionTo}
-            className="text-[12px] font-semibold text-primary transition-all hover:text-primary/80 hover:underline shrink-0 whitespace-nowrap ml-auto"
+            className="text-xs font-semibold text-primary transition-all hover:text-primary/80 hover:underline shrink-0 whitespace-nowrap ml-auto"
           >
             {action}
           </Link>
@@ -46,7 +46,7 @@ export function SectionHeader({
           <button
             type="button"
             onClick={onAction}
-            className="text-[12px] font-semibold text-primary transition-all hover:text-primary/80 hover:underline shrink-0 whitespace-nowrap ml-auto cursor-pointer"
+            className="text-xs font-semibold text-primary transition-all hover:text-primary/80 hover:underline shrink-0 whitespace-nowrap ml-auto cursor-pointer"
           >
             {action}
           </button>
@@ -152,9 +152,7 @@ export function EmptyState({
         )}
       </div>
       <TypoSection>{title}</TypoSection>
-      {desc && (
-        <TypoCaption as="p">{desc}</TypoCaption>
-      )}
+      {desc && <TypoCaption as="p">{desc}</TypoCaption>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );

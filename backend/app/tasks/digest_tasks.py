@@ -28,7 +28,9 @@ def process_user_daily_digest(self, user_id: str, target_date_str: str) -> dict:
         # 2. Preference and activity check
         digest_data = DailyDigestService.aggregate_digest(session, user_id, target_date)
         if not digest_data or not digest_data.get("has_activity"):
-            logger.info("No activity or digest disabled for user %s. Skipping.", user_id)
+            logger.info(
+                "No activity or digest disabled for user %s. Skipping.", user_id
+            )
             return {
                 "status": "SKIPPED",
                 "reason": "NO_ACTIVITY_OR_DISABLED",

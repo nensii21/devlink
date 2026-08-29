@@ -41,9 +41,7 @@ export function TechStackCard({
         </div>
 
         <label className="mt-4 block text-sm">
-          <TypoCaption>
-            Technologies
-          </TypoCaption>
+          <TypoCaption>Technologies</TypoCaption>
           <textarea
             value={formValues.join(", ")}
             onChange={(event) => onTechStackChange?.(event.target.value)}

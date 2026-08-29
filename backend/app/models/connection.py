@@ -88,4 +88,6 @@ class Connection(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Connection({self.requester_id} -> {self.recipient_id} [{self.status}])>"
+        return (
+            f"<Connection({self.requester_id} -> {self.recipient_id} [{self.status}])>"
+        )

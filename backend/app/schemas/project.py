@@ -225,4 +225,3 @@ class ProjectCloneRequest(BaseModel):
     visibility: Optional[ProjectVisibility] = None
     include_milestones: bool = False
     include_tags: bool = True
-

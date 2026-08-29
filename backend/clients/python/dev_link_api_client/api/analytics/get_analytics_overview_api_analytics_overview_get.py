@@ -23,12 +23,13 @@ def _get_kwargs() -> dict[str, Any]:
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet | None:
+) -> (
+    GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet
+    | None
+):
     if response.status_code == 200:
-        response_200 = (
-            GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet.from_dict(
-                response.json()
-            )
+        response_200 = GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet.from_dict(
+            response.json()
         )
 
         return response_200
@@ -41,7 +42,9 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet]:
+) -> Response[
+    GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet
+]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -53,7 +56,9 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet]:
+) -> Response[
+    GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet
+]:
     """Get Platform Metrics Overview
 
     Raises:
@@ -76,7 +81,10 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-) -> GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet | None:
+) -> (
+    GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet
+    | None
+):
     """Get Platform Metrics Overview
 
     Raises:
@@ -95,7 +103,9 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet]:
+) -> Response[
+    GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet
+]:
     """Get Platform Metrics Overview
 
     Raises:
@@ -116,7 +126,10 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-) -> GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet | None:
+) -> (
+    GetAnalyticsOverviewApiAnalyticsOverviewGetResponseGetAnalyticsOverviewApiAnalyticsOverviewGet
+    | None
+):
     """Get Platform Metrics Overview
 
     Raises:

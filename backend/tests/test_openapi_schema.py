@@ -149,11 +149,11 @@ def test_no_route_signature_uses_an_unimported_name() -> None:
         try:
             typing.get_type_hints(endpoint, include_extras=True)
         except NameError as exc:
-            unresolved.append(
-                f"{endpoint.__module__}.{endpoint.__qualname__}: {exc}"
-            )
+            unresolved.append(f"{endpoint.__module__}.{endpoint.__qualname__}: {exc}")
 
-    assert not unresolved, "route signatures reference names their module never imported:\n" + "\n".join(
+    assert (
+        not unresolved
+    ), "route signatures reference names their module never imported:\n" + "\n".join(
         unresolved
     )
 

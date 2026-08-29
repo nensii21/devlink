@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { projectsApi } from "@/api/modules/projects";
-import { Card, EmptyState, SectionHeader, Avatar } from "@/components/shared/primitives";
+import { Card, SectionHeader, Avatar } from "@/components/shared/primitives";
 import {
   Plus,
   Flame,
@@ -10,24 +9,20 @@ import {
   Calendar,
   Clock,
   Rocket,
-  User,
   Sparkles,
-  TrendingUp,
   BrainCircuit,
   ArrowRight,
 } from "lucide-react";
 import { recommendationsApi } from "@/api";
-import { messagesService } from "@/services";
+import { messagesService, projectsService } from "@/services";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
-import { projectsService } from "@/services";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { TypoCaption, TypoCard } from "@/components/shared/Typography";
-import type { Project } from "@/mocks/seed";
+import { TypoCaption, TypoCard, TypoBody, TypoSection } from "@/components/shared/Typography";
 
 // 1. Current Projects
 export function CurrentProjects() {
-  const { data: projects = [], isLoading, error } = useQuery({
+  const { data: projects = [], isLoading } = useQuery({
     queryKey: ["dashboardCurrentProjects"],
     queryFn: () => projectsService.list(),
   });
@@ -140,31 +135,34 @@ export function CurrentProjects() {
                         <Link
                           to="/projects/$projectId"
                           params={{ projectId: p.id }}
-                          className="text-xs sm:text-sm font-bold text-foreground hover:text-primary transition-colors truncate block"
+                          className="hover:text-primary transition-colors block truncate"
                         >
-                          {p.name}
+                          <TypoCard as="span" className="text-xs sm:text-sm font-bold text-foreground hover:text-primary truncate block">
+                            {p.name}
+                          </TypoCard>
                         </Link>
-                        <p className="text-[11px] text-muted-foreground truncate">
+                        <TypoCaption as="p" className="text-[11px] text-muted-foreground truncate mt-0.5">
                           {p.description}
-                        </p>
+                        </TypoCaption>
                       </div>
                     </div>
 
-                    <span
+                    <TypoCaption
+                      as="span"
                       className={cn(
                         "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border shrink-0",
                         statusBadge,
                       )}
                     >
                       {(p.status || "Active").replace("-", " ")}
-                    </span>
+                    </TypoCaption>
                   </div>
 
                   {/* Progress bar + Completion percentage */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-muted-foreground font-medium">Completion</span>
-                      <span className="font-bold text-foreground">{progressVal}%</span>
+                      <TypoCaption as="span" className="text-muted-foreground font-medium">Completion</TypoCaption>
+                      <TypoCaption as="span" className="font-bold text-foreground">{progressVal}%</TypoCaption>
                     </div>
                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                       <div
@@ -176,9 +174,9 @@ export function CurrentProjects() {
 
                   {/* Actionable info row: Team size & Deadline & Avatars */}
                   <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/40 animate-fade-in">
-                    <span className="inline-flex items-center gap-1 font-medium text-foreground">
+                    <TypoCaption as="span" className="inline-flex items-center gap-1 font-medium text-foreground">
                       <Users2 size={12} className="text-primary" /> {p.members || 1} builders
-                    </span>
+                    </TypoCaption>
 
                     {/* Avatar stack */}
                     <div className="flex -space-x-1.5 items-center shrink-0">
@@ -198,10 +196,10 @@ export function CurrentProjects() {
                       )}
                     </div>
 
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
+                    <TypoCaption as="span" className="inline-flex items-center gap-1 text-muted-foreground">
                       <Calendar size={12} />{" "}
                       {p.deadlineText || "Due in 10 days"}
-                    </span>
+                    </TypoCaption>
                   </div>
                 </div>
               );
@@ -212,7 +210,6 @@ export function CurrentProjects() {
 }
 
 // 2. AI Suggestions / Recommendation Panel (#738)
-
 export function AISuggestions() {
   const { data: recData, isLoading } = useQuery({
     queryKey: ["dashboardAIRecommendations"],
@@ -307,10 +304,10 @@ export function AISuggestions() {
         ) : results.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-6 text-center text-xs text-muted-foreground">
             <BrainCircuit size={28} className="text-primary/60 mb-2" />
-            <p className="font-semibold text-foreground">No recommendations available</p>
-            <p className="mt-0.5">
+            <TypoCard as="p" className="font-semibold text-foreground">No recommendations available</TypoCard>
+            <TypoCaption as="p" className="mt-0.5">
               Add skills to your profile to get personalized AI collaborator matches.
-            </p>
+            </TypoCaption>
           </div>
         ) : (
           results.map((rec) => {
@@ -340,55 +337,63 @@ export function AISuggestions() {
                       <Link
                         to="/profile/$username"
                         params={{ username: rec.username }}
-                        className="text-xs sm:text-sm font-bold text-foreground hover:text-primary transition-colors truncate block"
+                        className="hover:text-primary transition-colors block truncate"
                       >
-                        {rec.first_name} {rec.last_name}
+                        <TypoCard as="span" className="text-xs sm:text-sm font-bold text-foreground hover:text-primary truncate block">
+                          {rec.first_name} {rec.last_name}
+                        </TypoCard>
                       </Link>
-                      <p className="text-[11px] text-muted-foreground truncate">{rec.role}</p>
+                      <TypoCaption as="p" className="text-[11px] text-muted-foreground truncate mt-0.5">{rec.role}</TypoCaption>
                     </div>
                   </div>
 
                   {/* Match Percentage Badge */}
-                  <span
+                  <TypoCaption
+                    as="span"
                     className={cn(
                       "text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 flex items-center gap-1",
                       matchBadgeClass,
                     )}
                   >
                     <Sparkles size={11} /> {matchPercentage}% Match
-                  </span>
+                  </TypoCaption>
                 </div>
 
                 {/* Skills Insights: Matched vs Missing */}
                 <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                   {rec.matched_skills.slice(0, 2).map((sk: string) => (
-                    <span
+                    <TypoCaption
+                      as="span"
                       key={sk}
-                      className="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-medium border border-primary/20"
+                      className="text-[10px] px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-medium border border-primary/20"
                     >
                       ✓ {sk}
-                    </span>
+                    </TypoCaption>
                   ))}
                   {rec.missing_skills.slice(0, 2).map((sk: string) => (
-                    <span
+                    <TypoCaption
+                      as="span"
                       key={sk}
-                      className="px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-medium border border-border/60"
+                      className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground font-medium border border-border/60"
                     >
                       + {sk} needed
-                    </span>
+                    </TypoCaption>
                   ))}
                 </div>
 
                 {/* Actionable button footer */}
                 <div className="flex items-center justify-between pt-2 border-t border-border/40 text-[11px]">
-                  <span className="text-muted-foreground truncate max-w-[180px]">
+                  <TypoCaption as="span" className="text-muted-foreground truncate max-w-[180px]">
                     {rec.headline}
-                  </span>
+                  </TypoCaption>
                   <Link
                     to="/builders"
                     className="inline-flex items-center gap-1 font-semibold text-primary hover:underline shrink-0 cursor-pointer"
                   >
-                    {rec.suggested_action} <ArrowRight size={11} />
+                    <TypoCaption as="span" className="text-primary font-semibold hover:underline">
+                      {rec.suggested_action}
+                    </TypoCaption>{" "}
+                    <ArrowRight size={11} className="text-primary" />
                   </Link>
                 </div>
               </div>
@@ -439,7 +444,9 @@ export function QuickActions() {
 
   return (
     <Card className="border-border/60 rounded-2xl bg-card shadow-xs flex flex-col h-full">
-      <div className="px-5 pt-5 pb-2 font-semibold text-sm text-foreground">Quick Actions</div>
+      <TypoSection as="h3" className="px-5 pt-5 pb-2 font-semibold text-sm text-foreground">
+        Quick Actions
+      </TypoSection>
       <div className="grid grid-cols-2 gap-3 p-4 pt-1 flex-1">
         {actions.map((act) => {
           const Icon = act.icon;
@@ -461,7 +468,9 @@ export function QuickActions() {
               >
                 <Icon size={20} />
               </div>
-              <span className="text-xs font-bold text-foreground">{act.label}</span>
+              <TypoCard as="span" className="text-xs font-bold text-foreground">
+                {act.label}
+              </TypoCard>
             </Link>
           );
         })}
@@ -512,8 +521,12 @@ export function RecentActivity() {
             <div className="flex items-center gap-3 min-w-0">
               <div className={cn("h-2 w-2 rounded-full shrink-0", act.bulletColor)} />
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-foreground truncate">{act.text}</p>
-                <TypoCaption as="p">{act.time}</TypoCaption>
+                <TypoBody as="p" className="text-xs font-semibold text-foreground truncate">
+                  {act.text}
+                </TypoBody>
+                <TypoCaption as="p" className="text-[11px] text-muted-foreground mt-0.5">
+                  {act.time}
+                </TypoCaption>
               </div>
             </div>
             <ChevronRight size={14} className="text-muted-foreground shrink-0" />
@@ -570,8 +583,12 @@ export function Upcoming() {
                 <Icon size={16} />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-foreground truncate">{item.title}</p>
-                <TypoCaption as="p">{item.time}</TypoCaption>
+                <TypoCard as="p" className="text-xs font-bold text-foreground truncate">
+                  {item.title}
+                </TypoCard>
+                <TypoCaption as="p" className="text-[11px] text-muted-foreground mt-0.5">
+                  {item.time}
+                </TypoCaption>
               </div>
             </div>
           );
@@ -655,7 +672,7 @@ export function CompactMessagingWidget() {
         ) : displayConversations.length === 0 ? (
           <div className="py-6 text-center text-xs text-muted-foreground">
             <MessageSquare size={20} className="mx-auto mb-1 opacity-50" />
-            No active conversations
+            <TypoCaption as="p">No active conversations</TypoCaption>
           </div>
         ) : (
           displayConversations.map((c) => (
@@ -684,10 +701,10 @@ export function CompactMessagingWidget() {
               {/* Message text and sender name */}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                  <TypoCard as="p" className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                     {c.with.name}
-                  </p>
-                  <span className="text-[10px] text-muted-foreground shrink-0">{c.ago}</span>
+                  </TypoCard>
+                  <TypoCaption as="span" className="text-[10px] text-muted-foreground shrink-0">{c.ago}</TypoCaption>
                 </div>
 
                 <div className="flex items-center justify-between gap-2 mt-0.5">
@@ -699,16 +716,16 @@ export function CompactMessagingWidget() {
                       />
                     </div>
                   ) : (
-                    <p className="text-[11px] text-muted-foreground truncate group-hover:text-foreground/80 transition-colors">
+                    <TypoCaption as="p" className="text-[11px] text-muted-foreground truncate group-hover:text-foreground/80 transition-colors">
                       {c.preview}
-                    </p>
+                    </TypoCaption>
                   )}
 
                   {/* Unread badge */}
                   {c.unread > 0 && (
-                    <span className="grid place-items-center h-4 min-w-[16px] px-1 rounded-full bg-primary text-[9px] font-bold text-primary-foreground shrink-0">
+                    <TypoCaption as="span" className="grid place-items-center h-4 min-w-[16px] px-1 rounded-full bg-primary text-[9px] font-bold text-primary-foreground shrink-0">
                       {c.unread}
-                    </span>
+                    </TypoCaption>
                   )}
                 </div>
               </div>
@@ -757,8 +774,8 @@ export function NotificationsWidget() {
           <div key={n.id} className="flex items-start gap-3 min-w-0">
             <div className={cn("h-2.5 w-2.5 rounded-full shrink-0 mt-1", n.dotColor)} />
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-foreground leading-tight">{n.text}</p>
-              <TypoCaption as="p">{n.time}</TypoCaption>
+              <TypoBody as="p" className="text-xs font-semibold text-foreground leading-tight">{n.text}</TypoBody>
+              <TypoCaption as="p" className="text-[11px] text-muted-foreground mt-0.5">{n.time}</TypoCaption>
             </div>
           </div>
         ))}
@@ -805,8 +822,8 @@ export function UpcomingEventsWidget() {
               <Calendar size={16} />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-foreground truncate">{e.title}</p>
-              <TypoCaption as="p">{e.time}</TypoCaption>
+              <TypoCard as="p" className="text-xs font-bold text-foreground truncate">{e.title}</TypoCard>
+              <TypoCaption as="p" className="text-[11px] text-muted-foreground mt-0.5">{e.time}</TypoCaption>
             </div>
           </div>
         ))}
@@ -827,13 +844,16 @@ export function UpgradePlanCTA() {
       </div>
 
       <div className="min-w-0 flex-1 relative z-10">
-        <TypoCard>Upgrade your plan</TypoCard>
-        <TypoCaption as="p">Unlock premium features and boost your productivity.</TypoCaption>
+        <TypoCard as="h4" className="text-sm font-bold text-foreground">Upgrade your plan</TypoCard>
+        <TypoCaption as="p" className="text-xs text-muted-foreground mt-0.5">Unlock premium features and boost your productivity.</TypoCaption>
         <Link
           to="/dashboard"
           className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline mt-2 cursor-pointer"
         >
-          Upgrade Now <ChevronRight size={12} />
+          <TypoCaption as="span" className="text-[11px] font-bold text-primary hover:underline">
+            Upgrade Now
+          </TypoCaption>{" "}
+          <ChevronRight size={12} className="text-primary" />
         </Link>
       </div>
     </Card>

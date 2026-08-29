@@ -23,6 +23,7 @@ import { Route as AppTemplatesRouteImport } from './routes/_app.templates'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppRepositoryQualityRouteImport } from './routes/_app.repository-quality'
+import { Route as AppRecruiterRouteImport } from './routes/_app.recruiter'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
 import { Route as AppProfileAnalyticsRouteImport } from './routes/_app.profile-analytics'
 import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
@@ -61,6 +62,8 @@ import { Route as AppAdminApiRequestAnalyticsRouteImport } from './routes/_app.a
 import { Route as AppProjectsProjectIdIssuesRouteImport } from './routes/_app.projects.$projectId.issues'
 import { Route as AppProjectsProjectIdCollaborationMetricsRouteImport } from './routes/_app.projects.$projectId.collaboration-metrics'
 import { Route as AppProjectsProjectIdActivityRouteImport } from './routes/_app.projects.$projectId.activity'
+
+ feat/organization-roles-987-v2
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -129,6 +132,11 @@ const AppSearchRoute = AppSearchRouteImport.update({
 const AppRepositoryQualityRoute = AppRepositoryQualityRouteImport.update({
   id: '/repository-quality',
   path: '/repository-quality',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRecruiterRoute = AppRecruiterRouteImport.update({
+  id: '/recruiter',
+  path: '/recruiter',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProjectsRoute = AppProjectsRouteImport.update({
@@ -357,6 +365,7 @@ export interface FileRoutesByFullPath {
   '/organizations': typeof AppOrganizationsRouteWithChildren
   '/profile-analytics': typeof AppProfileAnalyticsRoute
   '/projects': typeof AppProjectsRouteWithChildren
+  '/recruiter': typeof AppRecruiterRoute
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRouteWithChildren
@@ -409,6 +418,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AppNotificationsRoute
   '/profile-analytics': typeof AppProfileAnalyticsRoute
   '/projects': typeof AppProjectsRouteWithChildren
+  '/recruiter': typeof AppRecruiterRoute
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRouteWithChildren
@@ -464,6 +474,7 @@ export interface FileRoutesById {
   '/_app/organizations': typeof AppOrganizationsRouteWithChildren
   '/_app/profile-analytics': typeof AppProfileAnalyticsRoute
   '/_app/projects': typeof AppProjectsRouteWithChildren
+  '/_app/recruiter': typeof AppRecruiterRoute
   '/_app/repository-quality': typeof AppRepositoryQualityRoute
   '/_app/search': typeof AppSearchRoute
   '/_app/settings': typeof AppSettingsRouteWithChildren
@@ -519,6 +530,7 @@ export interface FileRouteTypes {
     | '/organizations'
     | '/profile-analytics'
     | '/projects'
+    | '/recruiter'
     | '/repository-quality'
     | '/search'
     | '/settings'
@@ -571,6 +583,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/profile-analytics'
     | '/projects'
+    | '/recruiter'
     | '/repository-quality'
     | '/search'
     | '/settings'
@@ -625,6 +638,7 @@ export interface FileRouteTypes {
     | '/_app/organizations'
     | '/_app/profile-analytics'
     | '/_app/projects'
+    | '/_app/recruiter'
     | '/_app/repository-quality'
     | '/_app/search'
     | '/_app/settings'
@@ -762,6 +776,13 @@ declare module '@tanstack/react-router' {
       path: '/repository-quality'
       fullPath: '/repository-quality'
       preLoaderRoute: typeof AppRepositoryQualityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/recruiter': {
+      id: '/_app/recruiter'
+      path: '/recruiter'
+      fullPath: '/recruiter'
+      preLoaderRoute: typeof AppRecruiterRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/projects': {
@@ -1168,6 +1189,7 @@ interface AppRouteChildren {
   AppOrganizationsRoute: typeof AppOrganizationsRouteWithChildren
   AppProfileAnalyticsRoute: typeof AppProfileAnalyticsRoute
   AppProjectsRoute: typeof AppProjectsRouteWithChildren
+  AppRecruiterRoute: typeof AppRecruiterRoute
   AppRepositoryQualityRoute: typeof AppRepositoryQualityRoute
   AppSearchRoute: typeof AppSearchRoute
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
@@ -1195,6 +1217,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOrganizationsRoute: AppOrganizationsRouteWithChildren,
   AppProfileAnalyticsRoute: AppProfileAnalyticsRoute,
   AppProjectsRoute: AppProjectsRouteWithChildren,
+  AppRecruiterRoute: AppRecruiterRoute,
   AppRepositoryQualityRoute: AppRepositoryQualityRoute,
   AppSearchRoute: AppSearchRoute,
   AppSettingsRoute: AppSettingsRouteWithChildren,

@@ -28,8 +28,12 @@ router = APIRouter(
     description="Get paginated list of announcements with optional search, category filters, and read status.",
 )
 def list_feature_announcements(
-    category: AnnouncementCategory | None = Query(None, description="Filter by category"),
-    q: str | None = Query(None, description="Search term in title, summary, or content"),
+    category: AnnouncementCategory | None = Query(
+        None, description="Filter by category"
+    ),
+    q: str | None = Query(
+        None, description="Search term in title, summary, or content"
+    ),
     is_featured: bool | None = Query(None, description="Filter by featured status"),
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=50, description="Items per page"),
