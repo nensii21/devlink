@@ -25,7 +25,7 @@ jobs:
         working-directory: backend
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -70,7 +70,7 @@ jobs:
       DATABASE_URL: postgresql+psycopg://devlink:devlink@127.0.0.1:5432/devlink_ci
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
