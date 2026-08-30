@@ -84,7 +84,7 @@
   "devDependencies": {
     "@emnapi/core": "^1.11.2",
     "@emnapi/runtime": "^1.11.3",
-    "@eslint/js": "^9.32.0",
+    "@eslint/js": "^10.0.1",
     "@lovable.dev/vite-tanstack-config": "^2.16.0",
     "@playwright/test": "^1.48.0",
     "@tanstack/router-cli": "^1.167.33",
