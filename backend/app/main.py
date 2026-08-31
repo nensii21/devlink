@@ -694,6 +694,13 @@ from app.routers import badges
 
 app.include_router(badges.router, prefix="/api", tags=["Badges"])
 
+from app.routers import onboarding_checklists
+
+app.include_router(
+    onboarding_checklists.router,
+    prefix="/api",
+    tags=["Project Onboarding Checklists"],
+)
 
 from app.routers import api_keys
 
