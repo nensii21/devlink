@@ -1,102 +1,39 @@
-# Built-in CI/CD Pipeline Orchestrator Specification
+# CI/CD Orchestrator Service
 
-## 1. Executive Summary
-The Built-in CI/CD Pipeline Orchestrator brings native continuous integration and deployment automation directly to DevLink repositories. It enables repository maintainers to define lightweight build, lint, test, and release jobs that execute within secure, ephemeral sandboxes.
+The DevLink CI/CD Orchestrator provides a robust backend pipeline execution engine capable of parallelizing tasks and deploying binaries safely to production environments.
 
----
+## Core Architecture
 
-## 2. Core Capabilities
-- **YAML Pipeline Parser**: Decodes declarative pipeline specs (`.devlink-ci.yml`) into directed acyclic dependency graphs (DAGs).
-- **Matrix Job Execution**: Allows concurrent job matrix expansions across language runtimes and environments.
-- **Live Output Streaming**: Publishes terminal stdout/stderr chunks to subscribed frontend clients over WebSocket connections.
-- **Status Reporting & Commit Badging**: Generates commit status checks, badges, and automated PR review feedback.
+### 1. Directed Acyclic Graph (DAG) Execution
+Pipelines are organized strictly into `PipelineStage`s which contain `PipelineJob`s. Each Job can specify a list of dependencies (`depends_on: ["job_id"]`). 
+The core engine (`resolve_next_jobs`) analyzes this definition dynamically, calculating a DAG. This allows jobs with no remaining dependencies to run in parallel, while blocking downstream jobs until prerequisites pass.
 
----
+### 2. Failure Propagation
+If a job fails (`exit_code != 0`), the DAG evaluator automatically recursively marks all jobs that depend on it as `SKIPPED`. If any job in the pipeline fails, the entire pipeline is marked as `FAILED` upon completion of the remaining active jobs.
 
-## 3. Architecture & Execution Lifecycle
-1. **Trigger Phase**: Ingests Git webhooks (push, pull_request, manual_dispatch) and validates branch protection filters.
-2. **Orchestration Phase**:
-   - Resolves step dependencies and environment secrets.
-   - Instantiates `PipelineJob` and initializes step queues.
-3. **Execution Phase**:
-   - Workers claim jobs from Redis task queues.
-   - Micro-VM / OCI containers spawn with isolated network namespaces and timeout enforcement.
-4. **Teardown & Archival Phase**:
-   - Collects exit codes, execution duration, and test artifact summaries.
-   - Broadcasts terminal state (`PASSED`, `FAILED`, `CANCELLED`).
+### 3. Artifact Metadata Management
+When build jobs complete, they can publish Artifacts (e.g. Docker images, tarballs). The orchestrator tracks these artifacts (`publish_artifact`) entirely through metadata, assuming the actual bits are stored in external registries like AWS S3, ECR, or Nexus.
 
----
+### 4. Deployment Strategies
+The orchestration layer contains pluggable `DeploymentStrategy` handlers for moving an artifact between environments (`promote_artifact`):
+- `RollingDeployment`: Deploys linearly across all nodes.
+- `CanaryDeployment`: Dynamically sweeps traffic splits (e.g. 10% -> 50% -> 100%) checking health metrics between thresholds.
+- `BlueGreenDeployment`: Spools up inactive infrastructure, executes smoke tests, and executes a full router traffic swap instantly.
 
-## 4. Pipeline Configuration Schema (`.devlink-ci.yml`)
+## Webhook Integrations
+The orchestrator natively exposes `handle_webhook_trigger`, mapping incoming payloads from `GitHub Actions` and `GitLab CI` into generic internal DAG pipeline definitions.
 
-```yaml
-version: "1.0"
-name: Core Pipeline
+## Usage
+```python
+from app.services.cicd_orchestrator_service import cicd_orchestrator_service, CanaryDeployment
 
-on:
-  push:
-    branches: [main, release/*]
-  pull_request:
-    branches: [main]
+# 1. Resolve DAG jobs ready to execute
+ready_jobs = cicd_orchestrator_service.resolve_next_jobs("pipe_123")
 
-jobs:
-  lint-and-typecheck:
-    name: Lint & Typecheck
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        run: devlink-checkout
-      - name: Run Linter
-        run: npm run lint
-      - name: Typecheck
-        run: npx tsc --noEmit
+# 2. Complete a job
+cicd_orchestrator_service.record_job_result("pipe_123", "build_ui", 0)
 
-  test-suite:
-    name: Run Unit Tests
-    needs: [lint-and-typecheck]
-    steps:
-      - name: Backend Pytest
-        run: pytest backend/app/tests/ -v
+# 3. Promote Artifact Canary
+canary = CanaryDeployment(traffic_percentages=[10, 50, 100])
+cicd_orchestrator_service.promote_artifact("art_backend_1.0.0", "production", canary)
 ```
-
----
-
-## 5. API Endpoints
-
-### 5.1 Trigger New Pipeline Run
-- **Endpoint**: `POST /api/v1/ci/pipelines/{project_id}/trigger`
-- **Authentication**: Bearer JWT (Maintainer/Contributor)
-- **Request Body**:
-```json
-{
-  "commit_sha": "7a8b9c0d1e2f",
-  "branch": "feat/my-feature",
-  "environment_variables": {
-    "NODE_ENV": "test"
-  }
-}
-```
-
-### 5.2 Get Pipeline Job Status
-- **Endpoint**: `GET /api/v1/ci/jobs/{job_id}`
-- **Response**:
-```json
-{
-  "job_id": "job_proj_101_1724500000",
-  "project_id": "proj_101",
-  "commit_sha": "7a8b9c0d1e2f",
-  "status": "passed",
-  "duration_seconds": 45.2,
-  "steps": [
-    { "name": "lint", "status": "passed", "exit_code": 0, "duration": 8.1 },
-    { "name": "test", "status": "passed", "exit_code": 0, "duration": 37.1 }
-  ]
-}
-```
-
----
-
-## 6. Sandboxing, Isolation & Security Policies
-- **Resource Constraints**: Default quota limits (2 vCPU, 4GB RAM, 15-minute runtime ceiling).
-- **Secret Masking**: Environment secrets are masked with asterisks in stdout logs.
-- **Network Egress Controls**: Outbound traffic can be scoped to approved package repositories.

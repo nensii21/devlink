@@ -1,90 +1,112 @@
-"""
-Comprehensive Unit tests for Built-in CI/CD Pipeline Orchestrator.
-"""
-
 import pytest
 from app.services.cicd_orchestrator_service import (
     CICDOrchestratorService,
-    PipelineJob,
-    PipelineStep,
     PipelineStatus,
-    cicd_orchestrator_service
+    BlueGreenDeployment,
+    CanaryDeployment
 )
 
 
 @pytest.fixture
-def orchestrator():
+def cicd():
     return CICDOrchestratorService()
 
 
-def test_create_job_structure(orchestrator):
-    steps_config = [
-        {"name": "lint", "run": "npm run lint"},
-        {"name": "test", "run": "pytest"},
-        {"name": "build", "run": "npm run build"}
+def test_dag_resolution_and_execution(cicd):
+    stages = [
+        {
+            "name": "Build",
+            "jobs": [
+                {"id": "build_ui", "run": "npm run build"},
+                {"id": "build_api", "run": "make build"}
+            ]
+        },
+        {
+            "name": "Test",
+            "jobs": [
+                {"id": "test_ui", "run": "npm run test", "depends_on": ["build_ui"]},
+                {"id": "test_api", "run": "make test", "depends_on": ["build_api"]},
+                {"id": "integration", "run": "make e2e", "depends_on": ["build_ui", "build_api"]}
+            ]
+        }
     ]
-    job = orchestrator.create_job(
-        project_id="proj_101",
-        commit_sha="a1b2c3d4e5f6",
-        step_commands=steps_config,
-        branch="main"
-    )
-    assert job.project_id == "proj_101"
-    assert job.commit_sha == "a1b2c3d4e5f6"
-    assert job.branch == "main"
-    assert len(job.steps) == 3
-    assert job.steps[0].name == "lint"
-    assert job.steps[0].command == "npm run lint"
-    assert job.status == PipelineStatus.PENDING
+    
+    pipeline = cicd.create_pipeline("proj1", "abcd123", "main", stages)
+    
+    # Initially, only jobs with no dependencies are eligible
+    eligible = cicd.resolve_next_jobs(pipeline.pipeline_id)
+    assert len(eligible) == 2
+    assert set([j.job_id for j in eligible]) == {"build_ui", "build_api"}
+    
+    # Finish build_ui successfully
+    cicd.record_job_result(pipeline.pipeline_id, "build_ui", 0)
+    
+    # Now test_ui should be eligible, but integration is still waiting on build_api
+    eligible = cicd.resolve_next_jobs(pipeline.pipeline_id)
+    assert len(eligible) == 2  # build_api (still pending) and test_ui
+    assert set([j.job_id for j in eligible]) == {"build_api", "test_ui"}
+    
+    # Finish build_api successfully
+    cicd.record_job_result(pipeline.pipeline_id, "build_api", 0)
+    
+    # Now integration and test_api are eligible
+    eligible = cicd.resolve_next_jobs(pipeline.pipeline_id)
+    assert set([j.job_id for j in eligible]) == {"test_ui", "test_api", "integration"}
 
 
-def test_start_job_lifecycle(orchestrator):
-    job = orchestrator.create_job("proj_1", "sha1", [{"name": "s1", "run": "echo 1"}])
-    assert job.status == PipelineStatus.PENDING
-    assert job.started_at is None
-
-    started = orchestrator.start_job(job.job_id)
-    assert started is not None
-    assert started.status == PipelineStatus.RUNNING
-    assert started.started_at is not None
-
-
-def test_record_step_result_success(orchestrator):
-    job = orchestrator.create_job(
-        "proj_1", "sha1",
-        [{"name": "s1", "run": "echo 1"}, {"name": "s2", "run": "echo 2"}]
-    )
-    orchestrator.start_job(job.job_id)
-
-    orchestrator.record_step_result(job.job_id, 0, exit_code=0, duration=2.5, stdout="step 1 passed")
-    assert job.steps[0].status == PipelineStatus.PASSED
-    assert job.steps[0].duration_seconds == 2.5
-    assert job.steps[0].stdout_log == "step 1 passed"
-
-    orchestrator.record_step_result(job.job_id, 1, exit_code=0, duration=3.0, stdout="step 2 passed")
-    assert job.steps[1].status == PipelineStatus.PASSED
-    assert job.status == PipelineStatus.PASSED
-    assert job.completed_at is not None
+def test_failure_propagation(cicd):
+    stages = [
+        {"name": "Build", "jobs": [{"id": "build_core", "run": "make"}]},
+        {"name": "Test", "jobs": [{"id": "test_core", "depends_on": ["build_core"]}]},
+        {"name": "Deploy", "jobs": [{"id": "deploy_prod", "depends_on": ["test_core"]}]}
+    ]
+    pipeline = cicd.create_pipeline("proj2", "efg456", "main", stages)
+    
+    # Fail the build
+    cicd.record_job_result(pipeline.pipeline_id, "build_core", 1)
+    
+    assert pipeline.status == PipelineStatus.FAILED
+    
+    # Dependent jobs should be skipped recursively
+    job_map = {j.job_id: j for stage in pipeline.stages for j in stage.jobs}
+    assert job_map["test_core"].status == PipelineStatus.SKIPPED
+    assert job_map["deploy_prod"].status == PipelineStatus.SKIPPED
 
 
-def test_record_step_result_failure(orchestrator):
-    job = orchestrator.create_job(
-        "proj_1", "sha1",
-        [{"name": "s1", "run": "echo 1"}, {"name": "s2", "run": "echo 2"}]
-    )
-    orchestrator.start_job(job.job_id)
+def test_artifact_management_and_deployment(cicd):
+    art = cicd.publish_artifact("backend-image", "1.0.0", "s3://bucket/img.tar")
+    assert art.environment == "build"
+    
+    bg = BlueGreenDeployment()
+    success = cicd.promote_artifact(art.artifact_id, "production", bg)
+    assert success is True
+    assert art.environment == "production"
+    
+    canary = CanaryDeployment(traffic_percentages=[50, 100])
+    success = cicd.promote_artifact(art.artifact_id, "canary", canary)
+    assert success is True
+    assert art.environment == "canary"
 
-    orchestrator.record_step_result(job.job_id, 0, exit_code=0, duration=1.0)
-    orchestrator.record_step_result(job.job_id, 1, exit_code=1, duration=1.2, stderr="command not found")
-    assert job.steps[1].status == PipelineStatus.FAILED
-    assert job.status == PipelineStatus.FAILED
-    assert job.completed_at is not None
 
-
-def test_invalid_job_or_step_index(orchestrator):
-    res = orchestrator.record_step_result("nonexistent", 0, 0, 1.0)
-    assert res is None
-
-    job = orchestrator.create_job("proj_1", "sha1", [{"name": "s1", "run": "echo 1"}])
-    res_invalid_idx = orchestrator.record_step_result(job.job_id, 99, 0, 1.0)
-    assert res_invalid_idx is None
+def test_webhook_integration(cicd):
+    # Github payload mock
+    gh_payload = {
+        "ref": "refs/heads/feature-1",
+        "after": "deadbeef",
+        "repository": {"name": "repo_github"}
+    }
+    pipe_gh = cicd.handle_webhook_trigger("github", gh_payload)
+    assert pipe_gh.project_id == "repo_github"
+    assert pipe_gh.commit_sha == "deadbeef"
+    assert pipe_gh.branch == "feature-1"
+    
+    # Gitlab payload mock
+    gl_payload = {
+        "ref": "refs/heads/master",
+        "checkout_sha": "c0ffee",
+        "project": {"path_with_namespace": "org/repo_gitlab"}
+    }
+    pipe_gl = cicd.handle_webhook_trigger("gitlab", gl_payload)
+    assert pipe_gl.project_id == "org/repo_gitlab"
+    assert pipe_gl.commit_sha == "c0ffee"
+    assert pipe_gl.branch == "master"
