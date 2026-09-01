@@ -19,10 +19,12 @@ from app.dependencies import (
 from app.models.audit_log import AuditAction
 from app.models.user import User
 from app.schemas.reputation import (
+    EndorseUserRequest,
     LeaderboardResponse,
     ReputationAwardRequest,
     ReputationLogResponse,
     ReputationSummaryResponse,
+    TrustScoreResponse,
 )
 from app.services.audit_log_service import AuditLogService
 from app.services.reputation_service import ReputationService
@@ -140,3 +142,58 @@ def award_reputation(
     db.commit()
 
     return ReputationLogResponse.model_validate(log_entry)
+
+
+@router.get(
+    "/trust-score/me",
+    response_model=TrustScoreResponse,
+    summary="Get current user trust score breakdown",
+)
+def get_my_trust_score(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns the authenticated user's trust score breakdown across collaborations, PRs, projects, feedback, endorsements, and verification.
+    """
+    return ReputationService.get_trust_score(db, current_user.id)
+
+
+@router.get(
+    "/trust-score/{user_id}",
+    response_model=TrustScoreResponse,
+    summary="Get specific user trust score breakdown",
+)
+def get_user_trust_score(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    """
+    Returns a user's trust score breakdown across collaborations, PRs, projects, feedback, endorsements, and verification.
+    """
+    return ReputationService.get_trust_score(db, user_id)
+
+
+@router.post(
+    "/endorse",
+    response_model=ReputationLogResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Endorse a peer developer",
+)
+def endorse_peer(
+    payload: EndorseUserRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Allows a developer to endorse a peer for their skills and collaboration, awarding +15 reputation points.
+    """
+    _, log_entry = ReputationService.endorse_user(
+        db=db,
+        endorser_id=current_user.id,
+        target_user_id=payload.target_user_id,
+        skill_or_reason=payload.skill_or_reason,
+        note=payload.note,
+    )
+    return ReputationLogResponse.model_validate(log_entry)
+

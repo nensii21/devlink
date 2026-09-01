@@ -9,7 +9,7 @@ import {
   RefreshCw, Download, Settings, Play, Pause, Square, RotateCcw,
   PlayCircle, FastForward, Rewind, SkipForward, Volume2, VolumeX,
   Monitor, Smartphone, Laptop, Headphones, MonitorSpeaker,
-  Sunrise, Sunset, Wind, Thermometer, Droplets, CloudRain,
+  Sunrise, Sunset, Thermometer, Droplets, CloudRain,
   CircleDot, Layers, Grid, List, Info, Sparkles, Bookmark,
   Calendar, CalendarDays, Timer as TimerIcon, Hourglass,
   BrainCircuit, Lightbulb, Puzzle, Rocket, Shield, Compass,

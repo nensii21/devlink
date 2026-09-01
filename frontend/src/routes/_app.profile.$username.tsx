@@ -58,6 +58,9 @@ import { CollaborationStatusPicker } from "@/features/collaboration/components/C
 import { useCollaborationStatus } from "@/hooks/useCollaborationStatus";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
 import { ManageSkillsModal } from "@/components/profile/ManageSkillsModal";
+import { ReputationTrustCard } from "@/components/reputation/ReputationTrustCard";
+import { TrustScoreBadge } from "@/components/reputation/TrustScoreBadge";
+import { reputationApi } from "@/api/modules/reputation";
 import { FollowersListModal } from "@/components/shared/FollowersListModal";
 import DonationModal from "@/components/profile/DonationModal";
 
@@ -295,72 +298,6 @@ export function ProfilePage() {
       Update profile
     </Link>
   );
-
-  const b = useMemo(() => {
-    if (!fetchedUser) return null;
-    const name =
-      fetchedUser.first_name && fetchedUser.last_name
-        ? `${fetchedUser.first_name} ${fetchedUser.last_name}`
-        : fetchedUser.first_name || fetchedUser.username || username;
-
-    const rawSkills: string[] = Array.isArray(fetchedUser.skills) ? fetchedUser.skills : [];
-    const profileSkills: ProfileSkill[] = rawSkills.map((skillName: string) => ({
-      name: skillName,
-      level: "Intermediate",
-      category: "Languages",
-    }));
-
-    return {
-      id: fetchedUser.id || "",
-      name,
-      firstName: fetchedUser.first_name || "",
-      lastName: fetchedUser.last_name || "",
-      handle: fetchedUser.username || username,
-      avatar: fetchedUser.profile_image || "",
-      headline: fetchedUser.headline ?? "",
-      bio: fetchedUser.bio ?? "",
-      location: fetchedUser.location ?? "",
-      country: fetchedUser.location ?? "",
-      website: fetchedUser.website ?? "",
-      githubUrl: fetchedUser.github_url ?? "",
-      linkedinUrl: fetchedUser.linkedinUrl ?? fetchedUser.linkedin_url ?? "",
-      twitterUrl: fetchedUser.twitterUrl ?? fetchedUser.twitter_url ?? "",
-      portfolioUrl: fetchedUser.portfolioUrl ?? fetchedUser.portfolio_url ?? "",
-      role: fetchedUser.role ?? "Developer",
-      company: fetchedUser.company ?? "",
-      experienceLevel: fetchedUser.experience_level ?? "Intermediate",
-      skills: rawSkills,
-      profileSkills,
-      experience: fetchedUser.experience ?? [],
-      education: fetchedUser.education ?? [],
-      badges: fetchedUser.badges ?? [],
-      online: Boolean(fetchedUser.online || fetchedUser.is_active),
-      premium: Boolean(fetchedUser.premium),
-      verified: Boolean(fetchedUser.is_verified || fetchedUser.verified),
-      collaborationStatus: fetchedUser.collaboration_status ?? "available",
-      followers: fetchedUser.followers_count ?? 0,
-      following: fetchedUser.following_count ?? 0,
-      contributions: fetchedUser.contributions_count ?? 0,
-    };
-  }, [fetchedUser, username]);
-
-  // Fetch real projects for this user
-  const { data: userProjects = [], isLoading: isProjectsLoading } = useQuery({
-    queryKey: ["user-projects", b?.id],
-    queryFn: async () => {
-      if (!b?.id) return [];
-      try {
-        const res = await projectsApi.byUser(b.id);
-        return Array.isArray(res) ? res : [];
-      } catch {
-        return [];
-      }
-    },
-    enabled: Boolean(b?.id),
-  });
-
-  const { data: followStatus } = useFollowStatus(b?.id || "");
-  const followerCount = followStatus?.follower_count ?? b?.followers ?? 0;
 
   // Live collaboration presence status
   const {
@@ -662,25 +599,6 @@ export function ProfilePage() {
                 )}
               </div>
               {b.bio && <p className="mt-2 text-[13px] text-foreground">{b.bio}</p>}
-              <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
-                <button
-                  type="button"
-                  onClick={() => setFollowersModalType("followers")}
-                  className="hover:underline cursor-pointer focus:outline-none flex items-center gap-1"
-                >
-                  <span className="font-semibold">
-                    {followStatus?.follower_count ?? b.followers ?? 0}
-                  </span>{" "}
-                  <TypoCaption>Followers</TypoCaption>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFollowersModalType("following")}
-                  className="hover:underline cursor-pointer focus:outline-none flex items-center gap-1"
-                >
-                  <span className="font-semibold">
-
-              <p className="mt-2 text-xs text-foreground leading-relaxed">{b.bio}</p>
 
               {/* Networking details: location, website, metrics */}
               <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -703,11 +621,19 @@ export function ProfilePage() {
               </div>
 
               <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground border-t border-border/50 pt-2">
-                <div>
+                <button
+                  type="button"
+                  onClick={() => setFollowersModalType("followers")}
+                  className="hover:underline cursor-pointer focus:outline-none flex items-center gap-1"
+                >
                   <span className="font-semibold text-foreground">{followerCount}</span>{" "}
                   <TypoCaption>Followers</TypoCaption>
-                </div>
-                <div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFollowersModalType("following")}
+                  className="hover:underline cursor-pointer focus:outline-none flex items-center gap-1"
+                >
                   <span className="font-semibold text-foreground">
                     {followStatus?.following_count ?? b.following ?? 0}
                   </span>{" "}
@@ -860,6 +786,26 @@ export function ProfilePage() {
       </Card>
 
       {me && <ProfileViewersList />}
+
+      {/* Reputation and Trust Score Card */}
+      <ReputationTrustCard
+        userId={b.id}
+        username={b.name}
+        reputationScore={b.matchScore ? b.matchScore * 5 : 240}
+        trustScore={b.verified ? 78 : 45}
+        trustLevel={b.verified ? "Verified Contributor 🛡️" : "Active Community Member 🚀"}
+        rankTier={(b as any).reputation_score ? ((b as any).reputation_score > 500 ? "Mentor 💎" : "Builder 🥇") : "Builder 🥇"}
+        isVerified={b.verified}
+        isSelf={me}
+        onEndorse={async (skillOrReason, note) => {
+          await reputationApi.endorseUser({
+            target_user_id: b.id,
+            skill_or_reason: skillOrReason,
+            note,
+          });
+          toast.success(`Endorsed ${b.name} for ${skillOrReason}!`);
+        }}
+      />
 
       {/* Main 2-Column Professional Profile Grid */}
       <div className="grid gap-4 lg:grid-cols-12 items-start">

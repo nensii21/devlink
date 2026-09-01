@@ -35,9 +35,10 @@ ACTION_POINTS: dict[str, int] = {
     ReputationAction.HELPFUL_DISCUSSION.value: 15,
     ReputationAction.PROFILE_COMPLETION.value: 10,
     ReputationAction.MENTOR_RECOGNITION.value: 30,
-    # A correction applied by hand. Zero on its own: it exists so that an
-    # explicit `points` override has an action to travel under, rather than
-    # being smuggled in under "merged_pull_request".
+    ReputationAction.SUCCESSFUL_COLLABORATION.value: 30,
+    ReputationAction.COMMUNITY_FEEDBACK.value: 20,
+    ReputationAction.ENDORSEMENT.value: 15,
+    ReputationAction.ACCOUNT_VERIFICATION.value: 40,
     ReputationAction.MANUAL_ADJUSTMENT.value: 0,
 }
 
@@ -261,3 +262,98 @@ class ReputationService:
             )
 
         return LeaderboardResponse(entries=entries, total=total)
+
+    @staticmethod
+    def get_trust_score(db: Session, user_id: uuid.UUID) -> TrustScoreResponse:
+        """
+        Calculates user trust score breakdown (0-100 normalized) based on:
+        1. Successful collaborations
+        2. Merged pull requests
+        3. Project completion
+        4. Community feedback
+        5. Endorsements
+        6. Account verification
+        """
+        from app.schemas.reputation import TrustScoreBreakdown, TrustScoreResponse
+
+        user = db.scalar(select(User).where(User.id == user_id))
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with ID {user_id} not found.",
+            )
+
+        logs = list(
+            db.scalars(
+                select(ReputationLog).where(ReputationLog.user_id == user_id)
+            ).all()
+        )
+
+        collab_pts = sum(l.points for l in logs if l.action == ReputationAction.SUCCESSFUL_COLLABORATION.value)
+        pr_pts = sum(l.points for l in logs if l.action == ReputationAction.MERGED_PULL_REQUEST.value)
+        project_pts = sum(l.points for l in logs if l.action == ReputationAction.COMPLETED_PROJECT.value)
+        feedback_pts = sum(l.points for l in logs if l.action in [ReputationAction.COMMUNITY_FEEDBACK.value, ReputationAction.HELPFUL_DISCUSSION.value, ReputationAction.COMMUNITY_CONTRIBUTION.value])
+        endorsement_pts = sum(l.points for l in logs if l.action in [ReputationAction.ENDORSEMENT.value, ReputationAction.MENTOR_RECOGNITION.value])
+        
+        is_verified = bool(getattr(user, "is_verified", False) or getattr(user, "verified", False))
+        verification_pts = 40 if is_verified else sum(l.points for l in logs if l.action == ReputationAction.ACCOUNT_VERIFICATION.value)
+
+        total_score = user.reputation_score or 0
+        normalized_trust = min(100, max(10 if is_verified else 0, round((total_score / 500) * 100)))
+
+        if normalized_trust >= 85:
+            trust_level = "Highly Trusted Member ⭐"
+        elif normalized_trust >= 60:
+            trust_level = "Verified Contributor 🛡️"
+        elif normalized_trust >= 30:
+            trust_level = "Active Community Member 🚀"
+        else:
+            trust_level = "Rising Developer 🌱"
+
+        return TrustScoreResponse(
+            user_id=user.id,
+            reputation_score=total_score,
+            trust_score=normalized_trust,
+            trust_level=trust_level,
+            rank_tier=calculate_rank_tier(total_score),
+            is_verified=is_verified,
+            breakdown=TrustScoreBreakdown(
+                collaborations_points=collab_pts,
+                pull_requests_points=pr_pts,
+                completed_projects_points=project_pts,
+                feedback_points=feedback_pts,
+                endorsements_points=endorsement_pts,
+                verification_points=verification_pts,
+            ),
+        )
+
+    @staticmethod
+    def endorse_user(
+        db: Session,
+        endorser_id: uuid.UUID,
+        target_user_id: uuid.UUID,
+        skill_or_reason: str,
+        note: Optional[str] = None,
+    ) -> Tuple[User, ReputationLog]:
+        """
+        Allows a builder to endorse a peer, awarding +15 reputation points.
+        """
+        if endorser_id == target_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You cannot endorse yourself.",
+            )
+
+        description = f"Endorsed by peer for '{skill_or_reason}'"
+        if note:
+            description += f": {note}"
+
+        return ReputationService.award_reputation(
+            db=db,
+            user_id=target_user_id,
+            action=ReputationAction.ENDORSEMENT.value,
+            points_override=15,
+            description=description,
+            granted_by_id=endorser_id,
+        )
+

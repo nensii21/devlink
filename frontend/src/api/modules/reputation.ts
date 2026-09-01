@@ -14,6 +14,10 @@ export type ReputationAction =
   | "helpful_discussion"
   | "profile_completion"
   | "mentor_recognition"
+  | "successful_collaboration"
+  | "community_feedback"
+  | "endorsement"
+  | "account_verification"
   | "manual_adjustment";
 
 /** Largest magnitude a single adjustment may carry, in either direction. */
@@ -35,6 +39,31 @@ export interface ReputationSummary {
   reputation_score: number;
   rank_tier: string;
   recent_logs: ReputationLog[];
+}
+
+export interface TrustScoreBreakdown {
+  collaborations_points: number;
+  pull_requests_points: number;
+  completed_projects_points: number;
+  feedback_points: number;
+  endorsements_points: number;
+  verification_points: number;
+}
+
+export interface TrustScoreResponse {
+  user_id: string;
+  reputation_score: number;
+  trust_score: number;
+  trust_level: string;
+  rank_tier: string;
+  is_verified: boolean;
+  breakdown: TrustScoreBreakdown;
+}
+
+export interface EndorseUserPayload {
+  target_user_id: string;
+  skill_or_reason: string;
+  note?: string;
 }
 
 export interface LeaderboardEntry {
@@ -71,6 +100,18 @@ export const reputationApi = {
 
   getUserReputation: async (userId: string): Promise<ReputationSummary> => {
     return api.get<ReputationSummary>(`/api/reputation/user/${userId}`);
+  },
+
+  getMyTrustScore: async (): Promise<TrustScoreResponse> => {
+    return api.get<TrustScoreResponse>("/api/reputation/trust-score/me");
+  },
+
+  getUserTrustScore: async (userId: string): Promise<TrustScoreResponse> => {
+    return api.get<TrustScoreResponse>(`/api/reputation/trust-score/${userId}`);
+  },
+
+  endorseUser: async (data: EndorseUserPayload): Promise<ReputationLog> => {
+    return api.post<ReputationLog>("/api/reputation/endorse", data);
   },
 
   getLeaderboard: async (params?: {

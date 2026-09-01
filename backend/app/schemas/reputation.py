@@ -34,6 +34,10 @@ class ReputationAction(str, Enum):
     HELPFUL_DISCUSSION = "helpful_discussion"
     PROFILE_COMPLETION = "profile_completion"
     MENTOR_RECOGNITION = "mentor_recognition"
+    SUCCESSFUL_COLLABORATION = "successful_collaboration"
+    COMMUNITY_FEEDBACK = "community_feedback"
+    ENDORSEMENT = "endorsement"
+    ACCOUNT_VERIFICATION = "account_verification"
     MANUAL_ADJUSTMENT = "manual_adjustment"
 
 
@@ -121,6 +125,31 @@ class LeaderboardResponse(BaseModel):
         description=(
             "Total number of ranked users. Counts the same set the entries are "
             "drawn from -- active, non-deleted accounts -- so a client can page "
-            "through it."
-        )
+            "correctly."
+        ),
     )
+
+
+class TrustScoreBreakdown(BaseModel):
+    collaborations_points: int = 0
+    pull_requests_points: int = 0
+    completed_projects_points: int = 0
+    feedback_points: int = 0
+    endorsements_points: int = 0
+    verification_points: int = 0
+
+
+class TrustScoreResponse(BaseModel):
+    user_id: uuid.UUID
+    reputation_score: int
+    trust_score: int  # 0-100 normalized trust rating
+    trust_level: str  # e.g., "Highly Trusted", "Verified Contributor", "Rising Member"
+    rank_tier: str
+    is_verified: bool
+    breakdown: TrustScoreBreakdown
+
+
+class EndorseUserRequest(BaseModel):
+    target_user_id: uuid.UUID = Field(..., description="The user receiving endorsement")
+    skill_or_reason: str = Field(..., max_length=100, description="Skill or reason for endorsement")
+    note: Optional[str] = Field(default=None, max_length=255, description="Optional endorsement note")

@@ -227,13 +227,7 @@ export type FollowerResponse = {
   };
 };
 
-export async function getFollowers(userId: UUID): Promise<FollowerResponse[]> {
-  return api.get<FollowerResponse[]>(`/api/followers/${userId}`);
-}
 
-export async function getFollowing(userId: UUID): Promise<FollowerResponse[]> {
-  return api.get<FollowerResponse[]>(`/api/followers/${userId}/following`);
-}
 
 export async function getMyApplications(): Promise<ApplicationResponse[]> {
   return api.get<ApplicationResponse[]>("/applications/my");

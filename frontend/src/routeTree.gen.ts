@@ -20,14 +20,19 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortfolioUsernameRouteImport } from './routes/portfolio.$username'
 import { Route as AppTemplatesRouteImport } from './routes/_app.templates'
+import { Route as AppSkillsRouteImport } from './routes/_app.skills'
+import { Route as AppSkillTreeRouteImport } from './routes/_app.skill-tree'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppSearchRouteImport } from './routes/_app.search'
 import { Route as AppRepositoryQualityRouteImport } from './routes/_app.repository-quality'
 import { Route as AppRecruiterRouteImport } from './routes/_app.recruiter'
 import { Route as AppProjectsRouteImport } from './routes/_app.projects'
 import { Route as AppProfileAnalyticsRouteImport } from './routes/_app.profile-analytics'
+import { Route as AppPortfolioRouteImport } from './routes/_app.portfolio'
+import { Route as AppPairProgrammingRouteImport } from './routes/_app.pair-programming'
 import { Route as AppOrganizationsRouteImport } from './routes/_app.organizations'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
+import { Route as AppNetworkingRouteImport } from './routes/_app.networking'
 import { Route as AppMessagesRouteImport } from './routes/_app.messages'
 import { Route as AppLoadingStatesRouteImport } from './routes/_app.loading-states'
 import { Route as AppLeaderboardRouteImport } from './routes/_app.leaderboard'
@@ -37,10 +42,12 @@ import { Route as AppHackathonDashboardRouteImport } from './routes/_app.hackath
 import { Route as AppGraphRouteImport } from './routes/_app.graph'
 import { Route as AppFlaresRouteImport } from './routes/_app.flares'
 import { Route as AppFeedRouteImport } from './routes/_app.feed'
+import { Route as AppEnergyRouteImport } from './routes/_app.energy'
 import { Route as AppDesignSystemRouteImport } from './routes/_app.design-system'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppCodeReviewRouteImport } from './routes/_app.code-review'
 import { Route as AppBuildersRouteImport } from './routes/_app.builders'
+import { Route as AppBountiesRouteImport } from './routes/_app.bounties'
 import { Route as AppBookmarksRouteImport } from './routes/_app.bookmarks'
 import { Route as AppAnnouncementsRouteImport } from './routes/_app.announcements'
 import { Route as AppAnalyticsRouteImport } from './routes/_app.analytics'
@@ -119,6 +126,16 @@ const AppTemplatesRoute = AppTemplatesRouteImport.update({
   path: '/templates',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSkillsRoute = AppSkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSkillTreeRoute = AppSkillTreeRouteImport.update({
+  id: '/skill-tree',
+  path: '/skill-tree',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -149,6 +166,16 @@ const AppProfileAnalyticsRoute = AppProfileAnalyticsRouteImport.update({
   path: '/profile-analytics',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPortfolioRoute = AppPortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPairProgrammingRoute = AppPairProgrammingRouteImport.update({
+  id: '/pair-programming',
+  path: '/pair-programming',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrganizationsRoute = AppOrganizationsRouteImport.update({
   id: '/organizations',
   path: '/organizations',
@@ -157,6 +184,11 @@ const AppOrganizationsRoute = AppOrganizationsRouteImport.update({
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNetworkingRoute = AppNetworkingRouteImport.update({
+  id: '/networking',
+  path: '/networking',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMessagesRoute = AppMessagesRouteImport.update({
@@ -204,6 +236,11 @@ const AppFeedRoute = AppFeedRouteImport.update({
   path: '/feed',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEnergyRoute = AppEnergyRouteImport.update({
+  id: '/energy',
+  path: '/energy',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDesignSystemRoute = AppDesignSystemRouteImport.update({
   id: '/design-system',
   path: '/design-system',
@@ -222,6 +259,11 @@ const AppCodeReviewRoute = AppCodeReviewRouteImport.update({
 const AppBuildersRoute = AppBuildersRouteImport.update({
   id: '/builders',
   path: '/builders',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBountiesRoute = AppBountiesRouteImport.update({
+  id: '/bounties',
+  path: '/bounties',
   getParentRoute: () => AppRoute,
 } as any)
 const AppBookmarksRoute = AppBookmarksRouteImport.update({
@@ -360,10 +402,12 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AppAnalyticsRoute
   '/announcements': typeof AppAnnouncementsRoute
   '/bookmarks': typeof AppBookmarksRoute
+  '/bounties': typeof AppBountiesRoute
   '/builders': typeof AppBuildersRouteWithChildren
   '/code-review': typeof AppCodeReviewRoute
   '/dashboard': typeof AppDashboardRoute
   '/design-system': typeof AppDesignSystemRoute
+  '/energy': typeof AppEnergyRoute
   '/feed': typeof AppFeedRoute
   '/flares': typeof AppFlaresRoute
   '/graph': typeof AppGraphRoute
@@ -373,14 +417,19 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof AppLeaderboardRoute
   '/loading-states': typeof AppLoadingStatesRoute
   '/messages': typeof AppMessagesRouteWithChildren
+  '/networking': typeof AppNetworkingRoute
   '/notifications': typeof AppNotificationsRoute
   '/organizations': typeof AppOrganizationsRouteWithChildren
+  '/pair-programming': typeof AppPairProgrammingRoute
+  '/portfolio': typeof AppPortfolioRoute
   '/profile-analytics': typeof AppProfileAnalyticsRoute
   '/projects': typeof AppProjectsRouteWithChildren
   '/recruiter': typeof AppRecruiterRoute
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRouteWithChildren
+  '/skill-tree': typeof AppSkillTreeRoute
+  '/skills': typeof AppSkillsRoute
   '/templates': typeof AppTemplatesRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/admin/api-request-analytics': typeof AppAdminApiRequestAnalyticsRoute
@@ -416,10 +465,12 @@ export interface FileRoutesByTo {
   '/analytics': typeof AppAnalyticsRoute
   '/announcements': typeof AppAnnouncementsRoute
   '/bookmarks': typeof AppBookmarksRoute
+  '/bounties': typeof AppBountiesRoute
   '/builders': typeof AppBuildersRouteWithChildren
   '/code-review': typeof AppCodeReviewRoute
   '/dashboard': typeof AppDashboardRoute
   '/design-system': typeof AppDesignSystemRoute
+  '/energy': typeof AppEnergyRoute
   '/feed': typeof AppFeedRoute
   '/flares': typeof AppFlaresRoute
   '/graph': typeof AppGraphRoute
@@ -429,13 +480,18 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof AppLeaderboardRoute
   '/loading-states': typeof AppLoadingStatesRoute
   '/messages': typeof AppMessagesRouteWithChildren
+  '/networking': typeof AppNetworkingRoute
   '/notifications': typeof AppNotificationsRoute
+  '/pair-programming': typeof AppPairProgrammingRoute
+  '/portfolio': typeof AppPortfolioRoute
   '/profile-analytics': typeof AppProfileAnalyticsRoute
   '/projects': typeof AppProjectsRouteWithChildren
   '/recruiter': typeof AppRecruiterRoute
   '/repository-quality': typeof AppRepositoryQualityRoute
   '/search': typeof AppSearchRoute
   '/settings': typeof AppSettingsRouteWithChildren
+  '/skill-tree': typeof AppSkillTreeRoute
+  '/skills': typeof AppSkillsRoute
   '/templates': typeof AppTemplatesRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/admin/api-request-analytics': typeof AppAdminApiRequestAnalyticsRoute
@@ -473,10 +529,12 @@ export interface FileRoutesById {
   '/_app/analytics': typeof AppAnalyticsRoute
   '/_app/announcements': typeof AppAnnouncementsRoute
   '/_app/bookmarks': typeof AppBookmarksRoute
+  '/_app/bounties': typeof AppBountiesRoute
   '/_app/builders': typeof AppBuildersRouteWithChildren
   '/_app/code-review': typeof AppCodeReviewRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/design-system': typeof AppDesignSystemRoute
+  '/_app/energy': typeof AppEnergyRoute
   '/_app/feed': typeof AppFeedRoute
   '/_app/flares': typeof AppFlaresRoute
   '/_app/graph': typeof AppGraphRoute
@@ -486,14 +544,19 @@ export interface FileRoutesById {
   '/_app/leaderboard': typeof AppLeaderboardRoute
   '/_app/loading-states': typeof AppLoadingStatesRoute
   '/_app/messages': typeof AppMessagesRouteWithChildren
+  '/_app/networking': typeof AppNetworkingRoute
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/organizations': typeof AppOrganizationsRouteWithChildren
+  '/_app/pair-programming': typeof AppPairProgrammingRoute
+  '/_app/portfolio': typeof AppPortfolioRoute
   '/_app/profile-analytics': typeof AppProfileAnalyticsRoute
   '/_app/projects': typeof AppProjectsRouteWithChildren
   '/_app/recruiter': typeof AppRecruiterRoute
   '/_app/repository-quality': typeof AppRepositoryQualityRoute
   '/_app/search': typeof AppSearchRoute
   '/_app/settings': typeof AppSettingsRouteWithChildren
+  '/_app/skill-tree': typeof AppSkillTreeRoute
+  '/_app/skills': typeof AppSkillsRoute
   '/_app/templates': typeof AppTemplatesRoute
   '/portfolio/$username': typeof PortfolioUsernameRoute
   '/_app/admin/api-request-analytics': typeof AppAdminApiRequestAnalyticsRoute
@@ -531,10 +594,12 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/announcements'
     | '/bookmarks'
+    | '/bounties'
     | '/builders'
     | '/code-review'
     | '/dashboard'
     | '/design-system'
+    | '/energy'
     | '/feed'
     | '/flares'
     | '/graph'
@@ -544,14 +609,19 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/loading-states'
     | '/messages'
+    | '/networking'
     | '/notifications'
     | '/organizations'
+    | '/pair-programming'
+    | '/portfolio'
     | '/profile-analytics'
     | '/projects'
     | '/recruiter'
     | '/repository-quality'
     | '/search'
     | '/settings'
+    | '/skill-tree'
+    | '/skills'
     | '/templates'
     | '/portfolio/$username'
     | '/admin/api-request-analytics'
@@ -587,10 +657,12 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/announcements'
     | '/bookmarks'
+    | '/bounties'
     | '/builders'
     | '/code-review'
     | '/dashboard'
     | '/design-system'
+    | '/energy'
     | '/feed'
     | '/flares'
     | '/graph'
@@ -600,13 +672,18 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/loading-states'
     | '/messages'
+    | '/networking'
     | '/notifications'
+    | '/pair-programming'
+    | '/portfolio'
     | '/profile-analytics'
     | '/projects'
     | '/recruiter'
     | '/repository-quality'
     | '/search'
     | '/settings'
+    | '/skill-tree'
+    | '/skills'
     | '/templates'
     | '/portfolio/$username'
     | '/admin/api-request-analytics'
@@ -643,10 +720,12 @@ export interface FileRouteTypes {
     | '/_app/analytics'
     | '/_app/announcements'
     | '/_app/bookmarks'
+    | '/_app/bounties'
     | '/_app/builders'
     | '/_app/code-review'
     | '/_app/dashboard'
     | '/_app/design-system'
+    | '/_app/energy'
     | '/_app/feed'
     | '/_app/flares'
     | '/_app/graph'
@@ -656,14 +735,19 @@ export interface FileRouteTypes {
     | '/_app/leaderboard'
     | '/_app/loading-states'
     | '/_app/messages'
+    | '/_app/networking'
     | '/_app/notifications'
     | '/_app/organizations'
+    | '/_app/pair-programming'
+    | '/_app/portfolio'
     | '/_app/profile-analytics'
     | '/_app/projects'
     | '/_app/recruiter'
     | '/_app/repository-quality'
     | '/_app/search'
     | '/_app/settings'
+    | '/_app/skill-tree'
+    | '/_app/skills'
     | '/_app/templates'
     | '/portfolio/$username'
     | '/_app/admin/api-request-analytics'
@@ -779,6 +863,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTemplatesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/skills': {
+      id: '/_app/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof AppSkillsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/skill-tree': {
+      id: '/_app/skill-tree'
+      path: '/skill-tree'
+      fullPath: '/skill-tree'
+      preLoaderRoute: typeof AppSkillTreeRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/settings': {
       id: '/_app/settings'
       path: '/settings'
@@ -821,6 +919,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/portfolio': {
+      id: '/_app/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof AppPortfolioRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/pair-programming': {
+      id: '/_app/pair-programming'
+      path: '/pair-programming'
+      fullPath: '/pair-programming'
+      preLoaderRoute: typeof AppPairProgrammingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/organizations': {
       id: '/_app/organizations'
       path: '/organizations'
@@ -833,6 +945,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/networking': {
+      id: '/_app/networking'
+      path: '/networking'
+      fullPath: '/networking'
+      preLoaderRoute: typeof AppNetworkingRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/messages': {
@@ -898,6 +1017,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFeedRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/energy': {
+      id: '/_app/energy'
+      path: '/energy'
+      fullPath: '/energy'
+      preLoaderRoute: typeof AppEnergyRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/design-system': {
       id: '/_app/design-system'
       path: '/design-system'
@@ -924,6 +1050,13 @@ declare module '@tanstack/react-router' {
       path: '/builders'
       fullPath: '/builders'
       preLoaderRoute: typeof AppBuildersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/bounties': {
+      id: '/_app/bounties'
+      path: '/bounties'
+      fullPath: '/bounties'
+      preLoaderRoute: typeof AppBountiesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/bookmarks': {
@@ -1210,10 +1343,12 @@ interface AppRouteChildren {
   AppAnalyticsRoute: typeof AppAnalyticsRoute
   AppAnnouncementsRoute: typeof AppAnnouncementsRoute
   AppBookmarksRoute: typeof AppBookmarksRoute
+  AppBountiesRoute: typeof AppBountiesRoute
   AppBuildersRoute: typeof AppBuildersRouteWithChildren
   AppCodeReviewRoute: typeof AppCodeReviewRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppDesignSystemRoute: typeof AppDesignSystemRoute
+  AppEnergyRoute: typeof AppEnergyRoute
   AppFeedRoute: typeof AppFeedRoute
   AppFlaresRoute: typeof AppFlaresRoute
   AppGraphRoute: typeof AppGraphRoute
@@ -1223,14 +1358,19 @@ interface AppRouteChildren {
   AppLeaderboardRoute: typeof AppLeaderboardRoute
   AppLoadingStatesRoute: typeof AppLoadingStatesRoute
   AppMessagesRoute: typeof AppMessagesRouteWithChildren
+  AppNetworkingRoute: typeof AppNetworkingRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppOrganizationsRoute: typeof AppOrganizationsRouteWithChildren
+  AppPairProgrammingRoute: typeof AppPairProgrammingRoute
+  AppPortfolioRoute: typeof AppPortfolioRoute
   AppProfileAnalyticsRoute: typeof AppProfileAnalyticsRoute
   AppProjectsRoute: typeof AppProjectsRouteWithChildren
   AppRecruiterRoute: typeof AppRecruiterRoute
   AppRepositoryQualityRoute: typeof AppRepositoryQualityRoute
   AppSearchRoute: typeof AppSearchRoute
   AppSettingsRoute: typeof AppSettingsRouteWithChildren
+  AppSkillTreeRoute: typeof AppSkillTreeRoute
+  AppSkillsRoute: typeof AppSkillsRoute
   AppTemplatesRoute: typeof AppTemplatesRoute
   AppProfileUsernameRoute: typeof AppProfileUsernameRoute
 }
@@ -1240,10 +1380,12 @@ const AppRouteChildren: AppRouteChildren = {
   AppAnalyticsRoute: AppAnalyticsRoute,
   AppAnnouncementsRoute: AppAnnouncementsRoute,
   AppBookmarksRoute: AppBookmarksRoute,
+  AppBountiesRoute: AppBountiesRoute,
   AppBuildersRoute: AppBuildersRouteWithChildren,
   AppCodeReviewRoute: AppCodeReviewRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppDesignSystemRoute: AppDesignSystemRoute,
+  AppEnergyRoute: AppEnergyRoute,
   AppFeedRoute: AppFeedRoute,
   AppFlaresRoute: AppFlaresRoute,
   AppGraphRoute: AppGraphRoute,
@@ -1253,14 +1395,19 @@ const AppRouteChildren: AppRouteChildren = {
   AppLeaderboardRoute: AppLeaderboardRoute,
   AppLoadingStatesRoute: AppLoadingStatesRoute,
   AppMessagesRoute: AppMessagesRouteWithChildren,
+  AppNetworkingRoute: AppNetworkingRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppOrganizationsRoute: AppOrganizationsRouteWithChildren,
+  AppPairProgrammingRoute: AppPairProgrammingRoute,
+  AppPortfolioRoute: AppPortfolioRoute,
   AppProfileAnalyticsRoute: AppProfileAnalyticsRoute,
   AppProjectsRoute: AppProjectsRouteWithChildren,
   AppRecruiterRoute: AppRecruiterRoute,
   AppRepositoryQualityRoute: AppRepositoryQualityRoute,
   AppSearchRoute: AppSearchRoute,
   AppSettingsRoute: AppSettingsRouteWithChildren,
+  AppSkillTreeRoute: AppSkillTreeRoute,
+  AppSkillsRoute: AppSkillsRoute,
   AppTemplatesRoute: AppTemplatesRoute,
   AppProfileUsernameRoute: AppProfileUsernameRoute,
 }

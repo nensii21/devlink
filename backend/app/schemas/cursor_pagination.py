@@ -47,3 +47,6 @@ class CursorPaginationResponse(BaseModel, Generic[T]):
     has_more: bool = Field(default=False, description="True if subsequent records exist")
     has_prev: bool = Field(default=False, description="True if preceding records exist")
     total: Optional[int] = Field(default=None, description="Total record count (optional)")
+
+
+CursorPageResponse = CursorPaginationResponse
