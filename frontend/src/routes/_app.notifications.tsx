@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { notificationsService } from "@/services";
+import api from "@/lib/api";
 import { Card, EmptyState, Skeleton } from "@/components/shared/primitives";
 import { cn } from "@/lib/utils";
 import { useState, useMemo, useEffect } from "react";
@@ -79,20 +80,32 @@ function NotificationsPage() {
     }
   }, [data]);
 
-  const handleMarkAllRead = () => {
+  const handleMarkAllRead = async () => {
     setLocalNotifs((prev) => prev.map((n) => ({ ...n, unread: false })));
+    try {
+      await api.patch("/api/notifications/read-all");
+    } catch {}
   };
 
-  const handleMarkRead = (id: string) => {
+  const handleMarkRead = async (id: string) => {
     setLocalNotifs((prev) => prev.map((n) => (n.id === id ? { ...n, unread: false } : n)));
+    try {
+      await api.patch(`/api/notifications/${id}/read`);
+    } catch {}
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     setLocalNotifs((prev) => prev.filter((n) => n.id !== id));
+    try {
+      await api.delete(`/api/notifications/${id}`);
+    } catch {}
   };
 
-  const handleArchive = (id: string) => {
+  const handleArchive = async (id: string) => {
     setLocalNotifs((prev) => prev.filter((n) => n.id !== id));
+    try {
+      await api.delete(`/api/notifications/${id}`);
+    } catch {}
   };
 
   const filtered = useMemo(() => {

@@ -102,13 +102,22 @@ class NotificationService:
     def list_notifications(
         db: Session,
         recipient_id: uuid.UUID,
+        type_filter: str | None = None,
+        unread_only: bool = False,
+        skip: int = 0,
+        limit: int = 50,
     ) -> list[Notification]:
 
         stmt = (
             select(Notification)
             .where(Notification.recipient_id == recipient_id)
-            .order_by(Notification.created_at.desc())
         )
+        if type_filter:
+            stmt = stmt.where(Notification.type == type_filter)
+        if unread_only:
+            stmt = stmt.where(Notification.is_read.is_(False))
+
+        stmt = stmt.order_by(Notification.created_at.desc()).offset(skip).limit(limit)
 
         return list(db.scalars(stmt))
 

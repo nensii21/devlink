@@ -125,6 +125,7 @@ def register_and_login(client: TestClient):
         # Register
         client.post(
             "/api/auth/register",
+            headers={"Origin": "http://localhost:3000"},
             json={
                 "first_name": "Test",
                 "last_name": "User",
@@ -134,12 +135,19 @@ def register_and_login(client: TestClient):
             },
         )
         # Login
-        r = client.post("/api/auth/login", json={"email": email, "password": password})
+        r = client.post(
+            "/api/auth/login",
+            headers={"Origin": "http://localhost:3000"},
+            json={"email": email, "password": password},
+        )
         token = r.json().get("access_token")
         if not token:
             raise RuntimeError(f"Login failed: {r.json()}")
 
-        me = client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
+        me = client.get(
+            "/api/users/me",
+            headers={"Authorization": f"Bearer {token}", "Origin": "http://localhost:3000"},
+        )
         return me.json()["id"], token
 
     return _register_and_login_func

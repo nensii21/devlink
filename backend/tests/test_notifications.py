@@ -1,6 +1,12 @@
 import uuid
-
 from fastapi.testclient import TestClient
+
+
+def auth_headers(token: str) -> dict[str, str]:
+    return {
+        "Authorization": f"Bearer {token}",
+        "Origin": "http://localhost:3000",
+    }
 
 
 def test_create_notification(client: TestClient, register_and_login):
@@ -15,7 +21,7 @@ def test_create_notification(client: TestClient, register_and_login):
             "title": "New Message",
             "message": "Hello!",
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     assert response.status_code == 201
     assert response.json()["title"] == "New Message"
@@ -34,12 +40,12 @@ def test_get_notification(client: TestClient, register_and_login):
             "title": "T",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     nid = c.json()["id"]
 
     response = client.get(
-        f"/api/notifications/{nid}", headers={"Authorization": f"Bearer {token1}"}
+        f"/api/notifications/{nid}", headers=auth_headers(token1)
     )
     assert response.status_code == 200
     assert response.json()["title"] == "T"
@@ -49,7 +55,7 @@ def test_get_notification_not_found(client: TestClient, register_and_login):
     _, token = register_and_login("gnnf@example.com", "gnnf")
     response = client.get(
         f"/api/notifications/{uuid.uuid4()}",
-        headers={"Authorization": f"Bearer {token}"},
+        headers=auth_headers(token),
     )
     assert response.status_code == 404
 
@@ -66,7 +72,7 @@ def test_list_notifications(client: TestClient, register_and_login):
             "title": "T1",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     client.post(
         "/api/notifications/",
@@ -76,11 +82,11 @@ def test_list_notifications(client: TestClient, register_and_login):
             "title": "T2",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
 
     response = client.get(
-        "/api/notifications/", headers={"Authorization": f"Bearer {token2}"}
+        "/api/notifications/", headers=auth_headers(token2)
     )
     assert response.status_code == 200
     assert len(response.json()) >= 2
@@ -98,11 +104,11 @@ def test_unread_notifications(client: TestClient, register_and_login):
             "title": "T1",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
 
     response = client.get(
-        "/api/notifications/unread", headers={"Authorization": f"Bearer {token2}"}
+        "/api/notifications/unread", headers=auth_headers(token2)
     )
     assert response.status_code == 200
     assert len(response.json()) >= 1
@@ -116,16 +122,16 @@ def test_unread_count(client: TestClient, register_and_login):
     client.post(
         "/api/notifications/",
         json={"recipient_id": uid2, "type": "message", "title": "T1", "message": "M1"},
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     client.post(
         "/api/notifications/",
         json={"recipient_id": uid2, "type": "follow", "title": "T2", "message": "M2"},
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
 
     response = client.get(
-        "/api/notifications/unread/count", headers={"Authorization": f"Bearer {token2}"}
+        "/api/notifications/unread/count", headers=auth_headers(token2)
     )
     assert response.status_code == 200
     assert response.json()["count"] >= 2
@@ -143,12 +149,12 @@ def test_mark_as_read(client: TestClient, register_and_login):
             "title": "T1",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     nid = c.json()["id"]
 
     response = client.patch(
-        f"/api/notifications/{nid}/read", headers={"Authorization": f"Bearer {token2}"}
+        f"/api/notifications/{nid}/read", headers=auth_headers(token2)
     )
     assert response.status_code == 200
     assert response.json()["is_read"] is True
@@ -158,7 +164,7 @@ def test_mark_as_read_not_found(client: TestClient, register_and_login):
     _, token = register_and_login("marnf@example.com", "marnf")
     response = client.patch(
         f"/api/notifications/{uuid.uuid4()}/read",
-        headers={"Authorization": f"Bearer {token}"},
+        headers=auth_headers(token),
     )
     assert response.status_code == 404
 
@@ -175,7 +181,7 @@ def test_mark_all_as_read(client: TestClient, register_and_login):
             "title": "T1",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     client.post(
         "/api/notifications/",
@@ -185,16 +191,16 @@ def test_mark_all_as_read(client: TestClient, register_and_login):
             "title": "T2",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
 
     response = client.patch(
-        "/api/notifications/read-all", headers={"Authorization": f"Bearer {token2}"}
+        "/api/notifications/read-all", headers=auth_headers(token2)
     )
     assert response.status_code == 200
 
     unread = client.get(
-        "/api/notifications/unread/count", headers={"Authorization": f"Bearer {token2}"}
+        "/api/notifications/unread/count", headers=auth_headers(token2)
     )
     assert unread.json()["count"] == 0
 
@@ -211,14 +217,14 @@ def test_update_notification(client: TestClient, register_and_login):
             "title": "T1",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     nid = c.json()["id"]
 
     response = client.put(
         f"/api/notifications/{nid}",
         json={"is_read": True},
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     assert response.status_code == 200
     assert response.json()["is_read"] is True
@@ -229,7 +235,7 @@ def test_update_notification_not_found(client: TestClient, register_and_login):
     response = client.put(
         f"/api/notifications/{uuid.uuid4()}",
         json={"is_read": True},
-        headers={"Authorization": f"Bearer {token}"},
+        headers=auth_headers(token),
     )
     assert response.status_code == 404
 
@@ -246,17 +252,17 @@ def test_delete_notification(client: TestClient, register_and_login):
             "title": "T1",
             "message": "M" + str(uuid.uuid4()),
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     nid = c.json()["id"]
 
     response = client.delete(
-        f"/api/notifications/{nid}", headers={"Authorization": f"Bearer {token2}"}
+        f"/api/notifications/{nid}", headers=auth_headers(token2)
     )
     assert response.status_code == 204
 
     get_resp = client.get(
-        f"/api/notifications/{nid}", headers={"Authorization": f"Bearer {token2}"}
+        f"/api/notifications/{nid}", headers=auth_headers(token2)
     )
     assert get_resp.status_code == 404
 
@@ -265,13 +271,13 @@ def test_delete_notification_not_found(client: TestClient, register_and_login):
     _, token = register_and_login("delnnf@example.com", "delnnf")
     response = client.delete(
         f"/api/notifications/{uuid.uuid4()}",
-        headers={"Authorization": f"Bearer {token}"},
+        headers=auth_headers(token),
     )
     assert response.status_code == 404
 
 
 def test_notifications_unauthenticated(client: TestClient):
-    res = client.get("/api/notifications/")
+    res = client.get("/api/notifications/", headers={"Origin": "http://localhost:3000"})
     assert res.status_code == 401
 
 
@@ -279,7 +285,7 @@ def test_mark_read_not_found(client: TestClient, register_and_login):
     _, token = register_and_login("mr_nf@example.com", "mrnf")
     res = client.patch(
         f"/api/notifications/{uuid.uuid4()}/read",
-        headers={"Authorization": f"Bearer {token}"},
+        headers=auth_headers(token),
     )
     assert res.status_code == 404
 
@@ -296,13 +302,44 @@ def test_delete_notification_unauthorized(client: TestClient, register_and_login
             "title": "Private Notification",
             "message": "Top Secret",
         },
-        headers={"Authorization": f"Bearer {token1}"},
+        headers=auth_headers(token1),
     )
     nid = c.json()["id"]
 
-    # Other user attempts to delete notification -> 404 or 403
     res = client.delete(
         f"/api/notifications/{nid}",
-        headers={"Authorization": f"Bearer {token2}"},
+        headers=auth_headers(token2),
     )
     assert res.status_code in (403, 404)
+
+
+def test_list_notifications_type_filter_and_pagination(client: TestClient, register_and_login):
+    uid1, token1 = register_and_login("sender_filter@example.com", "senderfilter")
+    uid2, token2 = register_and_login("target_filter@example.com", "targetfilter")
+
+    client.post(
+        "/api/notifications/",
+        json={"recipient_id": uid2, "type": "message", "title": "C1", "message": "M1"},
+        headers=auth_headers(token1),
+    )
+    client.post(
+        "/api/notifications/",
+        json={"recipient_id": uid2, "type": "mention", "title": "M1", "message": "M2"},
+        headers=auth_headers(token1),
+    )
+
+    res = client.get(
+        "/api/notifications/?type=message",
+        headers=auth_headers(token2),
+    )
+    assert res.status_code == 200
+    types = [n["type"] for n in res.json()]
+    assert "message" in types
+    assert "mention" not in types
+
+    res_page = client.get(
+        "/api/notifications/?limit=1",
+        headers=auth_headers(token2),
+    )
+    assert res_page.status_code == 200
+    assert len(res_page.json()) == 1

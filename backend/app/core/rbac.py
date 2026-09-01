@@ -517,8 +517,8 @@ def has_org_permission(
 
 def has_project_permission(
     db: Session,
-    user_id: uuid.UUID,
-    project_id: uuid.UUID,
+    user_id: uuid.UUID | str,
+    project_id: uuid.UUID | str,
     permission: str,
 ) -> bool:
     """Whether a user holds ``permission`` within one project.
@@ -536,6 +536,18 @@ def has_project_permission(
     particular meant an org admin could transfer ownership of a project they
     do not own.
     """
+    if isinstance(user_id, str):
+        try:
+            user_id = uuid.UUID(user_id)
+        except ValueError:
+            pass
+
+    if isinstance(project_id, str):
+        try:
+            project_id = uuid.UUID(project_id)
+        except ValueError:
+            pass
+
     user = _load_user(db, user_id)
     if not user:
         return False
@@ -551,7 +563,7 @@ def has_project_permission(
     if not project:
         return False
 
-    if project.owner_id == user_id:
+    if str(project.owner_id) == str(user_id):
         return permission in PROJECT_ROLE_PERMISSIONS[MemberRole.OWNER]
 
     stmt = select(ProjectMember).where(
@@ -563,7 +575,8 @@ def has_project_permission(
     )
     member = db.scalar(stmt)
     if member is not None:
-        if permission in PROJECT_ROLE_PERMISSIONS.get(member.role, frozenset()):
+        role_enum = MemberRole(member.role) if isinstance(member.role, str) else member.role
+        if permission in PROJECT_ROLE_PERMISSIONS.get(role_enum, frozenset()):
             return True
 
     org_id = getattr(project, "organization_id", None)

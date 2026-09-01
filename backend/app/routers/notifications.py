@@ -44,11 +44,18 @@ def create_notification(
     return result
 
 
+from typing import Optional
+from fastapi import Query
+
 @router.get(
     "/",
     response_model=list[NotificationResponse],
 )
 def list_notifications(
+    type_filter: Optional[str] = Query(None, alias="type"),
+    unread_only: bool = Query(False),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_database),
 ):
@@ -56,6 +63,10 @@ def list_notifications(
     return NotificationService.list_notifications(
         db,
         current_user.id,
+        type_filter=type_filter,
+        unread_only=unread_only,
+        skip=skip,
+        limit=limit,
     )
 
 

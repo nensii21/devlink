@@ -65,7 +65,7 @@ class ProjectMemberService:
         forbidden_detail: str = "You do not have access to this project's members",
     ) -> None:
         """403 unless the actor belongs to the project or holds ``permission``."""
-        if actor_user.is_superuser or actor_user.id == project.owner_id:
+        if actor_user.is_superuser or str(actor_user.id) == str(project.owner_id):
             return
 
         if not has_project_permission(db, actor_user.id, project.id, permission):
