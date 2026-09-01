@@ -738,6 +738,12 @@ from app.routers import contribution_boards
 
 app.include_router(contribution_boards.router, prefix="/api", tags=["Contribution Boards"])
 
+from app.routers import learning_resources
+
+app.include_router(
+    learning_resources.router, prefix="/api", tags=["Learning Resources"]
+)
+
 from app.routers import developer_insights
 
 app.include_router(
