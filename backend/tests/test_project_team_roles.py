@@ -24,6 +24,7 @@ def owner_user(db):
         email=f"owner_{uuid4().hex[:6]}@example.com",
         password_hash="secret",
         is_active=True,
+        is_verified=True,
     )
     db.add(user)
     db.commit()
@@ -41,6 +42,7 @@ def member_user(db):
         email=f"member_{uuid4().hex[:6]}@example.com",
         password_hash="secret",
         is_active=True,
+        is_verified=True,
     )
     db.add(user)
     db.commit()
@@ -58,6 +60,7 @@ def outsider_user(db):
         email=f"outsider_{uuid4().hex[:6]}@example.com",
         password_hash="secret",
         is_active=True,
+        is_verified=True,
     )
     db.add(user)
     db.commit()
@@ -83,19 +86,19 @@ def test_project(db, owner_user):
 @pytest.fixture
 def owner_auth_headers(owner_user):
     token = create_access_token(user_id=str(owner_user.id))
-    return {"Authorization": f"Bearer {token}"}
+    return {"Authorization": f"Bearer {token}", "Origin": "http://localhost:3000"}
 
 
 @pytest.fixture
 def member_auth_headers(member_user):
     token = create_access_token(user_id=str(member_user.id))
-    return {"Authorization": f"Bearer {token}"}
+    return {"Authorization": f"Bearer {token}", "Origin": "http://localhost:3000"}
 
 
 @pytest.fixture
 def outsider_auth_headers(outsider_user):
     token = create_access_token(user_id=str(outsider_user.id))
-    return {"Authorization": f"Bearer {token}"}
+    return {"Authorization": f"Bearer {token}", "Origin": "http://localhost:3000"}
 
 
 def _add_member(db, project, user, role=MemberRole.CONTRIBUTOR):
