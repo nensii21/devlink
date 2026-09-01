@@ -734,6 +734,10 @@ from app.routers import project_watchers
 
 app.include_router(project_watchers.router, prefix="/api", tags=["Project Watchers"])
 
+from app.routers import contribution_boards
+
+app.include_router(contribution_boards.router, prefix="/api", tags=["Contribution Boards"])
+
 from app.routers import developer_insights
 
 app.include_router(
