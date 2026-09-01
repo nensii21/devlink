@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class UserReportBase(BaseModel):
     reason: str = Field(..., max_length=100)
     description: str | None = None
+    post_id: UUID | None = None
 
 
 class UserReportCreate(UserReportBase):
@@ -16,6 +17,7 @@ class UserReportResponse(UserReportBase):
     id: UUID
     reporter_id: UUID
     reported_id: UUID
+    post_id: UUID | None = None
     status: str
     created_at: datetime
 

@@ -137,3 +137,28 @@ class BlockService:
             .order_by(UserBlock.created_at.desc())
         )
         return list(db.scalars(stmt).all())
+
+    @staticmethod
+    def get_blocked_and_blocking_user_ids(
+        db: Session,
+        user_id: uuid.UUID,
+    ) -> set[uuid.UUID]:
+        """
+        Get all user IDs that either the current user blocked or that blocked the current user.
+        """
+        rows = db.execute(
+            select(UserBlock.blocker_id, UserBlock.blocked_id).where(
+                or_(
+                    UserBlock.blocker_id == user_id,
+                    UserBlock.blocked_id == user_id,
+                )
+            )
+        ).all()
+
+        blocked_ids = set()
+        for blocker_id, blocked_id in rows:
+            if blocker_id != user_id:
+                blocked_ids.add(blocker_id)
+            if blocked_id != user_id:
+                blocked_ids.add(blocked_id)
+        return blocked_ids

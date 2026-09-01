@@ -18,6 +18,8 @@ from app.models.post import Post
 from app.models.post_comment import PostComment
 from app.models.post_like import PostLike
 from app.models.user import User
+from app.models.user_report import UserReport
+from app.services.block_service import BlockService
 from app.schemas.post import (
     PostAuthorResponse,
     PostCommentCreate,
@@ -27,6 +29,7 @@ from app.schemas.post import (
     PostResponse,
     PostUpdate,
 )
+from app.schemas.user_report import UserReportCreate, UserReportResponse
 
 router = APIRouter(
     tags=["Posts"],
@@ -183,13 +186,22 @@ def list_posts(
     another, so the decorator comes off until that is fixed.
     """
     now = datetime.now(timezone.utc)
-    db_posts = (
+    query = (
         db.query(Post)
         .options(joinedload(Post.author))
         .filter(
             Post.status == "published",
             (Post.publish_at.is_(None)) | (Post.publish_at <= now),
         )
+    )
+
+    if current_user:
+        blocked_ids = BlockService.get_blocked_and_blocking_user_ids(db, current_user.id)
+        if blocked_ids:
+            query = query.filter(~Post.author_id.in_(blocked_ids))
+
+    db_posts = (
+        query
         .order_by(Post.created_at.desc())
         .offset((page - 1) * limit)
         .limit(limit)
@@ -499,3 +511,33 @@ def delete_comment(
     db.commit()
     cache_manager.delete_pattern("post_*")
     return
+
+
+@router.post(
+    "/{post_id}/report",
+    response_model=UserReportResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Report a post",
+)
+def report_post(
+    post_id: uuid.UUID,
+    report: UserReportCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    post = _get_post_or_404(db, post_id)
+    if post.author_id == current_user.id:
+        raise HTTPException(status_code=400, detail="You cannot report your own post")
+
+    db_report = UserReport(
+        reporter_id=current_user.id,
+        reported_id=post.author_id,
+        post_id=post.id,
+        reason=report.reason,
+        description=report.description,
+        status="pending",
+    )
+    db.add(db_report)
+    db.commit()
+    db.refresh(db_report)
+    return db_report

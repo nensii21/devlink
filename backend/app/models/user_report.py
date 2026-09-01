@@ -51,6 +51,13 @@ class UserReport(Base):
         index=True,
     )
 
+    post_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("posts.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+
     # ------------------------------------------------------------------
     # Report Details
     # ------------------------------------------------------------------
