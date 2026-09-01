@@ -1,116 +1,94 @@
-"""
-Comprehensive Unit tests for the Intelligent Matchmaking & Recommendation Engine.
-"""
-
 import pytest
 from app.services.matchmaking_service import (
     MatchmakingService,
     DeveloperCandidate,
     ProjectMatchCriteria,
-    ExperienceLevel,
-    matchmaking_service
+    ExperienceLevel
 )
 
 
 @pytest.fixture
-def service():
+def matchmaking():
     return MatchmakingService()
 
 
-def test_calculate_skill_overlap_full(service):
-    candidate_skills = ["python", "fastapi", "react", "docker"]
-    required_skills = ["python", "react"]
-    res = service.calculate_skill_overlap(candidate_skills, required_skills)
-    assert res["score"] == 1.0
-    assert set(res["matched"]) == {"python", "react"}
-    assert res["missing"] == []
-
-
-def test_calculate_skill_overlap_partial(service):
-    candidate_skills = ["python", "typescript"]
-    required_skills = ["python", "react", "docker", "fastapi"]
-    res = service.calculate_skill_overlap(candidate_skills, required_skills)
-    assert res["score"] == 0.25
-    assert res["matched"] == ["python"]
-    assert set(res["missing"]) == {"react", "docker", "fastapi"}
-
-
-def test_calculate_skill_overlap_empty_requirements(service):
-    candidate_skills = ["python"]
-    required_skills = []
-    res = service.calculate_skill_overlap(candidate_skills, required_skills)
-    assert res["score"] == 1.0
-    assert res["matched"] == []
-    assert res["missing"] == []
-
-
-def test_calculate_skill_overlap_case_insensitivity(service):
-    candidate_skills = ["Python", "FASTAPI", "Docker"]
-    required_skills = ["python", "fastapi"]
-    res = service.calculate_skill_overlap(candidate_skills, required_skills)
-    assert res["score"] == 1.0
-    assert set(res["matched"]) == {"python", "fastapi"}
-
-
-def test_timezone_proximity_identical(service):
-    score = service.calculate_timezone_proximity(5, 5)
-    assert score == 1.0
-
-
-def test_timezone_proximity_opposite(service):
-    score = service.calculate_timezone_proximity(-6, 6)
-    assert score == 0.75
-
-
-def test_timezone_proximity_none_handling(service):
-    score = service.calculate_timezone_proximity(None, 5)
-    assert score == 1.0
-    score = service.calculate_timezone_proximity(5, None)
-    assert score == 1.0
-
-
-def test_experience_compatibility_met(service):
-    score = service.calculate_experience_compatibility(
-        ExperienceLevel.SENIOR, ExperienceLevel.INTERMEDIATE
+def test_basic_gale_shapley_stable_match(matchmaking):
+    dev1 = DeveloperCandidate(user_id="d1", username="dev1", skills=["python", "react"], experience_level=ExperienceLevel.SENIOR)
+    dev2 = DeveloperCandidate(user_id="d2", username="dev2", skills=["java", "spring"], experience_level=ExperienceLevel.INTERMEDIATE)
+    
+    proj1 = ProjectMatchCriteria(project_id="p1", title="Python Backend", required_skills=["python"], capacity=1)
+    proj2 = ProjectMatchCriteria(project_id="p2", title="Java Enterprise", required_skills=["java"], capacity=1)
+    
+    response = matchmaking.execute_stable_match(
+        developers=[dev1, dev2],
+        projects=[proj1, proj2]
     )
-    assert score == 1.0
+    
+    assert len(response.matches) == 2
+    match_p1 = next(m for m in response.matches if m.project_id == "p1")
+    match_p2 = next(m for m in response.matches if m.project_id == "p2")
+    
+    assert match_p1.developer_ids == ["d1"]
+    assert match_p2.developer_ids == ["d2"]
 
 
-def test_experience_compatibility_under(service):
-    score = service.calculate_experience_compatibility(
-        ExperienceLevel.BEGINNER, ExperienceLevel.SENIOR
-    )
-    assert score < 1.0
-    assert score > 0.0
+def test_capacity_balancing(matchmaking):
+    devs = [
+        DeveloperCandidate(user_id=f"d{i}", username=f"dev{i}", skills=["python"])
+        for i in range(1, 6)
+    ]
+    # Project needs 3 python devs
+    proj = ProjectMatchCriteria(project_id="p1", title="Big Python", required_skills=["python"], capacity=3)
+    
+    response = matchmaking.execute_stable_match(developers=devs, projects=[proj])
+    
+    assert len(response.matches) == 1
+    match_p1 = response.matches[0]
+    # Expect 3 developers to be assigned
+    assert len(match_p1.developer_ids) == 3
+    # 2 developers left unmatched
+    assert len(response.unmatched_developers) == 2
 
 
-def test_rank_candidates_ordering_and_fields(service):
-    criteria = ProjectMatchCriteria(
-        project_id="proj_1",
-        title="Open Source Platform",
-        required_skills=["python", "fastapi", "postgresql"],
-        preferred_timezone_offset=0,
-        min_experience_level=ExperienceLevel.INTERMEDIATE,
-        min_hours_per_week=10
-    )
-    c1 = DeveloperCandidate(
-        user_id="u1", username="alice", skills=["python", "fastapi", "postgresql"],
-        experience_level=ExperienceLevel.SENIOR, timezone_offset=0, availability_hours_per_week=15
-    )
-    c2 = DeveloperCandidate(
-        user_id="u2", username="bob", skills=["python"],
-        experience_level=ExperienceLevel.BEGINNER, timezone_offset=10, availability_hours_per_week=5
-    )
-    c3 = DeveloperCandidate(
-        user_id="u3", username="charlie", skills=["python", "fastapi"],
-        experience_level=ExperienceLevel.INTERMEDIATE, timezone_offset=0, availability_hours_per_week=20
-    )
+def test_conflict_avoidance(matchmaking):
+    dev1 = DeveloperCandidate(user_id="d1", username="dev1", skills=["python"], conflicts=["p1"]) # Hates p1
+    dev2 = DeveloperCandidate(user_id="d2", username="dev2", skills=["python"])
+    
+    proj1 = ProjectMatchCriteria(project_id="p1", title="Project 1", required_skills=["python"], capacity=2)
+    
+    response = matchmaking.execute_stable_match(developers=[dev1, dev2], projects=[proj1])
+    
+    assert len(response.matches) == 1
+    match_p1 = response.matches[0]
+    
+    # d1 should NOT be in the match
+    assert "d1" not in match_p1.developer_ids
+    assert "d2" in match_p1.developer_ids
+    
+    # d1 remains unmatched
+    assert "d1" in response.unmatched_developers
 
-    ranked = service.rank_candidates(criteria, [c1, c2, c3])
-    assert len(ranked) == 3
-    assert ranked[0].username == "alice"
-    assert ranked[1].username == "charlie"
-    assert ranked[2].username == "bob"
-    assert ranked[0].match_score > ranked[1].match_score > ranked[2].match_score
-    assert "postgresql" in ranked[0].matched_skills
-    assert "postgresql" in ranked[1].missing_skills
+
+def test_asymmetric_market_unmatched_handling(matchmaking):
+    dev1 = DeveloperCandidate(user_id="d1", username="dev1", skills=["c++"])
+    proj1 = ProjectMatchCriteria(project_id="p1", title="Project 1", required_skills=["python"], capacity=1)
+    
+    # No compatibility at all, base score is 0. 
+    response = matchmaking.execute_stable_match(developers=[dev1], projects=[proj1])
+    
+    # No matches made
+    assert len(response.matches) == 0
+    assert "p1" in response.unmatched_projects
+    assert "d1" in response.unmatched_developers
+
+
+def test_explanation_generation(matchmaking):
+    dev1 = DeveloperCandidate(user_id="d1", username="dev1", skills=["go"], experience_level=ExperienceLevel.LEAD)
+    proj1 = ProjectMatchCriteria(project_id="p1", title="Go Microservices", required_skills=["go"], min_experience_level=ExperienceLevel.SENIOR, capacity=1)
+    
+    response = matchmaking.execute_stable_match([dev1], [proj1])
+    assert len(response.matches) == 1
+    
+    explanation = response.matches[0].explanation
+    assert "Matched 1 developer(s) fulfilling capacity 1." in explanation
+    assert "match_quality_metrics" in response.matches[0].__dict__
