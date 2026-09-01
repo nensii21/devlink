@@ -694,6 +694,11 @@ from app.routers import badges
 
 app.include_router(badges.router, prefix="/api", tags=["Badges"])
 
+from app.routers import competitors
+
+app.include_router(
+    competitors.router, prefix="/api", tags=["Project Competitor Tracker"]
+)
 
 from app.routers import api_keys
 
