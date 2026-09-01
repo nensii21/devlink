@@ -18,10 +18,14 @@ from app.models.application import (
     Application,
     ApplicationStatus,
 )
+from app.models.project import Project
+from app.models.user import User
 from app.models.notification import NotificationType
 from app.schemas.application import (
     ApplicationCreate,
+    ApplicationPrefillResponse,
     ApplicationUpdate,
+    OneClickApplicationCreate,
 )
 from app.schemas.notification import NotificationCreate
 from app.services.notification_service import NotificationService
@@ -94,6 +98,151 @@ class ApplicationService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="You have already applied to this project with this status.",
             )
+        db.refresh(db_application)
+        return db_application
+
+    @staticmethod
+    def get_application_prefill(
+        db: Session,
+        user_id: uuid.UUID,
+    ) -> ApplicationPrefillResponse:
+        user = db.get(User, user_id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+        full_name = f"{user.first_name or ''} {user.last_name or ''}".strip() or user.username
+        skills = getattr(user, "skills", []) or []
+        skills_str = ", ".join(skills[:4]) if skills else "software engineering"
+        headline = getattr(user, "headline", None) or "Full Stack Developer"
+        role = getattr(user, "role", None) or "Developer"
+
+        suggested_cover_letter = (
+            f"Hi! I'm {full_name}, a {headline} proficient in {skills_str}. "
+            f"I would love to join your team as a {role} and bring scalable solutions to this project."
+        )
+
+        return ApplicationPrefillResponse(
+            user_id=user.id,
+            full_name=full_name,
+            username=user.username,
+            headline=headline,
+            skills=skills,
+            github_url=getattr(user, "github_url", None) or getattr(user, "githubUrl", None),
+            portfolio_url=(
+                getattr(user, "portfolio_url", None)
+                or getattr(user, "portfolioUrl", None)
+                or getattr(user, "website", None)
+            ),
+            resume_url=getattr(user, "resume_url", None) or getattr(user, "resumeUrl", None),
+            role=role,
+            suggested_cover_letter=suggested_cover_letter,
+        )
+
+    @staticmethod
+    def one_click_apply(
+        db: Session,
+        applicant_id: uuid.UUID,
+        payload: OneClickApplicationCreate,
+    ) -> Application:
+        user = db.get(User, applicant_id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+        project = db.get(Project, payload.project_id)
+        if not project:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+        # Prevent owner from applying to own project
+        if project.owner_id == applicant_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You cannot apply to your own project.",
+            )
+
+        # Check existing active application
+        existing = db.scalars(
+            select(Application).where(
+                Application.applicant_id == applicant_id,
+                Application.project_id == payload.project_id,
+                Application.status.in_([
+                    ApplicationStatus.PENDING,
+                    ApplicationStatus.REVIEWING,
+                    ApplicationStatus.INTERVIEWING,
+                    ApplicationStatus.ACCEPTED,
+                ])
+            )
+        ).first()
+
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"You have already applied to this project (Status: {existing.status.value}).",
+            )
+
+        # Resolve fields from profile if auto_use_profile or missing
+        resume_url = payload.resume_url or (getattr(user, "resume_url", None) if payload.auto_use_profile else None)
+        portfolio_url = payload.portfolio_url or (
+            (getattr(user, "portfolio_url", None) or getattr(user, "website", None))
+            if payload.auto_use_profile else None
+        )
+        github_url = payload.github_url or (getattr(user, "github_url", None) if payload.auto_use_profile else None)
+        message = payload.cover_letter or payload.selected_role or "Applied via 1-Click DevLink Profile"
+
+        db_application = Application(
+            applicant_id=applicant_id,
+            project_id=payload.project_id,
+            flare_id=payload.flare_id or payload.project_id,
+            message=message,
+            portfolio_url=portfolio_url,
+            github_url=github_url,
+            resume_url=resume_url,
+            status=ApplicationStatus.PENDING,
+        )
+
+        db.add(db_application)
+
+        if hasattr(project, "applications_count"):
+            project.applications_count = (project.applications_count or 0) + 1
+
+        try:
+            db.commit()
+            db.refresh(db_application)
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="You have already submitted an application to this project.",
+            )
+
+        return db_application
+
+    @staticmethod
+    def withdraw_application_by_applicant(
+        db: Session,
+        application_id: uuid.UUID,
+        applicant_id: uuid.UUID,
+    ) -> Application:
+        db_application = db.get(Application, application_id)
+        if not db_application:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Application not found",
+            )
+
+        if db_application.applicant_id != applicant_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to withdraw this application",
+            )
+
+        if db_application.status not in (ApplicationStatus.PENDING, ApplicationStatus.REVIEWING):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only pending or reviewing applications can be withdrawn",
+            )
+
+        db_application.status = ApplicationStatus.WITHDRAWN
+        db.commit()
         db.refresh(db_application)
         return db_application
 

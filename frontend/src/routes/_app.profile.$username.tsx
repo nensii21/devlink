@@ -1005,8 +1005,8 @@ export function ProfilePage() {
           open={isEditProfileOpen}
           onOpenChange={setIsEditProfileOpen}
           initialData={{
-            firstName: b.firstName,
-            lastName: b.lastName,
+            firstName: b.firstName || "",
+            lastName: b.lastName || "",
             username: b.handle,
             headline: b.headline,
             bio: b.bio,

@@ -15,8 +15,10 @@ from app.models.project import Project
 from app.models.user import User
 from app.schemas.application import (
     ApplicationCreate,
+    ApplicationPrefillResponse,
     ApplicationResponse,
     ApplicationUpdate,
+    OneClickApplicationCreate,
 )
 from app.services.application_service import ApplicationService
 from app.services.notification_service import NotificationService
@@ -64,6 +66,69 @@ def create_application(
         db.rollback()
 
     return created
+
+
+@router.get(
+    "/prefill",
+    response_model=ApplicationPrefillResponse,
+)
+def get_application_prefill(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_database),
+):
+    return ApplicationService.get_application_prefill(db, current_user.id)
+
+
+@router.post(
+    "/one-click",
+    response_model=ApplicationResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def one_click_apply(
+    payload: OneClickApplicationCreate,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    created = ApplicationService.one_click_apply(
+        db=db,
+        applicant_id=current_user.id,
+        payload=payload,
+    )
+
+    try:
+        project = db.get(Project, created.project_id)
+        if project is not None:
+            NotificationService.notify(
+                db,
+                recipient_id=project.owner_id,
+                sender_id=current_user.id,
+                type=NotificationType.APPLICATION,
+                title="New 1-Click Project Application",
+                message=f"{current_user.username} applied to your project in 1-click.",
+                project_id=created.project_id,
+                application_id=created.id,
+                action_url=f"/applications/{created.id}",
+            )
+    except Exception:
+        db.rollback()
+
+    return created
+
+
+@router.post(
+    "/{application_id}/withdraw",
+    response_model=ApplicationResponse,
+)
+def withdraw_application(
+    application_id: uuid.UUID,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    return ApplicationService.withdraw_application_by_applicant(
+        db=db,
+        application_id=application_id,
+        applicant_id=current_user.id,
+    )
 
 
 @router.get(
