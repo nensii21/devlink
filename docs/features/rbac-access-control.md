@@ -1,112 +1,59 @@
-# Advanced Access Control & Custom Roles (RBAC) Specification
+# RBAC Access Control Service
 
-## 1. Executive Summary
-DevLink's Role-Based Access Control (RBAC) engine delivers fine-grained authorization policies across projects, teams, organizations, and administrative workflows. It empowers project maintainers to create custom roles with bespoke permission matrices and inheritance hierarchies.
+DevLink relies on a robust Policy Evaluation Engine to ensure that resources are accessed securely and contextually. The Role-Based Access Control (RBAC) service resolves multi-level role hierarchies and enforces explicit Deny/Allow conditions globally.
 
----
+## Core Concepts
 
-## 2. Core Authorization Architecture
-1. **Hierarchical Scopes**:
-   - **System Tier**: Global site administration, user moderation, telemetry inspection.
-   - **Organization Tier**: Billing management, organization member directory, shared API key provisioning.
-   - **Project Tier**: Code merging, issue management, release publishing, environment secret configuration.
-2. **Role Inheritance Engine**: Allows custom roles to inherit base capabilities from standard archetypes (`viewer`, `contributor`, `maintainer`) while appending specific privileges.
-3. **High-Performance Permission Cache**: In-memory and Redis-backed bitset evaluation yielding sub-millisecond policy resolution.
+### 1. Custom Roles & DAG Inheritance
+Roles are defined by the `CustomRole` dataclass. Crucially, a role can inherit from any number of other CustomRoles. The evaluation engine resolves this inheritance dynamically via a Depth-First Search (DFS) algorithm, generating a directed acyclic graph (DAG) of privileges.
+*Example: `admin` -> inherits from `manager` -> inherits from `member`.*
 
----
+### 2. Policy Rules
+Each role contains an array of `PolicyRule` objects determining exact constraints:
+- **Effect**: `ALLOW` or `DENY`. Explicit `DENY` rules always override `ALLOW` rules, guaranteeing airtight security fail-safes.
+- **Actions**: The operational intents. Supports wildcards (e.g. `project:*` vs `project:delete`).
+- **Resources**: The precise target. Supports wildcards (e.g. `proj_3:folder/*`).
+- **Conditions**: Context-specific requirements, such as requiring MFA to be active (`{"mfa_enabled": True}`).
 
-## 3. Permissions Matrix & Default Roles
+### 3. Contextual Evaluation
+During execution, authorization is checked using `evaluate_access(project_id, user_role, action, resource, context)`. The engine iterates through the fully unrolled policy tree and validates if the request context matches the `PolicyRule` conditions.
 
-| Permission Key | Description | Viewer | Contributor | Maintainer | Admin | Owner |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| `project:read` | View project details and code | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `code:review` | Submit PR comments and reviews | ❌ | ✅ | ✅ | ✅ | ✅ |
-| `code:merge` | Merge pull requests | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `member:manage`| Invite or remove team members | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `project:admin`| Full administrative privileges | ❌ | ❌ | ❌ | ❌ | ✅ |
+### 4. Audit Trail
+Every authorization request routed through `evaluate_access()` is automatically recorded in the Audit Log, preserving the exact `matched_rule_id`, action, and granted state.
 
----
-
-## 4. API Endpoints
-
-### 4.1 Define Custom Role
-- **Endpoint**: `POST /api/v1/rbac/projects/{project_id}/roles`
-- **Authentication**: Bearer JWT (Project Admin/Owner)
-- **Request Body**:
-```json
-{
-  "name": "release_manager",
-  "inherits_from": "maintainer",
-  "permissions": [
-    "release:create",
-    "release:publish",
-    "deployment:trigger"
-  ]
-}
-```
-
-### 4.2 Evaluate User Permission
-- **Endpoint**: `POST /api/v1/rbac/evaluate`
-- **Request Body**:
-```json
-{
-  "project_id": "proj_900",
-  "user_id": "usr_456",
-  "required_permission": "code:merge"
-}
-```
-- **Response**:
-```json
-{
-  "allowed": true,
-  "granted_by_role": "maintainer",
-  "evaluated_at": "2026-08-27T18:00:00Z"
-}
-```
-
----
-
-## 5. Security Policies & Audit Trails
-- **Privilege Escalation Prevention**: Non-owners cannot grant permissions exceeding their own role tier.
-- **Immutable Owner Protection**: The primary project creator / owner cannot have their `owner` role revoked without explicit project ownership transfer.
-- **Audit Logging**: Every permission evaluation failure or role modification triggers an immutable audit log record.
-
----
-
-## 6. Comprehensive RBAC Integration Patterns & Middleware
-
+## Usage Example
 ```python
-from fastapi import Request, HTTPException, Depends
-from app.services.rbac_service import rbac_service
+from app.services.rbac_service import rbac_service, CustomRole, PolicyRule, PolicyEffect
 
-async def require_permission(permission: str):
-    async def dependency(request: Request):
-        project_id = request.path_params.get("project_id", "")
-        user_role = getattr(request.state, "user_role", "viewer")
-        user_id = getattr(request.state, "user_id", "anonymous")
-        
-        if not rbac_service.has_permission(project_id, user_role, permission, user_id):
-            raise HTTPException(
-                status_code=403,
-                detail=f"Forbidden: User role '{user_role}' lacks required permission '{permission}'."
-            )
-        return True
-    return dependency
-```
+# Define a conditional role
+contractor = CustomRole(
+    name="contractor",
+    project_id="proj_xyz",
+    policies=[
+        PolicyRule(
+            rule_id="allow_write",
+            effect=PolicyEffect.ALLOW,
+            actions=["project:write"],
+            resources=["proj_xyz:public/*"],
+            conditions={"is_active": True}
+        ),
+        PolicyRule(
+            rule_id="deny_delete",
+            effect=PolicyEffect.DENY,
+            actions=["*:delete"],
+            resources=["*"]
+        )
+    ]
+)
+rbac_service.register_custom_role(contractor)
 
-### 6.1 Permission Resolution Sequence Diagram
+# Evaluate
+is_allowed = rbac_service.evaluate_access(
+    project_id="proj_xyz",
+    user_role="contractor",
+    action="project:write",
+    resource="proj_xyz:public/doc.txt",
+    context={"is_active": True}
+)
+# Returns True
 ```
-Client             FastAPI Route             RBAC Service             Redis Cache
-  |                      |                         |                       |
-  |--- [HTTP Request] -->|                         |                       |
-  |                      |-- [has_permission()] -->|                       |
-  |                      |                         |-- [Get Bitset Perms]->|
-  |                      |                         |<-- [Perms Bitset]-----|
-  |                      |<-- [Granted: True/False]|                       |
-  |<-- [200 OK / 403] ---|                         |                       |
-```
-
-### 6.2 Edge Cases and Error Handling
-1. **Dynamic Project Deletion**: When a project is marked deleted, all custom role records are soft-deleted and evicted from the Redis cache.
-2. **Circular Role Inheritance**: Role inheritance validation detects and rejects circular dependency chains at creation time.
-3. **Role Downgrades & Session Invalidation**: When a user's role is demoted, active JWT session claims are revoked via token blacklist.
