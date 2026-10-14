@@ -105,7 +105,7 @@
     "globals": "^15.15.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
-    "lint-staged": "^17.2.0",
+    "lint-staged": "^17.4.1",
     "lru-cache": "^11.5.2",
     "nitro": "3.0.260603-beta",
     "prettier": "^3.7.3",
