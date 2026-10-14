@@ -44,7 +44,7 @@ jobs:
 
       - name: Commit generated SDKs
         if: github.event_name == 'push'
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore(sdk): regenerate OpenAPI SDKs [skip ci]"
           file_pattern: "clients/*"
